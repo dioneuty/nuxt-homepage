@@ -52,13 +52,18 @@
         <p class="text-lg font-semibold text-gray-700">로딩 중...</p>
       </div>
 
-      <!-- 네비게이션 버튼 -->
-      <div class="mt-8 flex justify-center">
-        <NuxtLink to="/blog" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-blue-700 bg-blue-100 hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition duration-150 ease-in-out">
-          <svg class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
-          </svg>
-          블로그 목록으로 돌아가기
+      <!-- 버튼 그룹 -->
+      <div class="mt-8 flex justify-between items-center">
+        <div class="space-x-4">
+          <NuxtLink :to="`/blog/edit/${route.params.id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            수정하기
+          </NuxtLink>
+          <button @click="deletePost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
+            삭제하기
+          </button>
+        </div>
+        <NuxtLink to="/blog" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
+          목록으로
         </NuxtLink>
       </div>
     </div>
@@ -66,8 +71,23 @@
 </template>
 
 <script setup>
-import { formatDate } from '@/utils/dateFormatter'  // 날짜 포맷팅 유틸리티 함수 (별도로 구현 필요)
+import { formatDate } from '@/utils/dateFormatter'
+import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
+const router = useRouter()
 const { data: post, error, pending } = await useFetch(`/api/blogPosts/${route.params.id}`)
+
+const deletePost = async () => {
+  if (confirm('정말로 이 블로그 포스트를 삭제하시겠습니까?')) {
+    try {
+      await $fetch(`/api/blogPosts/${route.params.id}`, { method: 'DELETE' })
+      alert('블로그 포스트가 삭제되었습니다.')
+      router.push('/blog')
+    } catch (error) {
+      alert('블로그 포스트 삭제 중 오류가 발생했습니다.')
+      console.error('Error deleting post:', error)
+    }
+  }
+}
 </script>

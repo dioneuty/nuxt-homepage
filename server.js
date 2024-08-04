@@ -80,6 +80,26 @@ app.get('/api/boardPosts/:id', (req, res) => {
   }
 });
 
+// 게시글 작성 API
+app.post('/api/addBoardPost', (req, res) => {
+  const { title, content } = req.body;
+  const query = 'INSERT INTO board_posts (title, content) VALUES (?, ?)';
+  const params = [title, content];
+  
+  logQuery(query, params);
+  
+  try {
+    const info = db.prepare(query).run(params);
+    res.status(201).json({ 
+      message: 'Board post created successfully', 
+      id: info.lastInsertRowid 
+    });
+  } catch (error) {
+    console.error('Error creating board post:', error);
+    res.status(500).json({ error: 'Failed to create board post' });
+  }
+});
+
 app.listen(port, () => {
   console.log(`Database server running on port ${port}`);
 });

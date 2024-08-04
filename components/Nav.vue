@@ -1,35 +1,46 @@
 <template>
   <nav>
     <!-- 데스크톱 네비게이션 -->
-    <div class="hidden md:flex items-center justify-between bg-blue-600 dark:bg-gray-800 text-white p-4">
-      <div class="space-x-4">
-        <NuxtLink v-for="item in menuItems" :key="item.path" :to="item.path" class="hover:text-blue-200">
-          {{ item.name }}
-        </NuxtLink>
+    <div class="hidden lg:block">
+      <!-- 배경 이미지를 위한 공간 -->
+      <div class="relative h-60 overflow-hidden">
+        <img src="/images/home-repair.jpg" alt="Home Repair" class="absolute inset-0 w-full h-full object-cover object-center">
+        <div class="absolute inset-0 bg-black bg-opacity-40"></div>
+        <!-- 중앙에 로고 추가 -->
+        <div class="absolute inset-0 flex items-center justify-center">
+          <div class="text-white text-5xl font-bold flex items-center drop-shadow-lg">
+            <WrenchScrewdriverIcon class="h-16 w-16 mr-4" />
+            <span class="text-shadow-lg">{{ appName }}</span>
+          </div>
+        </div>
       </div>
-      <div class="flex items-center space-x-4">
-        <NuxtLink to="/" class="text-xl font-bold flex items-center">
-          <RocketLaunchIcon class="h-8 w-8 mr-2" />
-          <span>My App</span>
-        </NuxtLink>
-        <button @click="toggleDarkMode" class="text-white hover:text-blue-200 p-2 rounded-full">
-          <SunIcon v-if="isDarkMode" class="h-6 w-6" />
-          <MoonIcon v-else class="h-6 w-6" />
-        </button>
+      <!-- 네비게이션 바 -->
+      <div class="bg-blue-600 dark:bg-gray-800 text-white p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+          <div class="space-x-4">
+            <NuxtLink v-for="item in menuItems" :key="item.path" :to="item.path" class="hover:text-blue-200">
+              {{ item.name }}
+            </NuxtLink>
+          </div>
+          <button @click="toggleDarkMode" class="text-white hover:text-blue-200 p-2 rounded-full">
+            <SunIcon v-if="isDarkMode" class="h-6 w-6" />
+            <MoonIcon v-else class="h-6 w-6" />
+          </button>
+        </div>
       </div>
     </div>
 
-    <!-- 모바일 네비게이션 -->
-    <div class="md:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 dark:bg-gray-800 text-white p-4">
+    <!-- 모바일 및 태블릿 네비게이션 -->
+    <div class="lg:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 dark:bg-gray-800 text-white p-4">
       <div class="flex items-center justify-between">
         <button @click="$emit('toggleMenu')" class="text-white">
           <Bars3Icon class="h-6 w-6" />
         </button>
         <NuxtLink to="/" class="text-xl font-bold text-white flex items-center">
-          <RocketLaunchIcon class="h-8 w-8 mr-2" />
-          <span>My App</span>
+          <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
+          <span>{{ appName }}</span>
         </NuxtLink>
-        <button @click="toggleDarkMode" class="text-white hover:text-blue-200 p-2 rounded-full">
+        <button @click="toggleDarkMode" class="text-white p-2 rounded-full">
           <SunIcon v-if="isDarkMode" class="h-6 w-6" />
           <MoonIcon v-else class="h-6 w-6" />
         </button>
@@ -46,8 +57,8 @@
       <div class="flex flex-col h-full">
         <div class="bg-blue-800 dark:bg-gray-700 p-6 flex justify-between items-center">
           <NuxtLink to="/" class="text-2xl font-bold flex items-center" @click="$emit('closeMenu')">
-            <RocketLaunchIcon class="h-8 w-8 mr-2" />
-            <span>My App</span>
+            <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
+            <span>{{ appName }}</span>
           </NuxtLink>
           <button @click="$emit('closeMenu')" class="text-white hover:text-blue-200">
             <XMarkIcon class="h-6 w-6" />
@@ -76,7 +87,10 @@
 
 <script setup>
 import { ref } from 'vue'
-import { RocketLaunchIcon, Bars3Icon, XMarkIcon, SunIcon, MoonIcon } from '@heroicons/vue/24/solid'
+import { WrenchScrewdriverIcon } from '@heroicons/vue/24/outline'
+import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon } from '@heroicons/vue/24/solid'
+
+const appName = ref('BLUE DRILL')
 
 const menuItems = [
   { name: '홈', path: '/' },
@@ -99,3 +113,9 @@ defineProps({
 
 defineEmits(['toggleMenu', 'closeMenu'])
 </script>
+
+<style scoped>
+.text-shadow-lg {
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+</style>
