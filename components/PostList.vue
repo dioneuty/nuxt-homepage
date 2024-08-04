@@ -37,7 +37,8 @@ const getPostLink = (post) => {
 }
 
 const getExcerpt = (content) => {
+  if (!content) return ''; // content가 없을 경우 빈 문자열 반환
   const words = content.split(' ');
   return words.length > 20 ? words.slice(0, 20).join(' ') + '...' : content;
-};
+}
 </script>
