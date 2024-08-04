@@ -7,24 +7,32 @@ const __dirname = path.dirname(__filename);
 
 const db = new Database(path.join(__dirname, 'database.sqlite'));
 
+// 기존의 데이터 삭제
+db.exec('DROP TABLE IF EXISTS blog_posts');
+db.exec('DROP TABLE IF EXISTS board_posts');
+db.exec('DROP TABLE IF EXISTS images');
+
 // 테이블 생성
 db.exec(`
   CREATE TABLE IF NOT EXISTS blog_posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
-    content TEXT
+    content TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS board_posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
-    content TEXT
+    content TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 
   CREATE TABLE IF NOT EXISTS images (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     url TEXT,
-    alt TEXT
+    alt TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
   );
 `);
 

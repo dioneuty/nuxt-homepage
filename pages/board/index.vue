@@ -14,12 +14,12 @@
           <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ post.id }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
-              <NuxtLink :to="`/board/${post.id}`" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:hover:text-blue-600 dark:text-white">
+              <NuxtLink :to="`/board/view?id=${post.id}`" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:hover:text-blue-600 dark:text-white">
                 {{ post.title }}
               </NuxtLink>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">
-              {{ new Date().toLocaleDateString() }} <!-- 실제 데이터로 교체 필요 -->
+              {{ new Date(post.created_at).toLocaleDateString() }}
             </td>
           </tr>
         </tbody>
@@ -34,5 +34,5 @@
 </template>
 
 <script setup>
-const { data: posts } = await useFetch('/api/boardPosts')
+const { data: posts = [] } = await useFetch('api/boardPosts')
 </script>

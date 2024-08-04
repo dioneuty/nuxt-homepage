@@ -31,27 +31,21 @@
   const content = ref('')
   
   async function submitPost() {
-    try {
-      const response = await fetch('/api/addBoardPost', {
+      const {error} = await useFetch('/api/boardPosts', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: title.value,
-          content: content.value,
-        }),
+        body: {
+            title: title.value,
+            content: content.value,
+        }
       })
-  
-      if (response.ok) {
-        alert('게시글이 성공적으로 작성되었습니다.')
-        router.push('/board')
-      } else {
-        throw new Error('게시글 작성에 실패했습니다.')
+
+      if (error.value) {
+        console.error('Error:', error)
+        alert('게시글 작성에 실패했습니다.')
+        return
       }
-    } catch (error) {
-      console.error('Error:', error)
-      alert(error.message)
-    }
+
+      alert('게시글이 성공적으로 작성되었습니다.')
+      await router.push('/board')
   }
   </script>

@@ -4,12 +4,12 @@
       <form @submit.prevent="updatePost" class="space-y-4">
         <div>
           <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목</label>
-          <input type="text" id="title" v-model="title" required
+          <input type="text" id="title" v-model="post.title" required
                  class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
         </div>
         <div>
           <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
-          <textarea id="content" v-model="content" rows="5" required
+          <textarea id="content" v-model="post.content" rows="5" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
         </div>
         <div class="flex justify-between items-center">
@@ -27,55 +27,35 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
-  
+
   const route = useRoute()
   const router = useRouter()
-  const title = ref('')
-  const content = ref('')
-  
-  onMounted(async () => {
-    const postId = route.params.id
-    try {
-      const response = await fetch(`/api/getBoardPost/${postId}`)
-      if (response.ok) {
-        const post = await response.json()
-        title.value = post.title
-        content.value = post.content
-      } else {
-        throw new Error('게시글을 불러오는데 실패했습니다.')
-      }
-    } catch (error) {
-      console.error('Error:', error)
-      alert(error.message)
-    }
-  })
+  const id = route.query.id
+  const { data: post } = await useFetch(`/api/boardPosts?id=${id}`)
   
   async function updatePost() {
-    const postId = route.params.id
-    try {
-      const response = await fetch(`/api/updateBoardPost/${postId}`, {
-        method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          title: title.value,
-          content: content.value,
-        }),
-      })
-  
-      if (response.ok) {
-        alert('게시글이 성공적으로 수정되었습니다.')
-        router.push('/board')
-      } else {
-        throw new Error('게시글 수정에 실패했습니다.')
+    
+    const {error} = await useFetch(`/api/boardPosts/`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: {
+        title: post.value.title,
+        content: post.value.content,
+        id: post.value.id
       }
-    } catch (error) {
-      console.error('Error:', error)
-      alert(error.message)
+    })
+    
+    if(error.value) {
+      alert('게시글 수정에 실패했습니다.')
+      return
     }
+
+    alert('게시글이 성공적으로 수정되었습니다.')
+    await router.push('/board')
+      
   }
 
   function goToList() {

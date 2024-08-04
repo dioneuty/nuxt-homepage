@@ -17,11 +17,11 @@
     <template v-else-if="blogPosts.length">
       <ul class="space-y-4">
         <li v-for="post in blogPosts" :key="post.id" class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6 hover:shadow-lg transition duration-300">
-          <NuxtLink :to="`/blog/${post.id}`" class="block">
+          <NuxtLink :to="`/blog/view?id=${post.id}`" class="block">
             <h2 class="text-xl font-semibold mb-2 text-blue-600 hover:text-blue-800 dark:text-gray-300">{{ post.title }}</h2>
             <p class="text-gray-600 mb-4 dark:text-gray-500">{{ getExcerpt(post.content) }}</p>
             <div class="flex justify-between items-center text-sm text-gray-500">
-              <span>{{ post.date }}</span>
+              <span>{{ new Date(post.created_at).toLocaleDateString() }}</span>
               <span>{{ post.author }}</span>
             </div>
           </NuxtLink>
@@ -36,16 +36,17 @@ definePageMeta({
   layout: 'default'
 })
 
-// 포스트 데이터를 가져오는 로직을 여기에 추가하세요
-// const posts = ref([
-//   // 예시 데이터
-//   { id: 1, title: '첫 번째 포스트', excerpt: '이것은 첫 번째 포스트의 요약입니다.', date: '2023-04-01', author: '홍길동' },
-//   { id: 2, title: '두 번째 포스트', excerpt: '이것은 두 번째 포스트의 요약입니다.', date: '2023-04-02', author: '김철수' },
-//   // 추가 포스트...
-// ])
+// onMounted(async () => {
+//   try {
+//     // API에서 블로그 포스트 데이터 가져오기
+//     const { data: blogPosts = [], pending, error } = await get('/blogPosts')
+//   } catch (error) {
+//     console.error('Error fetching blog posts:', error)
+//     alert('블로그 포스트를 불러오는데 실패했습니다.')
+//   }
+// })
 
-// API에서 블로그 포스트 데이터 가져오기
-const { data: blogPosts = [], pending, error } = await useFetch('/api/blogPosts')
+const { data: blogPosts = [], pending, error } = await useFetch('api/blogPosts')
 
 const getExcerpt = (content) => {
   const words = content.split(' ');

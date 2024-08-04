@@ -33,7 +33,7 @@ const props = defineProps({
 })
 
 const getPostLink = (post) => {
-  return props.type === 'blog' ? `/blog/${post.id}` : `/board/${post.id}`
+  return props.type === 'blog' ? `/blog/view?id=${post.id}` : `/board/view?id=${post.id}`
 }
 
 const getExcerpt = (content) => {

@@ -13,7 +13,7 @@
             <svg class="h-4 w-4 mr-2 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="dark:text-gray-200">{{ formatDate(post.createdAt) }}</span>
+            <span class="dark:text-gray-200">{{ new Date(post.created_at).toLocaleDateString() }}</span>
           </div>
           <div class="prose max-w-none text-gray-700 dark:text-white md:text-lg lg:text-xl">
             {{ post.content }}
@@ -55,7 +55,7 @@
       <!-- 버튼 그룹 -->
       <div class="mt-8 flex justify-between items-center">
         <div class="space-x-4">
-          <NuxtLink :to="`/blog/edit/${route.params.id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <NuxtLink :to="`/blog/edit?id=${id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             수정하기
           </NuxtLink>
           <button @click="deletePost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
@@ -71,23 +71,45 @@
 </template>
 
 <script setup>
-import { formatDate } from '@/utils/dateFormatter'
 import { useRoute, useRouter } from 'vue-router'
 
 const route = useRoute()
 const router = useRouter()
-const { data: post, error, pending } = await useFetch(`/api/blogPosts/${route.params.id}`)
+const id = route.query.id
+
+onMounted(async () => {
+  try {
+    // API에서 블로그 포스트 데이터 가져오기
+    //const { data: post, error, pending } = await useFetch(`api/blogPosts?id=${id}`)
+  } catch (error) {
+    console.error('Error fetching blog posts:', error)
+    alert('블로그 포스트를 불러오는데 실패했습니다.')
+  }
+})
+
+
+const { data: post, error, pending } = await useFetch(`/api/blogPosts?id=${id}`)
 
 const deletePost = async () => {
   if (confirm('정말로 이 블로그 포스트를 삭제하시겠습니까?')) {
-    try {
-      await $fetch(`/api/blogPosts/${route.params.id}`, { method: 'DELETE' })
-      alert('블로그 포스트가 삭제되었습니다.')
-      router.push('/blog')
-    } catch (error) {
+    const {error} = await useFetch(`/api/blogPosts`, { 
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: {
+        id: post.value.id
+      }
+    })
+
+    if(error.value) {
       alert('블로그 포스트 삭제 중 오류가 발생했습니다.')
       console.error('Error deleting post:', error)
-    }
+      return
+    } 
+
+    alert('블로그 포스트가 삭제되었습니다.')
+    await router.push('/blog')
   }
 }
 </script>
