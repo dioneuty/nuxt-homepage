@@ -1,19 +1,16 @@
-import { defineEventHandler, createError } from 'h3'
-import Database from 'better-sqlite3'
-import path from 'path'
+import { defineEventHandler } from 'h3'
+import fetch from 'node-fetch'
 
-const db = new Database(path.join(process.cwd(), 'server/db/database.sqlite'))
-
-export default defineEventHandler((event) => {
+export default defineEventHandler(async (event) => {
   const id = event.context.params.id
-  const post = db.prepare('SELECT * FROM blog_posts WHERE id = ?').get(id)
+  const response = await fetch(`http://localhost:3001/api/blogPosts/${id}`)
   
-  if (!post) {
+  if (!response.ok) {
     throw createError({
-      statusCode: 404,
+      statusCode: response.status,
       statusMessage: 'Blog post not found',
     })
   }
   
-  return post
+  return response.json()
 })

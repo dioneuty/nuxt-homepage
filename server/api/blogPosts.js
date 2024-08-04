@@ -1,10 +1,7 @@
 import { defineEventHandler } from 'h3'
-import Database from 'better-sqlite3'
-import path from 'path'
+import fetch from 'node-fetch'
 
-const db = new Database(path.join(process.cwd(), 'server/db/database.sqlite'))
-
-export default defineEventHandler(() => {
-  const posts = db.prepare('SELECT id, title, content FROM blog_posts').all()
-  return posts
+export default defineEventHandler(async () => {
+    const response = await fetch('http://localhost:3001/api/blogPosts')
+  return response.json()
 })
