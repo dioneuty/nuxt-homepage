@@ -19,19 +19,21 @@
       </div>
     </div>
 
-    <!-- 모바일 햄버거 버튼 -->
-    <div class="md:hidden bg-blue-600 dark:bg-gray-800 p-4 flex justify-between items-center">
-      <button @click="$emit('toggleMenu')" class="text-white">
-        <Bars3Icon class="h-6 w-6" />
-      </button>
-      <NuxtLink to="/" class="text-xl font-bold text-white flex items-center">
-        <RocketLaunchIcon class="h-8 w-8 mr-2" />
-        <span>My App</span>
-      </NuxtLink>
-      <button @click="toggleDarkMode" class="text-white hover:text-blue-200 p-2 rounded-full">
-        <SunIcon v-if="isDarkMode" class="h-6 w-6" />
-        <MoonIcon v-else class="h-6 w-6" />
-      </button>
+    <!-- 모바일 네비게이션 -->
+    <div class="md:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 dark:bg-gray-800 text-white p-4">
+      <div class="flex items-center justify-between">
+        <button @click="$emit('toggleMenu')" class="text-white">
+          <Bars3Icon class="h-6 w-6" />
+        </button>
+        <NuxtLink to="/" class="text-xl font-bold text-white flex items-center">
+          <RocketLaunchIcon class="h-8 w-8 mr-2" />
+          <span>My App</span>
+        </NuxtLink>
+        <button @click="toggleDarkMode" class="text-white hover:text-blue-200 p-2 rounded-full">
+          <SunIcon v-if="isDarkMode" class="h-6 w-6" />
+          <MoonIcon v-else class="h-6 w-6" />
+        </button>
+      </div>
     </div>
 
     <!-- 모바일 슬라이딩 메뉴 -->

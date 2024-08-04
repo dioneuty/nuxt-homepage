@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen flex flex-col dark:bg-gray-900">
     <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" />
-    <div class="flex-grow">
+    <div class="flex-grow md:pt-0 pt-16">
       <slot />
     </div>
     <Footer />
