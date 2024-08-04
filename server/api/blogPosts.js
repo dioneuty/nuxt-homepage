@@ -5,6 +5,6 @@ import path from 'path'
 const db = new Database(path.join(process.cwd(), 'server/db/database.sqlite'))
 
 export default defineEventHandler(() => {
-  const posts = db.prepare('SELECT id, title, excerpt FROM blog_posts').all()
+  const posts = db.prepare('SELECT id, title, content FROM blog_posts').all()
   return posts
 })

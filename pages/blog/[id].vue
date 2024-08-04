@@ -1,21 +1,21 @@
 <template>
-  <div class="bg-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8">
-    <div class="max-w-3xl mx-auto">
+  <div class="bg-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
+    <div class="max-w-3xl mx-auto md:max-w-4xl lg:max-w-5xl">
       <!-- 포스트가 존재하는 경우 -->
-      <div v-if="post" class="bg-white shadow-lg rounded-lg overflow-hidden">
+      <div v-if="post" class="bg-white shadow-lg rounded-lg overflow-hidden dark:bg-gray-800">
         <!-- 헤더 이미지 (옵션) -->
-        <img v-if="post.image" :src="post.image" :alt="post.title" class="w-full h-64 object-cover">
+        <img v-if="post.image" :src="post.image" :alt="post.title" class="w-full h-64 object-cover md:h-80 lg:h-96">
         
         <!-- 포스트 내용 -->
-        <div class="p-8">
-          <h1 class="text-3xl font-bold text-gray-900 mb-4">{{ post.title }}</h1>
-          <div class="flex items-center text-sm text-gray-600 mb-6">
-            <svg class="h-4 w-4 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <div class="p-8 md:p-10 lg:p-12">
+          <h1 class="text-3xl font-bold text-gray-900 mb-4 dark:text-white md:text-4xl lg:text-5xl">{{ post.title }}</h1>
+          <div class="flex items-center text-sm text-gray-600 mb-6 md:text-base">
+            <svg class="h-4 w-4 mr-2 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span>{{ formatDate(post.createdAt) }}</span>
+            <span class="dark:text-gray-200">{{ formatDate(post.createdAt) }}</span>
           </div>
-          <div class="prose max-w-none text-gray-700">
+          <div class="prose max-w-none text-gray-700 dark:text-white md:text-lg lg:text-xl">
             {{ post.content }}
           </div>
         </div>

@@ -12,8 +12,7 @@ db.exec(`
   CREATE TABLE IF NOT EXISTS blog_posts (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     title TEXT,
-    content TEXT,
-    excerpt TEXT
+    content TEXT
   );
 
   CREATE TABLE IF NOT EXISTS board_posts (
@@ -31,8 +30,8 @@ db.exec(`
 
 // 데이터 삽입
 const blogPosts = [
-  { title: '첫 번째 블로그 포스트', content: '이것은 첫 번째 블로그 포스트의 내용입니다.', excerpt: '첫 번째 포스트 요약...' },
-  { title: '두 번째 블로그 포스트', content: '이것은 두 번째 블로그 포스트의 내용입니다.', excerpt: '두 번째 포스트 요약...' },
+  { title: '첫 번째 블로그 포스트', content: '이것은 첫 번째 블로그 포스트의 내용입니다.' },
+  { title: '두 번째 블로그 포스트', content: '이것은 두 번째 블로그 포스트의 내용입니다.' },
   // ... 더 많은 데이터
 ];
 
@@ -48,11 +47,11 @@ const images = [
   // ... 더 많은 데이터
 ];
 
-const insertBlogPost = db.prepare('INSERT INTO blog_posts (title, content, excerpt) VALUES (?, ?, ?)');
+const insertBlogPost = db.prepare('INSERT INTO blog_posts (title, content) VALUES (?, ?)');
 const insertBoardPost = db.prepare('INSERT INTO board_posts (title, content) VALUES (?, ?)');
 const insertImage = db.prepare('INSERT INTO images (url, alt) VALUES (?, ?)');
 
-blogPosts.forEach(post => insertBlogPost.run(post.title, post.content, post.excerpt));
+blogPosts.forEach(post => insertBlogPost.run(post.title, post.content));
 boardPosts.forEach(post => insertBoardPost.run(post.title, post.content));
 images.forEach(image => insertImage.run(image.url, image.alt));
 

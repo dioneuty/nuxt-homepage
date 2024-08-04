@@ -1,15 +1,15 @@
 <template>
     <div class="container mx-auto px-4 py-8">
-      <div v-if="post" class="bg-white shadow-md rounded-lg overflow-hidden">
+      <div v-if="post" class="bg-white shadow-md rounded-lg overflow-hidden dark:bg-gray-800 dark:text-white">
         <div class="px-6 py-4">
-          <h1 class="text-2xl font-bold text-gray-800 mb-2">{{ post.title }}</h1>
-          <p class="text-sm text-gray-600 mb-4">작성일: {{ formatDate(post.createdAt) }}</p>
-          <div class="prose max-w-none">
+          <h1 class="text-2xl font-bold text-gray-800 mb-2 dark:text-gray-300">{{ post.title }}</h1>
+          <p class="text-sm text-gray-600 mb-4 dark:text-gray-400">작성일: {{ formatDate(post.createdAt) }}</p>
+          <div class="prose max-w-none dark:text-gray-400">
             {{ post.content }}
           </div>
         </div>
       </div>
-      <div v-else-if="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
+      <div v-else-if="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 dark:bg-gray-800 dark:text-white" role="alert">
         <p class="font-bold">에러 발생</p>
         <p>{{ error.message }}</p>
       </div>
