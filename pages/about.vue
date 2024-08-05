@@ -62,7 +62,7 @@
         블루드릴과 함께 더 안전하고 아름다운 집을 만들어보세요.
       </p>
       <p class="text-xl font-bold text-blue-600 dark:text-blue-400 mb-4">
-        문의전화: 010-7469-2700
+        문의전화: 010-xxxx-xxxx
       </p>
       <NuxtLink to="/contact" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
         문의하기
