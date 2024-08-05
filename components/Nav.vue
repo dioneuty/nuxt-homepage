@@ -22,9 +22,10 @@
               {{ item.name }}
             </NuxtLink>
           </div>
-          <button @click="toggleDarkMode" class="text-white hover:text-blue-200 p-2 rounded-full">
-            <SunIcon v-if="isDarkMode" class="h-6 w-6" />
-            <MoonIcon v-else class="h-6 w-6" />
+          <button @click="toggleColorMode" class="text-white hover:text-blue-200 p-2 rounded-full">
+            <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
+            <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
+            <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
           </button>
         </div>
       </div>
@@ -40,9 +41,10 @@
           <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
           <span>{{ appName }}</span>
         </NuxtLink>
-        <button @click="toggleDarkMode" class="text-white p-2 rounded-full">
-          <SunIcon v-if="isDarkMode" class="h-6 w-6" />
-          <MoonIcon v-else class="h-6 w-6" />
+        <button @click="toggleColorMode" class="text-white p-2 rounded-full">
+          <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
+          <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
+          <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
         </button>
       </div>
     </div>
@@ -74,10 +76,11 @@
           >
             {{ item.name }}
           </NuxtLink>
-          <button @click="toggleDarkMode" class="w-full text-left py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-600 transition duration-200 ease-in-out flex items-center">
-            <SunIcon v-if="isDarkMode" class="h-6 w-6 mr-2" />
-            <MoonIcon v-else class="h-6 w-6 mr-2" />
-            {{ isDarkMode ? '라이트 모드' : '다크 모드' }}
+          <button @click="toggleColorMode" class="w-full text-left py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-600 transition duration-200 ease-in-out flex items-center">
+            <SunIcon v-if="colorMode === 'light'" class="h-6 w-6 mr-2" />
+            <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6 mr-2" />
+            <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6 mr-2" />
+            {{ colorMode === 'light' ? '다크 모드' : colorMode === 'dark' ? '시스템 설정' : '라이트 모드' }}
           </button>
         </div>
       </div>
@@ -86,9 +89,9 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, inject } from 'vue'
 import { WrenchScrewdriverIcon } from '@heroicons/vue/24/outline'
-import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon } from '@heroicons/vue/24/solid'
+import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/vue/24/solid'
 
 const appName = ref('BLUE DRILL')
 
@@ -98,14 +101,12 @@ const menuItems = [
   { name: '소개', path: '/about' },
   { name: '서비스', path: '/services' },
   { name: '게시판', path: '/board' },
+  { name: '문의', path: '/contact' },
 ]
 
-const isDarkMode = ref(false)
-
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value
-  document.documentElement.classList.toggle('dark')
-}
+const isDarkMode = inject('isDarkMode')
+const toggleColorMode = inject('toggleColorMode')
+const colorMode = inject('colorMode')
 
 defineProps({
   isMenuOpen: Boolean

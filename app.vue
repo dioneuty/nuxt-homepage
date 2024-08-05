@@ -8,7 +8,17 @@
 <script setup lang="ts">
 import { ref, watch, onMounted, provide } from 'vue'
 
+const colorMode = ref('system') // 'light', 'dark', 'system' 중 하나
+
 const isDarkMode = ref(false)
+
+watch(colorMode, (newValue) => {
+  if (newValue === 'system') {
+    isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+  } else {
+    isDarkMode.value = newValue === 'dark'
+  }
+})
 
 watch(isDarkMode, (newValue) => {
   if (newValue) {
@@ -18,21 +28,39 @@ watch(isDarkMode, (newValue) => {
   }
 })
 
-const toggleDarkMode = () => {
-  isDarkMode.value = !isDarkMode.value
-  localStorage.setItem('darkMode', isDarkMode.value)
+const toggleColorMode = () => {
+  if (colorMode.value === 'light') colorMode.value = 'dark' // 라이트 모드
+  else if (colorMode.value === 'dark') colorMode.value = 'system' // 다크 모드
+  else colorMode.value = 'light' // 시스템 설정
+  localStorage.setItem('colorMode', colorMode.value)
 }
 
-// 초기 다크 모드 상태 설정
+// 초기 컬러 모드 설정
 onMounted(() => {
-  const savedDarkMode = localStorage.getItem('darkMode')
-  if (savedDarkMode !== null) {
-    isDarkMode.value = JSON.parse(savedDarkMode)
-    document.documentElement.classList.toggle('dark', isDarkMode.value)
+  const savedColorMode = localStorage.getItem('colorMode')
+  if (savedColorMode) {
+    colorMode.value = savedColorMode
   }
+  if (colorMode.value === 'system') {
+    isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
+  }
+  document.documentElement.classList.toggle('dark', isDarkMode.value)
+
+  // 시스템 설정 변경 감지
+  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
+  mediaQuery.addEventListener('change', (e) => {
+    if (colorMode.value === 'system') {
+      isDarkMode.value = e.matches
+    }
+  })
 })
 
-// isDarkMode를 provide하여 모든 자식 컴포넌트에서 사용할 수 있게 함
 provide('isDarkMode', isDarkMode)
-provide('toggleDarkMode', toggleDarkMode)
+provide('toggleColorMode', toggleColorMode)
+provide('colorMode', colorMode)
 </script>
+<style>
+html {
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+</style>
