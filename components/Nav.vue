@@ -95,6 +95,16 @@ import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@h
 
 const appName = ref('BLUE DRILL')
 
+// 메뉴 아이템 배열
+// 홈, 블로그, 소개, 서비스, 게시판, 문의, Q&A, 관리자용 문의 게시판, 관리자용 게시판, 위키
+// 공사중 emoji 추가 
+// 집 공사 관련 이모지
+const constructionEmoji = '🏗️'
+const hammerEmoji = '🔨'
+const wrenchEmoji = '🔧'
+const brickEmoji = '🧱'
+const paintbrushEmoji = '🖌️'
+
 const menuItems = [
   { name: '홈', path: '/' },
   { name: '블로그', path: '/blog' },
@@ -102,6 +112,10 @@ const menuItems = [
   { name: '서비스', path: '/services' },
   { name: '게시판', path: '/board' },
   { name: '문의', path: '/contact' },
+  { name: 'Q&A' + constructionEmoji, path: '/under-construction' },
+  { name: '관리자용 문의 게시판' + constructionEmoji, path: '/under-construction' },
+  { name: '관리자용 게시판' + constructionEmoji, path: '/under-construction' },
+  { name: '위키' + constructionEmoji, path: '/under-construction' }
 ]
 
 const isDarkMode = inject('isDarkMode')
