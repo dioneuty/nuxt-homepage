@@ -12,6 +12,12 @@
           <textarea id="content" v-model="post.content" rows="10" required
                     class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
         </div>
+        <div>
+          <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
+          <select id="category_id" v-model="post.category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+            <option v-for="(category, index) in categories" :key="index" :value="category.id">{{ category.name }} ({{ category.post_count }})</option>
+          </select>
+        </div>
         <div class="flex justify-between items-center">
           <button type="submit" 
                   class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
@@ -28,14 +34,21 @@
   </template>
   
   <script setup>
+  import { inject } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
 
   const route = useRoute()
   const router = useRouter()
+  const refreshCategories = inject('refreshCategories')
+
+  definePageMeta({
+    layout: 'blog'
+  })
 
   const id = route.query.id
   
   const { data: post } = await useFetch(`/api/blogPosts?id=${id}`)
+  const { data: categories } = await useFetch('/api/categories')
 
   // 포스트 업데이트 함수
   const updatePost = async () => {
@@ -47,6 +60,7 @@
       body: {
         title: post.value.title,
         content: post.value.content,
+        category_id: post.value.category_id,
         id: post.value.id
       }
     })
@@ -57,6 +71,9 @@
     }
       
     alert('포스트가 성공적으로 수정되었습니다.')
+
+    refreshCategories()
+
     router.push(`/blog?view=${id}`)
   }
   </script>

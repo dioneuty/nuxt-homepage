@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-gray-100 min-h-screen py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
+  <div class="bg-white min-h-screen py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
     <div class="max-w-3xl mx-auto md:max-w-4xl lg:max-w-5xl">
       <!-- 포스트가 존재하는 경우 -->
       <div v-if="post" class="bg-white shadow-lg rounded-lg overflow-hidden dark:bg-gray-800">
@@ -76,6 +76,10 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const id = route.query.id
+
+definePageMeta({
+  layout: 'blog'
+})
 
 onMounted(async () => {
   try {

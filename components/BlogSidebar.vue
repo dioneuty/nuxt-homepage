@@ -1,0 +1,35 @@
+<template>
+  <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 sticky top-4">
+    <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2">카테고리</h2>
+    <ul class="space-y-2">
+      <li v-for="category in categories" :key="category.slug">
+        <NuxtLink 
+          :to="category.id === '0' ? '/blog?category=0' : `/blog?category=${category.id}`" 
+          class="block py-2 px-4 rounded-md transition-colors duration-200 ease-in-out"
+          :class="[
+            $route.query.category === category.id
+              ? 'bg-blue-500 text-white'
+              : 'text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900'
+          ]"
+        >
+          {{ category.name }} ({{ category.post_count }})
+        </NuxtLink>
+      </li>
+    </ul>
+    <NuxtLink 
+      to="/blog/edit-categories"
+      class="block w-full text-center py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 ease-in-out mt-4"
+    >
+      카테고리 편집
+    </NuxtLink>
+  </div>
+</template>
+
+<script setup>
+defineProps({
+  categories: {
+    type: Array,
+    required: true
+  }
+})
+</script>
