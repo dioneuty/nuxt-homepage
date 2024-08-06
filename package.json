@@ -7,7 +7,8 @@
     "dev": "concurrently \"nuxt dev\" \"node server.js\"",
     "generate": "nuxt generate",
     "preview": "concurrently \"nuxt preview\" \"node server.js\"",
-    "postinstall": "nuxt prepare"
+    "postinstall": "nuxt prepare",
+    "vercel-build": "node ./server/db/init.js && npm run build"
   },
   "dependencies": {
     "@heroicons/vue": "^2.1.5",
