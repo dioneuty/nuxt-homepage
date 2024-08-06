@@ -24,7 +24,13 @@
         >
         <button @click="addCategory" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">추가</button>
       </div>
-      <div class="mt-6 flex justify-end">
+      <div class="mt-6 flex justify-between items-center">
+        <NuxtLink 
+          to="/blog" 
+          class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+        >
+          목록으로
+        </NuxtLink>
         <button @click="saveCategories" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600">저장</button>
       </div>
     </div>

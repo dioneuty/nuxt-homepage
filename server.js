@@ -31,6 +31,7 @@ app.use(express.json());
 app.get('/api/blogPosts', (req, res) => {
   const id = req.query.id
   const category = req.query.category
+  console.log(category)
 
   if (id) { // 상세 페이지, 수정 페이지
     const query = 'SELECT * FROM blog_posts WHERE id = ?';
@@ -42,7 +43,7 @@ app.get('/api/blogPosts', (req, res) => {
     } else {
       res.status(404).json({ error: 'Blog post not found' });
     }
-  } else if (category) { // 카테고리별 조회
+  } else if (category && category != -1) { // 카테고리별 조회
     const query = 'SELECT * FROM blog_posts WHERE category_id = ? ORDER BY id DESC';
     const params = [category];
     logQuery(query, params);
@@ -60,7 +61,7 @@ app.get('/api/blogPosts', (req, res) => {
 app.get('/api/boardPosts', (req, res) => {
   const id = req.query.id
 
-  if (id) { // 상세 페이지, 수정 페이지
+  if (id && id !== -1) { // 상세 페이지, 수정 페이지
     const query = 'SELECT * FROM board_posts WHERE id = ?';
     const params = [id];
     logQuery(query, params);
@@ -183,6 +184,8 @@ app.put('/api/blogPosts/', (req, res) => {
 
 // 카테고리 목록과 각 카테고리의 글 개수를 가져오는 API 엔드포인트
 app.get('/api/categories', (req, res) => {
+  const include = req.query.include
+  
   try {
     const query = `
       SELECT c.id, c.name, c.slug, COUNT(b.id) as post_count
@@ -194,20 +197,40 @@ app.get('/api/categories', (req, res) => {
     const categories = db.prepare(query).all();
     
     // 미카테고리 글 개수 계산
-    const uncategorizedQuery = `
-      SELECT COUNT(*) as count
-      FROM blog_posts
-      WHERE category_id IS NULL OR category_id = 0
-    `;
-    const uncategorizedCount = db.prepare(uncategorizedQuery).get().count;
+    if (include?.includes('uncategorized')) {
+      // 미카테고리 글 개수 계산
+      const uncategorizedQuery = `
+        SELECT COUNT(*) as count
+        FROM blog_posts
+        WHERE category_id IS NULL OR category_id = 0
+      `;
+      const uncategorizedCount = db.prepare(uncategorizedQuery).get().count;
     
-    // '미카테고리' 옵션 추가
-    categories.unshift({
-      id: 0,
-      name: '미카테고리',
-      slug: 'uncategorized',
-      post_count: uncategorizedCount
-    });
+      // '미카테고리' 옵션 추가
+      categories.unshift({
+        id: 0,
+        name: '미카테고리',
+        slug: 'uncategorized',
+        post_count: uncategorizedCount
+      });
+    }
+
+    if (include?.includes('all')) {
+      // 모든 카테고리 글 개수 계산
+      const allQuery = `
+        SELECT COUNT(*) as count
+        FROM blog_posts
+      `;
+      const allCount = db.prepare(allQuery).get().count;
+
+      // 모든 카테고리 옵션 추가
+      categories.unshift({
+        id: -1,
+        name: '모든 카테고리',
+        slug: 'all',
+        post_count: allCount
+      });
+    }
 
     res.json(categories);
   } catch (error) {
@@ -237,7 +260,7 @@ app.put('/api/categories', (req, res) => {
   const categoryIds = categories.map(cat => cat.id).filter(id => id !== undefined);
   const updateQuery = 'UPDATE categories SET name = ?, slug = ? WHERE id = ?';
   let deleteQuery = 'DELETE FROM categories WHERE id NOT IN (?)';
-  const updatePostsQuery = 'UPDATE blog_posts SET category_id = 0 WHERE category_id NOT IN (?)';
+  let updatePostsQuery = 'UPDATE blog_posts SET category_id = 0 WHERE category_id NOT IN (?)';
   
   try {
     db.prepare('BEGIN').run();
@@ -263,9 +286,9 @@ app.put('/api/categories', (req, res) => {
       db.prepare(deleteQuery).run();
       
       // 삭제된 카테고리에 속한 글들을 미카테고리로 변경
-      const updatePostsParams = categoryIds.join(',');
-      logQuery(updatePostsQuery, [updatePostsParams]);
-      db.prepare(updatePostsQuery).run(updatePostsParams);
+      updatePostsQuery = `UPDATE blog_posts SET category_id = 0 WHERE category_id NOT IN (${categoryIds.join(',')})`;
+      logQuery(updatePostsQuery);
+      db.prepare(updatePostsQuery).run();
     }
     
     db.prepare('COMMIT').run();

@@ -16,6 +16,15 @@ export default defineEventHandler(async (event) => {
     const id = searchParams.get('id');
     if (id?.length > 0) url += `?id=${id}` // 특정 카테고리 조회 (쿼리스트링)
 
+    //include=uncategorized 쿼리스트링 추가
+    if (searchParams.get('include') === 'uncategorized') {
+      url += `?include=uncategorized`
+    }
+
+    if (searchParams.get('include') === 'uncategorized_all') {
+      url += `?include=uncategorized_all`
+    }
+
     const response = await fetch(url)
 
     if (!response.ok) {

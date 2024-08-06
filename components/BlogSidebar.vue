@@ -2,12 +2,12 @@
   <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 sticky top-4">
     <h2 class="text-2xl font-bold mb-6 text-gray-800 dark:text-white border-b pb-2">카테고리</h2>
     <ul class="space-y-2">
-      <li v-for="category in categories" :key="category.slug">
+      <li v-for="(category, index) in categories" :key="index">
         <NuxtLink 
           :to="category.id === '0' ? '/blog?category=0' : `/blog?category=${category.id}`" 
           class="block py-2 px-4 rounded-md transition-colors duration-200 ease-in-out"
           :class="[
-            $route.query.category === category.id
+            $route.query.category == category.id
               ? 'bg-blue-500 text-white'
               : 'text-gray-700 dark:text-gray-300 hover:bg-blue-100 dark:hover:bg-blue-900'
           ]"
