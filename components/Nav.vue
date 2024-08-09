@@ -113,8 +113,8 @@ const menuItems = [
   { name: '게시판', path: '/board' },
   { name: '문의', path: '/contact' },
   { name: 'Q&A' + constructionEmoji, path: '/under-construction' },
-  { name: '관리자용 문의 게시판' + constructionEmoji, path: '/under-construction' },
-  { name: '관리자용 게시판' + constructionEmoji, path: '/under-construction' },
+  { name: '관리자용 문의 게시판' + constructionEmoji, path: '/contactboard' },
+  { name: '관리자용 게시판' + constructionEmoji, path: '/adminboard' },
   { name: '위키' + constructionEmoji, path: '/under-construction' }
 ]
 

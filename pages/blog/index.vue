@@ -34,7 +34,13 @@ import { useRoute } from 'vue-router'
 const route = useRoute()
 const category = computed(() => route.query.category)
 
-const { data: posts, pending, error } = await useFetch(() => `/api/blogPosts${category.value ? `?category=${category.value}` : ''}`)
+const { data: posts, pending, error } = useAsyncData(
+  'blogPosts',
+  () => $fetch(`/api/blogPosts${category.value ? `?category=${category.value}` : ''}`),
+  {
+    watch: [category]
+  }
+)
 
 definePageMeta({
   layout: 'blog'

@@ -3,7 +3,8 @@
     <div v-if="post" class="bg-white shadow-md rounded-lg overflow-hidden dark:bg-gray-800 dark:text-white">
       <div class="p-6">
         <h1 class="text-3xl font-bold mb-4">{{ post.title }}</h1>
-        <p class="text-gray-600 dark:text-gray-300 mb-2">작성일: {{ new Date(post.created_at).toLocaleDateString() }}</p>
+        <p class="text-gray-600 dark:text-gray-300 mb-2">작성자: {{ post.author }}</p>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">작성일: {{ new Date(post.created_at).toLocaleDateString() }}</p>
         <div class="prose max-w-none dark:prose-invert">
           {{ post.content }}
         </div>
@@ -24,7 +25,7 @@
           삭제하기
         </button>
       </div>
-      <NuxtLink to="/board" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
+      <NuxtLink to="/board" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
         목록으로
       </NuxtLink>
     </div>
@@ -37,28 +38,21 @@ import { useRoute, useRouter } from 'vue-router'
 const route = useRoute()
 const router = useRouter()
 const id = route.query.id
+const { data: post, error } = await useFetch(`/api/boardPosts?id=${id}`)
 
-const { data: post, error, pending } = await useFetch(`/api/boardPosts?id=${id}`)
-
-const deletePost = async () => {
+async function deletePost() {
   if (confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
-    const {error} = await useFetch(`/api/boardPosts`, { 
+    const { error } = await useFetch('/api/boardPosts', {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: {
-        id: post.value.id
-      }
+      body: { id: post.value.id }
     })
 
-    if(error.value) {
-      alert('게시글 삭제 중 오류가 발생했습니다.')
-      console.error('Error deleting post:', error)
+    if (error.value) {
+      alert('게시글 삭제에 실패했습니다.')
       return
-    } 
+    }
 
-    alert('게시글이 삭제되었습니다.')
+    alert('게시글이 성공적으로 삭제되었습니다.')
     await router.push('/board')
   }
 }

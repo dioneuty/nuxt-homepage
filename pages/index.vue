@@ -12,7 +12,7 @@
       />
       <PostList 
         title="Latest Board Posts" 
-        :posts="boardPosts" 
+        :posts="boardPosts.posts" 
         type="board"
         headerColorClass="bg-green-600"
       />
@@ -25,13 +25,12 @@ import Carousel from '@/components/Carousel.vue'
 import PostList from '@/components/PostList.vue'
 
 // 각 API에서 데이터 가져오기
-const { data: blogPosts } = await useFetch('/api/blogPosts')
-const { data: boardPosts } = await useFetch('/api/boardPosts')
-const { data: images } = await useFetch('/api/images')
-//const { data: posts } = await useFetch('/api/posts')
+const { data: blogPosts } = await useAsyncData('blogPosts', () => $fetch('/api/blogPosts'))
+const { data: boardPosts } = await useAsyncData('boardPosts', () => $fetch('/api/boardPosts'))
+const { data: images } = await useAsyncData('images', () => $fetch('/api/images'))
+//const { data: posts } = await useAsyncData('posts', () => $fetch('/api/posts'))
 
 definePageMeta({
   layout: 'default'
 })
-
 </script>

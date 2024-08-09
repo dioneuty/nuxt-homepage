@@ -13,9 +13,11 @@
   "dependencies": {
     "@heroicons/vue": "^2.1.5",
     "@tailwindcss/typography": "^0.5.13",
+    "@vueup/vue-quill": "^1.2.0",
     "better-sqlite3": "^9.6.0",
     "cors": "^2.8.5",
     "express": "^4.19.2",
+    "multer": "^1.4.5-lts.1",
     "node-fetch": "^2.7.0",
     "nuxt": "^3.12.4",
     "vue": "latest"
