@@ -7,9 +7,9 @@
           <h2 class="text-xl font-semibold mb-2">{{ service.title }}</h2>
           <p class="text-gray-600 dark:text-gray-300">{{ service.description }}</p>
         </div>
-        <div class="ml-4 flex-shrink-0">
+        <!-- <div class="ml-4 flex-shrink-0">
           <img :src="`/images/${service.image}`" :alt="service.title" class="w-24 h-24 object-cover rounded-lg">
-        </div>
+        </div> -->
       </div>
     </div>
   </div>

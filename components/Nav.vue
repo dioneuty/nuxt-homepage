@@ -4,7 +4,7 @@
     <div class="hidden lg:block">
       <!-- 배경 이미지를 위한 공간 -->
       <div class="relative h-60 overflow-hidden">
-        <img src="/images/home-repair.jpg" alt="Home Repair" class="absolute inset-0 w-full h-full object-cover object-center">
+        <img src="/images/background/eveningspa.webp" alt="Home Repair" class="absolute inset-0 w-full h-full object-cover object-center">
         <div class="absolute inset-0 bg-black bg-opacity-40"></div>
         <!-- 중앙에 로고 추가 및 클릭 가능하게 수정 -->
         <NuxtLink to="/" class="absolute inset-0 flex items-center justify-center">
