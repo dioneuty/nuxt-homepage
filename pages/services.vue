@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white text-center">블루드릴 집 수리 서비스</h1>
+    <h1 class="text-3xl font-bold mb-6 dark:text-white text-center">웹 개발 서비스</h1>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="service in services" :key="service.id" class="bg-white shadow-md rounded-lg p-6 dark:bg-gray-800 dark:text-white flex">
         <div class="flex-grow">
@@ -23,57 +23,57 @@ definePageMeta({
 const services = ref([
   { 
     id: 1, 
-    title: '부분 수리', 
-    description: '집의 일부분만 수리가 필요한 경우 제공하는 서비스입니다. 도어, 방문, 베란다 등 특정 부위의 수리를 전문적으로 진행합니다.',
-    image: 'home-repair.jpg'
+    title: '반응형 웹사이트 개발', 
+    description: '모든 디바이스에서 최적화된 경험을 제공하는 반응형 웹사이트를 개발합니다. 모바일, 태블릿, 데스크톱에서 완벽하게 작동합니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 2, 
-    title: '전장 설치', 
-    description: '전기 관련 설비를 설치하고 수리하는 서비스입니다. 조명, 스위치, 콘센트 등의 전기 장치 설치 및 교체 작업을 수행합니다.',
-    image: 'home-repair.jpg'
+    title: '프론트엔드 개발', 
+    description: 'React, Vue, Angular 등의 최신 프레임워크를 사용하여 동적이고 인터랙티브한 사용자 인터페이스를 구축합니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 3, 
-    title: '욕실 양변기 수리', 
-    description: '욕실의 양변기 관련 문제를 해결하는 서비스입니다. 누수, 막힘, 부품 교체 등 양변기와 관련된 모든 수리를 제공합니다.',
-    image: 'home-repair.jpg'
+    title: '백엔드 개발', 
+    description: 'Node.js, Python, Ruby 등을 사용하여 안정적이고 확장 가능한 서버 사이드 애플리케이션을 개발합니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 4, 
-    title: '욕실 환풍기 설치', 
-    description: '욕실의 습기와 냄새를 효과적으로 제거하기 위한 환풍기 설치 서비스입니다. 적절한 환기 시스템을 구축하여 쾌적한 욕실 환경을 만듭니다.',
-    image: 'home-repair.jpg'
+    title: 'API 개발', 
+    description: 'RESTful API 또는 GraphQL을 사용하여 효율적이고 안전한 데이터 교환 시스템을 구축합니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 5, 
-    title: '욕실 수전 교체', 
-    description: '욕실의 수도꼭지(수전)를 교체하는 서비스입니다. 노후화된 수전을 새것으로 교체하여 물 사용의 효율성을 높이고 욕실의 미관을 개선합니다.',
-    image: 'home-repair.jpg'
+    title: '데이터베이스 설계 및 최적화', 
+    description: 'SQL 및 NoSQL 데이터베이스를 설계하고 최적화하여 데이터를 효율적으로 저장하고 검색합니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 6, 
-    title: '욕실 전등 LED 교체', 
-    description: '욕실의 기존 조명을 에너지 효율이 높은 LED 조명으로 교체하는 서비스입니다. 밝고 선명한 조명으로 욕실 환경을 개선합니다.',
-    image: 'home-repair.jpg'
+    title: '웹 성능 최적화', 
+    description: '웹사이트의 로딩 속도를 개선하고 전반적인 성능을 최적화하여 사용자 경험을 향상시킵니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 7, 
-    title: '욕실 거울수납장 설치', 
-    description: '욕실에 거울과 수납 기능을 겸비한 수납장을 설치하는 서비스입니다. 공간 활용도를 높이고 욕실의 기능성을 개선합니다.',
-    image: 'home-repair.jpg'
+    title: 'CMS 개발 및 통합', 
+    description: 'WordPress, Drupal 등의 CMS를 커스터마이징하거나 자체 CMS를 개발하여 콘텐츠 관리를 용이하게 합니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 8, 
-    title: '전체 수리', 
-    description: '집 전체에 대한 종합적인 수리 서비스입니다. 노후화된 주택의 전반적인 상태를 개선하고 새로운 모습으로 탈바꿈시킵니다.',
-    image: 'home-repair.jpg'
+    title: '웹 애플리케이션 보안', 
+    description: 'HTTPS 구현, XSS 및 CSRF 방지 등 웹 애플리케이션의 보안을 강화하여 데이터와 사용자를 보호합니다.',
+    image: 'web-dev.jpg'
   },
   { 
     id: 9, 
-    title: '상가 수리', 
-    description: '상업 공간에 대한 수리 및 리모델링 서비스입니다. 매장, 사무실 등 다양한 상업 공간의 기능성과 미관을 개선합니다.',
-    image: 'home-repair.jpg'
+    title: '클라우드 서비스 통합', 
+    description: 'AWS, Google Cloud, Azure 등의 클라우드 서비스를 활용하여 확장 가능하고 안정적인 웹 서비스를 구축합니다.',
+    image: 'web-dev.jpg'
   }
 ])
 </script>

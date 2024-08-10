@@ -93,7 +93,7 @@ import { ref, inject } from 'vue'
 import { WrenchScrewdriverIcon } from '@heroicons/vue/24/outline'
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/vue/24/solid'
 
-const appName = ref('BLUE DRILL')
+const appName = ref('Dion')
 
 // 메뉴 아이템 배열
 // 홈, 블로그, 소개, 서비스, 게시판, 문의, Q&A, 관리자용 문의 게시판, 관리자용 게시판, 위키
