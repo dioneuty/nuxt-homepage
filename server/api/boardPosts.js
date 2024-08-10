@@ -73,14 +73,14 @@ export default defineEventHandler(async (event) => {
   // 게시판 포스트 추가
   if (method === 'POST') {
     const body = await readBody(event)
-    const { title, content } = body
+    const { title, content, author } = body
 
     const response = await fetch(url, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title, content }),
+      body: JSON.stringify({ title, content, author}),
     })
 
     if (!response.ok) {
@@ -97,14 +97,14 @@ export default defineEventHandler(async (event) => {
   // 게시판 포스트 수정
   if (method === 'PUT') {
     const body = await readBody(event)
-    const { title, content, id } = body
+    const { title, content, author, id } = body
 
     const response = await fetch(url, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ title, content, id }),
+      body: JSON.stringify({ title, content, author, id }),
     })
 
     if (!response.ok) {

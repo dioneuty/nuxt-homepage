@@ -1,0 +1,14 @@
+.ql-editor {
+    color: white !important;
+  }
+  .ql-editor::before {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
+  
+  /* 다크 모드에서만 적용하려면 다음과 같이 설정할 수 있습니다 */
+  .dark .ql-editor {
+    color: white !important;
+  }
+  .dark .ql-editor::before {
+    color: rgba(255, 255, 255, 0.6) !important;
+  }
