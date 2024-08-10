@@ -1,0 +1,61 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// npm run prisma:migrate - 데이터베이스 스키마 변경사항을 적용합니다.
+// npm run prisma:generate - Prisma 클라이언트를 생성합니다.
+// npm run prisma:studio - Prisma Studio를 실행하여 데이터베이스를 시각적으로 관리합니다.
+// npm run prisma:reset - 데이터베이스를 초기화하고 모든 마이그레이션을 다시 적용합니다.
+// npx prisma migrate dev --name init - 새로운 마이그레이션을 생성합니다.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+        
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  slug      String     @unique
+  blogPosts BlogPost[]
+}
+
+model BlogPost {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  createdAt  DateTime @default(now())
+}
+
+model BoardPost {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    String
+  createdAt DateTime @default(now())
+}
+
+model Image {
+  id  Int    @id @default(autoincrement())
+  url String
+  alt String
+}
+
+model Contact {
+  id      Int    @id @default(autoincrement())
+  name    String
+  email   String
+  message String
+}
+
+model AdminBoard {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}

@@ -1,104 +1,93 @@
-import { defineEventHandler, readBody } from 'h3';
-import fetch from 'node-fetch';
+import prisma from '~/server/utils/prisma'
 
-const BASE_URL = 'http://localhost:3001/api/adminboard';
-
-/**
- * 이 핸들러 함수는 관리자 게시판 관련 API 요청을 처리합니다.
- * 
- * @param {object} event - H3 이벤트 객체로, 요청 및 응답에 대한 정보를 포함합니다.
- * 
- * 이 함수는 HTTP 메서드에 따라 GET, POST, PUT, DELETE 요청을 처리합니다.
- */
 export default defineEventHandler(async (event) => {
-  const method = event.node.req.method;
+  const method = event.node.req.method
 
-  // GET 요청
+  // GET 요청 처리
   if (method === 'GET') {
-    const oriUrl = event.node.req.url;
-    const queryString = oriUrl.includes('?') ? oriUrl.substring(oriUrl.indexOf('?') + 1) : '';
-    const searchParams = new URLSearchParams(queryString);
-    const id = searchParams.get('id');
+    const { id, page = 1, limit = 10, searchType, searchText } = getQuery(event)
+    
+    if (id && id !== '-1') {
+      const post = await prisma.adminBoard.findUnique({
+        where: { id: parseInt(id) }
+      })
+      return post || createError({ statusCode: 404, statusMessage: '관리자 게시글을 찾을 수 없습니다' })
+    } else {
+      const skip = (page - 1) * limit
+      let whereClause = {}
 
-    const url = id ? `${BASE_URL}?id=${id}` : BASE_URL;
+      if (searchText) {
+        if (searchType === 'author') {
+          whereClause.author = { contains: searchText }
+        } else if (searchType === 'title') {
+          whereClause.title = { contains: searchText }
+        } else if (searchType === 'content') {
+          whereClause.content = { contains: searchText }
+        }
+      }
 
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to fetch admin board posts',
-      });
+      const [posts, totalCount] = await Promise.all([
+        prisma.adminBoard.findMany({
+          where: whereClause,
+          orderBy: { id: 'desc' },
+          take: parseInt(limit),
+          skip: skip
+        }),
+        prisma.adminBoard.count({ where: whereClause })
+      ])
+
+      return {
+        posts,
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit)
+      }
     }
-
-    return response.json(); // 게시판 포스트 응답
   }
 
-  // POST 요청
+  // POST 요청 처리
   if (method === 'POST') {
-    const body = await readBody(event); // 요청 본문 읽기
-    const { title, content } = body; // 본문에서 데이터 추출
-
-    const response = await fetch(BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title, content }), // JSON 형식으로 데이터 전송
-    });
-
-    if (!response.ok) {
-      throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to insert admin board post',
-      });
+    const { title, content } = await readBody(event)
+    try {
+      const result = await prisma.adminBoard.create({
+        data: { title, content }
+      })
+      return { success: true, id: result.id }
+    } catch (error) {
+      console.error('관리자 게시글 생성 중 오류:', error)
+      throw createError({ statusCode: 500, statusMessage: '관리자 게시글 생성 실패' })
     }
-
-    return response.json(); // 성공 응답
   }
 
-  // PUT 요청
+  // PUT 요청 처리
   if (method === 'PUT') {
-    const body = await readBody(event); // 요청 본문 읽기
-    const { id, title, content } = body; // 본문에서 데이터 추출
-
-    const response = await fetch(BASE_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id, title, content }), // JSON 형식으로 데이터 전송
-    });
-
-    if (!response.ok) {
-      throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to update admin board post',
-      });
+    const { id, title, content } = await readBody(event)
+    try {
+      await prisma.adminBoard.update({
+        where: { id: parseInt(id) },
+        data: { title, content }
+      })
+      return { success: true }
+    } catch (error) {
+      console.error('관리자 게시글 업데이트 중 오류:', error)
+      throw createError({ statusCode: 500, statusMessage: '관리자 게시글 업데이트 실패' })
     }
-
-    return response.json(); // 성공 응답
   }
 
-  // DELETE 요청
+  // DELETE 요청 처리
   if (method === 'DELETE') {
-    const body = await readBody(event); // 요청 본문 읽기
-    const { id } = body; // 본문에서 ID 추출
-
-    const response = await fetch(BASE_URL, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id }), // JSON 형식으로 데이터 전송
-    });
-
-    if (!response.ok) {
-      throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to delete admin board post',
-      });
+    const { id } = await readBody(event)
+    try {
+      await prisma.adminBoard.delete({
+        where: { id: parseInt(id) }
+      })
+      return { success: true }
+    } catch (error) {
+      console.error('관리자 게시글 삭제 중 오류:', error)
+      throw createError({ statusCode: 500, statusMessage: '관리자 게시글 삭제 실패' })
     }
-
-    return response.json(); // 성공 응답
   }
-});
+
+  // 지원하지 않는 메소드에 대한 처리
+  throw createError({ statusCode: 405, statusMessage: 'Method Not Allowed' })
+})

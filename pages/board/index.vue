@@ -21,7 +21,7 @@
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ post.author }}</td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">
-              {{ new Date(post.created_at).toLocaleDateString() }}
+              {{ new Date(post.createdAt).toLocaleDateString() }}
             </td>
           </tr>
         </tbody>
@@ -57,21 +57,7 @@ const itemsPerPage = ref(10)
 const currentPage = ref(1)
 const searchParams = ref({ type: 'title', text: '' })
 
-const { data: posts } = useAsyncData(
-  'boardPosts',
-  () => $fetch('/api/boardPosts', {
-    params: {
-      page: currentPage.value,
-      limit: itemsPerPage.value,
-      searchType: searchParams.value.type,
-      searchText: searchParams.value.text
-    }
-  }),
-  {
-    watch: [currentPage, itemsPerPage, searchParams],
-    refreshOnWindowFocus: false
-  }
-)
+const { data: posts, error } = await useFetch('/api/boardPosts')
 
 watchEffect(() => {
   if (posts.value) {

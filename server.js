@@ -186,21 +186,16 @@ app.post('/api/blogPosts', (req, res) => {
  * - 성공 여부 및 새로 생성된 포스트 ID
  */
 app.post('/api/boardPosts', (req, res) => {
-  const { title, content } = req.body; // 요청 본문에서 데이터 가져오기
-  const query = 'INSERT INTO board_posts (title, content) VALUES (?, ?)'; // 쿼리 설정
-  const params = [title, content]; // 파라미터 설정
-  
-  logQuery(query, params); // 쿼리 로그
-  
+  const { title, author, content } = req.body;
+  const query = 'INSERT INTO board_posts (title, author, content) VALUES (?, ?, ?)';
+  const params = [title, author, content]; // content를 그대로 저장
+  logQuery(query, params);
   try {
-    const info = db.prepare(query).run(params); // 쿼리 실행
-    res.status(201).json({ // 성공 응답
-      message: 'Board post created successfully', 
-      id: info.lastInsertRowid 
-    });
+    const result = db.prepare(query).run(params);
+    res.status(201).json({ success: true, id: result.lastInsertRowid });
   } catch (error) {
-    console.error('Error creating board post:', error); // 에러 로그
-    res.status(500).json({ error: 'Failed to create board post' }); // 실패 응답
+    console.error('Error creating board post:', error);
+    res.status(500).json({ error: 'Failed to create board post' });
   }
 });
 

@@ -4,18 +4,22 @@
   "type": "module",
   "scripts": {
     "build": "nuxt build",
-    "dev": "concurrently \"nuxt dev\" \"node server.js\"",
+    "dev": "nuxt dev",
     "generate": "nuxt generate",
-    "preview": "concurrently \"nuxt preview\" \"node server.js\"",
+    "preview": "nuxt preview",
     "postinstall": "nuxt prepare",
-    "vercel-build": "node ./server/db/init.js && npm run build"
+    "vercel-build": "npm run build",
+    "seed": "node prisma/seed.js"
   },
   "dependencies": {
     "@heroicons/vue": "^2.1.5",
+    "@prisma/client": "^5.18.0",
+    "@supabase/supabase-js": "^2.45.1",
     "@tailwindcss/typography": "^0.5.13",
     "@vueup/vue-quill": "^1.2.0",
     "better-sqlite3": "^9.6.0",
     "cors": "^2.8.5",
+    "dotenv": "^16.4.5",
     "express": "^4.19.2",
     "multer": "^1.4.5-lts.1",
     "node-fetch": "^2.7.0",
@@ -24,8 +28,8 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.20",
-    "concurrently": "^8.2.2",
     "postcss": "^8.4.40",
+    "prisma": "^5.18.0",
     "tailwindcss": "^3.4.7"
   }
 }

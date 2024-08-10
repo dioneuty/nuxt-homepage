@@ -81,39 +81,25 @@ definePageMeta({
   layout: 'blog'
 })
 
-onMounted(async () => {
-  try {
-    // API에서 블로그 포스트 데이터 가져오기
-    //const { data: post, error, pending } = await useFetch(`api/blogPosts?id=${id}`)
-  } catch (error) {
-    console.error('Error fetching blog posts:', error)
-    alert('블로그 포스트를 불러오는데 실패했습니다.')
-  }
+
+const { data: post, error } = await useFetch(`/api/blogPosts`, {
+  params: { id }
 })
-
-
-const { data: post, error, pending } = await useFetch(`/api/blogPosts?id=${id}`)
 
 const deletePost = async () => {
   if (confirm('정말로 이 블로그 포스트를 삭제하시겠습니까?')) {
-    const {error} = await useFetch(`/api/blogPosts`, { 
+    const { error } = await useFetch(`/api/blogPosts`, {
       method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: {
-        id: post.value.id
-      }
+      body: { id: post.value.id }
     })
 
-    if(error.value) {
+    if (error.value) {
       alert('블로그 포스트 삭제 중 오류가 발생했습니다.')
-      console.error('Error deleting post:', error)
-      return
-    } 
-
-    alert('블로그 포스트가 삭제되었습니다.')
-    await router.push('/blog')
+      console.error('Error deleting post:', error.value)
+    } else {
+      alert('블로그 포스트가 삭제되었습니다.')
+      await router.push('/blog')
+    }
   }
 }
 </script>

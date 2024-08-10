@@ -1,104 +1,90 @@
-import { defineEventHandler, readBody } from 'h3';
-import fetch from 'node-fetch';
+import prisma from '~/server/utils/prisma'
 
-const BASE_URL = 'http://localhost:3001/api/contact';
-
-/**
- * 이 핸들러 함수는 연락처 관련 API 요청을 처리합니다.
- * 
- * @param {object} event - H3 이벤트 객체로, 요청 및 응답에 대한 정보를 포함합니다.
- * 
- * 이 함수는 HTTP 메서드에 따라 GET, POST, PUT, DELETE 요청을 처리합니다.
- */
 export default defineEventHandler(async (event) => {
-  const method = event.node.req.method;
+  const method = event.node.req.method
 
-  // GET 요청
+  // GET 요청 처리
   if (method === 'GET') {
-    const oriUrl = event.node.req.url;
-    const queryString = oriUrl.includes('?') ? oriUrl.substring(oriUrl.indexOf('?') + 1) : '';
-    const searchParams = new URLSearchParams(queryString);
-    const id = searchParams.get('id');
+    const { id, page = 1, limit = 10, searchType, searchText } = getQuery(event)
 
-    const url = id ? `${BASE_URL}?id=${id}` : BASE_URL;
+    if (id) {
+      const contact = await prisma.contact.findUnique({
+        where: { id: parseInt(id) }
+      })
+      return contact || createError({
+        statusCode: 404,
+        statusMessage: '연락처를 찾을 수 없습니다'
+      })
+    } else {
+      const skip = (page - 1) * limit
+      let whereClause = {}
 
-    const response = await fetch(url);
-    if (!response.ok) {
-      throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to fetch contacts',
-      });
+      if (searchText) {
+        if (searchType === 'name') {
+          whereClause.name = { contains: searchText }
+        } else if (searchType === 'email') {
+          whereClause.email = { contains: searchText }
+        } else if (searchType === 'message') {
+          whereClause.message = { contains: searchText }
+        }
+      }
+
+      const [contacts, totalCount] = await Promise.all([
+        prisma.contact.findMany({
+          where: whereClause,
+          orderBy: { id: 'desc' },
+          take: parseInt(limit),
+          skip: skip
+        }),
+        prisma.contact.count({ where: whereClause })
+      ])
+
+      return {
+        contacts,
+        total: totalCount,
+        page: parseInt(page),
+        limit: parseInt(limit)
+      }
     }
-
-    return response.json(); // 연락처 응답
   }
 
-  // POST 요청
+  // POST 요청 처리
   if (method === 'POST') {
-    const body = await readBody(event); // 요청 본문 읽기
-    const { name, email, phone } = body; // 본문에서 데이터 추출
-
-    const response = await fetch(BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ name, email, phone }), // JSON 형식으로 데이터 전송
-    });
-
-    if (!response.ok) {
+    const { name, email, message } = await readBody(event)
+    try {
+      const result = await prisma.contact.create({
+        data: { name, email, message }
+      })
+      return { success: true, id: result.id }
+    } catch (error) {
+      console.error('연락처 생성 중 오류:', error)
       throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to insert contact',
-      });
+        statusCode: 500,
+        statusMessage: '연락처 생성 실패'
+      })
     }
-
-    return response.json(); // 성공 응답
   }
 
-  // PUT 요청
-  if (method === 'PUT') {
-    const body = await readBody(event); // 요청 본문 읽기
-    const { id, name, email, phone } = body; // 본문에서 데이터 추출
-
-    const response = await fetch(BASE_URL, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id, name, email, phone }), // JSON 형식으로 데이터 전송
-    });
-
-    if (!response.ok) {
-      throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to update contact',
-      });
-    }
-
-    return response.json(); // 성공 응답
-  }
-
-  // DELETE 요청
+  // DELETE 요청 처리
   if (method === 'DELETE') {
-    const body = await readBody(event); // 요청 본문 읽기
-    const { id } = body; // 본문에서 ID 추출
-
-    const response = await fetch(BASE_URL, {
-      method: 'DELETE',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ id }), // JSON 형식으로 데이터 전송
-    });
-
-    if (!response.ok) {
+    const { id } = await readBody(event)
+    try {
+      await prisma.contact.delete({
+        where: { id: parseInt(id) }
+      })
+      return { success: true }
+    } catch (error) {
+      console.error('연락처 삭제 중 오류:', error)
       throw createError({
-        statusCode: response.status,
-        statusMessage: 'Failed to delete contact',
-      });
+        statusCode: 500,
+        statusMessage: '연락처 삭제 실패'
+      })
     }
-
-    return response.json(); // 성공 응답
   }
-});
+
+  // 지원하지 않는 메소드에 대한 처리
+  throw createError({
+    statusCode: 405,
+    statusMessage: 'Method Not Allowed'
+  })
+})

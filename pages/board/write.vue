@@ -15,7 +15,7 @@
       <div>
         <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
         <client-only>
-          <QuillEditor v-model:content="content" :options="editorOptions" />
+          <QuillEditor v-model:content="content" contentType="html" :options="editorOptions" />
         </client-only>
       </div>
       <div class="flex justify-between items-center">
@@ -54,29 +54,8 @@ const editorOptions = {
       [{ 'script': 'sub'}, { 'script': 'super' }],
       [{ 'indent': '-1'}, { 'indent': '+1' }],
       [{ 'direction': 'rtl' }],
-      ['image', 'link'],
-    ],
-    imageHandler: {
-      upload: (file) => {
-        return new Promise((resolve, reject) => {
-          const formData = new FormData();
-          formData.append('file', file);
-
-          fetch('/api/upload', {
-            method: 'POST',
-            body: formData
-          })
-            .then(response => response.json())
-            .then(result => {
-              resolve(result.url);
-            })
-            .catch(error => {
-              reject('Upload failed');
-              console.error('Error:', error);
-            });
-        });
-      }
-    }
+      ['link', 'image'],
+    ]
   }
 }
 
@@ -86,23 +65,22 @@ async function submitPost() {
     return
   }
 
-  const { error } = await useFetch('/api/boardPosts', {
-    method: 'POST',
-    body: {
-      title: title.value,
-      author: author.value,
-      content: JSON.stringify(content.value),
-    }
-  })
+  try {
+    await $fetch('/api/boardPosts', {
+      method: 'POST',
+      body: {
+        title: title.value,
+        author: author.value,
+        content: content.value,
+      }
+    })
 
-  if (error.value) {
+    alert('게시글이 성공적으로 작성되었습니다.')
+    await router.push('/board')
+  } catch (error) {
     console.error('Error:', error)
     alert('게시글 작성에 실패했습니다.')
-    return
   }
-
-  alert('게시글이 성공적으로 작성되었습니다.')
-  await router.push('/board')
 }
 
 function goToList() {

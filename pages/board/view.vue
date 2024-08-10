@@ -4,10 +4,8 @@
       <div class="p-6">
         <h1 class="text-3xl font-bold mb-4">{{ post.title }}</h1>
         <p class="text-gray-600 dark:text-gray-300 mb-2">작성자: {{ post.author }}</p>
-        <p class="text-gray-600 dark:text-gray-300 mb-4">작성일: {{ new Date(post.created_at).toLocaleDateString() }}</p>
-        <div class="prose max-w-none dark:prose-invert">
-          {{ post.content }}
-        </div>
+        <p class="text-gray-600 dark:text-gray-300 mb-4">작성일: {{ new Date(post.createdAt).toLocaleDateString() }}</p>
+        <div class="prose max-w-none dark:prose-invert" v-html="post.content" />
       </div>
     </div>
     <div v-else-if="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4 dark:bg-gray-800 dark:text-red-400" role="alert">
