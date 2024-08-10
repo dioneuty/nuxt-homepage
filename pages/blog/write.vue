@@ -9,9 +9,10 @@
       </div>
       <div>
         <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
-        <select id="category" v-model="category_id" required
+        
+        <select id="category" v-model="categoryId" required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-          <option v-for="cat in categories" :key="cat.id" :value="cat.id">
+          <option v-for="cat in categories" :key="cat.id" :value="cat.id" :selected="cat.name === '일반'">
             {{ cat.name }}
           </option>
         </select>
@@ -47,22 +48,19 @@ definePageMeta({
 const router = useRouter()
 const title = ref('')
 const content = ref('')
-const category_id = ref(null)
+const categoryId = ref(null)
 const refreshCategories = inject('refreshCategories')
 
-const categories = [
-  { name: '전체 보기', slug: 'all' },
-  { name: '부분 수리', slug: 'partial-repair' },
-  { name: '전장 설치', slug: 'electrical-installation' },
-  { name: '욕실 수리', slug: 'bathroom-repair' },
-  { name: '주방 수리', slug: 'kitchen-repair' },
-  { name: '도배 및 페인트', slug: 'wallpaper-and-paint' },
-  { name: '바닥재 시공', slug: 'flooring' },
-  { name: '창호 교체', slug: 'window-replacement' },
-  { name: '단열 공사', slug: 'insulation' },
-  { name: '누수 수리', slug: 'leak-repair' },
-  { name: '전체 리모델링', slug: 'full-remodeling' }
-]
+const categories = ref([])
+
+// 카테고리 불러오기
+const fetchCategories = async () => {
+  const { data } = await useFetch('/api/categories')
+  categories.value = data.value
+}
+
+// 컴포넌트 마운트 시 카테고리 불러오기
+onMounted(fetchCategories)
 
 async function submitPost() {
   const { error } = await useFetch('/api/blogPosts', {
@@ -70,7 +68,7 @@ async function submitPost() {
     body: {
       title: title.value,
       content: content.value,
-      category_id: category_id.value
+      categoryId: categoryId.value
     }
   })
 

@@ -7,10 +7,12 @@
       {{ title }}
     </h2>
     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
-      <li v-for="post in posts" :key="post.id" class="p-4 hover:bg-gray-50 transition duration-150 ease-in-out dark:hover:bg-gray-700">
+      <li v-if="posts.length === 0" class="p-4 text-gray-500 dark:text-gray-400">
+        게시물이 없습니다.
+      </li>
+      <li v-else v-for="post in posts.slice(0, 5)" :key="post.id" class="p-4 hover:bg-gray-50 transition duration-150 ease-in-out dark:hover:bg-gray-700">
         <NuxtLink :to="getPostLink(post)" class="block">
           <h3 class="text-lg font-semibold text-gray-900 mb-1 dark:text-white">{{ post.title }}</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400" v-html="getExcerpt(post.content)" />
         </NuxtLink>
       </li>
     </ul>
@@ -34,11 +36,5 @@ const props = defineProps({
 
 const getPostLink = (post) => {
   return props.type === 'blog' ? `/blog/view?id=${post.id}` : `/board/view?id=${post.id}`
-}
-
-const getExcerpt = (content) => {
-  if (!content) return ''; // content가 없을 경우 빈 문자열 반환
-  const words = content.split(' ');
-  return words.length > 20 ? words.slice(0, 20).join(' ') + '...' : content;
 }
 </script>
