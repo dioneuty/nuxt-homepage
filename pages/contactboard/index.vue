@@ -12,7 +12,7 @@
             </tr>
           </thead>
           <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:text-white">
-            <tr v-for="message in messages.posts" :key="message.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+            <tr v-for="message in messages.contacts" :key="message.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ message.id }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ message.name }}</td>
               <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ message.email }}</td>
@@ -22,7 +22,7 @@
         </table>
       </div>
       <div class="mt-6">
-        <NuxtLink to="/contact/write" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <NuxtLink to="/contactboard/write" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           새 문의 작성
         </NuxtLink>
       </div>

@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   // GET 요청 처리
   if (method === 'GET') {
-    const { id, page = 1, limit = 10, searchType, searchText } = getQuery(event)
+    const { id, page = 1, itemsPerPage = 10, type, text } = getQuery(event)
     try {
       if (id && id !== '-1') {
         const post = await prisma.boardPost.findUnique({
@@ -20,16 +20,16 @@ export default defineEventHandler(async (event) => {
           })
         }
       } else {
-        const skip = (page - 1) * limit
+        const skip = (page - 1) * itemsPerPage
         let whereClause = {}
 
-        if (searchText) {
-          if (searchType === 'author') {
-            whereClause.author = { contains: searchText }
-          } else if (searchType === 'title') {
-            whereClause.title = { contains: searchText }
-          } else if (searchType === 'content') {
-            whereClause.content = { contains: searchText }
+        if (text) {
+          if (type === 'author') {
+            whereClause.author = { contains: text }
+          } else if (type === 'title') {
+            whereClause.title = { contains: text }
+          } else if (type === 'content') {
+            whereClause.content = { contains: text }
           }
         }
 
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
           prisma.boardPost.findMany({
             where: whereClause,
             orderBy: { id: 'desc' },
-            take: parseInt(limit),
+            take: parseInt(itemsPerPage),
             skip: skip
           }),
           prisma.boardPost.count({ where: whereClause })
@@ -47,7 +47,7 @@ export default defineEventHandler(async (event) => {
           posts,
           total: totalCount,
           page: parseInt(page),
-          limit: parseInt(limit)
+          itemsPerPage: parseInt(itemsPerPage)
         }
       }
     } catch (error) {

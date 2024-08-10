@@ -13,7 +13,7 @@
             <svg class="h-4 w-4 mr-2 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
-            <span class="dark:text-gray-200">{{ new Date(post.created_at).toLocaleDateString() }}</span>
+            <span class="dark:text-gray-200">{{ new Date(post.createdAt).toLocaleDateString() }}</span>
           </div>
           <div class="prose max-w-none text-gray-700 dark:text-white md:text-lg lg:text-xl">
             {{ post.content }}
@@ -78,7 +78,8 @@ const router = useRouter()
 const id = route.query.id
 
 definePageMeta({
-  layout: 'blog'
+  layout: 'blog',
+  name: 'blog-view'
 })
 
 

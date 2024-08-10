@@ -14,7 +14,7 @@
         </div>
         <div>
           <label for="category_id" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
-          <select id="category_id" v-model="post.category_id" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <select id="category_id" v-model="post.categoryId" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
             <option v-for="(category, index) in categories" :key="index" :value="category.id">{{ category.name }} ({{ category.post_count }})</option>
           </select>
         </div>
@@ -42,7 +42,8 @@
   const refreshCategories = inject('refreshCategories')
 
   definePageMeta({
-    layout: 'blog'
+    layout: 'blog',
+    name: 'blog-edit'
   })
 
   const id = route.query.id
@@ -60,7 +61,7 @@
       body: {
         title: post.value.title,
         content: post.value.content,
-        category_id: post.value.category_id,
+        categoryId: post.value.categoryId,
         id: post.value.id
       }
     })

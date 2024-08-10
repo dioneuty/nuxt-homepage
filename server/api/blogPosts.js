@@ -29,10 +29,10 @@ export default defineEventHandler(async (event) => {
 
   // POST 요청 처리
   if (method === 'POST') {
-    const { title, content, category } = await readBody(event)
+    const { title, content, categoryId } = await readBody(event)
     try {
       const result = await prisma.blogPost.create({
-        data: { title, content, category: parseInt(category) }
+        data: { title, content, categoryId: parseInt(categoryId) }
       })
       return { success: true, id: result.id }
     } catch (error) {
@@ -43,11 +43,11 @@ export default defineEventHandler(async (event) => {
 
   // PUT 요청 처리
   if (method === 'PUT') {
-    const { id, title, content, category } = await readBody(event)
+    const { id, title, content, categoryId } = await readBody(event)
     try {
       await prisma.blogPost.update({
         where: { id: parseInt(id) },
-        data: { title, content, category: parseInt(category) }
+        data: { title, content, categoryId: parseInt(categoryId) }
       })
       return { success: true }
     } catch (error) {

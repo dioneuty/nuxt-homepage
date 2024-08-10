@@ -58,9 +58,10 @@ export default defineEventHandler(async (event) => {
               data: { name: category.name, slug: category.slug }
             })
           } else {
-            await prisma.category.create({
+            const newCategory = await prisma.category.create({
               data: { name: category.name, slug: category.slug }
-            })
+            });
+            category.id = newCategory.id; // 새로운 카테고리의 ID를 할당 - 추가 안 되는 현상 수정
           }
         }
 

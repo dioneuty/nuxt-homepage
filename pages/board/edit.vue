@@ -1,21 +1,21 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold mb-6 dark:text-white">게시글 수정</h1>
-    <form @submit.prevent="updatePost" class="space-y-4">
+    <form v-if="post" @submit.prevent="updatePost" class="space-y-4">
       <div>
         <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목</label>
-        <input type="text" id="title" v-model="post.value.title" required
+        <input type="text" id="title" v-model="post.title" required
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
       <div>
         <label for="author" class="block text-sm font-medium text-gray-700 dark:text-gray-300">작성자</label>
-        <input type="text" id="author" v-model="post.value.author" required
+        <input type="text" id="author" v-model="post.author" required
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
       <div>
         <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
         <client-only>
-          <QuillEditor v-model:content="post.value.content" contentType="html" :options="editorOptions" />
+          <QuillEditor v-model:content="post.content" contentType="html" :options="editorOptions" />
         </client-only>
       </div>
       <div class="flex justify-between items-center">
@@ -29,6 +29,7 @@
         </button>
       </div>
     </form>
+    <div v-else>로딩 중...</div>
   </div>
 </template>
 
@@ -41,7 +42,7 @@ import '@vueup/vue-quill/dist/vue-quill.snow.css'
 const route = useRoute()
 const router = useRouter()
 const id = route.query.id
-const post = ref({ title: '', author: '', content: '' })
+const post = ref(null)
 
 const editorOptions = {
   theme: 'snow',
@@ -59,14 +60,12 @@ const editorOptions = {
   }
 }
 
-onMounted(async () => {
-  const { data, error } = await useFetch(`/api/boardPosts`, {
-    params: { id }
-  })
-  if (error.value) {
-    console.error('게시글을 불러오는 데 실패했습니다:', error.value)
-    alert('게시글을 불러오는 데 실패했습니다.')
-  } else {
+const { data, error } = await useLazyAsyncData(`post-${id}`, () => $fetch(`/api/boardPosts`, {
+  params: { id }
+}))
+
+watchEffect(() => {
+  if (data.value) {
     post.value = data.value
   }
 })
@@ -79,12 +78,7 @@ async function updatePost() {
 
   const { error } = await useFetch('/api/boardPosts', {
     method: 'PUT',
-    body: {
-      id: post.value.id,
-      title: post.value.title,
-      author: post.value.author,
-      content: post.value.content,
-    }
+    body: post.value
   })
 
   if (error.value) {

@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white">게시판</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white text-center">게시판</h1>
     <div class="bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg overflow-hidden">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50 dark:bg-gray-700">
@@ -12,7 +12,7 @@
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:text-white">
-          <tr v-for="post in posts.posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
+          <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ post.id }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <NuxtLink :to="`/board/view?id=${post.id}`" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:hover:text-blue-600 dark:text-white">
@@ -57,13 +57,22 @@ const itemsPerPage = ref(10)
 const currentPage = ref(1)
 const searchParams = ref({ type: 'title', text: '' })
 
-const { data: posts, error } = await useFetch('/api/boardPosts')
 
-watchEffect(() => {
-  if (posts.value) {
-    totalItems.value = posts.value.total
-  }
+const { data: posts, error, refresh } = await useAsyncData('boardPosts', async () => {
+  const response = await $fetch('/api/boardPosts', {
+    params: {
+      page: currentPage.value,
+      itemsPerPage: itemsPerPage.value,
+      type: searchParams.value.type,
+      text: searchParams.value.text
+    }
+  })
+  totalItems.value = response.total
+  return response.posts
+}, {
+  watch: [currentPage, itemsPerPage, searchParams]
 })
+
 
 const handleSearch = async (params) => {
   searchParams.value = params

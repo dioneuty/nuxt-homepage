@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white">블루드릴 집 수리 서비스</h1>
+    <h1 class="text-3xl font-bold mb-6 dark:text-white text-center">블루드릴 집 수리 서비스</h1>
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div v-for="service in services" :key="service.id" class="bg-white shadow-md rounded-lg p-6 dark:bg-gray-800 dark:text-white flex">
         <div class="flex-grow">

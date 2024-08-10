@@ -10,7 +10,7 @@
       <li v-for="post in posts" :key="post.id" class="p-4 hover:bg-gray-50 transition duration-150 ease-in-out dark:hover:bg-gray-700">
         <NuxtLink :to="getPostLink(post)" class="block">
           <h3 class="text-lg font-semibold text-gray-900 mb-1 dark:text-white">{{ post.title }}</h3>
-          <p class="text-sm text-gray-500 dark:text-gray-400">{{ getExcerpt(post.content) }}</p>
+          <p class="text-sm text-gray-500 dark:text-gray-400" v-html="getExcerpt(post.content)" />
         </NuxtLink>
       </li>
     </ul>

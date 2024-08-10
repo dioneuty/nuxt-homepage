@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white">문의하기</h1>
+    <h1 class="text-3xl font-bold mb-6 text-gray-900 dark:text-white text-center">문의하기</h1>
     <form @submit.prevent="submitForm" class="max-w-lg mx-auto">
       <div class="mb-4">
         <label for="name" class="block text-gray-700 dark:text-gray-300 font-bold mb-2">이름</label>

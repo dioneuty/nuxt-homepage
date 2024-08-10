@@ -40,7 +40,8 @@ import { ref, inject } from 'vue'
 import { useRouter } from 'vue-router'
 
 definePageMeta({
-  layout: 'blog'
+  layout: 'blog',
+  name: 'blog-write'
 })
 
 const router = useRouter()

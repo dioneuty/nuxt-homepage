@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   // GET 요청 처리
   if (method === 'GET') {
-    const { id, page = 1, limit = 10, searchType, searchText } = getQuery(event)
+    const { id, page = 1, itemsPerPage = 10, type, text } = getQuery(event)
 
     if (id) {
       const contact = await prisma.contact.findUnique({
@@ -16,16 +16,16 @@ export default defineEventHandler(async (event) => {
         statusMessage: '연락처를 찾을 수 없습니다'
       })
     } else {
-      const skip = (page - 1) * limit
+      const skip = (page - 1) * itemsPerPage
       let whereClause = {}
 
-      if (searchText) {
-        if (searchType === 'name') {
-          whereClause.name = { contains: searchText }
-        } else if (searchType === 'email') {
-          whereClause.email = { contains: searchText }
-        } else if (searchType === 'message') {
-          whereClause.message = { contains: searchText }
+      if (text) {
+        if (type === 'name') {
+          whereClause.name = { contains: text }
+        } else if (type === 'email') {
+          whereClause.email = { contains: text }
+        } else if (type === 'message') {
+          whereClause.message = { contains: text }
         }
       }
 
@@ -33,7 +33,7 @@ export default defineEventHandler(async (event) => {
         prisma.contact.findMany({
           where: whereClause,
           orderBy: { id: 'desc' },
-          take: parseInt(limit),
+          take: parseInt(itemsPerPage),
           skip: skip
         }),
         prisma.contact.count({ where: whereClause })
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
         contacts,
         total: totalCount,
         page: parseInt(page),
-        limit: parseInt(limit)
+        itemsPerPage: parseInt(itemsPerPage)
       }
     }
   }
