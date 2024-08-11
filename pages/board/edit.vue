@@ -15,8 +15,13 @@
       <div>
         <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
         <client-only>
-          <QuillEditor v-model:content="post.content" contentType="html" :options="editorOptions" />
+          <QuillEditor v-model:content="post.content" contentType="html" :options="editorOptions" ref="quillEditor" />
         </client-only>
+      </div>
+      <div>
+        <button @click.prevent="insertHTML" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">
+          HTML 삽입
+        </button>
       </div>
       <div class="flex justify-between items-center">
         <button type="submit" 
@@ -56,9 +61,12 @@ const editorOptions = {
       [{ 'indent': '-1'}, { 'indent': '+1' }],
       [{ 'direction': 'rtl' }],
       ['link', 'image'],
+      ['clean']
     ]
   }
 }
+
+const quillEditor = ref(null)
 
 const { data, error } = await useLazyAsyncData(`post-${id}`, () => $fetch(`/api/boardPosts`, {
   params: { id }
@@ -92,5 +100,18 @@ async function updatePost() {
 
 function goToList() {
   router.push('/board')
+}
+
+function insertHTML() {
+  const html = prompt('삽입할 HTML 코드를 입력하세요:')
+  if (html) {
+    const quill = quillEditor.value.getQuill()
+    const range = quill.getSelection()
+    if (range) {
+      quill.clipboard.dangerouslyPasteHTML(range.index, html)
+    } else {
+      quill.clipboard.dangerouslyPasteHTML(quill.getLength(), html)
+    }
+  }
 }
 </script>

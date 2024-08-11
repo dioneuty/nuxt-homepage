@@ -1,3 +1,13 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 추가 커스텀 스타일 */
+body.menu-open {
+  pointer-events: none;
+}
+
+body.menu-open nav,
+body.menu-open .pointer-events-auto {
+  pointer-events: auto;
+}

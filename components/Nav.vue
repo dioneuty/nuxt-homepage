@@ -18,9 +18,39 @@
       <div class="bg-blue-600 dark:bg-gray-800 text-white p-4 shadow-lg">
         <div class="container mx-auto flex justify-between items-center">
           <div class="space-x-4">
-            <NuxtLink v-for="item in menuItems" :key="item.path" :to="item.path" class="hover:text-blue-200">
-              {{ item.name }}
-            </NuxtLink>
+            <template v-for="item in menuItems" :key="item.name">
+              <!-- 자식 메뉴가 있는 경우 -->
+              <div v-if="item.children" class="relative inline-block group">
+                <NuxtLink v-if="item.path" :to="item.path" class="hover:text-blue-200 flex items-center py-2">
+                  {{ item.name }}
+                  <svg class="w-4 h-4 ml-1 transition-transform duration-200 transform group-hover:rotate-180" 
+                       xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </NuxtLink>
+                <span v-else class="cursor-default hover:text-blue-200 flex items-center py-2">
+                  {{ item.name }}
+                  <svg class="w-4 h-4 ml-1 transition-transform duration-200 transform group-hover:rotate-180" 
+                       xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
+                  </svg>
+                </span>
+                <!-- 자식 메뉴 노출 -->
+                <div class="absolute left-0 mt-0 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg hidden group-hover:block">
+                  <div class="py-2">
+                    <NuxtLink v-for="child in item.children" :key="child.path"
+                              :to="child.path"
+                              class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-500 hover:text-white">
+                      {{ child.name }}
+                    </NuxtLink>
+                  </div>
+                </div>
+              </div>
+              <!-- 자식 메뉴가 없는 경우 -->
+              <NuxtLink v-else :to="item.path" class="hover:text-blue-200 py-2">
+                {{ item.name }}
+              </NuxtLink>
+            </template>
           </div>
           <button @click="toggleColorMode" class="text-white hover:text-blue-200 p-2 rounded-full">
             <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
@@ -31,17 +61,17 @@
       </div>
     </div>
 
-    <!-- 모바일 및 태블릿 네비게이션 -->
+    <!-- 모바일 네비게이션 헤더 -->
     <div class="lg:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 dark:bg-gray-800 text-white p-4">
-      <div class="flex items-center justify-between">
-        <button @click="$emit('toggleMenu')" class="text-white">
+      <div class="flex items-center justify-between" :class="{ 'pointer-events-auto': isMenuOpen }">
+        <button @click="openMenu" class="text-white" :class="{ 'pointer-events-none': isMenuOpen }">
           <Bars3Icon class="h-6 w-6" />
         </button>
-        <NuxtLink to="/" class="text-xl font-bold text-white flex items-center">
+        <NuxtLink to="/" class="text-xl font-bold text-white flex items-center" :class="{ 'pointer-events-none': isMenuOpen }">
           <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
           <span>{{ appName }}</span>
         </NuxtLink>
-        <button @click="toggleColorMode" class="text-white p-2 rounded-full">
+        <button @click="toggleColorMode" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
           <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
           <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
           <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
@@ -52,30 +82,53 @@
     <!-- 모바일 슬라이딩 메뉴 -->
     <div
       :class="[
-        'fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-blue-700 to-blue-600 dark:from-gray-800 dark:to-gray-700 text-white transform transition-transform duration-300 ease-in-out shadow-lg',
+        'fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-blue-700 to-blue-600 dark:from-gray-800 dark:to-gray-700 text-white transform transition-transform duration-300 ease-in-out shadow-lg pointer-events-auto',
         isMenuOpen ? 'translate-x-0' : '-translate-x-full'
       ]"
     >
       <div class="flex flex-col h-full">
         <div class="bg-blue-800 dark:bg-gray-700 p-6 flex justify-between items-center">
-          <NuxtLink to="/" class="text-2xl font-bold flex items-center" @click="$emit('closeMenu')">
+          <NuxtLink to="/" class="text-2xl font-bold flex items-center" @click="closeMenu">
             <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
             <span>{{ appName }}</span>
           </NuxtLink>
-          <button @click="$emit('closeMenu')" class="text-white hover:text-blue-200">
+          <button @click="closeMenu" class="text-white hover:text-blue-200">
             <XMarkIcon class="h-6 w-6" />
           </button>
         </div>
-        <div class="flex-grow p-6 space-y-4">
-          <NuxtLink 
-            v-for="item in menuItems" 
-            :key="item.path" 
-            :to="item.path" 
-            class="block py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-200 ease-in-out"
-            @click="$emit('closeMenu')"
-          >
-            {{ item.name }}
-          </NuxtLink>
+        <div class="flex-grow p-6 space-y-4 overflow-y-auto">
+          <div v-for="item in menuItems" :key="item.name" class="relative">
+            <div
+              @click="handleItemClick(item)"
+              class="flex justify-between items-center py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-200 ease-in-out cursor-pointer"
+            >
+              {{ item.name }}
+              <ChevronDownIcon
+                v-if="item.children"
+                :class="['h-5 w-5 transition-transform', item.isOpen ? 'transform rotate-180' : '']"
+              />
+            </div>
+            <transition
+              enter-active-class="transition duration-300 ease-out"
+              enter-from-class="transform -translate-y-4 opacity-0"
+              enter-to-class="transform translate-y-0 opacity-100"
+              leave-active-class="transition duration-200 ease-in"
+              leave-from-class="transform translate-y-0 opacity-100"
+              leave-to-class="transform -translate-y-4 opacity-0"
+            >
+              <div v-if="item.children && item.isOpen" class="mt-2 ml-4 space-y-2 bg-blue-400 dark:bg-gray-600 rounded-lg pointer-events-auto">
+                <NuxtLink
+                  v-for="child in item.children"
+                  :key="child.path"
+                  :to="child.path"
+                  class="block py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-500 transition duration-200 ease-in-out"
+                  @click="closeMenu"
+                >
+                  {{ child.name }}
+                </NuxtLink>
+              </div>
+            </transition>
+          </div>
           <button @click="toggleColorMode" class="w-full text-left py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-600 transition duration-200 ease-in-out flex items-center">
             <SunIcon v-if="colorMode === 'light'" class="h-6 w-6 mr-2" />
             <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6 mr-2" />
@@ -85,13 +138,23 @@
         </div>
       </div>
     </div>
+
+    <!-- 오버레이 -->
+    <div
+      v-if="isMenuOpen"
+      class="fixed inset-0 bg-black bg-opacity-50 z-40 pointer-events-auto"
+      @click.self="closeMenu"
+    ></div>
   </nav>
 </template>
 
 <script setup>
-import { ref, inject } from 'vue'
-import { WrenchScrewdriverIcon } from '@heroicons/vue/24/outline'
+import { ref, inject, watch } from 'vue'
+import { useRouter } from 'vue-router'
+import { WrenchScrewdriverIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/vue/24/solid'
+
+const router = useRouter()
 
 const appName = ref('Dion')
 
@@ -105,32 +168,84 @@ const wrenchEmoji = '🔧'
 const brickEmoji = '🧱'
 const paintbrushEmoji = '🖌️'
 
-const menuItems = [
+const menuItems = ref([
   { name: '홈', path: '/' },
   { name: '블로그', path: '/blog' },
-  { name: '소개', path: '/about' },
-  { name: '서비스', path: '/services' },
-  { name: '게시판', path: '/board' },
+  { 
+    name: '소개', 
+    children: [
+      { name: '개인소개', path: '/about' },
+      { name: '서비스', path: '/services' }
+    ],
+    isOpen: false
+  },
+  { 
+    name: '게시판', 
+    children: [
+      { name: '자유게시판', path: '/board' },
+      { name: '질문과답변', path: '/qna' }
+    ],
+    isOpen: false
+  },
   { name: '문의', path: '/contact' },
-  { name: 'Q&A' + constructionEmoji, path: '/under-construction' },
-  { name: '관리자용 문의 게시판' + constructionEmoji, path: '/contactboard' },
-  { name: '관리자용 게시판' + constructionEmoji, path: '/adminboard' },
-  { name: '위키' + constructionEmoji, path: '/under-construction' }
-]
+  { name: '갤러리', path: '/gallery' },
+  { name: '위키' + constructionEmoji, path: '/under-construction' },
+  { 
+    name: '관리자', 
+    children: [
+      { name: '관리자용 문의 게시판' + constructionEmoji, path: '/contactboard' },
+      { name: '관리자용 게시판' + constructionEmoji, path: '/adminboard' },
+    ],
+    isOpen: false
+  }
+])
+
+const handleItemClick = (item) => {
+  if (item.children) {
+    item.isOpen = !item.isOpen
+  } else if (item.path) {
+    router.push(item.path)
+    closeMenu()
+  }
+}
 
 const isDarkMode = inject('isDarkMode')
 const toggleColorMode = inject('toggleColorMode')
 const colorMode = inject('colorMode')
 
+const isMenuOpen = ref(false)
+
+const openMenu = () => {
+  isMenuOpen.value = true
+  document.body.style.overflow = 'hidden'
+}
+
+const closeMenu = () => {
+  isMenuOpen.value = false
+  document.body.style.overflow = ''
+}
+
+watch(isMenuOpen, (newValue) => {
+  if (newValue) {
+    document.body.style.overflow = 'hidden'
+  } else {
+    document.body.style.overflow = ''
+  }
+})
+
 defineProps({
   isMenuOpen: Boolean
 })
 
-defineEmits(['toggleMenu', 'closeMenu'])
+defineEmits(['openMenu', 'closeMenu'])
 </script>
 
 <style scoped>
 .text-shadow-lg {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+}
+
+.group:hover .group-hover\:block {
+  display: block;
 }
 </style>
