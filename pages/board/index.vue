@@ -1,26 +1,27 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white text-center">게시판</h1>
-    <div class="bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg overflow-hidden">
+    <div class="bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg overflow-hidden overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-gray-50 dark:bg-gray-700">
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">번호</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white hidden sm:table-cell">번호</th>
             <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">제목</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">작성자</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white">작성일</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white hidden sm:table-cell">작성자</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider dark:text-white hidden sm:table-cell">작성일</th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:text-white">
           <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ post.id }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">{{ post.id }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <NuxtLink :to="`/board/view?id=${post.id}`" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:hover:text-blue-600 dark:text-white">
-                {{ post.title }}
+                <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">{{ post.author }} | {{ new Date(post.createdAt).toLocaleDateString() }}</span>
+                <span class="truncate block max-w-xs sm:max-w-none">{{ post.title }}</span>
               </NuxtLink>
             </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">{{ post.author }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white">
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">{{ post.author }}</td>
+            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">
               {{ new Date(post.createdAt).toLocaleDateString() }}
             </td>
           </tr>

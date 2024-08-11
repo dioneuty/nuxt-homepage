@@ -12,7 +12,7 @@
         <input type="text" id="author" v-model="post.author" required
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
-      <div>
+      <div class="overflow-scroll">
         <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
         <client-only>
           <QuillEditor v-model:content="post.content" contentType="html" :options="editorOptions" ref="quillEditor" />
@@ -67,6 +67,7 @@ const editorOptions = {
 }
 
 const quillEditor = ref(null)
+
 
 const { data, error } = await useLazyAsyncData(`post-${id}`, () => $fetch(`/api/boardPosts`, {
   params: { id }
