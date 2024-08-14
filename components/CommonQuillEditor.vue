@@ -61,8 +61,18 @@ const onEditorChange = ({ html, text, quill }) => {
 </script>
 
 <style>
-.ql-editor .ql-video {
+/* ql-video 클래스 스타일 - 모바일, 데스크톱에 따라 자동 크기 조정 */
+.ql-video {
   width: 100%;
-  height: 315px;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+@media (min-width: 768px) {
+  .ql-video {
+    width: 768px;
+    aspect-ratio: 16 / 9;
+  }
 }
 </style>

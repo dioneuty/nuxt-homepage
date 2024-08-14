@@ -49,3 +49,18 @@
 .dark .ql-container {
   border-color: #4b5563 !important;
 }
+
+/* ql-video 클래스 스타일 - 모바일, 데스크톱에 따라 자동 크기 조정 */
+.ql-video {
+  width: 100%;
+  max-width: 100%;
+  height: auto;
+  aspect-ratio: 16 / 9;
+}
+
+@media (min-width: 768px) {
+  .ql-video {
+    width: 768px;
+    aspect-ratio: 16 / 9;
+  }
+}
