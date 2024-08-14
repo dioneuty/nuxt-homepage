@@ -13,23 +13,18 @@
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
       <div>
-        <label for="youtubeUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300">유튜브 URL</label>
-        <input type="text" id="youtubeUrl" v-model="youtubeUrl" 
-               @input="handleYoutubeInput"
-               placeholder="유튜브 또는 쇼츠 URL을 입력하세요"
-               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-      </div>
-      <div>
         <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
-        <client-only>
-          <QuillEditor v-model:content="post.content" contentType="html" :options="editorOptions" ref="quillEditor" />
-        </client-only>
+        <CommonQuillEditor v-model="post.content" />
       </div>
-      <div class="flex justify-between items-center">
+      <div class="flex justify-end items-center space-x-4">
         <button type="submit" 
                 class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
           {{ id ? '게시글 수정' : '게시글 작성' }}
         </button>
+        <NuxtLink :to="`/board/view?id=${id}`"
+                  class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-red-700 dark:hover:bg-red-600">
+          취소
+        </NuxtLink>
         <button type="button" @click="goToList"
                 class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md shadow-sm text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
           목록으로
@@ -43,32 +38,12 @@
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
 
 const route = useRoute()
 const router = useRouter()
 const id = route.query.id
 const post = ref(null)
-
-const editorOptions = {
-  theme: 'snow',
-  modules: {
-    toolbar: [
-      ['bold', 'italic', 'underline', 'strike'],
-      ['blockquote', 'code-block'],
-      [{ 'header': 1 }, { 'header': 2 }],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
-      [{ 'script': 'sub'}, { 'script': 'super' }],
-      [{ 'indent': '-1'}, { 'indent': '+1' }],
-      [{ 'direction': 'rtl' }],
-      ['link', 'image'],
-      ['clean']
-    ]
-  }
-}
-
-const quillEditor = ref(null)
 
 const { data, error } = await useLazyAsyncData(`post-${id}`, () => $fetch(`/api/boardPosts`, {
   params: { id }
@@ -79,37 +54,6 @@ watchEffect(() => {
     post.value = data.value
   }
 })
-
-const youtubeUrl = ref('')
-
-const handleYoutubeInput = () => {
-  const url = youtubeUrl.value
-  const videoId = extractYouTubeId(url)
-  if (videoId) {
-    const isShorts = url.includes('shorts')
-    const html = isShorts
-      ? `<div class="aspect-w-9 aspect-h-16 my-4 mx-auto"><iframe width="560" height="315" src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-      : `<div class="aspect-w-16 aspect-h-9 my-4"><iframe src="https://www.youtube.com/embed/${videoId}" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe></div>`
-    insertHTML(html)
-    youtubeUrl.value = '' // URL 입력 필드 초기화
-  }
-}
-
-const extractYouTubeId = (url) => {
-  const regExp = /^.*(youtu.be\/|v\/|u\/\w\/|embed\/|watch\?v=|\&v=|shorts\/)([^#\&\?]*).*/
-  const match = url.match(regExp)
-  return (match && match[2].length === 11) ? match[2] : null
-}
-
-const insertHTML = (html) => {
-  const quill = quillEditor.value.getQuill()
-  const range = quill.getSelection()
-  if (range) {
-    quill.clipboard.dangerouslyPasteHTML(range.index, html)
-  } else {
-    quill.clipboard.dangerouslyPasteHTML(quill.getLength(), html)
-  }
-}
 
 async function submitPost() {
   if (!post.value.title || !post.value.author || !post.value.content) {

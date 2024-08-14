@@ -6,7 +6,8 @@
       class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white mb-4"
     >
       <option value="0">전체 카테고리</option>
-      <option v-for="category in categories" :key="category.id" :value="category.id">
+      <option v-for="category in categories" :key="category.id" :value="category.id"
+              :class="{ 'font-bold': isSelected(category.id) }">
         {{ category.name }} ({{ category.post_count }})
       </option>
     </select>
@@ -46,4 +47,16 @@ const onCategoryChange = () => {
 watch(() => route.query.category, (newCategory) => {
   selectedCategory.value = newCategory || '0'
 })
+
+const isSelected = (categoryId) => {
+  return selectedCategory.value === categoryId.toString()
+}
 </script>
+
+<style scoped>
+select option:checked {
+  font-weight: bold;
+  background-color: #3b82f6;
+  color: white;
+}
+</style>

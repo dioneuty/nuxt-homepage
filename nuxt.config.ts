@@ -17,5 +17,13 @@ export default defineNuxtConfig({
   compatibilityDate: '2024-08-04',
   app: {
     pageTransition: { name: 'page', mode: 'out-in' }
+  },
+  vite: {
+    optimizeDeps: {
+      include: ['vue3-quill']
+    }
+  },
+  build: {
+    transpile: ['vue3-quill']
   }
 })

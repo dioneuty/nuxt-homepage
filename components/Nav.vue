@@ -21,14 +21,18 @@
             <template v-for="item in menuItems" :key="item.name">
               <!-- 자식 메뉴가 있는 경우 -->
               <div v-if="item.children" class="relative inline-block group">
-                <NuxtLink v-if="item.path" :to="item.path" class="hover:text-blue-200 flex items-center py-2">
+                <NuxtLink v-if="item.path" :to="item.path" 
+                          :class="['hover:text-blue-200 flex items-center py-2', 
+                                   { 'text-yellow-300': isActiveOrHasActiveChild(item) }]">
                   {{ item.name }}
                   <svg class="w-4 h-4 ml-1 transition-transform duration-200 transform group-hover:rotate-180" 
                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z" clip-rule="evenodd" />
                   </svg>
                 </NuxtLink>
-                <span v-else class="cursor-default hover:text-blue-200 flex items-center py-2">
+                <span v-else 
+                      :class="['cursor-default hover:text-blue-200 flex items-center py-2',
+                               { 'text-yellow-300': isActiveOrHasActiveChild(item) }]">
                   {{ item.name }}
                   <svg class="w-4 h-4 ml-1 transition-transform duration-200 transform group-hover:rotate-180" 
                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -40,14 +44,17 @@
                   <div class="py-2">
                     <NuxtLink v-for="child in item.children" :key="child.path"
                               :to="child.path"
-                              class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-500 hover:text-white">
+                              :class="['block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-blue-500 hover:text-white',
+                                       { 'bg-blue-500 text-white': isActive(child.path) }]">
                       {{ child.name }}
                     </NuxtLink>
                   </div>
                 </div>
               </div>
               <!-- 자식 메뉴가 없는 경우 -->
-              <NuxtLink v-else :to="item.path" class="hover:text-blue-200 py-2">
+              <NuxtLink v-else :to="item.path" 
+                        :class="['hover:text-blue-200 py-2', 
+                                 { 'text-yellow-300': isActive(item.path) }]">
                 {{ item.name }}
               </NuxtLink>
             </template>
@@ -100,7 +107,8 @@
           <div v-for="item in menuItems" :key="item.name" class="relative">
             <div
               @click="handleItemClick(item)"
-              class="flex justify-between items-center py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-200 ease-in-out cursor-pointer"
+              :class="['flex justify-between items-center py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-200 ease-in-out cursor-pointer',
+                       { 'bg-blue-500': isActiveOrHasActiveChild(item) }]"
             >
               {{ item.name }}
               <ChevronDownIcon
@@ -121,7 +129,8 @@
                   v-for="child in item.children"
                   :key="child.path"
                   :to="child.path"
-                  class="block py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-500 transition duration-200 ease-in-out"
+                  :class="['block py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-500 transition duration-200 ease-in-out',
+                           { 'bg-blue-500 dark:bg-gray-500': isActive(child.path) }]"
                   @click="closeMenu"
                 >
                   {{ child.name }}
@@ -232,6 +241,22 @@ watch(isMenuOpen, (newValue) => {
     document.body.style.overflow = ''
   }
 })
+
+const route = useRouter().currentRoute
+
+const isActive = (path) => {
+  return route.value.path === path
+}
+
+const isActiveOrHasActiveChild = (item) => {
+  if (isActive(item.path)) {
+    return true
+  }
+  if (item.children) {
+    return item.children.some(child => isActive(child.path))
+  }
+  return false
+}
 
 defineProps({
   isMenuOpen: Boolean
