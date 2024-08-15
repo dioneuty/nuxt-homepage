@@ -20,12 +20,12 @@ export default defineEventHandler(async (event) => {
       let whereClause = {}
 
       if (text) {
-        if (type === 'name') {
-          whereClause.name = { contains: text }
-        } else if (type === 'email') {
-          whereClause.email = { contains: text }
-        } else if (type === 'message') {
-          whereClause.message = { contains: text }
+        if (type === 'author') {
+          whereClause.author = { contains: text }
+        } else if (type === 'title') {
+          whereClause.title = { contains: text }
+        } else if (type === 'content') {
+          whereClause.content = { contains: text }
         }
       }
 
@@ -50,10 +50,10 @@ export default defineEventHandler(async (event) => {
 
   // POST 요청 처리
   if (method === 'POST') {
-    const { name, email, message } = await readBody(event)
+    const { author, title, content } = await readBody(event)
     try {
       const result = await prisma.contact.create({
-        data: { name, email, message }
+        data: { author, title, content }
       })
       return { success: true, id: result.id }
     } catch (error) {

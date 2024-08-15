@@ -1,109 +1,24 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white text-center flex items-center justify-center">
-      <Icon icon="mdi:clipboard-text-outline" class="mr-2" />
-      게시판
-    </h1>
-    <div class="bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg overflow-hidden overflow-x-auto">
-      <table class="min-w-full divide-y divide-gray-200">
-        <thead class="bg-green-100 dark:bg-green-800">
-          <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">
-              <Icon icon="mdi:pound" class="inline mr-1" />번호
-            </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200">
-              <Icon icon="mdi:format-title" class="inline mr-1" />제목
-            </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">
-              <Icon icon="mdi:account" class="inline mr-1" />작성자
-            </th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">
-              <Icon icon="mdi:calendar" class="inline mr-1" />작성일
-            </th>
-          </tr>
-        </thead>
-        <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:text-white">
-          <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700">
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">{{ post.id }}</td>
-            <td class="px-6 py-4 whitespace-nowrap">
-              <NuxtLink :to="`/board/view?id=${post.id}`" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:hover:text-blue-600 dark:text-white">
-                <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">
-                  <Icon icon="mdi:account" class="inline mr-1" />{{ post.author }} | 
-                  <Icon icon="mdi:calendar" class="inline mr-1" />{{ new Date(post.createdAt).toLocaleDateString() }}
-                </span>
-                <span class="truncate block max-w-xs sm:max-w-none">
-                  <Icon icon="mdi:text" class="inline mr-1" />{{ post.title }}
-                </span>
-              </NuxtLink>
-            </td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">{{ post.author }}</td>
-            <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">
-              {{ new Date(post.createdAt).toLocaleDateString() }}
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-    <div class="mt-6">
-      <NuxtLink to="/board/write" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
-        <Icon icon="mdi:pencil-plus" class="mr-2" />
-        새 글 작성
-      </NuxtLink>
-    </div>
-    
-    <!-- 검색 바 컴포넌트 -->
-    <SearchBar @search="handleSearch" />
-    
-    <!-- 페이지네이션 컴포넌트 -->
-    <Pagination 
-      :total-items="totalItems" 
-      :items-per-page="itemsPerPage" 
-      :current-page="currentPage"
-      @page-change="handlePageChange"
-      @items-per-page-change="handleItemsPerPageChange"
-    />
-  </div>
+  <BoardIndex
+    board-type="board"
+    board-title="일반 게시판"
+    board-icon="mdi:clipboard-text-outline"
+    api-endpoint="/api/boardPosts"
+    :table-headers="tableHeaders"
+  />
 </template>
 
 <script setup>
-import { ref, watchEffect } from 'vue'
-import SearchBar from '~/components/board/SearchBar.vue'
-import Pagination from '~/components/board/Pagination.vue'
-import { Icon } from '@iconify/vue'
+import BoardIndex from '~/components/board/BoardIndex.vue'
 
-const totalItems = ref(0)
-const itemsPerPage = ref(10)
-const currentPage = ref(1)
-const searchParams = ref({ type: 'title', text: '' })
+const tableHeaders = [
+  { key: 'id', label: '번호', icon: 'mdi:pound', class: 'hidden sm:table-cell' },
+  { key: 'title', label: '제목', icon: 'mdi:format-title' },
+  { key: 'author', label: '작성자', icon: 'mdi:account', class: 'hidden sm:table-cell' },
+  { key: 'createdAt', label: '작성일', icon: 'mdi:calendar', class: 'hidden sm:table-cell' }
+]
 
-
-const { data: posts, error, refresh } = await useAsyncData('boardPosts', async () => {
-  const response = await $fetch('/api/boardPosts', {
-    params: {
-      page: currentPage.value,
-      itemsPerPage: itemsPerPage.value,
-      type: searchParams.value.type,
-      text: searchParams.value.text
-    }
-  })
-  totalItems.value = response.total
-  return response.posts
-}, {
-  watch: [currentPage, itemsPerPage, searchParams]
+definePageMeta({
+  layout: 'default'
 })
-
-
-const handleSearch = async (params) => {
-  searchParams.value = params
-  currentPage.value = 1
-}
-
-const handlePageChange = async (page) => {
-  currentPage.value = page
-}
-
-const handleItemsPerPageChange = async (newItemsPerPage) => {
-  itemsPerPage.value = newItemsPerPage
-  currentPage.value = 1
-}
 </script>

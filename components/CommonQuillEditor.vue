@@ -1,8 +1,8 @@
 <template>
   <QuillEditor
-    :content="modelValue"
+    :content="value"
     content-type="html"
-    @update:content="$emit('update:modelValue', $event)"
+    @update:content="onContentUpdate"
     :options="editorOptions"
     @blur="onEditorBlur"
     @focus="onEditorFocus"
@@ -16,7 +16,7 @@ import { QuillEditor } from '@vueup/vue-quill'
 import '@vueup/vue-quill/dist/vue-quill.snow.css'
 
 const props = defineProps({
-  modelValue: {
+  value: {
     type: String,
     default: '',
   },
@@ -26,7 +26,7 @@ const props = defineProps({
   },
 })
 
-const emit = defineEmits(['update:modelValue', 'blur', 'focus', 'ready', 'change'])
+const emit = defineEmits(['input', 'blur', 'focus', 'ready', 'change'])
 
 const editorOptions = {
   theme: 'snow',
@@ -51,11 +51,17 @@ const editorOptions = {
   placeholder: props.placeholder,
 }
 
+const onContentUpdate = (content) => {
+  console.log('QuillEditor content updated:', content)
+  emit('input', content)
+}
+
 const onEditorBlur = (quill) => emit('blur', quill)
 const onEditorFocus = (quill) => emit('focus', quill)
 const onEditorReady = (quill) => emit('ready', quill)
 const onEditorChange = ({ html, text, quill }) => {
-  emit('update:modelValue', html)
+  console.log('QuillEditor changed:', html)
+  emit('input', html)
   emit('change', { html, text, quill })
 }
 </script>

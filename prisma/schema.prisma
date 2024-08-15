@@ -47,10 +47,11 @@ model Image {
 }
 
 model Contact {
-  id      Int    @id @default(autoincrement())
-  name    String
-  email   String
-  message String
+  id        Int      @id @default(autoincrement())
+  author    String
+  title     String
+  content   String
+  createdAt DateTime @default(now())
 }
 
 model AdminBoard {

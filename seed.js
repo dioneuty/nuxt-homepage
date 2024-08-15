@@ -16,12 +16,12 @@ async function seedDatabase() {
       .from(table)
       .select('*', { count: 'exact', head: true })
 
-    if (count === 0) {
+    // if (count === 0) {
       console.log(`${table} 테이블이 비어있습니다. 샘플 데이터를 삽입합니다.`)
       await insertSampleData(table)
-    } else {
-      console.log(`${table} 테이블에 이미 데이터가 있습니다. 샘플 데이터를 삽입하지 않습니다.`)
-    }
+    // } else {
+      // console.log(`${table} 테이블에 이미 데이터가 있습니다. 샘플 데이터를 삽입하지 않습니다.`)
+    // }
   }
 }
 
@@ -70,8 +70,8 @@ async function insertSampleData(table) {
       break
     case 'Contact':
       sampleData = [
-        { name: '홍길동', email: 'hong@example.com', message: '안녕하세요, 문의드립니다.' },
-        { name: '김철수', email: 'kim@example.com', message: '제품에 대한 질문이 있습니다.' }
+        { author: '홍길동', title: '안녕하세요, 문의드립니다.', content: '안녕하세요, 문의드립니다.' },
+        { author: '김철수', title: '제품에 대한 질문이 있습니다.', content: '제품에 대한 질문이 있습니다.' }
       ]
       break
     case 'AdminBoard':
