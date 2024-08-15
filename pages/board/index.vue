@@ -1,14 +1,25 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white text-center">게시판</h1>
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white text-center flex items-center justify-center">
+      <Icon icon="mdi:clipboard-text-outline" class="mr-2" />
+      게시판
+    </h1>
     <div class="bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg overflow-hidden overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200">
         <thead class="bg-green-100 dark:bg-green-800">
           <tr>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">번호</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200">제목</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">작성자</th>
-            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">작성일</th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">
+              <Icon icon="mdi:pound" class="inline mr-1" />번호
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200">
+              <Icon icon="mdi:format-title" class="inline mr-1" />제목
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">
+              <Icon icon="mdi:account" class="inline mr-1" />작성자
+            </th>
+            <th scope="col" class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 hidden sm:table-cell">
+              <Icon icon="mdi:calendar" class="inline mr-1" />작성일
+            </th>
           </tr>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:text-white">
@@ -16,8 +27,13 @@
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">{{ post.id }}</td>
             <td class="px-6 py-4 whitespace-nowrap">
               <NuxtLink :to="`/board/view?id=${post.id}`" class="text-sm font-medium text-blue-600 hover:text-blue-800 dark:hover:text-blue-600 dark:text-white">
-                <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">{{ post.author }} | {{ new Date(post.createdAt).toLocaleDateString() }}</span>
-                <span class="truncate block max-w-xs sm:max-w-none">{{ post.title }}</span>
+                <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">
+                  <Icon icon="mdi:account" class="inline mr-1" />{{ post.author }} | 
+                  <Icon icon="mdi:calendar" class="inline mr-1" />{{ new Date(post.createdAt).toLocaleDateString() }}
+                </span>
+                <span class="truncate block max-w-xs sm:max-w-none">
+                  <Icon icon="mdi:text" class="inline mr-1" />{{ post.title }}
+                </span>
               </NuxtLink>
             </td>
             <td class="px-6 py-4 whitespace-nowrap text-sm text-gray-500 dark:text-white hidden sm:table-cell">{{ post.author }}</td>
@@ -30,6 +46,7 @@
     </div>
     <div class="mt-6">
       <NuxtLink to="/board/write" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <Icon icon="mdi:pencil-plus" class="mr-2" />
         새 글 작성
       </NuxtLink>
     </div>
@@ -52,6 +69,7 @@
 import { ref, watchEffect } from 'vue'
 import SearchBar from '~/components/board/SearchBar.vue'
 import Pagination from '~/components/board/Pagination.vue'
+import { Icon } from '@iconify/vue'
 
 const totalItems = ref(0)
 const itemsPerPage = ref(10)

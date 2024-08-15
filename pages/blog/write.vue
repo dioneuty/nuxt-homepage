@@ -1,16 +1,23 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white">
+    <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
+      <Icon :icon="isEditing ? 'mdi:pencil' : 'mdi:pencil-plus'" class="mr-2 text-blue-500" width="36" height="36" />
       {{ isEditing ? '블로그 포스트 수정' : '새 블로그 포스트 작성' }}
     </h1>
-    <form @submit.prevent="confirmSubmit" class="space-y-4">
+    <form @submit.prevent="confirmSubmit" class="space-y-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목 *</label>
+        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+          <Icon icon="mdi:format-title" class="mr-1" />
+          제목 *
+        </label>
         <input type="text" id="title" v-model="post.title" required
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
       <div>
-        <label for="categoryId" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리 *</label>
+        <label for="categoryId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+          <Icon icon="mdi:folder-outline" class="mr-1" />
+          카테고리 *
+        </label>
         <select id="categoryId" v-model="post.categoryId" required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
           <option v-for="category in categories" :key="category.id" :value="category.id">
@@ -19,17 +26,23 @@
         </select>
       </div>
       <div>
-        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용 *</label>
+        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+          <Icon icon="mdi:text-box-outline" class="mr-1" />
+          내용 *
+        </label>
         <CommonQuillEditor v-model="post.content" />
       </div>
       <div class="flex justify-end space-x-4">
-        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600">
+        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center">
+          <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
           {{ isEditing ? '수정' : '작성' }}
         </button>
-        <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-gray-400">
+        <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center">
+          <Icon icon="mdi:cancel" class="mr-2" />
           취소
         </button>
-        <NuxtLink to="/blog" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400">
+        <NuxtLink to="/blog" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors duration-200 flex items-center">
+          <Icon icon="mdi:format-list-bulleted" class="mr-2" />
           목록
         </NuxtLink>
       </div>
@@ -43,6 +56,7 @@ import { useRoute, useRouter } from 'vue-router'
 import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
 import { useModal } from '~/composables/useModal'
 import { useCategoryStore } from '~/stores/categoryStore'
+import { Icon } from '@iconify/vue'
 
 const route = useRoute()
 const router = useRouter()
@@ -53,7 +67,6 @@ definePageMeta({
   layout: 'blog',
   name: 'blog-write'
 })
-
 
 const isEditing = ref(false)
 const post = ref({

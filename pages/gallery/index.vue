@@ -1,14 +1,18 @@
 <template>
   <div class="container mx-auto px-4 py-8 max-w-[2560px]">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white">미디어 갤러리</h1>
+    <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
+      <Icon icon="mdi:image-multiple" class="mr-2" />
+      미디어 갤러리
+    </h1>
     
     <!-- 검색 바 -->
-    <div class="mb-6">
+    <div class="mb-6 relative">
+      <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
       <input 
         type="text" 
         v-model="searchQuery" 
         placeholder="검색..." 
-        class="w-full p-2 border rounded-md dark:bg-gray-700 dark:text-white"
+        class="w-full p-2 pl-10 border rounded-md dark:bg-gray-700 dark:text-white"
       >
     </div>
 
@@ -18,17 +22,25 @@
         <div class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg relative">
           <img :src="item.imageUrl" :alt="item.title" class="w-full h-48 object-cover">
           <div class="p-4">
-            <h2 class="text-xl font-bold mb-2 dark:text-white">{{ item.title }}</h2>
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">{{ item.description }}</p>
+            <h2 class="text-xl font-bold mb-2 dark:text-white flex items-center">
+              <Icon icon="mdi:image" class="mr-2" />
+              {{ item.title }}
+            </h2>
+            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 flex items-center">
+              <Icon icon="mdi:information-outline" class="mr-2" />
+              {{ item.description }}
+            </p>
             <div class="flex flex-wrap gap-2">
-              <span v-for="tag in item.tags" :key="tag" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs">
-                #{{ tag }}
+              <span v-for="tag in item.tags" :key="tag" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center">
+                <Icon icon="mdi:tag" class="mr-1" />
+                {{ tag }}
               </span>
             </div>
           </div>
           <!-- 댓글 알림 박스 -->
-          <div class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full">
-            {{ item.comments }} 댓글
+          <div class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
+            <Icon icon="mdi:comment-outline" class="mr-1" />
+            {{ item.comments }}
           </div>
         </div>
       </div>
@@ -38,6 +50,7 @@
 
 <script setup>
 import { ref, computed } from 'vue'
+import { Icon } from '@iconify/vue'
 
 // 갤러리 아이템 데이터 (실제로는 API에서 가져올 것입니다)
 const items = ref([

@@ -1,51 +1,51 @@
 <template>
-    <div class="container mx-auto px-4 py-8">
-      <h1 class="text-3xl font-bold mb-6 dark:text-white">새 문의 작성</h1>
-      <form @submit.prevent="submitMessage" class="space-y-4">
-        <div>
-          <label for="name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">이름</label>
-          <input type="text" id="name" v-model="form.name" required
-                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+    <div class="container mx-auto px-4 py-8 dark:bg-gray-800 dark:text-white">
+      <h1 class="text-3xl font-bold mb-6 flex items-center">
+        <Icon icon="mdi:eye" class="mr-2" />
+        문의 보기
+      </h1>
+      <div class="bg-white dark:bg-gray-700 shadow-md rounded-lg overflow-hidden">
+        <div class="p-4">
+          <h2 class="text-xl font-semibold mb-2 flex items-center">
+            <Icon icon="mdi:account" class="mr-2" />
+            이름: {{ message.name }}
+          </h2>
+          <p class="text-gray-600 dark:text-gray-300 mb-2 flex items-center">
+            <Icon icon="mdi:email" class="mr-2" />
+            이메일: {{ message.email }}
+          </p>
+          <div class="mb-4">
+            <h3 class="text-lg font-semibold mb-2 flex items-center">
+              <Icon icon="mdi:message-text" class="mr-2" />
+              메시지
+            </h3>
+            <p class="dark:text-gray-300">{{ message.message }}</p>
+          </div>
+          <div class="flex justify-between">
+            <NuxtLink to="/contactboard" class="bg-gray-500 text-white font-bold py-2 px-4 rounded hover:bg-gray-600 flex items-center">
+              <Icon icon="mdi:arrow-left" class="mr-2" />
+              목록으로
+            </NuxtLink>
+            <NuxtLink :to="`/contactboard/edit?id=${message.id}`" class="bg-yellow-500 text-white font-bold py-2 px-4 rounded hover:bg-yellow-600 flex items-center">
+              <Icon icon="mdi:pencil" class="mr-2" />
+              수정
+            </NuxtLink>
+          </div>
         </div>
-        <div>
-          <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300">이메일</label>
-          <input type="email" id="email" v-model="form.email" required
-                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        </div>
-        <div>
-          <label for="message" class="block text-sm font-medium text-gray-700 dark:text-gray-300">메시지</label>
-          <textarea id="message" v-model="form.message" rows="4" required
-                    class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
-        </div>
-        <button type="submit" class="bg-blue-500 text-white font-bold py-2 px-4 rounded hover:bg-blue-600">전송</button>
-      </form>
+      </div>
     </div>
   </template>
   
   <script setup>
-  import { ref } from 'vue';
-  
-  const form = ref({
-    name: '',
-    email: '',
-    message: ''
+  import { ref, onMounted } from 'vue';
+  import { useRoute } from 'vue-router';
+  import { Icon } from '@iconify/vue';
+
+  const route = useRoute();
+  const message = ref({});
+
+  onMounted(async () => {
+    const response = await fetch(`/api/contact/${route.query.id}`);
+    message.value = await response.json();
   });
-  
-  // 문의 메시지 전송
-  const submitMessage = async () => {
-    const response = await fetch('/api/contact', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify(form.value)
-    });
-  
-    if (response.ok) {
-      alert('문의가 성공적으로 전송되었습니다.');
-      // 추가적인 성공 처리 로직
-    } else {
-      alert('문의 전송에 실패했습니다.');
-    }
-  };
   </script>

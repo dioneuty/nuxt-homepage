@@ -1,8 +1,12 @@
 <template>
   <div class="container mx-auto px-4 py-8 dark:bg-gray-800 dark:text-white">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white">질문과 답변</h1>
+    <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
+      <Icon icon="mdi:frequently-asked-questions" class="mr-2" />
+      질문과 답변
+    </h1>
     <div class="mb-6 flex justify-between items-center">
-      <NuxtLink to="/qna/write" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+      <NuxtLink to="/qna/write" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center">
+        <Icon icon="mdi:pencil-plus" class="mr-2" />
         질문 작성하기
       </NuxtLink>
     </div>
@@ -13,21 +17,34 @@
     <ul class="space-y-4 mt-6">
       <li v-for="qna in qnas" :key="qna.id" class="border p-4 rounded shadow hover:shadow-md transition dark:border-gray-700 dark:bg-gray-700">
         <NuxtLink :to="`/qna/view?id=${qna.id}`" class="block">
-          <h2 class="text-xl font-semibold mb-2 dark:text-white">{{ qna.questionTitle }}</h2>
+          <h2 class="text-xl font-semibold mb-2 dark:text-white flex items-center">
+            <Icon icon="mdi:help-circle-outline" class="mr-2" />
+            {{ qna.questionTitle }}
+          </h2>
           <p class="text-gray-600 mb-2 dark:text-gray-300">{{ qna.questionContent.substring(0, 100) }}...</p>
-          <div class="text-sm text-gray-500 mb-2 dark:text-gray-400">
-            작성자: {{ qna.author }} | 작성일: {{ formatDate(qna.createdAt) }}
+          <div class="text-sm text-gray-500 mb-2 dark:text-gray-400 flex items-center">
+            <Icon icon="mdi:account" class="mr-1" />
+            작성자: {{ qna.author }} | 
+            <Icon icon="mdi:calendar" class="ml-2 mr-1" />
+            작성일: {{ formatDate(qna.createdAt) }}
           </div>
           <div class="flex items-center mb-2">
-            <span :class="qna.answerContent ? 'bg-green-500' : 'bg-red-500'" class="px-2 py-1 rounded text-white text-xs mr-2">
+            <span :class="qna.answerContent ? 'bg-green-500' : 'bg-red-500'" class="px-2 py-1 rounded text-white text-xs mr-2 flex items-center">
+              <Icon :icon="qna.answerContent ? 'mdi:check-circle' : 'mdi:clock-outline'" class="mr-1" />
               {{ qna.answerContent ? '답변 완료' : '답변 대기' }}
             </span>
           </div>
           <div v-if="qna.answerContent" class="bg-blue-50 p-3 rounded dark:bg-blue-900">
-            <h3 class="font-semibold mb-1 dark:text-white">답변:</h3>
+            <h3 class="font-semibold mb-1 dark:text-white flex items-center">
+              <Icon icon="mdi:comment-text-outline" class="mr-2" />
+              답변:
+            </h3>
             <p class="text-gray-700 dark:text-gray-300">{{ qna.answerContent.substring(0, 100) }}...</p>
-            <div class="text-sm text-gray-500 mt-1 dark:text-gray-400">
-              답변자: {{ qna.answerer }} | 답변일: {{ formatDate(qna.updatedAt) }}
+            <div class="text-sm text-gray-500 mt-1 dark:text-gray-400 flex items-center">
+              <Icon icon="mdi:account" class="mr-1" />
+              답변자: {{ qna.answerer }} | 
+              <Icon icon="mdi:calendar" class="ml-2 mr-1" />
+              답변일: {{ formatDate(qna.updatedAt) }}
             </div>
           </div>
         </NuxtLink>
@@ -50,6 +67,7 @@ import { ref, watchEffect } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import SearchBar from '~/components/board/SearchBar.vue'
 import Pagination from '~/components/board/Pagination.vue'
+import { Icon } from '@iconify/vue'
 
 const route = useRoute()
 const router = useRouter()

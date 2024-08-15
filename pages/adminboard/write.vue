@@ -10,14 +10,19 @@
           <label for="content" class="block text-gray-700">내용</label>
           <textarea id="content" v-model="post.content" class="w-full px-3 py-2 border rounded" rows="5" required></textarea>
         </div>
-        <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded">작성</button>
+        <div class="flex justify-end space-x-4">
+          <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-8 rounded flex-grow">작성</button>
+          <button @click="goToList" class="bg-gray-500 hover:bg-gray-600 text-white font-bold py-2 px-8 rounded flex-grow">취소</button>
+        </div>
       </form>
     </div>
   </template>
   
   <script setup>
   import { ref } from 'vue';
-  
+  import { useRouter } from 'vue-router';
+
+  const router = useRouter();
   const post = ref({ title: '', content: '' });
   
   const submitPost = async () => {
@@ -29,8 +34,13 @@
   
     if (response.ok) {
       alert('게시글이 작성되었습니다.');
+      router.push('/adminboard');
     } else {
       alert('게시글 작성에 실패했습니다.');
     }
+  };
+
+  const goToList = () => {
+    router.push('/adminboard');
   };
   </script>

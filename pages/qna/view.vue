@@ -2,18 +2,29 @@
   <div class="container mx-auto px-4 py-8 dark:bg-gray-800 dark:text-white">
     <div v-if="isLoaded && qna">
       <div v-if="!isEditingQuestion">
-        <h1 class="text-3xl font-bold mb-4 dark:text-white">{{ qna.questionTitle }}</h1>
-        <div class="mb-4 text-gray-600 dark:text-gray-400">
-          작성자: {{ qna.author }} | 작성일: {{ formatDate(qna.createdAt) }}
+        <h1 class="text-3xl font-bold mb-4 dark:text-white flex items-center">
+          <Icon icon="mdi:help-circle" class="mr-2" />
+          {{ qna.questionTitle }}
+        </h1>
+        <div class="mb-4 text-gray-600 dark:text-gray-400 flex items-center">
+          <Icon icon="mdi:account" class="mr-1" />
+          작성자: {{ qna.author }} | 
+          <Icon icon="mdi:calendar" class="ml-2 mr-1" />
+          작성일: {{ formatDate(qna.createdAt) }}
         </div>
         <div class="mb-8 p-4 bg-gray-100 rounded dark:bg-gray-700">
-          <h2 class="text-xl font-semibold mb-2 dark:text-white">질문 내용</h2>
+          <h2 class="text-xl font-semibold mb-2 dark:text-white flex items-center">
+            <Icon icon="mdi:comment-question-outline" class="mr-2" />
+            질문 내용
+          </h2>
           <p class="dark:text-gray-300">{{ qna.questionContent }}</p>
-          <div class="mt-4">
-            <button @click="startEditingQuestion" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2">
+          <div class="mt-4 flex items-center">
+            <button @click="startEditingQuestion" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2 flex items-center">
+              <Icon icon="mdi:pencil" class="mr-2" />
               질문 수정
             </button>
-            <button @click="deleteQnA" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2">
+            <button @click="deleteQnA" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded mr-2 flex items-center">
+              <Icon icon="mdi:delete" class="mr-2" />
               질문 삭제
             </button>
           </div>
@@ -40,16 +51,24 @@
       </div>
 
       <div v-if="qna.answerContent && !isEditingAnswer" class="mt-8 mb-8 p-4 bg-blue-100 rounded dark:bg-blue-900">
-        <h2 class="text-xl font-semibold mb-2 dark:text-white">답변</h2>
+        <h2 class="text-xl font-semibold mb-2 dark:text-white flex items-center">
+          <Icon icon="mdi:comment-text-outline" class="mr-2" />
+          답변
+        </h2>
         <p class="dark:text-gray-300">{{ qna.answerContent }}</p>
-        <div class="mt-2 text-gray-600 dark:text-gray-400">
-          답변자: {{ qna.answerer }} | 답변일: {{ formatDate(qna.updatedAt) }}
+        <div class="mt-2 text-gray-600 dark:text-gray-400 flex items-center">
+          <Icon icon="mdi:account" class="mr-1" />
+          답변자: {{ qna.answerer }} | 
+          <Icon icon="mdi:calendar" class="ml-2 mr-1" />
+          답변일: {{ formatDate(qna.updatedAt) }}
         </div>
-        <div class="mt-4">
-          <button @click="startEditingAnswer" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2">
+        <div class="mt-4 flex items-center">
+          <button @click="startEditingAnswer" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2 flex items-center">
+            <Icon icon="mdi:pencil" class="mr-2" />
             답변 수정
           </button>
-          <button @click="deleteAnswer" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded">
+          <button @click="deleteAnswer" class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded flex items-center">
+            <Icon icon="mdi:delete" class="mr-2" />
             답변 삭제
           </button>
         </div>
@@ -102,6 +121,7 @@
 <script setup>
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
+import { Icon } from '@iconify/vue'
 
 const route = useRoute()
 const router = useRouter()

@@ -1,27 +1,42 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white">{{ isEditing ? '게시글 수정' : '새 게시글 작성' }}</h1>
+    <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
+      <Icon :icon="isEditing ? 'mdi:pencil' : 'mdi:pencil-plus'" class="mr-2" />
+      {{ isEditing ? '게시글 수정' : '새 게시글 작성' }}
+    </h1>
     <form @submit.prevent="submitPost" class="space-y-4">
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">제목 *</label>
+        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+          <Icon icon="mdi:format-title" class="mr-1" />
+          제목 *
+        </label>
         <input id="title" v-model="post.title" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" placeholder="제목을 입력하세요" required>
       </div>
       <div>
-        <label for="author" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">작성자 *</label>
+        <label for="author" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+          <Icon icon="mdi:account" class="mr-1" />
+          작성자 *
+        </label>
         <input id="author" v-model="post.author" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" placeholder="작성자 이름을 입력하세요" required>
       </div>
       <div>
-        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">내용 *</label>
+        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+          <Icon icon="mdi:text-box-outline" class="mr-1" />
+          내용 *
+        </label>
         <CommonQuillEditor id="content" v-model="post.content" />
       </div>
       <div class="flex justify-between">
-        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center">
+          <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
           {{ isEditing ? '수정하기' : '작성하기' }}
         </button>
-        <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+        <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
+          <Icon icon="mdi:cancel" class="mr-2" />
           취소
         </button>
-        <NuxtLink to="/board" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400">
+        <NuxtLink to="/board" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
+          <Icon icon="mdi:format-list-bulleted" class="mr-2" />
           목록
         </NuxtLink>
       </div>
@@ -33,6 +48,7 @@
 import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModal } from '~/composables/useModal'
+import { Icon } from '@iconify/vue'
 
 const route = useRoute()
 const router = useRouter()

@@ -24,7 +24,7 @@ export default defineNuxtConfig({
     }
   },
   build: {
-    transpile: ['vue3-quill']
+    transpile: ['vue3-quill', '@iconify/vue']
   },
   modules: [
     '@pinia/nuxt',
