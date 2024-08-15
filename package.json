@@ -9,7 +9,7 @@
     "preview": "nuxt preview",
     "postinstall": "prisma generate",
     "vercel-build": "npm run build",
-    "seed": "node prisma/seed.js"
+    "seed": "node seed.js"
   },
   "dependencies": {
     "@heroicons/vue": "^2.1.5",

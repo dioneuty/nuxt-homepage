@@ -59,3 +59,14 @@ model AdminBoard {
   content   String
   createdAt DateTime @default(now())
 }
+
+model QnA {
+  id            Int      @id @default(autoincrement())
+  questionTitle String
+  questionContent String
+  answerContent String?
+  author        String
+  answerer      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime? @updatedAt
+}
