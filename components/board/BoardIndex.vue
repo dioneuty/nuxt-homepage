@@ -94,7 +94,7 @@
   const currentPage = ref(1)
   const searchParams = ref({ type: 'title', text: '' })
   
-  const { data: posts, error, refresh } = await useAsyncData('boardPosts', async () => {
+  const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async () => {
     const response = await $fetch(props.apiEndpoint, {
       params: {
         page: currentPage.value,

@@ -17,9 +17,10 @@
 import BoardIndex from '~/components/board/BoardIndex.vue'
 
 const tableHeaders = [
-  { key: 'id', label: '번호', icon: 'mdi:pound', class: 'hidden sm:table-cell' },
+  // { key: 'id', label: '번호', icon: 'mdi:pound', class: 'hidden sm:table-cell' },
   { key: 'title', label: '문의제목', icon: 'mdi:format-title' },
   { key: 'author', label: '문의자', icon: 'mdi:account', class: 'hidden sm:table-cell' },
+  { key: 'content', label: '문의내용', icon: 'mdi:account', class: 'hidden sm:table-cell' },
   { key: 'createdAt', label: '문의일', icon: 'mdi:calendar', class: 'hidden sm:table-cell' }
 ]
 

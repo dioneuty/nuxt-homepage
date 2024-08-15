@@ -29,7 +29,7 @@ export default defineEventHandler(async (event) => {
         }
       }
 
-      const [contacts, totalCount] = await Promise.all([
+      const [posts, totalCount] = await Promise.all([
         prisma.contact.findMany({
           where: whereClause,
           orderBy: { id: 'desc' },
@@ -40,7 +40,7 @@ export default defineEventHandler(async (event) => {
       ])
 
       return {
-        contacts,
+        posts,
         total: totalCount,
         page: parseInt(page),
         itemsPerPage: parseInt(itemsPerPage)

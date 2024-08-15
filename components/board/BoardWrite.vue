@@ -92,6 +92,7 @@ onMounted(async () => {
   
 function updateField(fieldName, event) {
   post.value[fieldName] = event.target ? event.target.value : event
+  console.log(`Field ${fieldName} updated:`, post.value[fieldName])
 }
 
 async function submitPost() {
@@ -102,29 +103,29 @@ async function submitPost() {
     openModal('경고', `다음 필드를 입력해주세요: ${missingFields.join(', ')}`)
     return
   }
-  
+
   console.log('Submitting post:', post.value)
-  
-  const url = isEditing.value ? `${props.apiEndpoint}?id=${route.query.id}` : props.apiEndpoint
+
+  const url = isEditing.value ? `${props.apiEndpoint}/${route.query.id}` : props.apiEndpoint
   const method = isEditing.value ? 'PUT' : 'POST'
-  
-  const { data, error } = await useFetch(url, {
-    method,
-    body: post.value
-  })
-  
-  if (error.value) {
+
+  try {
+    const response = await $fetch(url, {
+      method,
+      body: post.value
+    })
+
+    openModal('성공', `게시글이 성공적으로 ${isEditing.value ? '수정' : '작성'}되었습니다.`, () => {
+      if (isEditing.value) {
+        router.push(`${props.listPath}/view?id=${route.query.id}`)
+      } else {
+        router.push(props.listPath)
+      }
+    })
+  } catch (error) {
+    console.error('Error submitting post:', error)
     openModal('오류', `게시글 ${isEditing.value ? '수정' : '작성'}에 실패했습니다.`)
-    return
   }
-  
-  openModal('성공', `게시글이 성공적으로 ${isEditing.value ? '수정' : '작성'}되었습니다.`, () => {
-    if (isEditing.value) {
-      router.push(`${props.listPath}/view?id=${route.query.id}`)
-    } else {
-      router.push(props.listPath)
-    }
-  })
 }
   
 function cancelEdit() {
