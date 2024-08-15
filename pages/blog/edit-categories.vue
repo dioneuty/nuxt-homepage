@@ -1,52 +1,69 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 text-gray-800 dark:text-white">카테고리 편집</h1>
-    <div class="bg-white dark:bg-gray-800 shadow-md rounded-lg p-6">
-      <ul class="space-y-4">
-        <li v-for="(category, index) in categories" :key="index" class="flex items-center justify-between">
-          <div class="flex-grow mr-4">
-            <input 
-              v-model="category.name" 
-              type="text" 
-              class="w-full px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
-            >
-            <span class="text-sm text-gray-500 dark:text-gray-400 ml-2">({{ category.post_count }})</span>
-          </div>
-          <button @click="removeCategory(index)" class="text-red-500 hover:text-red-700">삭제</button>
-        </li>
-      </ul>
-      <div class="mt-6 flex items-center">
+    <h1 class="text-3xl font-bold mb-6 dark:text-white">카테고리 편집</h1>
+    <div class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-6">
+      <div class="mb-4 flex">
         <input 
           v-model="newCategory" 
-          type="text" 
+          @keyup.enter="addCategory" 
           placeholder="새 카테고리 이름" 
-          class="flex-grow mr-4 px-3 py-2 border rounded-md dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          class="flex-grow p-2 border rounded dark:bg-gray-700 dark:text-white mr-2"
         >
-        <button @click="addCategory" class="bg-blue-500 text-white px-4 py-2 rounded-md hover:bg-blue-600">추가</button>
-      </div>
-      <div class="mt-6 flex justify-between items-center">
-        <NuxtLink 
-          to="/blog" 
-          class="bg-gray-500 text-white px-4 py-2 rounded-md hover:bg-gray-600"
+        <button 
+          @click="addCategory" 
+          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
         >
-          목록으로
-        </NuxtLink>
-        <button @click="saveCategories" class="bg-green-500 text-white px-6 py-2 rounded-md hover:bg-green-600">저장</button>
+          추가
+        </button>
       </div>
+      <ul class="mb-4">
+        <li v-for="(category, index) in categories" :key="index" class="mb-2 flex items-center">
+          <input 
+            v-model="category.name" 
+            class="flex-grow p-2 border rounded dark:bg-gray-700 dark:text-white mr-2"
+          >
+          <span class="mr-2 text-gray-600 dark:text-gray-400">
+            ({{ category.post_count || 0 }})
+          </span>
+          <button 
+            @click="removeCategory(index)" 
+            class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+          >
+            삭제
+          </button>
+        </li>
+      </ul>
+    </div>
+    <div class="flex justify-between">
+      <button 
+        @click="cancelEdit" 
+        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+      >
+        취소
+      </button>
+      <button 
+        @click="saveCategories" 
+        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+      >
+        저장
+      </button>
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const categories = ref([])
 const newCategory = ref('')
+const deletedCategories = ref([])
 
 // 카테고리 불러오기
 const fetchCategories = async () => {
   const { data } = await useFetch('/api/categories')
-  categories.value = data.value
+  categories.value = data.value.filter(cat => cat.id !== 'all')
 }
 
 // 컴포넌트 마운트 시 카테고리 불러오기
@@ -64,20 +81,27 @@ const addCategory = () => {
 }
 
 const removeCategory = (index) => {
-  categories.value.splice(index, 1)
+  const removedCategory = categories.value.splice(index, 1)[0]
+  if (removedCategory.id) {
+    deletedCategories.value.push(removedCategory.id)
+  }
 }
 
 const saveCategories = async () => {
   const { error } = await useFetch('/api/categories', {
     method: 'PUT',
-    body: categories.value
+    body: { categories: categories.value, deletedCategories: deletedCategories.value }
   })
 
   if (error.value) {
     alert('카테고리 저장에 실패했습니다.')
   } else {
     alert('카테고리가 성공적으로 저장되었습니다.')
-    await fetchCategories()  // 저장 후 카테고리 목록 새로고침
+    router.push('/blog')
   }
+}
+
+const cancelEdit = () => {
+  router.push('/blog')
 }
 </script>

@@ -16,7 +16,7 @@
     <!-- 버튼 그룹 -->
     <div class="mt-6 flex justify-between items-center">
       <div class="space-x-4">
-        <NuxtLink :to="`/board/edit?id=${id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <NuxtLink :to="`/board/write?id=${post.id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
           수정하기
         </NuxtLink>
         <button @click="deletePost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
@@ -27,31 +27,41 @@
         목록으로
       </NuxtLink>
     </div>
+    <Modal />
   </div>
 </template>
 
 <script setup>
 import { useRoute, useRouter } from 'vue-router'
+import { useModal } from '~/composables/useModal'
 
 const route = useRoute()
 const router = useRouter()
 const id = route.query.id
 const { data: post, error } = await useFetch(`/api/boardPosts?id=${id}`)
+const { openModal } = useModal()
 
 async function deletePost() {
-  if (confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
-    const { error } = await useFetch('/api/boardPosts', {
-      method: 'DELETE',
-      body: { id: post.value.id }
-    })
+  openModal('확인', '정말로 이 게시글을 삭제하시겠습니까?', async (confirmed) => {
+    if (confirmed) {
+      try {
+        const { error } = await useFetch('/api/boardPosts', {
+          method: 'DELETE',
+          body: { id: post.value.id }
+        })
 
-    if (error.value) {
-      alert('게시글 삭제에 실패했습니다.')
-      return
+        if (error.value) {
+          openModal('오류', '게시글 삭제에 실패했습니다.')
+          return
+        }
+
+        openModal('성공', '게시글이 성공적으로 삭제되었습니다.', () => {
+          router.push('/board')
+        })
+      } catch (error) {
+        openModal('오류', '서버 오류가 발생했습니다.')
+      }
     }
-
-    alert('게시글이 성공적으로 삭제되었습니다.')
-    await router.push('/board')
-  }
+  }, true)
 }
 </script>

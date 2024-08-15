@@ -1,68 +1,24 @@
 <template>
-  <div class="bg-white min-h-screen py-12 px-4 sm:px-6 lg:px-8 dark:bg-gray-900">
-    <div class="max-w-3xl mx-auto md:max-w-4xl lg:max-w-5xl">
-      <!-- 포스트가 존재하는 경우 -->
-      <div v-if="post" class="bg-white shadow-lg rounded-lg overflow-hidden dark:bg-gray-800">
-        <!-- 헤더 이미지 (옵션) -->
-        <img v-if="post.image" :src="post.image" :alt="post.title" class="w-full h-64 object-cover md:h-80 lg:h-96">
-        
-        <!-- 포스트 내용 -->
-        <div class="p-8 md:p-10 lg:p-12">
-          <h1 class="text-3xl font-bold text-gray-900 mb-4 dark:text-white md:text-4xl lg:text-5xl">{{ post.title }}</h1>
-          <div class="flex items-center text-sm text-gray-600 mb-6 md:text-base">
-            <svg class="h-4 w-4 mr-2 md:h-5 md:w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-            </svg>
-            <span class="dark:text-gray-200">{{ new Date(post.createdAt).toLocaleDateString() }}</span>
-          </div>
-          <div class="prose max-w-none text-gray-700 dark:text-white md:text-lg lg:text-xl">
-            {{ post.content }}
-          </div>
-        </div>
-      </div>
-
-      <!-- 포스트를 찾을 수 없는 경우 -->
-      <div v-else-if="!pending && !error && !post" class="bg-yellow-50 border-l-4 border-yellow-400 p-4">
-        <div class="flex">
-          <div class="flex-shrink-0">
-            <svg class="h-5 w-5 text-yellow-400" viewBox="0 0 20 20" fill="currentColor">
-              <path fill-rule="evenodd" d="M8.257 3.099c.765-1.36 2.722-1.36 3.486 0l5.58 9.92c.75 1.334-.213 2.98-1.742 2.98H4.42c-1.53 0-2.493-1.646-1.743-2.98l5.58-9.92zM11 13a1 1 0 11-2 0 1 1 0 012 0zm-1-8a1 1 0 00-1 1v3a1 1 0 002 0V6a1 1 0 00-1-1z" clip-rule="evenodd" />
-            </svg>
-          </div>
-          <div class="ml-3">
-            <p class="text-sm text-yellow-700">
-              블로그 포스트를 찾을 수 없습니다.
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- 에러 메시지 -->
-      <div v-else-if="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4 mb-4" role="alert">
-        <p class="font-bold">에러 발생</p>
-        <p>{{ error.message }}</p>
-      </div>
-
-      <!-- 로딩 상태 -->
-      <div v-else class="flex flex-col justify-center items-center h-64 bg-white shadow-lg rounded-lg">
-        <svg class="animate-spin h-10 w-10 text-blue-500 mb-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-          <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-          <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-        </svg>
-        <p class="text-lg font-semibold text-gray-700">로딩 중...</p>
-      </div>
-
+  <div class="container mx-auto px-4 py-8">
+    <div v-if="pending">로딩 중...</div>
+    <div v-else-if="error">에러 발생: {{ error }}</div>
+    <div v-else-if="post">
+      <h1 class="text-3xl font-bold mb-4 dark:text-white">{{ post.title }}</h1>
+      <p class="text-gray-600 dark:text-gray-400 mb-2">작성일: {{ formatDate(post.createdAt) }}</p>
+      <p class="text-gray-600 dark:text-gray-400 mb-4">카테고리: {{ post.category?.name || '없음' }}</p>
+      <div class="prose dark:prose-invert max-w-none" v-html="post.content"></div>
+      
       <!-- 버튼 그룹 -->
       <div class="mt-8 flex justify-between items-center">
         <div class="space-x-4">
-          <NuxtLink :to="`/blog/edit?id=${id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+          <NuxtLink :to="`/blog/write?id=${id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             수정하기
           </NuxtLink>
           <button @click="deletePost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500">
             삭제하기
           </button>
         </div>
-        <NuxtLink to="/blog" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
+        <NuxtLink :to="`/blog?category=${currentCategoryId}`" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700">
           목록으로
         </NuxtLink>
       </div>
@@ -71,36 +27,57 @@
 </template>
 
 <script setup>
+import { useCategoryStore } from '~/stores/categoryStore'
+import { storeToRefs } from 'pinia'
 import { useRoute, useRouter } from 'vue-router'
+import { useModal } from '~/composables/useModal'
 
 const route = useRoute()
 const router = useRouter()
+const { openModal } = useModal()
+
+const categoryStore = useCategoryStore()
+const { currentCategoryId } = storeToRefs(categoryStore)
+
 const id = route.query.id
 
-definePageMeta({
-  layout: 'blog',
-  name: 'blog-view'
-})
+const { data: post, error, pending } = await useFetch(() => `/api/blogPosts?id=${id}&include=category`)
 
-
-const { data: post, error } = await useFetch(`/api/blogPosts`, {
-  params: { id }
-})
-
-const deletePost = async () => {
-  if (confirm('정말로 이 블로그 포스트를 삭제하시겠습니까?')) {
-    const { error } = await useFetch(`/api/blogPosts`, {
-      method: 'DELETE',
-      body: { id: post.value.id }
-    })
-
-    if (error.value) {
-      alert('블로그 포스트 삭제 중 오류가 발생했습니다.')
-      console.error('Error deleting post:', error.value)
-    } else {
-      alert('블로그 포스트가 삭제되었습니다.')
-      await router.push('/blog')
-    }
-  }
+// 날짜 포맷 함수
+function formatDate(dateString) {
+  return new Date(dateString).toLocaleDateString('ko-KR', {
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
 }
+
+// 삭제 함수
+async function deletePost() {
+  openModal('확인', '정말로 이 게시글을 삭제하시겠습니까?', async (confirmed) => {
+    if (confirmed) {
+      try {
+        const { error } = await useFetch(`/api/blogPosts?id=${id}`, {
+          method: 'DELETE'
+        })
+
+        if (error.value) {
+          openModal('오류', '게시글 삭제에 실패했습니다.')
+          return
+        }
+
+        openModal('성공', '게시글이 성공적으로 삭제되었습니다.', () => {
+          router.push('/blog')
+        })
+      } catch (error) {
+        openModal('오류', '서버 오류가 발생했습니다.')
+      }
+    }
+  }, true)
+}
+
+// 페이지 메타 정의
+definePageMeta({
+  layout: 'blog'
+})
 </script>

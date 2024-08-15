@@ -9,13 +9,17 @@ export default defineEventHandler(async (event) => {
     
     if (id) {
       const post = await prisma.blogPost.findUnique({
-        where: { id: parseInt(id) }
+        where: { id: parseInt(id) },
+        include: { category: true }
       })
       return post || createError({ statusCode: 404, statusMessage: '블로그 포스트를 찾을 수 없습니다' })
     } else {
       let whereClause = {}
       if (category && category !== '-1') {
-        whereClause.categoryId = parseInt(category)
+        const categoryId = parseInt(category)
+        if (!isNaN(categoryId)) {
+          whereClause.categoryId = categoryId
+        }
       }
 
       const posts = await prisma.blogPost.findMany({
@@ -32,9 +36,14 @@ export default defineEventHandler(async (event) => {
     const { title, content, categoryId } = await readBody(event)
     try {
       const result = await prisma.blogPost.create({
-        data: { title, content, categoryId: parseInt(categoryId) }
+        data: { 
+          title, 
+          content, 
+          categoryId: categoryId ? parseInt(categoryId) : undefined 
+        },
+        include: { category: true }
       })
-      return { success: true, id: result.id }
+      return { success: true, post: result }
     } catch (error) {
       console.error('블로그 포스트 생성 중 오류:', error)
       throw createError({ statusCode: 500, statusMessage: '블로그 포스트 생성 실패' })
@@ -45,11 +54,16 @@ export default defineEventHandler(async (event) => {
   if (method === 'PUT') {
     const { id, title, content, categoryId } = await readBody(event)
     try {
-      await prisma.blogPost.update({
+      const updatedPost = await prisma.blogPost.update({
         where: { id: parseInt(id) },
-        data: { title, content, categoryId: parseInt(categoryId) }
+        data: { 
+          title, 
+          content, 
+          categoryId: categoryId ? parseInt(categoryId) : undefined 
+        },
+        include: { category: true }
       })
-      return { success: true }
+      return { success: true, post: updatedPost }
     } catch (error) {
       console.error('블로그 포스트 업데이트 중 오류:', error)
       throw createError({ statusCode: 500, statusMessage: '블로그 포스트 업데이트 실패' })
@@ -58,7 +72,7 @@ export default defineEventHandler(async (event) => {
 
   // DELETE 요청 처리
   if (method === 'DELETE') {
-    const { id } = await readBody(event)
+    const { id } = getQuery(event)
     try {
       await prisma.blogPost.delete({
         where: { id: parseInt(id) }

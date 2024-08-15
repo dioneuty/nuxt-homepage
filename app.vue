@@ -3,10 +3,12 @@
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
+    <Modal />
   </div>
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted, provide } from 'vue'
+import Modal from '~/components/common/Modal.vue'
 
 const colorMode = ref('system') // 'light', 'dark', 'system' 중 하나
 
