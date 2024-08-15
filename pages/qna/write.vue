@@ -1,14 +1,14 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6">질문 작성하기</h1>
+  <div class="container mx-auto px-4 py-8 dark:bg-gray-800 dark:text-white">
+    <h1 class="text-3xl font-bold mb-6 dark:text-white">질문 작성하기</h1>
     <form @submit.prevent="submitQuestion" class="max-w-2xl mx-auto">
       <div class="mb-4">
-        <label for="questionTitle" class="block mb-2 font-bold">제목</label>
-        <input v-model="questionTitle" id="questionTitle" type="text" class="w-full p-2 border rounded" required>
+        <label for="questionTitle" class="block mb-2 font-bold dark:text-white">제목</label>
+        <input v-model="questionTitle" id="questionTitle" type="text" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
       </div>
       <div class="mb-4">
-        <label for="questionContent" class="block mb-2 font-bold">내용</label>
-        <textarea v-model="questionContent" id="questionContent" rows="5" class="w-full p-2 border rounded" required></textarea>
+        <label for="questionContent" class="block mb-2 font-bold dark:text-white">내용</label>
+        <textarea v-model="questionContent" id="questionContent" rows="5" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required></textarea>
       </div>
       <div class="flex justify-between">
         <button type="submit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">

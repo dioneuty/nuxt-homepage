@@ -9,6 +9,7 @@
       <slot />
     </div>
     <Footer />
+    <ScrollToTop />
     <!-- 배경 오버레이 -->
     <div
       v-if="isMenuOpen"
@@ -22,6 +23,7 @@
 import { ref } from 'vue'
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
+import ScrollToTop from '~/components/common/ScrollToTop.vue'
 
 const isMenuOpen = ref(false)
 

@@ -15,6 +15,7 @@
       </main>
     </div>
     <Footer />
+    <ScrollToTop />
     <!-- 배경 오버레이 -->
     <Transition name="fade">
       <div 
@@ -31,6 +32,7 @@ import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import BlogSidebar from '~/components/BlogSidebar.vue'
 import MobileCategoryDropdown from '~/components/MobileCategoryDropdown.vue'
+import ScrollToTop from '~/components/common/ScrollToTop.vue'
 import { ref, provide, computed } from 'vue'
 import { useRoute } from 'vue-router'
 

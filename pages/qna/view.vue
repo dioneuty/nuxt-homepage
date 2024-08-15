@@ -1,14 +1,14 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
+  <div class="container mx-auto px-4 py-8 dark:bg-gray-800 dark:text-white">
     <div v-if="isLoaded && qna">
       <div v-if="!isEditingQuestion">
-        <h1 class="text-3xl font-bold mb-4">{{ qna.questionTitle }}</h1>
-        <div class="mb-4 text-gray-600">
+        <h1 class="text-3xl font-bold mb-4 dark:text-white">{{ qna.questionTitle }}</h1>
+        <div class="mb-4 text-gray-600 dark:text-gray-400">
           작성자: {{ qna.author }} | 작성일: {{ formatDate(qna.createdAt) }}
         </div>
-        <div class="mb-8 p-4 bg-gray-100 rounded">
-          <h2 class="text-xl font-semibold mb-2">질문 내용</h2>
-          <p>{{ qna.questionContent }}</p>
+        <div class="mb-8 p-4 bg-gray-100 rounded dark:bg-gray-700">
+          <h2 class="text-xl font-semibold mb-2 dark:text-white">질문 내용</h2>
+          <p class="dark:text-gray-300">{{ qna.questionContent }}</p>
           <div class="mt-4">
             <button @click="startEditingQuestion" class="bg-yellow-500 hover:bg-yellow-600 text-white font-bold py-2 px-4 rounded mr-2">
               질문 수정
@@ -20,15 +20,15 @@
         </div>
       </div>
       <div v-else>
-        <h2 class="text-2xl font-bold mb-4">질문 수정</h2>
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">질문 수정</h2>
         <form @submit.prevent="updateQuestion">
           <div class="mb-4">
-            <label for="questionTitle" class="block mb-2">제목</label>
-            <input v-model="editedQuestion.title" id="questionTitle" type="text" class="w-full p-2 border rounded" required>
+            <label for="questionTitle" class="block mb-2 dark:text-white">제목</label>
+            <input v-model="editedQuestion.title" id="questionTitle" type="text" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
           </div>
           <div class="mb-4">
-            <label for="questionContent" class="block mb-2">내용</label>
-            <textarea v-model="editedQuestion.content" id="questionContent" rows="5" class="w-full p-2 border rounded" required></textarea>
+            <label for="questionContent" class="block mb-2 dark:text-white">내용</label>
+            <textarea v-model="editedQuestion.content" id="questionContent" rows="5" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required></textarea>
           </div>
           <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
             저장
@@ -39,10 +39,10 @@
         </form>
       </div>
 
-      <div v-if="qna.answerContent && !isEditingAnswer" class="mt-8 mb-8 p-4 bg-blue-100 rounded">
-        <h2 class="text-xl font-semibold mb-2">답변</h2>
-        <p>{{ qna.answerContent }}</p>
-        <div class="mt-2 text-gray-600">
+      <div v-if="qna.answerContent && !isEditingAnswer" class="mt-8 mb-8 p-4 bg-blue-100 rounded dark:bg-blue-900">
+        <h2 class="text-xl font-semibold mb-2 dark:text-white">답변</h2>
+        <p class="dark:text-gray-300">{{ qna.answerContent }}</p>
+        <div class="mt-2 text-gray-600 dark:text-gray-400">
           답변자: {{ qna.answerer }} | 답변일: {{ formatDate(qna.updatedAt) }}
         </div>
         <div class="mt-4">
@@ -56,11 +56,11 @@
       </div>
 
       <div v-else-if="isEditingAnswer" class="mt-8">
-        <h2 class="text-2xl font-bold mb-4">답변 수정</h2>
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">답변 수정</h2>
         <form @submit.prevent="updateAnswer">
           <div class="mb-4">
-            <label for="answerContent" class="block mb-2">답변 내용</label>
-            <textarea v-model="editedAnswer" id="answerContent" rows="5" class="w-full p-2 border rounded" required></textarea>
+            <label for="answerContent" class="block mb-2 dark:text-white">답변 내용</label>
+            <textarea v-model="editedAnswer" id="answerContent" rows="5" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required></textarea>
           </div>
           <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded mr-2">
             저장
@@ -72,11 +72,11 @@
       </div>
 
       <div v-else-if="!qna.answerContent" class="mt-8">
-        <h2 class="text-2xl font-bold mb-4">답변 작성</h2>
+        <h2 class="text-2xl font-bold mb-4 dark:text-white">답변 작성</h2>
         <form @submit.prevent="submitAnswer">
           <div class="mb-4">
-            <label for="newAnswerContent" class="block mb-2">답변 내용</label>
-            <textarea v-model="newAnswer" id="newAnswerContent" rows="5" class="w-full p-2 border rounded" required></textarea>
+            <label for="newAnswerContent" class="block mb-2 dark:text-white">답변 내용</label>
+            <textarea v-model="newAnswer" id="newAnswerContent" rows="5" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required></textarea>
           </div>
           <button type="submit" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
             답변 등록
@@ -90,10 +90,10 @@
         </NuxtLink>
       </div>
     </div>
-    <div v-else-if="isLoaded">
+    <div v-else-if="isLoaded" class="dark:text-white">
       질문을 찾을 수 없습니다.
     </div>
-    <div v-else>
+    <div v-else class="dark:text-white">
       데이터를 불러오는 중입니다...
     </div>
   </div>

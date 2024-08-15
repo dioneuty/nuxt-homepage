@@ -23,7 +23,7 @@
               <div v-if="item.children" class="relative inline-block group">
                 <NuxtLink v-if="item.path" :to="item.path" 
                           :class="['hover:text-blue-200 flex items-center py-2', 
-                                   { 'text-yellow-300': isActiveOrHasActiveChild(item) }]">
+                                   { 'text-yellow-300 font-bold': isActiveOrHasActiveChild(item) }]">
                   {{ item.name }}
                   <svg class="w-4 h-4 ml-1 transition-transform duration-200 transform group-hover:rotate-180" 
                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -32,7 +32,7 @@
                 </NuxtLink>
                 <span v-else 
                       :class="['cursor-default hover:text-blue-200 flex items-center py-2',
-                               { 'text-yellow-300': isActiveOrHasActiveChild(item) }]">
+                               { 'text-yellow-300 font-bold': isActiveOrHasActiveChild(item) }]">
                   {{ item.name }}
                   <svg class="w-4 h-4 ml-1 transition-transform duration-200 transform group-hover:rotate-180" 
                        xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
@@ -54,7 +54,7 @@
               <!-- 자식 메뉴가 없는 경우 -->
               <NuxtLink v-else :to="item.path" 
                         :class="['hover:text-blue-200 py-2', 
-                                 { 'text-yellow-300': isActive(item.path) }]">
+                                 { 'text-yellow-300 font-bold': isActive(item.path) }]">
                 {{ item.name }}
               </NuxtLink>
             </template>
@@ -108,7 +108,7 @@
             <div
               @click="handleItemClick(item)"
               :class="['flex justify-between items-center py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-200 ease-in-out cursor-pointer',
-                       { 'bg-blue-500': isActiveOrHasActiveChild(item) }]"
+                       { 'bg-blue-500 text-yellow-300 font-bold': isActiveOrHasActiveChild(item) }]"
             >
               {{ item.name }}
               <ChevronDownIcon
@@ -130,7 +130,7 @@
                   :key="child.path"
                   :to="child.path"
                   :class="['block py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-500 transition duration-200 ease-in-out',
-                           { 'bg-blue-500 dark:bg-gray-500': isActive(child.path) }]"
+                           { 'bg-blue-500 dark:bg-gray-500 text-yellow-300 font-bold': isActive(child.path) }]"
                   @click="closeMenu"
                 >
                   {{ child.name }}

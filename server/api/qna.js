@@ -6,7 +6,7 @@ export default defineEventHandler(async (event) => {
 
   // GET 요청 처리
   if (method === 'GET') {
-    const { id, page = 1, limit = 10, searchType, searchText } = getQuery(event)
+    const { id, page = 1, itemsPerPage = 10, type, text } = getQuery(event)
     
     if (id) {
       const qna = await prisma.qnA.findUnique({
@@ -14,16 +14,23 @@ export default defineEventHandler(async (event) => {
       })
       return qna || createError({ statusCode: 404, statusMessage: 'QnA를 찾을 수 없습니다' })
     } else {
-      const skip = (page - 1) * limit
+      const skip = (parseInt(page) - 1) * parseInt(itemsPerPage)
       let whereClause = {}
 
-      if (searchText) {
-        if (searchType === 'author') {
-          whereClause.author = { contains: searchText }
-        } else if (searchType === 'title') {
-          whereClause.questionTitle = { contains: searchText }
-        } else if (searchType === 'content') {
-          whereClause.questionContent = { contains: searchText }
+      if (text) {
+        if (type === 'author') {
+          whereClause.author = { contains: text }
+        } else if (type === 'title') {
+          whereClause.questionTitle = { contains: text }
+        } else if (type === 'content') {
+          whereClause.questionContent = { contains: text }
+        } else {
+          // 타입이 지정되지 않은 경우 모든 필드에서 검색
+          whereClause.OR = [
+            { author: { contains: text } },
+            { questionTitle: { contains: text } },
+            { questionContent: { contains: text } }
+          ]
         }
       }
 
@@ -31,7 +38,7 @@ export default defineEventHandler(async (event) => {
         prisma.qnA.findMany({
           where: whereClause,
           orderBy: { id: 'desc' },
-          take: parseInt(limit),
+          take: parseInt(itemsPerPage),
           skip: skip
         }),
         prisma.qnA.count({ where: whereClause })
@@ -41,7 +48,7 @@ export default defineEventHandler(async (event) => {
         qnas,
         total: totalCount,
         page: parseInt(page),
-        limit: parseInt(limit)
+        itemsPerPage: parseInt(itemsPerPage)
       }
     }
   }
