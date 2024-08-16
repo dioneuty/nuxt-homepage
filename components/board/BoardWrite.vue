@@ -106,7 +106,7 @@ async function submitPost() {
 
   console.log('Submitting post:', post.value)
 
-  const url = isEditing.value ? `${props.apiEndpoint}/${route.query.id}` : props.apiEndpoint
+  const url = isEditing.value ? `${props.apiEndpoint}?id=${route.query.id}` : props.apiEndpoint
   const method = isEditing.value ? 'PUT' : 'POST'
 
   try {

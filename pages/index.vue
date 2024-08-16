@@ -80,9 +80,6 @@ const images = ref([
   'images/foods/02670-2708671754-intricate details, ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), phys.webp',
 ])
 
-definePageMeta({
-  layout: 'default'
-})
 </script>
 
 <style scoped>

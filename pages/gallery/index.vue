@@ -82,9 +82,6 @@ const filteredItems = computed(() => {
   )
 })
 
-definePageMeta({
-  layout: 'default'
-})
 </script>
 
 <style scoped>

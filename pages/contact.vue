@@ -21,10 +21,6 @@
 </template>
 
 <script setup>
-definePageMeta({
-  layout: 'default'
-})
-
 const form = ref({
   name: '',
   email: '',

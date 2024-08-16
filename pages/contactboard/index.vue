@@ -24,7 +24,4 @@ const tableHeaders = [
   { key: 'createdAt', label: '문의일', icon: 'mdi:calendar', class: 'hidden sm:table-cell' }
 ]
 
-definePageMeta({
-  layout: 'default'
-})
 </script>

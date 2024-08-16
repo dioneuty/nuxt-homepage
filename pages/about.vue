@@ -81,7 +81,4 @@ const historyItems = [
   { year: '2023', event: '다수의 성공적인 프로젝트 완료' },
 ]
 
-definePageMeta({
-  layout: 'default'
-})
 </script>

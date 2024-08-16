@@ -16,7 +16,4 @@
 <script setup>
 import BoardView from '~/components/board/BoardView.vue'
 
-definePageMeta({
-  layout: 'default'
-})
 </script>

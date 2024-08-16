@@ -30,7 +30,7 @@
 <script setup>
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
-import BlogSidebar from '~/components/BlogSidebar.vue'
+import BlogSidebar from '~/components/blog/BlogSidebar.vue'
 import MobileCategoryDropdown from '~/components/MobileCategoryDropdown.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
 import { ref, provide, computed } from 'vue'

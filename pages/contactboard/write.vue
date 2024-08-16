@@ -14,8 +14,4 @@ const fields = [
   { name: 'title', label: '이메일', icon: 'mdi:email', component: 'input', placeholder: '이메일을 입력하세요', required: true },
   { name: 'content', label: '메시지', icon: 'mdi:message-text', component: 'textarea', placeholder: '메시지를 입력하세요', required: true }
 ]
-
-definePageMeta({
-  layout: 'default'
-})
 </script>

@@ -15,7 +15,4 @@ const fields = [
   { name: 'content', label: '내용', icon: 'mdi:text-box-outline', component: 'CommonQuillEditor', required: true }
 ]
 
-definePageMeta({
-  layout: 'default'
-})
 </script>

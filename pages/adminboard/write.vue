@@ -14,7 +14,5 @@ const fields = [
   { name: 'content', label: '내용', icon: 'mdi:text-box-outline', component: 'textarea', placeholder: '내용을 입력하세요', required: true }
 ]
 
-definePageMeta({
-  layout: 'default'
-})
+
 </script>
