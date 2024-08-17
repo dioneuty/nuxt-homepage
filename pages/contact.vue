@@ -44,7 +44,7 @@ const submitForm = async () => {
     });
 
     if (response.ok) {
-      console.log('문의가 성공적으로 전송되었습니다.');
+      //console.log('문의가 성공적으로 전송되었습니다.');
     } else {
       console.error('문의 전송에 실패했습니다.');
     }

@@ -92,7 +92,7 @@ onMounted(async () => {
   
 function updateField(fieldName, event) {
   post.value[fieldName] = event.target ? event.target.value : event
-  console.log(`Field ${fieldName} updated:`, post.value[fieldName])
+  //console.log(`Field ${fieldName} updated:`, post.value[fieldName])
 }
 
 async function submitPost() {
@@ -104,7 +104,7 @@ async function submitPost() {
     return
   }
 
-  console.log('Submitting post:', post.value)
+  //console.log('Submitting post:', post.value)
 
   const url = isEditing.value ? `${props.apiEndpoint}?id=${route.query.id}` : props.apiEndpoint
   const method = isEditing.value ? 'PUT' : 'POST'

@@ -13,13 +13,13 @@
             <Icon :icon="boardIcon" class="mr-2 text-blue-500" width="36" height="36" />
             {{ post.title }}
           </h1>
+          <slot name="extra-info" :post="post"></slot>
           <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-4">
             <Icon icon="mdi:account" class="mr-1" />
             <span class="mr-4">{{ post.author }}</span>
             <Icon icon="mdi:calendar" class="mr-1" />
             <span>{{ formatDate(post.createdAt) }}</span>
           </div>
-          <slot name="extra-info"></slot>
           <div class="prose dark:prose-invert max-w-none" v-html="post.content"></div>
         </div>
       </div>
@@ -67,7 +67,11 @@
   const id = route.query.id
   const isMobile = ref(false)
   
-  const { data: post, error, pending } = await useFetch(props.apiEndpoint)
+  const { data: post, error, pending } = await useFetch(props.apiEndpoint, {
+    method: 'GET',
+    params: { id },
+    lazy: true
+  })
   
   onMounted(() => {
     checkMobile()

@@ -52,7 +52,7 @@ const editorOptions = {
 }
 
 const onContentUpdate = (content) => {
-  console.log('QuillEditor content updated:', content)
+  //console.log('QuillEditor content updated:', content)
   emit('input', content)
 }
 
@@ -60,7 +60,7 @@ const onEditorBlur = (quill) => emit('blur', quill)
 const onEditorFocus = (quill) => emit('focus', quill)
 const onEditorReady = (quill) => emit('ready', quill)
 const onEditorChange = ({ html, text, quill }) => {
-  console.log('QuillEditor changed:', html)
+  //console.log('QuillEditor changed:', html)
   emit('input', html)
   emit('change', { html, text, quill })
 }
