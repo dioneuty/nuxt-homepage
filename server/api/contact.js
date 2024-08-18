@@ -50,12 +50,44 @@ export default defineEventHandler(async (event) => {
 
   // POST 요청 처리
   if (method === 'POST') {
-    const { author, title, content } = await readBody(event)
+    const body = await readBody(event)
+    const { author, title, content, email, type, id } = body
+    console.log(body)
+
     try {
-      const result = await prisma.contact.create({
-        data: { author, title, content }
-      })
-      return { success: true, id: result.id }
+      if (type === 'reply') {
+        // 답변 생성 로직
+        const originalPost = await prisma.contact.findUnique({
+          where: { id: parseInt(id) }
+        })
+
+        if (!originalPost) {
+          throw createError({
+            statusCode: 404,
+            statusMessage: '원본 문의를 찾을 수 없습니다'
+          })
+        }
+
+        // 로그인한 사용자 정보 가져오기 (실제 구현에 맞게 수정 필요)
+        const loggedInUser = await getLoggedInUser(event)
+
+        const result = await prisma.contact.create({
+          data: {
+            title: `Re: ${originalPost.title}`,
+            author: loggedInUser.name,
+            email: loggedInUser.email,
+            content,
+          }
+        })
+
+        return { success: true, id: result.id }
+      } else {
+        // 기존 문의 생성 로직
+        const result = await prisma.contact.create({
+          data: { author, title, content, email }
+        })
+        return { success: true, id: result.id }
+      }
     } catch (error) {
       console.error('연락처 생성 중 오류:', error)
       throw createError({
@@ -88,3 +120,13 @@ export default defineEventHandler(async (event) => {
     statusMessage: 'Method Not Allowed'
   })
 })
+
+// 로그인한 사용자 정보를 가져오는 함수 (실제 구현에 맞게 수정 필요)
+async function getLoggedInUser(event) {
+  // 여기에 실제 로그인한 사용자 정보를 가져오는 로직 구현
+  // 예: JWT 토큰 확인, 세션 확인 등
+  return {
+    name: '관리자',
+    email: 'admin@example.com'
+  }
+}

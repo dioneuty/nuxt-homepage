@@ -24,6 +24,15 @@
         </div>
       </div>
       
+      <!-- 답변 섹션 추가 -->
+      <div v-if="post && post.reply" class="mt-8 bg-gray-100 dark:bg-gray-700 p-6 rounded-lg">
+        <h2 class="text-2xl font-bold mb-4 dark:text-white flex items-center">
+          <Icon icon="mdi:reply" class="mr-2 text-green-500" width="24" height="24" />
+          답변
+        </h2>
+        <div class="prose dark:prose-invert max-w-none" v-html="post.reply"></div>
+      </div>
+      
       <!-- 버튼 그룹 -->
       <div v-if="post" class="mt-8 flex flex-wrap justify-end items-center space-x-4">
         <NuxtLink :to="`/${boardType}`" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700 transition-colors duration-200">
@@ -31,6 +40,10 @@
           목록으로
         </NuxtLink>
         <slot name="edit-button"></slot>
+        <button @click="openReply" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200">
+          <Icon icon="mdi:reply" class="mr-2" />
+          답변하기
+        </button>
         <button @click="deletePost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
           <Icon icon="mdi:delete" class="mr-2" />
           삭제하기
@@ -43,6 +56,7 @@
   import { ref, computed, onMounted } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useModal } from '~/composables/useModal'
+  import { useReplyModal } from '~/composables/useReplyModal'
   import { Icon } from '@iconify/vue'
   
   const props = defineProps({
@@ -63,7 +77,7 @@
   const route = useRoute()
   const router = useRouter()
   const { openModal } = useModal()
-  
+  const { openReplyModal } = useReplyModal()
   const id = route.query.id
   const isMobile = ref(false)
   
@@ -72,6 +86,8 @@
     params: { id },
     lazy: true
   })
+  
+  const replyContent = ref('')
   
   onMounted(() => {
     checkMobile()
@@ -111,6 +127,43 @@
         }
       }
     }, true)
+  }
+  
+  function openReply() {
+    openReplyModal('답변 작성', 
+      async (content) => {
+        replyContent.value = content
+        if (content) {
+          await submitReply()
+        }
+      },
+      true,
+      { replyContent }
+    )
+  }
+
+  async function submitReply() {
+    try {
+      const { error } = await useFetch(props.apiEndpoint, {
+        method: 'POST',
+        body: JSON.stringify({
+          id: id,
+          type: 'reply',
+          content: replyContent.value
+        })
+      })
+
+      if (error.value) {
+        openModal('오류', '답변 등록에 실패했습니다.')
+        return
+      }
+
+      openModal('성공', '답변이 성공적으로 등록되었습니다.', () => {
+        location.reload()
+      })
+    } catch (error) {
+      openModal('오류', '서버 오류가 발생했습니다.')
+    }
   }
   </script>
   

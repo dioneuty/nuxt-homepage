@@ -11,6 +11,7 @@
           제목 *
         </label>
         <input type="text" id="title" v-model="post.title" required
+               placeholder="제목을 입력하세요"
                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
       </div>
       <div>
@@ -20,6 +21,7 @@
         </label>
         <select id="categoryId" v-model="post.categoryId" required
                 class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <option value="" disabled selected>카테고리를 선택하세요</option>
           <option v-for="category in categories" :key="category.id" :value="category.id">
             {{ category.name }} ({{ category.post_count }})
           </option>
