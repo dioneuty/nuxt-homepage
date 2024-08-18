@@ -72,3 +72,33 @@ model QnA {
   createdAt     DateTime @default(now())
   updatedAt     DateTime? @updatedAt
 }
+
+model GalleryItem {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String
+  imageUrl    String
+  tags        String[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  comments    GalleryComment[]
+  files       GalleryFile[]
+}
+
+model GalleryComment {
+  id            Int         @id @default(autoincrement())
+  content       String
+  author        String?
+  authorId      Int?
+  createdAt     DateTime    @default(now())
+  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id])
+  galleryItemId Int
+}
+
+model GalleryFile {
+  id            Int         @id @default(autoincrement())
+  url           String
+  filename      String
+  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id])
+  galleryItemId Int
+}
