@@ -6,7 +6,7 @@
     </div>
     <ul class="divide-y divide-gray-200 dark:divide-gray-700">
       <li v-for="post in posts" :key="post.id" class="p-4 hover:bg-gray-50 dark:hover:bg-gray-700">
-        <NuxtLink :to="`/${type}/${post.id}`" class="block">
+        <NuxtLink :to="`/${type}?id=${post.id}`" class="block">
           <h3 class="text-lg font-medium text-gray-900 dark:text-white">{{ post.title }}</h3>
           <p class="mt-1 text-sm text-gray-500 dark:text-gray-400">{{ post.excerpt }}</p>
         </NuxtLink>

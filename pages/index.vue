@@ -1,13 +1,13 @@
 <template>
   <div class="container mx-auto px-4 py-8">
     <div class="mb-8 max-w-4xl mx-auto">
-      <Carousel :images="images" />
+      <Carousel :images="imageMockups" />
     </div>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
       <PostList 
         title="최신 블로그 포스트" 
         :posts="blogPosts" 
-        type="blog"
+        type="blog/view"
         headerColorClass="bg-blue-600"
       >
         <template #icon>
@@ -17,7 +17,7 @@
       <PostList 
         title="최신 게시판 글" 
         :posts="boardPosts.posts" 
-        type="board"
+        type="board/view"
         headerColorClass="bg-green-600"
       >
         <template #icon>
@@ -31,8 +31,12 @@
         갤러리
       </h2>
       <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <div v-for="(image, index) in images.slice(0, 10)" :key="index" class="relative group">
-          <img :src="image" :alt="`Gallery image ${index + 1}`" class="w-full h-40 object-cover rounded-lg transition-transform duration-300 transform group-hover:scale-105">
+        <div v-for="item in galleryItems.slice(0, 10)" :key="item.id" class="relative group" @click="openGalleryModal(item)">
+          <img 
+            :src="item.imageUrl" 
+            :alt="item.title"             
+            class="w-full h-40 object-cover rounded-lg transition-transform duration-300 transform group-hover:scale-105 cursor-pointer"
+          >
           <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-lg">
             <Icon icon="mdi:magnify-plus" class="text-white w-8 h-8" />
           </div>
@@ -43,19 +47,35 @@
         더 보기
       </NuxtLink>
     </div>
+    <GalleryModal
+      v-if="selectedGalleryItem"
+      :item="selectedGalleryItem"
+      :apiEndpoint="apiEndpoint"
+      @close="closeGalleryModal"
+      @edit="openEditModal"
+      @delete="deleteItem"
+      @update="fetchItems"
+    />
   </div>
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import Carousel from '@/components/Carousel.vue'
 import PostList from '@/components/PostList.vue'
+import GalleryModal from '@/components/gallery/GalleryModal.vue'
 
 // 각 API에서 데이터 가져오기
 const { data: blogPosts } = await useFetch('/api/blogPosts')
 const { data: boardPosts } = await useFetch('/api/boardPosts')
-const images = ref([
+const { data: galleryItems } = await useFetch('/api/gallery')
+
+// Carousel 이미지는 갤러리 아이템의 이미지 URL을 사용합니다
+const images = computed(() => galleryItems.value.map(item => item.imageUrl))
+const apiEndpoint = '/api/gallery'
+
+const imageMockups = ref([
   'images/foods/02622-2946913328-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
   'images/foods/02627-3520537961-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
   'images/foods/02628-969862558-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
@@ -80,6 +100,15 @@ const images = ref([
   'images/foods/02670-2708671754-intricate details, ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), phys.webp',
 ])
 
+const selectedGalleryItem = ref(null)
+
+const openGalleryModal = (item) => {
+  selectedGalleryItem.value = item
+}
+
+const closeGalleryModal = () => {
+  selectedGalleryItem.value = null
+}
 </script>
 
 <style scoped>
