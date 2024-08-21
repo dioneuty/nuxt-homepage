@@ -21,13 +21,15 @@
       </div>
       
       <div v-else class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div v-for="post in posts" :key="post.id" class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg">
+        <div v-for="post in posts" :key="post.id" 
+             class="bg-white dark:bg-gray-800 shadow-md rounded-lg overflow-hidden transition-all duration-300 hover:shadow-lg hover:bg-gray-100 dark:hover:bg-gray-700 cursor-pointer"
+             @click="navigateToPost(post.id)">
           <div class="p-6">
             <h2 class="text-xl font-semibold mb-3 dark:text-white group">
-              <NuxtLink :to="`${postLink}?id=${post.id}`" class="hover:text-blue-500 transition-colors duration-200 flex items-center">
+              <span class="hover:text-blue-500 transition-colors duration-200 flex items-center">
                 <Icon icon="mdi:file-document-outline" class="mr-2 group-hover:text-blue-500" />
                 {{ post.title }}
-              </NuxtLink>
+              </span>
             </h2>
             <p class="text-gray-600 dark:text-gray-300 mb-4 text-sm" v-html="post.content.substring(0, 100) + '...'"></p>
             <div class="flex items-center text-xs text-gray-500 dark:text-gray-400">
@@ -51,6 +53,7 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { ref, onMounted } from 'vue'
+import { useRouter } from 'vue-router'
 
 const props = defineProps({
   title: { type: String, default: '블로그' },
@@ -64,6 +67,12 @@ const props = defineProps({
 const posts = ref([])
 const pending = ref(false)
 const error = ref(null)
+
+const router = useRouter()
+
+const navigateToPost = (postId) => {
+  router.push(`${props.postLink}?id=${postId}`)
+}
 
 onMounted(async () => {
   pending.value = true

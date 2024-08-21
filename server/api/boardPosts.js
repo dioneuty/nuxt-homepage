@@ -5,7 +5,7 @@ export default defineEventHandler(async (event) => {
 
   // GET 요청 처리
   if (method === 'GET') {
-    const { id, page = 1, itemsPerPage = 10, type, text } = getQuery(event)
+    const { id, page = 1, itemsPerPage = 10, type, text, sortColumn, sortOrder } = getQuery(event)
     try {
       if (id && id !== '-1') {
         const post = await prisma.boardPost.findUnique({
@@ -33,10 +33,17 @@ export default defineEventHandler(async (event) => {
           }
         }
 
+        let orderBy = {}
+        if (sortColumn && sortOrder) {
+          orderBy[sortColumn] = sortOrder.toLowerCase()
+        } else {
+          orderBy = { id: 'desc' } // 기본 정렬
+        }
+
         const [posts, totalCount] = await Promise.all([
           prisma.boardPost.findMany({
             where: whereClause,
-            orderBy: { id: 'desc' },
+            orderBy: orderBy,
             take: parseInt(itemsPerPage),
             skip: skip
           }),
