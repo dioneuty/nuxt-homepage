@@ -13,13 +13,14 @@
 import BoardIndex from '~/components/board/BoardIndex.vue'
 import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
 
 const router = useRouter()
+const { auth } = useAuth()
 
 onMounted(() => {
-  const token = localStorage.getItem('token')
-  if (!token) {
-    router.push('/login')
+  if (!auth.value.isLoggedIn || auth.value.user?.role !== 'ADMIN') {
+    router.push('/')
   }
 })
 
@@ -29,5 +30,4 @@ const tableHeaders = [
   // { key: 'author', label: '작성자', icon: 'mdi:account', class: 'hidden sm:table-cell' },
   { key: 'createdAt', label: '작성일', icon: 'mdi:calendar', class: 'hidden sm:table-cell' }
 ]
-
 </script>

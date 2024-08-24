@@ -18,7 +18,7 @@
       <div class="bg-blue-600 dark:bg-gray-800 text-white p-4 shadow-lg">
         <div class="container mx-auto flex justify-between items-center">
           <div class="space-x-4">
-            <template v-for="item in menuItems" :key="item.name">
+            <template v-for="item in filteredMenuItems" :key="item.name">
               <!-- 자식 메뉴가 있는 경우 -->
               <div v-if="item.children" class="relative inline-block group">
                 <NuxtLink v-if="item.path" :to="item.path" 
@@ -65,7 +65,7 @@
               <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
               <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
             </button>
-            <div v-if="auth.isLoggedIn" class="flex items-center space-x-2">
+            <div v-if="auth.isLoggedIn && auth.user" class="flex items-center space-x-2">
               <span class="text-white">{{ auth.user.username }}</span>
               <button @click="logout" class="text-white hover:text-blue-200 p-2 rounded-full">
                 <Icon icon="mdi:logout" class="h-6 w-6" />
@@ -100,7 +100,7 @@
             <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
             <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
           </button>
-          <div v-if="auth.isLoggedIn" class="flex items-center space-x-2">
+          <div v-if="auth.isLoggedIn && auth.user" class="flex items-center space-x-2">
             <span class="text-white">{{ auth.user.username }}</span>
             <button @click="logout" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
               <Icon icon="mdi:logout" class="h-6 w-6" />
@@ -136,7 +136,7 @@
           </button>
         </div>
         <div class="flex-grow p-6 space-y-4 overflow-y-auto">
-          <div v-for="item in menuItems" :key="item.name" class="relative">
+          <div v-for="item in filteredMenuItems" :key="item.name" class="relative">
             <div
               @click="handleItemClick(item)"
               :class="['flex justify-between items-center py-2 px-4 rounded-lg hover:bg-blue-500 transition duration-200 ease-in-out cursor-pointer',
@@ -190,7 +190,7 @@
 </template>
 
 <script setup>
-import { ref, inject, watch, onMounted } from 'vue'
+import { ref, inject, watch, onMounted, computed } from 'vue'
 import { useRouter } from 'vue-router'
 import { WrenchScrewdriverIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/vue/24/solid'
@@ -240,10 +240,21 @@ const menuItems = ref([
     children: [
       { name: '관리자용 문의 게시판' + constructionEmoji, path: '/contactboard' },
       { name: '관리자용 게시판' + constructionEmoji, path: '/adminboard' },
+      { name: '관리자용 갤러리' + constructionEmoji, path: '/admingallery' },
     ],
-    isOpen: false
+    isOpen: false,
+    adminOnly: true
   }
 ])
+
+const filteredMenuItems = computed(() => {
+  return menuItems.value.filter(item => {
+    if (item.adminOnly) {
+      return auth.value.isLoggedIn && auth.value.user && auth.value.user.role === 'ADMIN'
+    }
+    return true
+  })
+})
 
 const handleItemClick = (item) => {
   if (item.children) {
@@ -311,7 +322,8 @@ const logout = async () => {
     })
     if (response.ok) {
       setAuth(false, null)
-      // 추가적인 로그아웃 처리 (예: 페이지 리로드, 리다이렉트 등)
+      // 로그아웃 후 메인 페이지로 리다이렉트
+      router.push('/')
     } else {
       console.error('로그아웃 실패')
     }

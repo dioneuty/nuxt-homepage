@@ -62,7 +62,7 @@
             </div>
           </div>
           <!-- 댓글 알림 박스 -->
-          <div class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
+          <div v-if="showComments" class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
             <Icon icon="mdi:comment-outline" class="mr-1" />
             {{ item.comments ? item.comments.length : 0 }}
           </div>
@@ -74,10 +74,16 @@
       v-if="selectedItem"
       :item="selectedItem"
       :apiEndpoint="apiEndpoint"
+      :isFirstItem="isFirstItem"
+      :isLastItem="isLastItem"
+      :isAdminGallery="isAdminGallery"
       @close="closeModal"
       @edit="openEditModal"
       @delete="deleteItem"
       @update="fetchItems"
+      @previous="showPreviousItem"
+      @next="showNextItem"
+      :showComments="showComments"
     />
     
     <GalleryEditModal
@@ -101,6 +107,14 @@ const props = defineProps({
   apiEndpoint: {
     type: String,
     required: true
+  },
+  showComments: {
+    type: Boolean,
+    default: true
+  },
+  isAdminGallery: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -119,6 +133,14 @@ const filteredItems = computed(() => {
     item.description.toLowerCase().includes(searchQuery.value.toLowerCase())
   )
 })
+
+const selectedItemIndex = computed(() => {
+  if (!selectedItem.value) return -1
+  return filteredItems.value.findIndex(item => item.id === selectedItem.value.id)
+})
+
+const isFirstItem = computed(() => selectedItemIndex.value === 0)
+const isLastItem = computed(() => selectedItemIndex.value === filteredItems.value.length - 1)
 
 const fetchItems = async () => {
   loading.value = true
@@ -195,6 +217,18 @@ const updateItem = async (updatedItem) => {
 const deleteItem = (deletedItemId) => {
   items.value = items.value.filter(item => item.id !== deletedItemId)
   selectedItem.value = null
+}
+
+const showPreviousItem = () => {
+  if (!isFirstItem.value) {
+    selectedItem.value = filteredItems.value[selectedItemIndex.value - 1]
+  }
+}
+
+const showNextItem = () => {
+  if (!isLastItem.value) {
+    selectedItem.value = filteredItems.value[selectedItemIndex.value + 1]
+  }
 }
 
 defineExpose({ fetchItems })

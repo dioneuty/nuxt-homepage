@@ -1,5 +1,6 @@
 <template>
   <BoardView
+    v-if="isAdmin"
     board-type="adminboard"
     :api-endpoint="`/api/adminboard?id=${$route.query.id}`"
     board-icon="mdi:shield-account"
@@ -15,5 +16,19 @@
 
 <script setup>
 import BoardView from '~/components/board/BoardView.vue'
+import { useAuth } from '~/composables/useAuth'
+import { useRouter } from 'vue-router'
+import { ref, onMounted } from 'vue'
 
+const { auth } = useAuth()
+const router = useRouter()
+const isAdmin = ref(false)
+
+onMounted(() => {
+  if (!auth.value.isLoggedIn || auth.value.user?.role !== 'ADMIN') {
+    router.push('/')
+  } else {
+    isAdmin.value = true
+  }
+})
 </script>

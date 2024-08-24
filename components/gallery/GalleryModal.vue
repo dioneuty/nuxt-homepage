@@ -1,6 +1,16 @@
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="$emit('close')">
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
+      <!-- 이전 버튼 -->
+      <button v-if="!isFirstItem" @click="$emit('previous')" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md">
+        <Icon icon="mdi:chevron-left" class="w-6 h-6 text-gray-600 dark:text-gray-300" />
+      </button>
+      
+      <!-- 다음 버튼 -->
+      <button v-if="!isLastItem" @click="$emit('next')" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md">
+        <Icon icon="mdi:chevron-right" class="w-6 h-6 text-gray-600 dark:text-gray-300" />
+      </button>
+
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold dark:text-white">{{ item.title }}</h2>
         <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
@@ -21,7 +31,7 @@
             <Icon icon="mdi:pencil" class="mr-2" />
             수정
           </button>
-          <button @click="shareLink" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+          <button v-if="!isAdminGallery" @click="shareLink" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
             <Icon icon="mdi:share-variant" class="mr-2" />
             공유
           </button>
@@ -31,7 +41,7 @@
           삭제
         </button>
       </div>
-      <div class="border-t pt-4">
+      <div v-if="showComments" class="border-t pt-4">
         <h3 class="text-xl font-bold mb-2 dark:text-white">댓글</h3>
         
         <div v-for="comment in comments" :key="comment.id" class="mb-2 p-2 bg-gray-100 dark:bg-gray-700 rounded">
@@ -114,10 +124,26 @@ const props = defineProps({
   apiEndpoint: {
     type: String,
     required: true
+  },
+  showComments: {
+    type: Boolean,
+    default: true
+  },
+  isFirstItem: {
+    type: Boolean,
+    required: true
+  },
+  isLastItem: {
+    type: Boolean,
+    required: true
+  },
+  isAdminGallery: {
+    type: Boolean,
+    default: false
   }
 })
 
-const emit = defineEmits(['close', 'update', 'delete', 'edit'])
+const emit = defineEmits(['close', 'update', 'delete', 'edit', 'previous', 'next'])
 
 const newCommentTitle = ref('')
 const newCommentAuthor = ref('')
@@ -213,6 +239,7 @@ const shareLink = () => {
 }
 
 const fetchComments = async () => {
+  if (!props.showComments) return
   try {
     const response = await $fetch(`${props.apiEndpoint}?id=${props.item.id}&action=comments`, {
       method: 'GET'
@@ -223,5 +250,9 @@ const fetchComments = async () => {
   }
 }
 
-onMounted(fetchComments)
+onMounted(() => {
+  if (props.showComments) {
+    fetchComments()
+  }
+})
 </script>

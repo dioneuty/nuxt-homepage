@@ -17,7 +17,7 @@
         <div class="mb-4">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
           <CommonQuillEditor
-            v-model="editedItem.content"
+            :value="editedItem.content"
             placeholder="내용을 입력하세요..."
             @input="handleQuillInput"
           />

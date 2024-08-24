@@ -82,7 +82,6 @@ model GalleryItem {
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
   comments    GalleryComment[]
-  files       GalleryFile[]
 }
 
 model GalleryComment {
@@ -95,12 +94,14 @@ model GalleryComment {
   galleryItemId Int
 }
 
-model GalleryFile {
-  id            Int         @id @default(autoincrement())
-  url           String
-  filename      String
-  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id])
-  galleryItemId Int
+model AdminGalleryItem {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String
+  content     String?           // imageUrl 대신 content 컬럼 추가
+  tags        String[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
 }
 
 model User {
