@@ -65,12 +65,20 @@
               <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
               <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
             </button>
-            <button v-if="isLoggedIn" @click="logout" class="text-white hover:text-blue-200 p-2 rounded-full">
-              <Icon icon="mdi:logout" class="h-6 w-6" />
-            </button>
-            <button v-else @click="openLoginModal" class="text-white hover:text-blue-200 p-2 rounded-full">
-              <Icon icon="mdi:login" class="h-6 w-6" />
-            </button>
+            <div v-if="auth.isLoggedIn" class="flex items-center space-x-2">
+              <span class="text-white">{{ auth.user.username }}</span>
+              <button @click="logout" class="text-white hover:text-blue-200 p-2 rounded-full">
+                <Icon icon="mdi:logout" class="h-6 w-6" />
+              </button>
+            </div>
+            <div v-else class="flex items-center space-x-2">
+              <button @click="openLoginModal" class="text-white hover:text-blue-200 p-2 rounded-full">
+                <Icon icon="mdi:login" class="h-6 w-6" />
+              </button>
+              <button @click="openRegisterModal" class="text-white hover:text-blue-200 p-2 rounded-full">
+                <Icon icon="mdi:account-plus" class="h-6 w-6" />
+              </button>
+            </div>
           </div>
         </div>
       </div>
@@ -92,12 +100,20 @@
             <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
             <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
           </button>
-          <button v-if="isLoggedIn" @click="logout" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
-            <Icon icon="mdi:logout" class="h-6 w-6" />
-          </button>
-          <button v-else @click="openLoginModal" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
-            <Icon icon="mdi:login" class="h-6 w-6" />
-          </button>
+          <div v-if="auth.isLoggedIn" class="flex items-center space-x-2">
+            <span class="text-white">{{ auth.user.username }}</span>
+            <button @click="logout" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
+              <Icon icon="mdi:logout" class="h-6 w-6" />
+            </button>
+          </div>
+          <div v-else class="flex items-center space-x-2">
+            <button @click="openLoginModal" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
+              <Icon icon="mdi:login" class="h-6 w-6" />
+            </button>
+            <button @click="openRegisterModal" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
+              <Icon icon="mdi:account-plus" class="h-6 w-6" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -180,6 +196,8 @@ import { WrenchScrewdriverIcon, ChevronDownIcon } from '@heroicons/vue/24/outlin
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/vue/24/solid'
 import { Icon } from '@iconify/vue'
 import { useLoginModal } from '~/composables/useLoginModal'
+import { useRegisterModal } from '~/composables/useRegisterModal'
+import { useAuth } from '~/composables/useAuth'
 
 const router = useRouter()
 
@@ -282,19 +300,25 @@ defineProps({
 
 defineEmits(['openMenu', 'closeMenu'])
 
-const isLoggedIn = ref(false)
-
-onMounted(() => {
-  isLoggedIn.value = !!localStorage.getItem('token')
-})
-
-const logout = () => {
-  localStorage.removeItem('token')
-  isLoggedIn.value = false
-  router.push('/login')
-}
-
 const { openModal: openLoginModal } = useLoginModal()
+const { openModal: openRegisterModal } = useRegisterModal()
+const { auth, setAuth } = useAuth()
+
+const logout = async () => {
+  try {
+    const response = await fetch('/api/user?type=logout', {
+      method: 'POST',
+    })
+    if (response.ok) {
+      setAuth(false, null)
+      // 추가적인 로그아웃 처리 (예: 페이지 리로드, 리다이렉트 등)
+    } else {
+      console.error('로그아웃 실패')
+    }
+  } catch (error) {
+    console.error('로그아웃 중 오류 발생:', error)
+  }
+}
 </script>
 
 <style scoped>

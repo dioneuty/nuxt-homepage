@@ -6,6 +6,7 @@
     <Modal />
     <ReplyModal />
     <LoginModal />
+    <RegisterModal />
   </div>
 </template>
 <script setup lang="ts">
@@ -13,6 +14,8 @@ import { ref, watch, onMounted, provide } from 'vue'
 import Modal from '~/components/common/Modal.vue'
 import ReplyModal from '~/components/common/ReplyModal.vue'
 import LoginModal from '~/components/common/LoginModal.vue'
+import RegisterModal from '~/components/common/RegisterModal.vue'
+import { useAuth } from '~/composables/useAuth'
 
 const colorMode = ref('system') // 'light', 'dark', 'system' 중 하나
 
@@ -41,6 +44,8 @@ const toggleColorMode = () => {
   localStorage.setItem('colorMode', colorMode.value)
 }
 
+const { checkAuth } = useAuth()
+
 // 초기 컬러 모드 설정
 onMounted(() => {
   const savedColorMode = localStorage.getItem('colorMode')
@@ -52,13 +57,16 @@ onMounted(() => {
   }
   document.documentElement.classList.toggle('dark', isDarkMode.value)
 
-  // 시스템 설정 변경 감지
+  // 시스템 설��� 변경 감지
   const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
   mediaQuery.addEventListener('change', (e) => {
     if (colorMode.value === 'system') {
       isDarkMode.value = e.matches
     }
   })
+
+  // 인증 확인
+  checkAuth()
 })
 
 provide('isDarkMode', isDarkMode)
