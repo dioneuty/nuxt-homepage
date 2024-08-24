@@ -47,7 +47,7 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, computed, watch } from 'vue'
   
   const props = defineProps({
     totalItems: Number,
@@ -63,6 +63,7 @@
   const totalPages = computed(() => Math.ceil(props.totalItems / props.itemsPerPage))
   
   const visiblePages = computed(() => {
+    if (totalPages.value === 0) return [] // 총 페이지가 0일 때 빈 배열 반환
     const start = Math.floor((props.currentPage - 1) / 10) * 10 + 1
     const end = Math.min(start + 9, totalPages.value)
     return Array.from({ length: end - start + 1 }, (_, i) => start + i)
@@ -88,4 +89,9 @@
   const changeItemsPerPage = () => {
     emit('items-per-page-change', selectedItemsPerPage.value)
   }
+  
+  // props 변경 감지 및 selectedItemsPerPage 업데이트
+  watch(() => props.itemsPerPage, (newValue) => {
+    selectedItemsPerPage.value = newValue
+  })
   </script>

@@ -107,7 +107,7 @@ async function createGalleryItem(data) {
   return await prisma.galleryItem.create({
     data: {
       title: data.title,
-      imageUrl: data.imageUrl,
+      content: data.content, // imageUrl 대신 content 사용
       description: data.description,
       tags: data.tags
     }
@@ -120,7 +120,7 @@ async function updateGalleryItem(data) {
     where: { id: parseInt(data.id) },
     data: {
       title: data.title,
-      imageUrl: data.imageUrl,
+      content: data.content, // imageUrl 대신 content 사용
       description: data.description,
       tags: data.tags
     }

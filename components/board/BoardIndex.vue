@@ -25,22 +25,41 @@
           </draggable>
         </thead>
         <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:text-white">
-          <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" @click="goToPostDetail(post.id)">
-            <td v-for="header in localHeaders" :key="header.key" class="px-6 py-4 whitespace-nowrap border-r border-gray-200 dark:border-gray-700 last:border-r-0" :class="header.class">
-              <template v-if="header.key === 'title'">
-                <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">
-                  <Icon icon="mdi:account" class="inline mr-1" />{{ post.author }} | 
-                  <Icon icon="mdi:calendar" class="inline mr-1" />{{ formatDate(post.createdAt) }}
-                </span>
-                <span class="truncate block max-w-xs sm:max-w-none">
-                  <Icon icon="mdi:text" class="inline mr-1" />{{ post.title }}
-                </span>
-              </template>
-              <template v-else>
-                {{ post[header.key] }}
-              </template>
-            </td>
-          </tr>
+          <template v-if="initialLoading">
+            <tr v-for="i in itemsPerPage" :key="i" class="h-16">
+              <td :colspan="localHeaders.length" class="px-6 py-4 text-center">
+                <div v-if="i === Math.ceil(itemsPerPage / 2)" class="flex justify-center items-center h-full">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+                  <span class="ml-2">로딩 중...</span>
+                </div>
+              </td>
+            </tr>
+          </template>
+          <template v-else-if="posts && posts.length">
+            <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" @click="goToPostDetail(post.id)">
+              <td v-for="header in localHeaders" :key="header.key" class="px-6 py-4 whitespace-nowrap border-r border-gray-200 dark:border-gray-700 last:border-r-0" :class="header.class">
+                <template v-if="header.key === 'title'">
+                  <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">
+                    <Icon icon="mdi:account" class="inline mr-1" />{{ post.author }} | 
+                    <Icon icon="mdi:calendar" class="inline mr-1" />{{ formatDate(post.createdAt) }}
+                  </span>
+                  <span class="truncate block max-w-xs sm:max-w-none">
+                    <Icon icon="mdi:text" class="inline mr-1" />{{ post.title }}
+                  </span>
+                </template>
+                <template v-else>
+                  {{ post[header.key] }}
+                </template>
+              </td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr>
+              <td :colspan="localHeaders.length" class="px-6 py-4 text-center">
+                게시물이 없습니다.
+              </td>
+            </tr>
+          </template>
         </tbody>
       </table>
     </div>
@@ -137,21 +156,34 @@ function toggleSort(key) {
   refresh()
 }
 
+const initialLoading = ref(true)
+
 const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async () => {
-  const response = await $fetch(props.apiEndpoint, {
-    params: {
-      page: currentPage.value,
-      itemsPerPage: itemsPerPage.value,
-      type: searchParams.value.type,
-      text: searchParams.value.text,
-      sortColumn: sortColumn.value,
-      sortOrder: sortOrder.value
-    }
-  })
-  totalItems.value = response.total
-  return response.posts
+  try {
+    const response = await $fetch(props.apiEndpoint, {
+      params: {
+        page: currentPage.value,
+        itemsPerPage: itemsPerPage.value,
+        type: searchParams.value.type,
+        text: searchParams.value.text,
+        sortColumn: sortColumn.value,
+        sortOrder: sortOrder.value
+      }
+    })
+    totalItems.value = response.total
+    return response.posts
+  } finally {
+    initialLoading.value = false
+  }
 }, {
-  watch: [currentPage, itemsPerPage, searchParams, sortColumn, sortOrder]
+  watch: [currentPage, itemsPerPage, searchParams, sortColumn, sortOrder],
+  server: false
+})
+
+onMounted(() => {
+  if (posts.value) {
+    initialLoading.value = false
+  }
 })
 
 const handleSearch = async (params) => {

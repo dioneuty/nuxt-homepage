@@ -5,12 +5,14 @@
     </NuxtLayout>
     <Modal />
     <ReplyModal />
+    <LoginModal />
   </div>
 </template>
 <script setup lang="ts">
 import { ref, watch, onMounted, provide } from 'vue'
 import Modal from '~/components/common/Modal.vue'
 import ReplyModal from '~/components/common/ReplyModal.vue'
+import LoginModal from '~/components/common/LoginModal.vue'
 
 const colorMode = ref('system') // 'light', 'dark', 'system' 중 하나
 

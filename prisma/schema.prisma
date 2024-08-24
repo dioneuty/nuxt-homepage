@@ -77,7 +77,7 @@ model GalleryItem {
   id          Int              @id @default(autoincrement())
   title       String
   description String
-  imageUrl    String
+  content     String?           // imageUrl 대신 content 컬럼 추가
   tags        String[]
   createdAt   DateTime         @default(now())
   updatedAt   DateTime         @updatedAt
@@ -101,4 +101,14 @@ model GalleryFile {
   filename      String
   galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id])
   galleryItemId Int
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  email     String   @unique
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

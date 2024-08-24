@@ -59,11 +59,19 @@
               </NuxtLink>
             </template>
           </div>
-          <button @click="toggleColorMode" class="text-white hover:text-blue-200 p-2 rounded-full">
-            <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
-            <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
-            <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
-          </button>
+          <div class="flex items-center space-x-4">
+            <button @click="toggleColorMode" class="text-white hover:text-blue-200 p-2 rounded-full">
+              <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
+              <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
+              <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
+            </button>
+            <button v-if="isLoggedIn" @click="logout" class="text-white hover:text-blue-200 p-2 rounded-full">
+              <Icon icon="mdi:logout" class="h-6 w-6" />
+            </button>
+            <button v-else @click="openLoginModal" class="text-white hover:text-blue-200 p-2 rounded-full">
+              <Icon icon="mdi:login" class="h-6 w-6" />
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -78,11 +86,19 @@
           <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
           <span>{{ appName }}</span>
         </NuxtLink>
-        <button @click="toggleColorMode" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
-          <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
-          <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
-          <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
-        </button>
+        <div class="flex items-center space-x-2">
+          <button @click="toggleColorMode" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
+            <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
+            <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
+            <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
+          </button>
+          <button v-if="isLoggedIn" @click="logout" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
+            <Icon icon="mdi:logout" class="h-6 w-6" />
+          </button>
+          <button v-else @click="openLoginModal" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
+            <Icon icon="mdi:login" class="h-6 w-6" />
+          </button>
+        </div>
       </div>
     </div>
 
@@ -158,10 +174,12 @@
 </template>
 
 <script setup>
-import { ref, inject, watch } from 'vue'
+import { ref, inject, watch, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { WrenchScrewdriverIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
 import { Bars3Icon, XMarkIcon, SunIcon, MoonIcon, ComputerDesktopIcon } from '@heroicons/vue/24/solid'
+import { Icon } from '@iconify/vue'
+import { useLoginModal } from '~/composables/useLoginModal'
 
 const router = useRouter()
 
@@ -263,6 +281,20 @@ defineProps({
 })
 
 defineEmits(['openMenu', 'closeMenu'])
+
+const isLoggedIn = ref(false)
+
+onMounted(() => {
+  isLoggedIn.value = !!localStorage.getItem('token')
+})
+
+const logout = () => {
+  localStorage.removeItem('token')
+  isLoggedIn.value = false
+  router.push('/login')
+}
+
+const { openModal: openLoginModal } = useLoginModal()
 </script>
 
 <style scoped>

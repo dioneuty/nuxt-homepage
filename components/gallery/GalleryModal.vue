@@ -7,7 +7,7 @@
           <Icon icon="mdi:close" class="w-6 h-6" />
         </button>
       </div>
-      <img :src="item.imageUrl" :alt="item.title" class="w-full h-auto mb-4 rounded-lg">
+      <div v-html="item.content" class="w-full mb-4 rounded-lg overflow-hidden"></div>
       <p class="text-gray-600 dark:text-gray-300 mb-4">{{ item.description }}</p>
       <div class="flex flex-wrap gap-2 mb-4">
         <span v-for="tag in item.tags" :key="tag" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center">

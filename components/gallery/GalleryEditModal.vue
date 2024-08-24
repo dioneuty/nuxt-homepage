@@ -1,6 +1,6 @@
 <template>
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full">
+    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-2xl font-bold dark:text-white">
           {{ item.id ? '갤러리 항목 수정' : '새 갤러리 항목 추가' }}
@@ -15,12 +15,12 @@
           <input type="text" id="title" v-model="editedItem.title" required placeholder="제목을 입력하세요" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
         </div>
         <div class="mb-4">
-          <label for="imageUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300">이미지 URL</label>
-          <input type="text" id="imageUrl" v-model="editedItem.imageUrl" required class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
-        </div>
-        <div class="mb-4">
-          <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">설명</label>
-          <textarea id="description" v-model="editedItem.description" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"></textarea>
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
+          <CommonQuillEditor
+            v-model="editedItem.content"
+            placeholder="내용을 입력하세요..."
+            @input="handleQuillInput"
+          />
         </div>
         <div class="mb-4">
           <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300">태그</label>
@@ -64,6 +64,7 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { Icon } from '@iconify/vue'
+import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
 
 const props = defineProps({
   item: {
@@ -78,7 +79,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close', 'save'])
 
-const editedItem = ref({ ...props.item })
+const editedItem = ref({ ...props.item, content: props.item.content || '' })
 const tags = ref([...props.item.tags] || [])
 const newTag = ref('')
 
@@ -96,6 +97,10 @@ const removeTag = (tag) => {
 
 const clearTags = () => {
   tags.value = []
+}
+
+const handleQuillInput = (content) => {
+  editedItem.value.content = content
 }
 
 const saveItem = async () => {

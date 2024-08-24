@@ -24,7 +24,12 @@ export default defineNuxtConfig({
     }
   },
   build: {
-    transpile: ['vue3-quill', '@iconify/vue']
+    transpile: ['vue3-quill', '@iconify/vue', 'bcryptjs', 'jose']
+  },
+  nitro: {
+    externals: {
+      inline: ['bcryptjs', 'jose']
+    }
   },
   modules: [
     '@pinia/nuxt',
