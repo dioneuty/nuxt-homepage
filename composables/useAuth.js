@@ -1,6 +1,6 @@
 import { useState } from '#app'
 
-export const useAuth = () => {
+export function useAuth() {
   const auth = useState('auth', () => ({
     isLoggedIn: false,
     user: null
@@ -10,7 +10,7 @@ export const useAuth = () => {
     auth.value = { isLoggedIn, user }
   }
 
-  const checkAuth = async () => {
+  async function checkAuth() {
     try {
       const response = await fetch('/api/user?type=check')
       if (response.ok) {

@@ -158,7 +158,7 @@ function toggleSort(key) {
 
 const initialLoading = ref(true)
 
-const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async () => {
+const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async function() {
   try {
     const response = await $fetch(props.apiEndpoint, {
       params: {
@@ -180,27 +180,27 @@ const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, as
   server: false
 })
 
-onMounted(() => {
+onMounted(function() {
   if (posts.value) {
     initialLoading.value = false
   }
 })
 
-const handleSearch = async (params) => {
+async function handleSearch(params) {
   searchParams.value = params
   currentPage.value = 1
 }
 
-const handlePageChange = async (page) => {
+async function handlePageChange(page) {
   currentPage.value = page
 }
 
-const handleItemsPerPageChange = async (newItemsPerPage) => {
+async function handleItemsPerPageChange(newItemsPerPage) {
   itemsPerPage.value = newItemsPerPage
   currentPage.value = 1
 }
 
-const formatDate = (dateString) => {
+function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',
@@ -210,21 +210,23 @@ const formatDate = (dateString) => {
 
 const router = useRouter()
 
-const goToPostDetail = (postId) => {
+function goToPostDetail(postId) {
   router.push(`/${props.boardType}/view?id=${postId}`)
 }
 
-const onDragEnd = () => {
+function onDragEnd() {
   // 변경된 헤더 순서를 로컬 스토리지에 저장
-  localStorage.setItem(`${props.boardType}_headerOrder`, JSON.stringify(localHeaders.value.map(h => h.key)))
+  localStorage.setItem(`${props.boardType}_headerOrder`, JSON.stringify(localHeaders.value.map(function(h) { return h.key })))
   console.log('New header order:', localHeaders.value)
 }
 
-onMounted(() => {
+onMounted(function() {
   // 저장된 헤더 순서 불러오기
   const savedOrder = JSON.parse(localStorage.getItem(`${props.boardType}_headerOrder`))
   if (savedOrder) {
-    localHeaders.value = savedOrder.map(key => props.tableHeaders.find(h => h.key === key)).filter(Boolean)
+    localHeaders.value = savedOrder.map(function(key) { 
+      return props.tableHeaders.find(function(h) { return h.key === key }) 
+    }).filter(Boolean)
   }
 })
 </script>

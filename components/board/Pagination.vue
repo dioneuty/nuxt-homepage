@@ -72,26 +72,26 @@
   const showPrevious = computed(() => props.currentPage > 10)
   const showNext = computed(() => props.currentPage <= totalPages.value - 10)
   
-  const goToPage = (page) => {
+  function goToPage(page) {
     emit('page-change', page)
   }
   
-  const goToPreviousSet = () => {
+  function goToPreviousSet() {
     const newPage = Math.max(1, props.currentPage - 10)
     emit('page-change', newPage)
   }
   
-  const goToNextSet = () => {
+  function goToNextSet() {
     const newPage = Math.min(totalPages.value, props.currentPage + 10)
     emit('page-change', newPage)
   }
   
-  const changeItemsPerPage = () => {
+  function changeItemsPerPage() {
     emit('items-per-page-change', selectedItemsPerPage.value)
   }
   
   // props 변경 감지 및 selectedItemsPerPage 업데이트
-  watch(() => props.itemsPerPage, (newValue) => {
+  watch(() => props.itemsPerPage, function(newValue) {
     selectedItemsPerPage.value = newValue
   })
   </script>

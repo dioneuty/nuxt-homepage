@@ -37,7 +37,7 @@
   const username = ref('')
   const password = ref('')
 
-  const handleLogin = async () => {
+  async function handleLogin() {
     try {
       const response = await fetch('/api/user?type=login', {
         method: 'POST',

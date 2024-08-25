@@ -152,11 +152,11 @@ const editingComment = ref(null)
 const comments = ref([])
 const showConfirmModal = ref(false)
 
-const formatDate = (dateString) => {
+function formatDate(dateString) {
   return new Date(dateString).toLocaleString()
 }
 
-const addComment = async () => {
+async function addComment() {
   const response = await $fetch(`${props.apiEndpoint}?action=comment`, {
     method: 'POST',
     body: {
@@ -173,15 +173,15 @@ const addComment = async () => {
   emit('update')
 }
 
-const editComment = (comment) => {
+function editComment(comment) {
   editingComment.value = { ...comment }
 }
 
-const cancelEditComment = () => {
+function cancelEditComment() {
   editingComment.value = null
 }
 
-const updateComment = async () => {
+async function updateComment() {
   try {
     const response = await $fetch(`${props.apiEndpoint}?action=comment&id=${editingComment.value.id}`, {
       method: 'PUT',
@@ -196,7 +196,7 @@ const updateComment = async () => {
   }
 }
 
-const deleteComment = async (commentId) => {
+async function deleteComment(commentId) {
   await $fetch(`${props.apiEndpoint}?action=comment&id=${commentId}`, {
     method: 'DELETE'
   })
@@ -204,19 +204,19 @@ const deleteComment = async (commentId) => {
   emit('update')
 }
 
-const editGalleryItem = () => {
+function editGalleryItem() {
   emit('edit', props.item)
 }
 
-const deleteGalleryItem = () => {
+function deleteGalleryItem() {
   showConfirmModal.value = true
 }
 
-const cancelDelete = () => {
+function cancelDelete() {
   showConfirmModal.value = false
 }
 
-const confirmDelete = async () => {
+async function confirmDelete() {
   try {
     await $fetch(`${props.apiEndpoint}?action=delete&id=${props.item.id}`, { method: 'DELETE' })
     emit('delete', props.item.id)
@@ -228,7 +228,7 @@ const confirmDelete = async () => {
   }
 }
 
-const shareLink = () => {
+function shareLink() {
   const url = `${window.location.origin}/gallery?id=${props.item.id}`
   navigator.clipboard.writeText(url).then(() => {
     alert('링크가 클립보드에 복사되었습니다.')
@@ -238,7 +238,7 @@ const shareLink = () => {
   })
 }
 
-const fetchComments = async () => {
+async function fetchComments() {
   if (!props.showComments) return
   try {
     const response = await $fetch(`${props.apiEndpoint}?id=${props.item.id}&action=comments`, {

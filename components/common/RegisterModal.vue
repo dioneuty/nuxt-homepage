@@ -46,7 +46,7 @@
   const email = ref('')
   const password = ref('')
   
-  const handleRegister = async () => {
+  async function handleRegister() {
     try {
       const response = await fetch('/api/user?type=register', {
         method: 'POST',

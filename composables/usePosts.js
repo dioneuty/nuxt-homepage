@@ -7,8 +7,13 @@ import { blogPosts, boardPosts } from '~/server/data/npmboardPosts'
  * @returns {Object} - 블로그 게시글 데이터
  */
 export function usePosts() {
-  const getBlogPosts = () => ref(blogPosts)
-  const getBoardPosts = () => ref(boardPosts)
+  function getBlogPosts() {
+    return ref(blogPosts)
+  }
+
+  function getBoardPosts() {
+    return ref(boardPosts)
+  }
 
   return {
     getBlogPosts,

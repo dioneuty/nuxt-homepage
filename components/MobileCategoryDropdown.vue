@@ -36,7 +36,7 @@ const router = useRouter()
   
 const selectedCategory = ref(route.query.category || '0')
   
-const onCategoryChange = () => {
+function onCategoryChange() {
   if (selectedCategory.value === '0') {
     router.push({ query: { ...route.query, category: undefined } })
   } else {
@@ -48,7 +48,7 @@ watch(() => route.query.category, (newCategory) => {
   selectedCategory.value = newCategory || '0'
 })
 
-const isSelected = (categoryId) => {
+function isSelected(categoryId) {
   return selectedCategory.value === categoryId.toString()
 }
 </script>

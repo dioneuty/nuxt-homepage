@@ -3,11 +3,11 @@ import { ref } from 'vue'
 const isLoginModalOpen = ref(false)
 
 export function useLoginModal() {
-  const openModal = () => {
+  function openModal() {
     isLoginModalOpen.value = true
   }
 
-  const closeModal = () => {
+  function closeModal() {
     isLoginModalOpen.value = false
   }
 

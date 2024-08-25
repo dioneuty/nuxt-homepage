@@ -142,7 +142,7 @@ const selectedItemIndex = computed(() => {
 const isFirstItem = computed(() => selectedItemIndex.value === 0)
 const isLastItem = computed(() => selectedItemIndex.value === filteredItems.value.length - 1)
 
-const fetchItems = async () => {
+async function fetchItems() {
   loading.value = true
   error.value = null
   try {
@@ -159,7 +159,7 @@ const fetchItems = async () => {
 
 const route = useRoute()
 
-const openModalById = async (id) => {
+async function openModalById(id) {
   if (items.value.length === 0) {
     const success = await fetchItems()
     if (!success) return
@@ -183,26 +183,26 @@ onMounted(async () => {
   }
 })
 
-const openModal = (item) => {
+function openModal(item) {
   selectedItem.value = item
 }
 
-const closeModal = () => {
+function closeModal() {
   selectedItem.value = null
 }
 
-const openEditModal = (item = null) => {
+function openEditModal(item = null) {
   editingItem.value = item || { title: '', description: '', imageUrl: '', tags: [] }
   showEditModal.value = true
 }
 
-const closeEditModal = () => {
+function closeEditModal() {
   editingItem.value = null
   showEditModal.value = false
 }
 
-const updateItem = async (updatedItem) => {
-  const index = items.value.findIndex(item => item.id === updatedItem.id)
+async function updateItem(updatedItem) {
+  const index = items.value.findIndex(function(item) { return item.id === updatedItem.id })
   if (index !== -1) {
     items.value[index] = updatedItem
   } else {
@@ -214,18 +214,18 @@ const updateItem = async (updatedItem) => {
   closeEditModal()
 }
 
-const deleteItem = (deletedItemId) => {
-  items.value = items.value.filter(item => item.id !== deletedItemId)
+function deleteItem(deletedItemId) {
+  items.value = items.value.filter(function(item) { return item.id !== deletedItemId })
   selectedItem.value = null
 }
 
-const showPreviousItem = () => {
+function showPreviousItem() {
   if (!isFirstItem.value) {
     selectedItem.value = filteredItems.value[selectedItemIndex.value - 1]
   }
 }
 
-const showNextItem = () => {
+function showNextItem() {
   if (!isLastItem.value) {
     selectedItem.value = filteredItems.value[selectedItemIndex.value + 1]
   }

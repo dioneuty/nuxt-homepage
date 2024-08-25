@@ -35,7 +35,7 @@
   
   const emit = defineEmits(['search'])
   
-  const search = () => {
+  function search() {
     emit('search', { type: searchType.value, text: searchText.value })
   }
   </script>

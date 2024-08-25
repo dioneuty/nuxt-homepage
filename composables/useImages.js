@@ -7,7 +7,9 @@ import { carouselImages } from '~/server/data/images'
  * @returns {Object} - 이미지 데이터
  */
 export function useImages() {
-  const getCarouselImages = () => ref(carouselImages)
+  function getCarouselImages() {
+    return ref(carouselImages)
+  }
 
   return {
     getCarouselImages

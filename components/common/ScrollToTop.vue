@@ -18,11 +18,11 @@ import { ref, onMounted, onUnmounted } from 'vue'
   
 const showButton = ref(false)
   
-const checkScroll = () => {
+function checkScroll() {
   showButton.value = window.pageYOffset > 300
 }
   
-const scrollToTop = () => {
+function scrollToTop() {
   window.scrollTo({ top: 0, behavior: 'smooth' })
 }
   

@@ -46,19 +46,19 @@ const currentIndex = ref(0)
 let autoSlideTimer = null
 let isAutoSlidePaused = false
 
-const next = () => {
+function next() {
   currentIndex.value = (currentIndex.value + 1) % props.images.length
 }
 
-const prev = () => {
+function prev() {
   currentIndex.value = (currentIndex.value - 1 + props.images.length) % props.images.length
 }
 
-const goToSlide = (index) => {
+function goToSlide(index) {
   currentIndex.value = index
 }
 
-const startAutoSlide = () => {
+function startAutoSlide() {
   stopAutoSlide() // 기존 타이머 제거
   autoSlideTimer = setInterval(() => {
     if (!isAutoSlidePaused) {
@@ -67,17 +67,17 @@ const startAutoSlide = () => {
   }, props.autoSlideInterval)
 }
 
-const stopAutoSlide = () => {
+function stopAutoSlide() {
   if (autoSlideTimer) {
     clearInterval(autoSlideTimer)
   }
 }
 
-const pauseAutoSlide = () => {
+function pauseAutoSlide() {
   isAutoSlidePaused = true
 }
 
-const resumeAutoSlide = () => {
+function resumeAutoSlide() {
   isAutoSlidePaused = false
 }
 

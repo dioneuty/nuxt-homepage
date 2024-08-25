@@ -83,7 +83,7 @@ const editedItem = ref({ ...props.item, content: props.item.content || '' })
 const tags = ref([...props.item.tags] || [])
 const newTag = ref('')
 
-const addTag = () => {
+function addTag() {
   const trimmedTag = newTag.value.trim()
   if (trimmedTag && !tags.value.includes(trimmedTag)) {
     tags.value.push(trimmedTag)
@@ -91,19 +91,19 @@ const addTag = () => {
   }
 }
 
-const removeTag = (tag) => {
-  tags.value = tags.value.filter(t => t !== tag)
+function removeTag(tag) {
+  tags.value = tags.value.filter(function(t) { return t !== tag })
 }
 
-const clearTags = () => {
+function clearTags() {
   tags.value = []
 }
 
-const handleQuillInput = (content) => {
+function handleQuillInput(content) {
   editedItem.value.content = content
 }
 
-const saveItem = async () => {
+async function saveItem() {
   const updatedItem = {
     ...editedItem.value,
     tags: tags.value

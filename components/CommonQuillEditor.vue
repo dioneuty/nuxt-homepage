@@ -51,15 +51,24 @@ const editorOptions = {
   placeholder: props.placeholder,
 }
 
-const onContentUpdate = (content) => {
+function onContentUpdate(content) {
   //console.log('QuillEditor content updated:', content)
   emit('input', content)
 }
 
-const onEditorBlur = (quill) => emit('blur', quill)
-const onEditorFocus = (quill) => emit('focus', quill)
-const onEditorReady = (quill) => emit('ready', quill)
-const onEditorChange = ({ html, text, quill }) => {
+function onEditorBlur(quill) {
+  emit('blur', quill)
+}
+
+function onEditorFocus(quill) {
+  emit('focus', quill)
+}
+
+function onEditorReady(quill) {
+  emit('ready', quill)
+}
+
+function onEditorChange({ html, text, quill }) {
   //console.log('QuillEditor changed:', html)
   emit('input', html)
   emit('change', { html, text, quill })

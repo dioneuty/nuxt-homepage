@@ -28,12 +28,12 @@
   const { isReplyModalOpen, replyModalTitle, closeReplyModal, confirmReplyModal, cancelReplyModal } = useReplyModal()
   const replyContent = ref('')
   
-  const confirmReply = () => {
+  function confirmReply() {
     confirmReplyModal(replyContent.value)
     replyContent.value = ''
   }
   
-  const cancelReply = () => {
+  function cancelReply() {
     cancelReplyModal()
     replyContent.value = ''
   }

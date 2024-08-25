@@ -3,11 +3,11 @@ import { ref } from 'vue'
 const isRegisterModalOpen = ref(false)
 
 export function useRegisterModal() {
-  const openModal = () => {
+  function openModal() {
     isRegisterModalOpen.value = true
   }
 
-  const closeModal = () => {
+  function closeModal() {
     isRegisterModalOpen.value = false
   }
 

@@ -43,7 +43,7 @@ const showMobileCategory = computed(() => {
   return !['blog-edit', 'blog-write', 'blog-view'].includes(route.name)
 })
 
-const fetchCategories = async () => {
+async function fetchCategories() {
   try {
     const response = await fetch('/api/categories?include=uncategorized_all')
     if (!response.ok) {
@@ -57,11 +57,11 @@ const fetchCategories = async () => {
 
 const isMenuOpen = ref(false)
 
-const toggleMenu = () => {
+function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value
 }
 
-const closeMenu = () => {
+function closeMenu() {
   isMenuOpen.value = false
 }
 

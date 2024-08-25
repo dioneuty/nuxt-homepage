@@ -10,9 +10,9 @@ const modalCallback = ref(null)
  * @description 모달 컴포넌트를 사용하기 위한 컴포넌트
  * @returns {Object} 모달 컴포넌트를 사용하기 위한 컴포넌트
  */
-export const useModal = () => {
+export function useModal() {
   // 모달 열기
-  const openModal = (title, content, callback, confirm = false) => {
+  function openModal(title, content, callback, confirm = false) {
     modalTitle.value = title
     modalContent.value = content
     modalCallback.value = callback
@@ -21,26 +21,26 @@ export const useModal = () => {
   }
 
   // 모달 닫기
-  const closeModal = () => {
+  function closeModal() {
     isModalOpen.value = false
     resetModal()
   }
 
-  const confirmModal = () => {
+  function confirmModal() {
     if (modalCallback.value) {
       modalCallback.value(true)
     }
     closeModal()
   }
 
-  const cancelModal = () => {
+  function cancelModal() {
     if (modalCallback.value && isConfirm.value) {
       modalCallback.value(false)
     }
     closeModal()
   }
 
-  const resetModal = () => {
+  function resetModal() {
     modalTitle.value = ''
     modalContent.value = ''
     modalCallback.value = null

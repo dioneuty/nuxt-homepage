@@ -27,12 +27,12 @@ import ScrollToTop from '~/components/common/ScrollToTop.vue'
 
 const isMenuOpen = ref(false)
 
-const openMenu = () => {
+function openMenu() {
   isMenuOpen.value = true
   document.body.classList.add('menu-open')
 }
 
-const closeMenu = () => {
+function closeMenu() {
   isMenuOpen.value = false
   document.body.classList.remove('menu-open')
 }

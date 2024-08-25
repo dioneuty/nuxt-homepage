@@ -66,7 +66,10 @@
               <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
             </button>
             <div v-if="auth.isLoggedIn && auth.user" class="flex items-center space-x-2">
-              <span class="text-white">{{ auth.user.username }}</span>
+              <NuxtLink to="/personal-info" class="flex items-center space-x-2 text-white hover:text-blue-200">
+                <Icon icon="mdi:account-circle" class="h-6 w-6" />
+                <span>{{ auth.user.username }}</span>
+              </NuxtLink>
               <button @click="logout" class="text-white hover:text-blue-200 p-2 rounded-full">
                 <Icon icon="mdi:logout" class="h-6 w-6" />
               </button>
@@ -101,7 +104,10 @@
             <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
           </button>
           <div v-if="auth.isLoggedIn && auth.user" class="flex items-center space-x-2">
-            <span class="text-white">{{ auth.user.username }}</span>
+            <NuxtLink to="/personal-info" class="flex items-center space-x-2 text-white" :class="{ 'pointer-events-none': isMenuOpen }">
+              <Icon icon="mdi:account-circle" class="h-6 w-6" />
+              <span>{{ auth.user.username }}</span>
+            </NuxtLink>
             <button @click="logout" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
               <Icon icon="mdi:logout" class="h-6 w-6" />
             </button>

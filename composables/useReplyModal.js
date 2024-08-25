@@ -4,30 +4,30 @@ const isReplyModalOpen = ref(false)
 const replyModalTitle = ref('')
 const replyCallback = ref(null)
 
-export const useReplyModal = () => {
-  const openReplyModal = (title, callback) => {
+export function useReplyModal() {
+  function openReplyModal(title, callback) {
     replyModalTitle.value = title
     replyCallback.value = callback
     isReplyModalOpen.value = true
   }
 
-  const closeReplyModal = () => {
+  function closeReplyModal() {
     isReplyModalOpen.value = false
     resetReplyModal()
   }
 
-  const confirmReplyModal = (content) => {
+  function confirmReplyModal(content) {
     if (replyCallback.value) {
       replyCallback.value(content)
     }
     closeReplyModal()
   }
 
-  const cancelReplyModal = () => {
+  function cancelReplyModal() {
     closeReplyModal()
   }
 
-  const resetReplyModal = () => {
+  function resetReplyModal() {
     replyModalTitle.value = ''
     replyCallback.value = null
   }

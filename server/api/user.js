@@ -16,6 +16,8 @@ export default defineEventHandler(async (event) => {
     return handleCheck(event)
   } else if (type === 'register') {
     return handleRegister(event)
+  } else if (type === 'update') {
+    return handleUpdate(event)
   } else {
     return createError({
       statusCode: 400,
@@ -96,7 +98,7 @@ async function handleCheck(event) {
     
     const user = await prisma.user.findUnique({
       where: { id: payload.userId },
-      select: { id: true, username: true, role: true }
+      select: { id: true, username: true, role: true, email: true}
     })
 
     if (!user) {
@@ -151,6 +153,42 @@ async function handleRegister(event) {
     return createError({
       statusCode: 500,
       statusMessage: '회원가입 중 오류가 발생했습니다.',
+    })
+  }
+}
+
+async function handleUpdate(event) {
+  const token = getCookie(event, 'auth_token')
+  
+  if (!token) {
+    return createError({
+      statusCode: 401,
+      statusMessage: '인증되지 않은 사용자입니다.',
+    })
+  }
+
+  try {
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET)
+    const { payload } = await jose.jwtVerify(token, secret)
+    
+    const body = await readBody(event)
+    const { username, email } = body
+
+    const updatedUser = await prisma.user.update({
+      where: { id: payload.userId },
+      data: {
+        username,
+        email,
+      },
+      select: { id: true, username: true, email: true, role: true }
+    })
+
+    return { success: true, user: updatedUser }
+  } catch (error) {
+    console.error('User update error:', error)
+    return createError({
+      statusCode: 500,
+      statusMessage: '사용자 정보 업데이트 중 오류가 발생했습니다.',
     })
   }
 }
