@@ -172,13 +172,16 @@ async function handleUpdate(event) {
     const { payload } = await jose.jwtVerify(token, secret)
     
     const body = await readBody(event)
-    const { username, email } = body
+    const { username, email, password } = body
+
+    const hashedPassword = await bcrypt.hash(password, 10)
 
     const updatedUser = await prisma.user.update({
       where: { id: payload.userId },
       data: {
         username,
         email,
+        password: hashedPassword
       },
       select: { id: true, username: true, email: true, role: true }
     })
