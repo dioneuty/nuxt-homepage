@@ -14,7 +14,7 @@
   "dependencies": {
     "@heroicons/vue": "^2.1.5",
     "@pinia/nuxt": "^0.5.3",
-    "@prisma/client": "^5.18.0",
+    "@prisma/client": "^5.19.0",
     "@supabase/supabase-js": "^2.45.1",
     "@tailwindcss/typography": "^0.5.13",
     "@vueup/vue-quill": "^1.2.0",

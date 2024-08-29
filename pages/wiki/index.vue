@@ -43,6 +43,9 @@
 <script setup>
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useAuth } from '~/composables/useAuth'
+
+const { auth } = useAuth()
 
 const wikiPages = ref([])
 const loading = ref(true)

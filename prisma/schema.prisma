@@ -122,3 +122,14 @@ model HumorPost {
   createdAt DateTime @default(now())
   likes     Int      @default(0)
 }
+
+model Wiki {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+  author    String?
+  createdBy String?
+  updatedBy String?
+}
