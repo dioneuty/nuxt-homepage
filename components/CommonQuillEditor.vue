@@ -1,14 +1,16 @@
 <template>
-  <QuillEditor
-    :content="value"
-    content-type="html"
-    @update:content="onContentUpdate"
-    :options="editorOptions"
-    @blur="onEditorBlur"
-    @focus="onEditorFocus"
-    @ready="onEditorReady"
-    @change="onEditorChange"
-  />
+  <ClientOnly>
+    <QuillEditor
+      :content="value"
+      content-type="html"
+      @update:content="onContentUpdate"
+      :options="editorOptions"
+      @blur="onEditorBlur"
+      @focus="onEditorFocus"
+      @ready="onEditorReady"
+      @change="onEditorChange"
+    />
+  </ClientOnly>
 </template>
 
 <script setup>

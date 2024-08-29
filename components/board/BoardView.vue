@@ -111,7 +111,8 @@
       if (confirmed) {
         try {
           const { error } = await useFetch(props.apiEndpoint, {
-            method: 'DELETE'
+            method: 'DELETE',
+            body: JSON.stringify({ id })
           })
   
           if (error.value) {
