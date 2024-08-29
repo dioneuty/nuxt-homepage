@@ -1,16 +1,14 @@
 <template>
-  <client-only>
-    <QuillEditor
-      :content="value"
-      content-type="html"
-      @update:content="onContentUpdate"
-      :options="editorOptions"
-      @blur="onEditorBlur"
-      @focus="onEditorFocus"
-      @ready="onEditorReady"
-      @change="onEditorChange"
-    />
-  </client-only>
+  <QuillEditor
+    :content="value"
+    content-type="html"
+    @update:content="onContentUpdate"
+    :options="editorOptions"
+    @blur="onEditorBlur"
+    @focus="onEditorFocus"
+    @ready="onEditorReady"
+    @change="onEditorChange"
+  />
 </template>
 
 <script setup>
@@ -37,7 +35,7 @@ const editorOptions = {
       ['bold', 'italic', 'underline', 'strike'],
       ['blockquote', 'code-block'],
       [{ 'header': 1 }, { 'header': 2 }],
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }, { 'list': 'check' }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
       [{ 'script': 'sub' }, { 'script': 'super' }],
       [{ 'indent': '-1' }, { 'indent': '+1' }],
       [{ 'direction': 'rtl' }],
@@ -47,7 +45,7 @@ const editorOptions = {
       [{ 'font': [] }],
       [{ 'align': [] }],
       ['clean'],
-      ['link', 'image', 'video', 'formula', 'code-block', 'blockquote']
+      ['link', 'image', 'video']
     ]
   },
   placeholder: props.placeholder,

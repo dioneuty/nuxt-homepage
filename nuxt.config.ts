@@ -20,16 +20,11 @@ export default defineNuxtConfig({
   },
   vite: {
     optimizeDeps: {
-      include: ['@vueup/vue-quill', 'quill-delta']
-    },
-    build: {
-      commonjsOptions: {
-        include: [/quill-delta/]
-      }
+      include: ['vue3-quill']
     }
   },
   build: {
-    transpile: ['@vueup/vue-quill', '@iconify/vue', 'bcryptjs', 'jose']
+    transpile: ['vue3-quill', '@iconify/vue', 'bcryptjs', 'jose']
   },
   nitro: {
     externals: {
