@@ -22,7 +22,7 @@
     </div>
 
     <div class="mt-8 text-center">
-      <NuxtLink to="/wiki/edit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
+      <NuxtLink v-if="auth.isLoggedIn && auth.user" to="/wiki/edit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded inline-flex items-center">
         <Icon icon="mdi:pencil" class="mr-2" />
         위키 작성하기
       </NuxtLink>
@@ -33,6 +33,9 @@
 <script setup>
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
+import { useAuth } from '~/composables/useAuth'
+
+const { auth } = useAuth()
 
 const syntaxSections = ref([
   {
