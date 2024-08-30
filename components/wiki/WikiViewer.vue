@@ -21,7 +21,7 @@
         
         <!-- 버튼 그룹 -->
         <div class="mt-8 flex flex-wrap justify-between items-center">
-          <div class="space-x-4 mb-4 sm:mb-0">
+          <div v-if="auth.isLoggedIn && auth.user" class="space-x-4 mb-4 sm:mb-0">
             <NuxtLink :to="`/wiki/edit?id=${wiki.id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
               <Icon icon="mdi:pencil" class="mr-2" />
               수정하기
@@ -46,6 +46,9 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
+import { useAuth } from '~/composables/useAuth'
+
+const { auth } = useAuth()
 
 const props = defineProps({
   apiEndpoint: {

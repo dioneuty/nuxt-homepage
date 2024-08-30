@@ -24,7 +24,7 @@
           <Icon icon="mdi:text-box-outline" class="mr-1" />
           내용
         </label>
-        <CommonQuillEditor
+        <WikiQuillEditor
           :value="wiki.content"
           @input="updateField(wiki.content, $event)"
           placeholder="Wiki 내용을 입력하세요"
@@ -53,6 +53,7 @@ import { ref, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
+import WikiQuillEditor from '~/components/wiki/WikiQuillEditor.vue'
 
 const props = defineProps({
   apiEndpoint: {

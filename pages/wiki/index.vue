@@ -5,7 +5,11 @@
       Wiki 목록
     </h1>
     <div class="mb-6 flex justify-between items-center">
-      <NuxtLink to="/wiki/edit" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center">
+      <NuxtLink 
+        v-if="auth.isLoggedIn && auth.user" 
+        to="/wiki/edit" 
+        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
+      >
         <Icon icon="mdi:plus" class="mr-2" />
         새 Wiki 페이지
       </NuxtLink>
