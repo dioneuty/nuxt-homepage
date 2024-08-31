@@ -49,7 +49,7 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import OutlineItem from '~/components/OutlineItem.vue'
 import draggable from 'vuedraggable'
@@ -96,26 +96,56 @@ const sampleData = [
   },
 ]
 
-// 로컬 스토리지에서 데이터 불러오기
+// localStorage에서 데이터 불러오기
 const loadFromLocalStorage = () => {
   const storedData = localStorage.getItem('outlineData')
   return storedData ? JSON.parse(storedData) : null
 }
 
-// 로컬 스토리지에 데이터 저장하기
+// localStorage에 데이터 저장하기
 const saveToLocalStorage = (data) => {
   localStorage.setItem('outlineData', JSON.stringify(data))
 }
 
-onMounted(() => {
+// DB에서 아웃라이너 데이터 불러오기
+const loadFromDB = async () => {
   try {
-    const storedData = loadFromLocalStorage()
-    if (storedData && Array.isArray(storedData)) {
-      rootItems.value = storedData
+    const response = await fetch('/api/outline')
+    const data = await response.json()
+    return data
+  } catch (error) {
+    console.error('Error loading data from DB:', error)
+    return null
+  }
+}
+
+// DB에 아웃라이너 데이터 저장하기
+const saveToDB = async (data) => {
+  try {
+    await fetch('/api/outline', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    })
+  } catch (error) {
+    console.error('Error saving data to DB:', error)
+  }
+}
+
+onMounted(async () => {
+  try {
+    const dbData = await loadFromDB()
+    if (dbData) {
+      rootItems.value = dbData
+      saveToLocalStorage(dbData)
     } else {
-      rootItems.value = sampleData
+      const storedData = loadFromLocalStorage()
+      if (storedData) {
+        rootItems.value = storedData
+      } else {
+        rootItems.value = sampleData
+      }
     }
-    saveToLocalStorage(rootItems.value)
     saveTreeState(rootItems.value)
   } catch (error) {
     console.error('Error loading data:', error)
@@ -123,10 +153,15 @@ onMounted(() => {
   }
 })
 
-// rootItems가 변경될 때마다 로컬 스토리지에 저장
+onBeforeUnmount(async () => {
+  await saveToDB(rootItems.value)
+  localStorage.removeItem('outlineData')
+})
+
+// rootItems가 변경될 때마다 localStorage에 저장
 watch(rootItems, (newValue) => {
   saveToLocalStorage(newValue)
-  saveTreeState(newValue) // 트리 상태 저장
+  saveTreeState(newValue)
 }, { deep: true })
 
 const toggleItem = (item) => {

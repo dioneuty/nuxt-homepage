@@ -138,7 +138,14 @@ model OutlineItem {
   id        Int      @id @default(autoincrement())
   content   String
   parentId  Int?
-  order     BigInt   // Int에서 BigInt로 변경
+  order     Int
   parent    OutlineItem?  @relation("ChildItems", fields: [parentId], references: [id])
   children  OutlineItem[] @relation("ChildItems")
+}
+
+model OutlineState {
+  id        Int      @id @default(autoincrement())
+  state     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

@@ -8,35 +8,18 @@ export default defineEventHandler(async (event) => {
   const { id } = event.context.params || {}
 
   if (method === 'GET') {
-    if (id) {
-      return await prisma.outlineItem.findUnique({
-        where: { id: parseInt(id) },
-        include: { children: true }
-      })
-    } else {
-      return await prisma.outlineItem.findMany({
-        where: { parentId: null },
-        include: { children: true },
-        orderBy: { order: 'asc' }
-      })
-    }
+    const latestState = await prisma.outlineState.findFirst({
+      orderBy: { updatedAt: 'desc' }
+    })
+    return latestState ? latestState.state : null
   }
 
   if (method === 'POST') {
-    const { content, parentId } = await readBody(event)
-    
-    // 현재 최대 order 값을 조회
-    const maxOrder = await prisma.outlineItem.findFirst({
-      where: { parentId },
-      orderBy: { order: 'desc' },
-      select: { order: true }
+    const data = await readBody(event)
+    await prisma.outlineState.create({
+      data: { state: data }
     })
-
-    const newOrder = maxOrder ? maxOrder.order + 1n : 1n // BigInt 사용
-
-    return await prisma.outlineItem.create({
-      data: { content, parentId, order: newOrder }
-    })
+    return { success: true }
   }
 
   if (method === 'PUT') {
