@@ -30,7 +30,7 @@
               <Icon :icon="getIconForType(result.type)" class="mr-2" />
               {{ result.title }}
             </h3>
-            <p class="text-gray-600 dark:text-gray-400">{{ result.excerpt }}</p>
+            <!-- <p class="text-gray-600 dark:text-gray-400">{{ result.excerpt }}</p> -->
             <div class="mt-2 text-sm text-gray-500 dark:text-gray-500 flex items-center">
               <Icon icon="mdi:tag" class="mr-1" />
               {{ result.type }}

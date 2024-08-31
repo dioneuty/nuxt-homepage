@@ -14,8 +14,6 @@ export default defineEventHandler(async (event) => {
 
 // 모든 검색 결과를 가져오는 함수
 async function searchAllContent(query) {
-  const searchTerm = `%${query}%`
-
   const boardResults = await prisma.boardPost.findMany({
     where: {
       OR: [
@@ -62,13 +60,17 @@ async function searchAllContent(query) {
     where: {
       OR: [
         { title: { contains: query } },
-        { description: { contains: query } }
+        { description: { contains: query } },
+        { content: { contains: query } },
+        { tags: { hasSome: [query] } }
       ]
     },
     select: {
       id: true,
       title: true,
       description: true,
+      content: true,
+      tags: true,
     }
   })
 
@@ -107,8 +109,8 @@ async function searchAllContent(query) {
     ...boardResults.map(r => ({ ...r, type: 'board', excerpt: r.content })),
     ...blogResults.map(r => ({ ...r, type: 'blog', excerpt: r.content })),
     ...wikiResults.map(r => ({ ...r, type: 'wiki', excerpt: r.content })),
-    ...galleryResults.map(r => ({ ...r, type: 'gallery', excerpt: r.description })),
-    ...qnaResults.map(r => ({ ...r, type: 'qna', excerpt: r.questionContent + ' ' + (r.answerContent || '') })),
+    ...galleryResults.map(r => ({ ...r, type: 'gallery', excerpt: r.description || r.content, tags: r.tags })),
+    ...qnaResults.map(r => ({ ...r, type: 'qna', title: r.questionTitle, excerpt: r.questionContent + ' ' + (r.answerContent || '') })),
     ...humorResults.map(r => ({ ...r, type: 'humor', excerpt: r.content }))
   ]
 
@@ -118,7 +120,8 @@ async function searchAllContent(query) {
     title: result.title,
     excerpt: result.excerpt.substring(0, 100) + '...',
     type: getKoreanType(result.type),
-    link: getLinkForType(result.type, result.id)
+    link: getLinkForType(result.type, result.id),
+    tags: result.tags || []
   }))
 }
 
@@ -130,7 +133,7 @@ function getKoreanType(type) {
     case 'wiki': return '위키'
     case 'gallery': return '갤러리'
     case 'qna': return '질문과 답변'
-    case 'inquiry': return '문의게시판'
+    case 'humor': return '유머게시판'
     default: return '기타'
   }
 }
@@ -143,7 +146,7 @@ function getLinkForType(type, id) {
     case 'wiki': return `/wiki/view?id=${id}`
     case 'gallery': return `/gallery?id=${id}`
     case 'qna': return `/qna/view?id=${id}`
-    case 'inquiry': return `/inquiry/view?id=${id}`
+    case 'humor': return `/humor/view?id=${id}`
     default: return '/'
   }
 }
