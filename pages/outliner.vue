@@ -96,19 +96,29 @@ const sampleData = [
   },
 ]
 
-// localStorage에서 데이터 불러오기
-const loadFromLocalStorage = () => {
+
+/**
+ * localStorage에서 아웃라이너 데이터 불러오기
+ * @returns 아웃라이너 데이터 또는 null
+ */
+function loadFromLocalStorage() {
   const storedData = localStorage.getItem('outlineData')
   return storedData ? JSON.parse(storedData) : null
 }
 
-// localStorage에 데이터 저장하기
-const saveToLocalStorage = (data) => {
+/**
+ * localStorage에 데이터 저장하기
+ * @param data 저장할 데이터
+ */
+function saveToLocalStorage(data) {
   localStorage.setItem('outlineData', JSON.stringify(data))
 }
 
-// DB에서 아웃라이너 데이터 불러오기
-const loadFromDB = async () => {
+/**
+ * DB에서 아웃라이너 데이터 불러오기
+ * @returns 아웃라이너 데이터 또는 null
+ */
+async function loadFromDB() {
   try {
     const response = await fetch('/api/outline')
     const data = await response.json()
@@ -119,8 +129,11 @@ const loadFromDB = async () => {
   }
 }
 
-// DB에 아웃라이너 데이터 저장하기
-const saveToDB = async (data) => {
+/**
+ * DB에 아웃라이너 데이터 저장하기
+ * @param data 저장할 데이터
+ */
+async function saveToDB(data) {
   try {
     await fetch('/api/outline', {
       method: 'POST',
@@ -164,12 +177,20 @@ watch(rootItems, (newValue) => {
   saveTreeState(newValue)
 }, { deep: true })
 
-const toggleItem = (item) => {
+/**
+ * 항목 토글
+ * @param item 토글할 항목
+ */
+function toggleItem(item) {
   item.expanded = !item.expanded
   saveTreeState(rootItems.value) // 토글 후 트리 상태 저장
 }
 
-const zoomToItem = (item) => {
+/**
+ * 항목 확대
+ * @param item 확대할 항목
+ */
+function zoomToItem(item) {
   const path = findPath(rootItems.value, item.id)
   if (path) {
     zoomPath.value = path
@@ -177,14 +198,21 @@ const zoomToItem = (item) => {
   }
 }
 
-const zoomOut = () => {
+/**
+ * 항목 축소
+ */
+function zoomOut() {
   if (zoomPath.value.length > 0) {
     zoomPath.value.pop()
     restoreTreeState() // 축소 시 트리 상태 복원
   }
 }
 
-const zoomTo = (index) => {
+/**
+ * 항목 확대
+ * @param index 확대할 항목의 인덱스
+ */
+function zoomTo(index) {
   if (index === -1) {
     // 최상단으로 이동
     zoomPath.value = []
@@ -195,7 +223,11 @@ const zoomTo = (index) => {
   restoreTreeState() // 트리 상태 복원
 }
 
-const saveTreeState = (items) => {
+/**
+ * 트리 상태 저장
+ * @param items 항목 배열
+ */
+function saveTreeState(items) {
   treeState.value = {}
   const saveState = (item) => {
     treeState.value[item.id] = { expanded: item.expanded }
@@ -206,7 +238,10 @@ const saveTreeState = (items) => {
   items.forEach(saveState)
 }
 
-const restoreTreeState = () => {
+/**
+ * 트리 상태 복원
+ */
+function restoreTreeState() {
   const restoreState = (item) => {
     if (treeState.value[item.id]) {
       item.expanded = treeState.value[item.id].expanded
@@ -218,23 +253,28 @@ const restoreTreeState = () => {
   rootItems.value.forEach(restoreState)
 }
 
-const addItem = (parentId, content = '새 항목') => {
-  const newItem = {
+/**
+ * 항목 추가
+ * @param parentId 부모 항목 ID
+ * @param content 항목 내용
+ */
+function addItem(parentId, content = '새 항목') {
+  const newItem = { // 새 항목 생성
     id: Date.now(),
     content,
     children: []
   }
 
-  if (parentId) {
+  if (parentId) { // 부모 항목이 있는 경우
     const parent = findItem(rootItems.value, parentId)
     if (parent) {
-      if (!parent.children) {
+      if (!parent.children) { // 부모 항목의 children 배열이 없는 경우 생성
         parent.children = []
       }
       parent.children.push(newItem)
-      parent.expanded = true // 부모 노드를 확장 상태로 설정
+      parent.expanded = true // 부모 항목을 확장 상태로 설정
     }
-  } else {
+  } else { // 부모 항목이 없는 경우
     rootItems.value.push(newItem)
   }
 
@@ -242,33 +282,53 @@ const addItem = (parentId, content = '새 항목') => {
   saveTreeState(rootItems.value)
 }
 
-const deleteItem = (id) => {
+/**
+ * 항목 삭제
+ * @param id 항목 ID
+ */
+function deleteItem(id) {
   removeItem(rootItems.value, id)
 }
 
-const moveItem = (id, direction) => {
-  const item = findItem(rootItems.value, id)
+/**
+ * 항목 이동
+ * @param id 항목 ID
+ * @param direction 이동 방향 (up, down)
+ */
+function moveItem(id, direction) {
+  const item = findItem(rootItems.value, id) // 항목 찾기
   if (!item) return
 
-  const siblings = item.parentId ? findItem(rootItems.value, item.parentId).children : rootItems.value
-  const index = siblings.findIndex(sibling => sibling.id === id)
+  const siblings = item.parentId ? findItem(rootItems.value, item.parentId).children : rootItems.value // 형제 항목 찾기
+  const index = siblings.findIndex(sibling => sibling.id === id) // 형제 항목 인덱스 찾기
   
-  if (direction === 'up' && index > 0) {
+  if (direction === 'up' && index > 0) { // 위로 이동
     [siblings[index - 1], siblings[index]] = [siblings[index], siblings[index - 1]]
-  } else if (direction === 'down' && index < siblings.length - 1) {
+  } else if (direction === 'down' && index < siblings.length - 1) { // 아래로 이동
     [siblings[index], siblings[index + 1]] = [siblings[index + 1], siblings[index]]
   }
 }
 
-const updateItem = ({ id, content }) => {
+/**
+ * 항목 업데이트
+ * @param id 항목 ID
+ * @param content 항목 내용
+ */
+function updateItem({ id, content }) {
   const item = findItem(rootItems.value, id)
   if (item) {
     item.content = content
   }
 }
 
-const indentItem = (id) => {
+/**
+ * 들여쓰기
+ * @param id 항목 ID
+ */
+function indentItem(id) {
   const indentItemRecursive = (items) => {
+
+    // 항목 배열을 순회하면서 들여쓰기 처리
     for (let i = 0; i < items.length; i++) {
       if (items[i].id === id) {
         if (i > 0) {
@@ -290,6 +350,7 @@ const indentItem = (id) => {
         return false // 첫 번째 항목은 들여쓰기 불가능
       }
       
+      // 하위 항목이 있는 경우 재귀적으로 들여쓰기 처리
       if (items[i].children && items[i].children.length > 0) {
         if (indentItemRecursive(items[i].children)) {
           return true // 하위 항목에서 들여쓰기 성공
@@ -300,43 +361,54 @@ const indentItem = (id) => {
   }
 
   if (zoomPath.value.length > 0) {
-    indentItemRecursive(zoomPath.value[zoomPath.value.length - 1].children)
+    indentItemRecursive(zoomPath.value[zoomPath.value.length - 1].children) // 확대 상태에서 들여쓰기 처리
   } else {
-    indentItemRecursive(rootItems.value)
+    indentItemRecursive(rootItems.value) // 확대 상태가 없을 때 들여쓰기 처리
   }
 
-  saveTreeState(rootItems.value)
+  saveTreeState(rootItems.value) // 들여쓰기 후 트리 상태 저장
 }
 
-const outdentItem = (id) => {
+/**
+ * 들여쓰기 해제
+ * @param id 항목 ID
+ */
+function outdentItem(id) {
   const itemPath = findPath(rootItems.value, id)
-  if (!itemPath || itemPath.length < 2) return
+  if (!itemPath) return
 
-  const item = itemPath[itemPath.length - 1]
-  const parent = itemPath[itemPath.length - 2]
-  const grandparent = itemPath[itemPath.length - 3]
+  const item = itemPath[itemPath.length - 1] // 현재 항목
+  const parent = itemPath[itemPath.length - 2] // 부모 항목
+  const grandparent = itemPath[itemPath.length - 3] // 조부모 항목
 
-  parent.children = parent.children.filter(child => child.id !== id)
+  parent.children = parent.children.filter(child => child.id !== id) // 현재 항목 제거
   
-  if (grandparent) {
+  if (grandparent) { // 조부모가 있는 경우
     const parentIndex = grandparent.children.findIndex(child => child.id === parent.id)
-    grandparent.children.splice(parentIndex + 1, 0, item)
-  } else {
+    grandparent.children.splice(parentIndex + 1, 0, item) // 현재 항목을 부모 항목 뒤에 추가
+  } else { // 조부모가 없는 경우
     const parentIndex = rootItems.value.findIndex(child => child.id === parent.id)
-    rootItems.value.splice(parentIndex + 1, 0, item)
+    rootItems.value.splice(parentIndex + 1, 0, item) // 현재 항목을 부모 항목 뒤에 추가
   }
 
   // 현재 확대 상태 업데이트
   if (zoomPath.value.length > 0) {
-    const lastZoomedItem = zoomPath.value[zoomPath.value.length - 1]
+    const lastZoomedItem = zoomPath.value[zoomPath.value.length - 1] // 마지막 확대된 항목
     if (lastZoomedItem.id === parent.id) {
-      zoomPath.value.pop()
+      zoomPath.value.pop() // 마지막 확대된 항목 제거
     }
   }
-  saveTreeState(rootItems.value)
+  saveTreeState(rootItems.value) // 들여쓰기 해제 후 트리 상태 저장
 }
 
+/**
+ * 항목 찾기
+ * @param items 항목 배열
+ * @param id 항목 ID
+ * @returns 항목 객체 또는 null
+ */
 const findItem = (items, id) => {
+  // 항목 배열을 순회하면서 항목 찾기
   for (const item of items) {
     if (item.id === id) return item
     if (item.children) {
@@ -347,7 +419,15 @@ const findItem = (items, id) => {
   return null
 }
 
-const findPath = (items, id, path = []) => {
+/**
+ * 항목 경로 찾기
+ * @param items 항목 배열
+ * @param id 항목 ID
+ * @param path 현재 경로
+ * @returns 항목 경로 배열 또는 null
+ */
+function findPath(items, id, path = []) {
+  // 항목 배열을 순회하면서 항목 경로 찾기
   for (const item of items) {
     const newPath = [...path, item]
     if (item.id === id) return newPath
@@ -359,7 +439,13 @@ const findPath = (items, id, path = []) => {
   return null
 }
 
-const findParent = (items, id) => {
+/**
+ * 부모 항목 찾기
+ * @param items 항목 배열
+ * @param id 항목 ID
+ * @returns 부모 항목 객체 또는 null
+ */
+function findParent(items, id) {
   for (const item of items) {
     if (item.children) {
       if (item.children.some(child => child.id === id)) {
@@ -372,7 +458,12 @@ const findParent = (items, id) => {
   return null
 }
 
-const removeItem = (items, id) => {
+/**
+ * 항목 제거
+ * @param items 항목 배열
+ * @param id 항목 ID
+ */
+function removeItem(items, id) {
   const index = items.findIndex(item => item.id === id)
   if (index !== -1) {
     items.splice(index, 1)
@@ -385,7 +476,10 @@ const removeItem = (items, id) => {
   }
 }
 
-const handleReorder = () => {
+/**
+ * 재정렬 처리
+ */
+function handleReorder() {
   // 재정렬 후 트리 상태 저장
   saveTreeState(rootItems.value)
 }
