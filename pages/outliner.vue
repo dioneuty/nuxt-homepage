@@ -6,7 +6,7 @@
         <Icon icon="mdi:plus" /> 최상위 항목 추가
       </button>
       <button @click="zoomOut" v-if="zoomPath.length > 0" class="btn btn-secondary">
-        <Icon icon="mdi:arrow-collapse-all" />
+        <Icon icon="mdi:arrow-collapse-all" /> 확대 해제
       </button>
     </div>
     <div class="breadcrumbs" v-if="zoomPath.length > 0">
@@ -24,6 +24,8 @@
         item-key="id"
         @change="handleReorder"
         handle=".drag-handle"
+        ghost-class="ghost"
+        :animation="200"
       >
         <template #item="{ element }">
           <OutlineItem
@@ -57,11 +59,21 @@ const zoomPath = ref([])
 const treeState = ref({}) // 트리 상태를 저장할 객체
 
 // 현재 표시할 항목들 (확대 상태에 따라 달라짐)
-const currentItems = computed(() => {
-  if (!zoomPath.value || zoomPath.value.length === 0) {
-    return rootItems.value || []
+const currentItems = computed({
+  get: () => {
+    if (zoomPath.value.length === 0) {
+      return rootItems.value
+    }
+    return zoomPath.value[zoomPath.value.length - 1].children
+  },
+  set: (newItems) => {
+    if (zoomPath.value.length === 0) {
+      rootItems.value = newItems
+    } else {
+      zoomPath.value[zoomPath.value.length - 1].children = newItems
+    }
+    saveTreeState(rootItems.value)
   }
-  return zoomPath.value[zoomPath.value.length - 1]?.children || []
 })
 
 // 샘플 데이터
@@ -181,11 +193,18 @@ const addItem = (parentId, content = '새 항목') => {
   if (parentId) {
     const parent = findItem(rootItems.value, parentId)
     if (parent) {
+      if (!parent.children) {
+        parent.children = []
+      }
       parent.children.push(newItem)
+      parent.expanded = true // 부모 노드를 확장 상태로 설정
     }
   } else {
     rootItems.value.push(newItem)
   }
+
+  // 트리 상태 저장
+  saveTreeState(rootItems.value)
 }
 
 const deleteItem = (id) => {
@@ -214,31 +233,44 @@ const updateItem = ({ id, content }) => {
 }
 
 const indentItem = (id) => {
-  const itemPath = findPath(rootItems.value, id)
-  if (!itemPath || itemPath.length < 1) return
-
-  const item = itemPath[itemPath.length - 1]
-  const parent = itemPath[itemPath.length - 2]
-  const siblings = parent ? parent.children : rootItems.value
-  const currentIndex = siblings.findIndex(sibling => sibling.id === id)
-  
-  if (currentIndex > 0) {
-    const newParent = siblings[currentIndex - 1]
-    siblings.splice(currentIndex, 1)
-    if (!newParent.children) newParent.children = []
-    newParent.children.push(item)
-    if (!newParent.expanded) newParent.expanded = true
-
-    // zoomPath 업데이트
-    if (zoomPath.value.length > 0) {
-      const lastZoomedItem = zoomPath.value[zoomPath.value.length - 1]
-      if (lastZoomedItem.id === parent?.id) {
-        zoomPath.value.push(newParent)
+  const indentItemRecursive = (items) => {
+    for (let i = 0; i < items.length; i++) {
+      if (items[i].id === id) {
+        if (i > 0) {
+          const currentItem = items[i]
+          const previousItem = items[i - 1]
+          
+          // 현재 항목을 제거
+          items.splice(i, 1)
+          
+          // 이전 항목의 children 배열에 현재 항목 추가
+          if (!previousItem.children) {
+            previousItem.children = []
+          }
+          previousItem.children.push(currentItem)
+          previousItem.expanded = true // 이전 항목을 확장 상태로 설정
+          
+          return true // 들여쓰기 성공
+        }
+        return false // 첫 번째 항목은 들여쓰기 불가능
+      }
+      
+      if (items[i].children && items[i].children.length > 0) {
+        if (indentItemRecursive(items[i].children)) {
+          return true // 하위 항목에서 들여쓰기 성공
+        }
       }
     }
-
-    saveTreeState(rootItems.value)
+    return false // 해당 ID를 찾지 못함
   }
+
+  if (zoomPath.value.length > 0) {
+    indentItemRecursive(zoomPath.value[zoomPath.value.length - 1].children)
+  } else {
+    indentItemRecursive(rootItems.value)
+  }
+
+  saveTreeState(rootItems.value)
 }
 
 const outdentItem = (id) => {
@@ -318,7 +350,7 @@ const removeItem = (items, id) => {
   }
 }
 
-const handleReorder = (itemId) => {
+const handleReorder = () => {
   // 재정렬 후 트리 상태 저장
   saveTreeState(rootItems.value)
 }
@@ -399,5 +431,24 @@ const handleReorder = (itemId) => {
 
 .breadcrumbs span {
   margin: 0 5px;
+}
+
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+
+.ghost::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: #2196F3;
+}
+
+.outline-container :deep(.sortable-drag) {
+  opacity: 0;
 }
 </style>
