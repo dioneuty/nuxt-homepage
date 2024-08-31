@@ -244,6 +244,7 @@ const menuItems = ref([
   { name: '위키', path: '/wiki' },
   { name: '관련 사이트', path: '/related-sites' },
   { name: '종합 검색', path: '/search' },
+  { name: '아웃라이너', path: '/outliner' },
   { 
     name: '관리자', 
     children: [

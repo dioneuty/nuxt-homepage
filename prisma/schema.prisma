@@ -133,3 +133,12 @@ model Wiki {
   createdBy String?
   updatedBy String?
 }
+
+model OutlineItem {
+  id        Int      @id @default(autoincrement())
+  content   String
+  parentId  Int?
+  order     BigInt   // Int에서 BigInt로 변경
+  parent    OutlineItem?  @relation("ChildItems", fields: [parentId], references: [id])
+  children  OutlineItem[] @relation("ChildItems")
+}
