@@ -243,11 +243,11 @@ const menuItems = ref([
   { name: '갤러리', path: '/gallery' },
   { name: '위키', path: '/wiki' },
   { name: '관련 사이트', path: '/related-sites' },
-  { name: '종합 검색' + constructionEmoji, path: '/under-construction' },
+  { name: '종합 검색', path: '/search' },
   { 
     name: '관리자', 
     children: [
-      { name: '관리자용 문의 게시판' + constructionEmoji, path: '/contactboard' },
+      { name: '관리자용 문의 게시판', path: '/contactboard' },
       { name: '관리자용 게시판', path: '/adminboard' },
       { name: '관리자용 갤러리', path: '/admingallery' },
     ],
