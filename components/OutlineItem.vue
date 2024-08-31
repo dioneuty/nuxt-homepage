@@ -92,7 +92,7 @@
   const canIndent = computed(() => {
     if (!props.siblings || props.siblings.length < 2) return false
     const currentIndex = props.siblings.findIndex(sibling => sibling.id === props.item.id)
-    return currentIndex > 0 && props.siblings[currentIndex - 1].children && props.siblings[currentIndex - 1].children.length > 0
+    return currentIndex > 0
   })
 
   const handleTab = () => {

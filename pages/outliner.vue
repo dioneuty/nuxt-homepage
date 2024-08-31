@@ -215,25 +215,24 @@ const updateItem = ({ id, content }) => {
 
 const indentItem = (id) => {
   const itemPath = findPath(rootItems.value, id)
-  if (!itemPath || itemPath.length < 2) return
+  if (!itemPath || itemPath.length < 1) return
 
   const item = itemPath[itemPath.length - 1]
   const parent = itemPath[itemPath.length - 2]
-  const grandparent = itemPath[itemPath.length - 3]
-
-  const siblings = grandparent ? grandparent.children : rootItems.value
-  const parentIndex = siblings.findIndex(sibling => sibling.id === parent.id)
+  const siblings = parent ? parent.children : rootItems.value
+  const currentIndex = siblings.findIndex(sibling => sibling.id === id)
   
-  if (parentIndex > 0 && siblings[parentIndex - 1].children && siblings[parentIndex - 1].children.length > 0) {
-    const newParent = siblings[parentIndex - 1]
-    parent.children = parent.children.filter(child => child.id !== id)
+  if (currentIndex > 0) {
+    const newParent = siblings[currentIndex - 1]
+    siblings.splice(currentIndex, 1)
     if (!newParent.children) newParent.children = []
     newParent.children.push(item)
+    if (!newParent.expanded) newParent.expanded = true
 
     // zoomPath 업데이트
     if (zoomPath.value.length > 0) {
       const lastZoomedItem = zoomPath.value[zoomPath.value.length - 1]
-      if (lastZoomedItem.id === parent.id) {
+      if (lastZoomedItem.id === parent?.id) {
         zoomPath.value.push(newParent)
       }
     }
