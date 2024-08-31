@@ -1,10 +1,10 @@
 <template>
-  <div class="outline-item" :style="{ marginLeft: `${depth * 20}px` }">
-    <div class="item-content">
-      <div class="drag-handle">
+  <div class="mb-1.5" :style="{ marginLeft: `${depth * 20}px` }">
+    <div class="flex items-center bg-white dark:bg-gray-800 p-1.5 rounded shadow-sm">
+      <div class="drag-handle text-gray-500 dark:text-gray-400 cursor-move">
         <Icon icon="mdi:drag-horizontal-variant" />
       </div>
-      <button @click="toggleItem" v-if="item.children && item.children.length">
+      <button @click="toggleItem" v-if="item.children && item.children.length" class="text-gray-600 dark:text-gray-300">
         <Icon :icon="item.expanded ? 'mdi:chevron-down' : 'mdi:chevron-right'" />
       </button>
       <input
@@ -15,29 +15,29 @@
         @keydown.tab.prevent="handleTab"
         @keydown.shift.tab.prevent="handleShiftTab"
         ref="editInput"
-        class="edit-input"
+        class="flex-grow mx-2.5 px-1.5 py-0.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
       />
-      <span v-else @click="startEditing" class="item-text">{{ item.content }}</span>
-      <div class="item-actions">
-        <button @click="$emit('zoom', item)" title="확대">
+      <span v-else @click="startEditing" class="flex-grow mx-2.5 cursor-text text-gray-900 dark:text-gray-100">{{ item.content }}</span>
+      <div class="flex gap-1.5">
+        <button @click="$emit('zoom', item)" title="확대" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
           <Icon icon="mdi:magnify-plus-outline" />
         </button>
-        <button @click="$emit('add', item.id)" title="추가">
+        <button @click="$emit('add', item.id)" title="추가" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
           <Icon icon="mdi:plus" />
         </button>
-        <button @click="$emit('delete', item.id)" title="삭제">
+        <button @click="$emit('delete', item.id)" title="삭제" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
           <Icon icon="mdi:delete" />
         </button>
-        <button @click="$emit('move', item.id, 'up')" title="위로">
+        <button @click="$emit('move', item.id, 'up')" title="위로" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
           <Icon icon="mdi:arrow-up" />
         </button>
-        <button @click="$emit('move', item.id, 'down')" title="아래로">
+        <button @click="$emit('move', item.id, 'down')" title="아래로" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
           <Icon icon="mdi:arrow-down" />
         </button>
-        <button @click="handleTab" title="들여쓰기" :disabled="!canIndent">
+        <button @click="handleTab" title="들여쓰기" :disabled="!canIndent" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded disabled:opacity-50 disabled:cursor-not-allowed">
           <Icon icon="mdi:format-indent-increase" />
         </button>
-        <button @click="handleShiftTab" title="내어쓰기" :disabled="!canOutdent">
+        <button @click="handleShiftTab" title="내어쓰기" :disabled="!canOutdent" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded disabled:opacity-50 disabled:cursor-not-allowed">
           <Icon icon="mdi:format-indent-decrease" />
         </button>
       </div>
@@ -48,6 +48,7 @@
       item-key="id"
       handle=".drag-handle"
       @change="emitChange"
+      class="mt-1.5"
     >
       <template #item="{ element }">
         <OutlineItem
@@ -132,57 +133,5 @@ const toggleItem = () => {
 </script>
 
 <style scoped>
-.outline-item {
-  margin-bottom: 5px;
-}
-
-.item-content {
-  display: flex;
-  align-items: center;
-  background-color: white;
-  padding: 5px;
-  border-radius: 5px;
-  box-shadow: 0 1px 3px rgba(0,0,0,0.1);
-}
-
-.item-text {
-  flex-grow: 1;
-  margin: 0 10px;
-  cursor: text;
-}
-
-.edit-input {
-  flex-grow: 1;
-  margin: 0 10px;
-  padding: 2px 5px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
-}
-
-.item-actions {
-  display: flex;
-  gap: 5px;
-}
-
-.item-actions button {
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 2px;
-  border-radius: 3px;
-  transition: background-color 0.2s;
-}
-
-.item-actions button:hover {
-  background-color: #f0f0f0;
-}
-
-.item-actions button:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.item-children {
-  margin-top: 5px;
-}
+/* Tailwind 클래스로 대체되어 스타일 제거 */
 </style>
