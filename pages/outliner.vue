@@ -1,24 +1,24 @@
 <template>
-  <div class="outliner">
-    <h1 class="title">아웃라이너</h1>
-    <div class="controls">
-      <button @click="addItem(null)" class="btn btn-primary">
+  <div class="max-w-3xl mx-auto p-5 font-sans dark:bg-gray-800">
+    <h1 class="text-3xl text-gray-800 dark:text-gray-200 mb-5 text-center">아웃라이너</h1>
+    <div class="flex justify-between mb-5">
+      <button @click="addItem(null)" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors duration-300 transform active:scale-98">
         <Icon icon="mdi:plus" /> 최상위 항목 추가
       </button>
-      <button @click="zoomOut" v-if="zoomPath.length > 0" class="btn btn-secondary">
+      <button @click="zoomOut" v-if="zoomPath.length > 0" class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors duration-300 transform active:scale-98">
         <Icon icon="mdi:arrow-collapse-all" /> 확대 해제
       </button>
     </div>
-    <div class="breadcrumbs" v-if="zoomPath.length > 0">
+    <div class="mb-2.5 text-sm" v-if="zoomPath.length > 0">
       <span>
-        <a @click="zoomTo(-1)">최상단</a>
+        <a @click="zoomTo(-1)" class="text-blue-500 dark:text-blue-400 cursor-pointer hover:underline">최상단</a>
       </span>
       <span v-for="(item, index) in zoomPath" :key="item.id">
-        <span> > </span>
-        <a @click="zoomTo(index)">{{ item.content }}</a>
+        <span class="mx-1.5 text-gray-500 dark:text-gray-400"> > </span>
+        <a @click="zoomTo(index)" class="text-blue-500 dark:text-blue-400 cursor-pointer hover:underline">{{ item.content }}</a>
       </span>
     </div>
-    <div class="outline-container">
+    <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-5 shadow-sm">
       <draggable
         v-model="currentItems"
         item-key="id"
@@ -486,82 +486,6 @@ function handleReorder() {
 </script>
 
 <style scoped>
-.outliner {
-  max-width: 800px;
-  margin: 0 auto;
-  padding: 20px;
-  font-family: 'Arial', sans-serif;
-}
-
-.title {
-  color: #333;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  text-align: center;
-}
-
-.controls {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 20px;
-}
-
-.btn {
-  padding: 10px 15px;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-size: 1rem;
-  transition: background-color 0.3s, transform 0.1s;
-}
-
-.btn:active {
-  transform: scale(0.98);
-}
-
-.btn-primary {
-  background-color: #4CAF50;
-  color: white;
-}
-
-.btn-primary:hover {
-  background-color: #45a049;
-}
-
-.btn-secondary {
-  background-color: #2196F3;
-  color: white;
-}
-
-.btn-secondary:hover {
-  background-color: #1e87db;
-}
-
-.outline-container {
-  background-color: #f9f9f9;
-  border-radius: 8px;
-  padding: 20px;
-  box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.breadcrumbs {
-  margin-bottom: 10px;
-  font-size: 0.9em;
-}
-
-.breadcrumbs a {
-  color: #2196F3;
-  cursor: pointer;
-}
-
-.breadcrumbs a:hover {
-  text-decoration: underline;
-}
-
-.breadcrumbs span {
-  margin: 0 5px;
-}
-
 .ghost {
   opacity: 0.5;
   background: #c8ebfb;
