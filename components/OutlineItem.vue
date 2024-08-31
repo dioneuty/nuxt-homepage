@@ -4,21 +4,31 @@
       <div class="drag-handle text-gray-500 dark:text-gray-400 cursor-move">
         <Icon icon="mdi:drag-horizontal-variant" />
       </div>
-      <button @click="toggleItem" v-if="item.children && item.children.length" class="text-gray-600 dark:text-gray-300">
+      <button @click="toggleItem" class="text-gray-600 dark:text-gray-300">
         <Icon :icon="item.expanded ? 'mdi:chevron-down' : 'mdi:chevron-right'" />
       </button>
       <input
         v-if="isEditing"
         v-model="editedContent"
         @blur="finishEditing"
-        @keyup.enter="finishEditing"
+        @keyup.enter="handleEnter"
         @keydown.tab.prevent="handleTab"
         @keydown.shift.tab.prevent="handleShiftTab"
         ref="editInput"
+        :disabled="isLocked"
         class="flex-grow mx-2.5 px-1.5 py-0.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
       />
       <span v-else @click="startEditing" class="flex-grow mx-2.5 cursor-text text-gray-900 dark:text-gray-100">{{ item.content }}</span>
       <div class="flex gap-1.5">
+        <button @click="toggleContent" title="내용 보기/숨기기" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
+          <Icon :icon="showContent ? 'mdi:eye-off' : 'mdi:eye'" />
+        </button>
+        <button @click="saveContent" title="내용 저장" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
+          <Icon icon="mdi:content-save" />
+        </button>
+        <button @click="toggleLock" title="잠금/해제" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
+          <Icon :icon="isLocked ? 'mdi:lock' : 'mdi:lock-open'" />
+        </button>
         <button @click="$emit('zoom', item)" title="확대" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
           <Icon icon="mdi:magnify-plus-outline" />
         </button>
@@ -41,6 +51,14 @@
           <Icon icon="mdi:format-indent-decrease" />
         </button>
       </div>
+    </div>
+    <div v-if="showContent" class="mt-2">
+      <CommonQuillEditor
+        :value="itemContent"
+        @input="updateItemContent"
+        placeholder="내용을 입력하세요..."
+        :readonly="isLocked"
+      />
     </div>
     <draggable
       v-if="item.expanded"
@@ -71,23 +89,49 @@
 </template>
 
 <script setup>
-import { ref, nextTick, computed } from 'vue'
+import { ref, nextTick, computed, watch, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import draggable from 'vuedraggable'
+import CommonQuillEditor from './CommonQuillEditor.vue'
 
-const props = defineProps(['item', 'depth', 'siblings'])
+const props = defineProps(['item', 'depth', 'siblings', 'newItemId'])
 const emit = defineEmits(['toggle', 'zoom', 'add', 'delete', 'move', 'update', 'indent', 'outdent', 'reorder'])
 
 const isEditing = ref(false)
 const editedContent = ref(props.item.content)
 const editInput = ref(null)
+const showContent = ref(false)
+const itemContent = ref('')
+const isLocked = ref(false)
+
+onMounted(async () => {
+  if (props.item.id) {
+    await fetchItemContent()
+  }
+})
+
+const fetchItemContent = async () => {
+  try {
+    const response = await fetch(`/api/outline-item/${props.item.id.toString()}`)
+    if (response.ok) {
+      const data = await response.json()
+      itemContent.value = data.content || ''
+    } else {
+      console.error('Error fetching item content:', response.statusText)
+    }
+  } catch (error) {
+    console.error('Error fetching item content:', error)
+  }
+}
 
 const startEditing = () => {
-  isEditing.value = true
-  editedContent.value = props.item.content
-  nextTick(() => {
-    editInput.value.focus()
-  })
+  if (!isLocked.value) {
+    isEditing.value = true
+    editedContent.value = props.item.content
+    nextTick(() => {
+      editInput.value.focus()
+    })
+  }
 }
 
 const finishEditing = () => {
@@ -128,6 +172,47 @@ const emitChange = () => {
 const toggleItem = () => {
   if (props.item.children && props.item.children.length > 0) {
     emit('toggle', props.item)
+  }
+}
+
+const toggleContent = () => {
+  showContent.value = !showContent.value
+}
+
+const saveContent = async () => {
+  try {
+    await fetch(`/api/outline-item/${props.item.id}`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ content: itemContent.value })
+    })
+    // 저장 성공 메시지 표시
+    alert('내용이 저장되었습니다.')
+  } catch (error) {
+    console.error('Error saving item content:', error)
+    alert('내용 저장에 실패했습니다.')
+  }
+}
+
+const toggleLock = () => {
+  isLocked.value = !isLocked.value
+  if (isLocked.value && isEditing.value) {
+    finishEditing()
+  }
+}
+
+const updateItemContent = async (content) => {
+  if (!isLocked.value) {
+    itemContent.value = content
+    try {
+      await fetch(`/api/outline-item/${props.item.id.toString()}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ content })
+      })
+    } catch (error) {
+      console.error('Error updating item content:', error)
+    }
   }
 }
 </script>

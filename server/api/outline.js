@@ -5,7 +5,6 @@ const prisma = new PrismaClient()
 
 export default defineEventHandler(async (event) => {
   const method = event.req.method
-  const { id } = event.context.params || {}
 
   if (method === 'GET') {
     const latestState = await prisma.outlineState.findFirst({
@@ -20,19 +19,5 @@ export default defineEventHandler(async (event) => {
       data: { state: data }
     })
     return { success: true }
-  }
-
-  if (method === 'PUT') {
-    const { content, order } = await readBody(event)
-    return await prisma.outlineItem.update({
-      where: { id: parseInt(id) },
-      data: { content, order }
-    })
-  }
-
-  if (method === 'DELETE') {
-    return await prisma.outlineItem.delete({
-      where: { id: parseInt(id) }
-    })
   }
 })
