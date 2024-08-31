@@ -5,34 +5,64 @@
       <button @click="addItem(null)" class="btn btn-primary">
         <Icon icon="mdi:plus" /> 최상위 항목 추가
       </button>
-      <button @click="zoomOut" v-if="currentZoom" class="btn btn-secondary">
+      <button @click="zoomOut" v-if="zoomPath.length > 0" class="btn btn-secondary">
         <Icon icon="mdi:arrow-collapse-all" />
       </button>
     </div>
+    <div class="breadcrumbs" v-if="zoomPath.length > 0">
+      <span>
+        <a @click="zoomTo(-1)">최상단</a>
+      </span>
+      <span v-for="(item, index) in zoomPath" :key="item.id">
+        <span> > </span>
+        <a @click="zoomTo(index)">{{ item.content }}</a>
+      </span>
+    </div>
     <div class="outline-container">
-      <OutlineItem
-        v-for="item in rootItems"
-        :key="item.id"
-        :item="item"
-        :depth="0"
-        @toggle="toggleItem"
-        @zoom="zoomToItem"
-        @add="addItem"
-        @delete="deleteItem"
-        @move="moveItem"
-        @update="updateItem"
-      />
+      <draggable
+        v-model="currentItems"
+        item-key="id"
+        @change="handleReorder"
+        handle=".drag-handle"
+      >
+        <template #item="{ element }">
+          <OutlineItem
+            :item="element"
+            :depth="0"
+            :siblings="currentItems"
+            @toggle="toggleItem"
+            @zoom="zoomToItem"
+            @add="addItem"
+            @delete="deleteItem"
+            @move="moveItem"
+            @update="updateItem"
+            @indent="indentItem"
+            @outdent="outdentItem"
+            @reorder="handleReorder"
+          />
+        </template>
+      </draggable>
     </div>
   </div>
 </template>
 
 <script setup>
+import { ref, computed, onMounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import OutlineItem from '~/components/OutlineItem.vue'
-import { Icon } from '@iconify/vue'
+import draggable from 'vuedraggable'
 
 const rootItems = ref([])
-const currentZoom = ref(null)
+const zoomPath = ref([])
+const treeState = ref({}) // 트리 상태를 저장할 객체
+
+// 현재 표시할 항목들 (확대 상태에 따라 달라짐)
+const currentItems = computed(() => {
+  if (!zoomPath.value || zoomPath.value.length === 0) {
+    return rootItems.value || []
+  }
+  return zoomPath.value[zoomPath.value.length - 1]?.children || []
+})
 
 // 샘플 데이터
 const sampleData = [
@@ -54,27 +84,96 @@ const sampleData = [
   },
 ]
 
+// 로컬 스토리지에서 데이터 불러오기
+const loadFromLocalStorage = () => {
+  const storedData = localStorage.getItem('outlineData')
+  return storedData ? JSON.parse(storedData) : null
+}
+
+// 로컬 스토리지에 데이터 저장하기
+const saveToLocalStorage = (data) => {
+  localStorage.setItem('outlineData', JSON.stringify(data))
+}
+
 onMounted(() => {
-  rootItems.value = sampleData
+  try {
+    const storedData = loadFromLocalStorage()
+    if (storedData && Array.isArray(storedData)) {
+      rootItems.value = storedData
+    } else {
+      rootItems.value = sampleData
+    }
+    saveToLocalStorage(rootItems.value)
+    saveTreeState(rootItems.value)
+  } catch (error) {
+    console.error('Error loading data:', error)
+    rootItems.value = []
+  }
 })
+
+// rootItems가 변경될 때마다 로컬 스토리지에 저장
+watch(rootItems, (newValue) => {
+  saveToLocalStorage(newValue)
+  saveTreeState(newValue) // 트리 상태 저장
+}, { deep: true })
 
 const toggleItem = (item) => {
   item.expanded = !item.expanded
+  saveTreeState(rootItems.value) // 토글 후 트리 상태 저장
 }
 
 const zoomToItem = (item) => {
-  currentZoom.value = item.id
-  rootItems.value = [item]
+  const path = findPath(rootItems.value, item.id)
+  if (path) {
+    zoomPath.value = path
+    saveTreeState(rootItems.value) // 확대 후 트리 상태 저장
+  }
 }
 
 const zoomOut = () => {
-  currentZoom.value = null
-  rootItems.value = sampleData
+  if (zoomPath.value.length > 0) {
+    zoomPath.value.pop()
+    restoreTreeState() // 축소 시 트리 상태 복원
+  }
+}
+
+const zoomTo = (index) => {
+  if (index === -1) {
+    // 최상단으로 이동
+    zoomPath.value = []
+  } else if (index < zoomPath.value.length - 1) {
+    // 현재 확대 레벨보다 상위로 이동할 때만 처리
+    zoomPath.value = zoomPath.value.slice(0, index + 1)
+  }
+  restoreTreeState() // 트리 상태 복원
+}
+
+const saveTreeState = (items) => {
+  treeState.value = {}
+  const saveState = (item) => {
+    treeState.value[item.id] = { expanded: item.expanded }
+    if (item.children) {
+      item.children.forEach(saveState)
+    }
+  }
+  items.forEach(saveState)
+}
+
+const restoreTreeState = () => {
+  const restoreState = (item) => {
+    if (treeState.value[item.id]) {
+      item.expanded = treeState.value[item.id].expanded
+    }
+    if (item.children) {
+      item.children.forEach(restoreState)
+    }
+  }
+  rootItems.value.forEach(restoreState)
 }
 
 const addItem = (parentId, content = '새 항목') => {
   const newItem = {
-    id: Date.now(), // 임시 ID 생성
+    id: Date.now(),
     content,
     children: []
   }
@@ -107,11 +206,100 @@ const moveItem = (id, direction) => {
   }
 }
 
+const updateItem = ({ id, content }) => {
+  const item = findItem(rootItems.value, id)
+  if (item) {
+    item.content = content
+  }
+}
+
+const indentItem = (id) => {
+  const itemPath = findPath(rootItems.value, id)
+  if (!itemPath || itemPath.length < 2) return
+
+  const item = itemPath[itemPath.length - 1]
+  const parent = itemPath[itemPath.length - 2]
+  const grandparent = itemPath[itemPath.length - 3]
+
+  const siblings = grandparent ? grandparent.children : rootItems.value
+  const parentIndex = siblings.findIndex(sibling => sibling.id === parent.id)
+  
+  if (parentIndex > 0 && siblings[parentIndex - 1].children && siblings[parentIndex - 1].children.length > 0) {
+    const newParent = siblings[parentIndex - 1]
+    parent.children = parent.children.filter(child => child.id !== id)
+    if (!newParent.children) newParent.children = []
+    newParent.children.push(item)
+
+    // zoomPath 업데이트
+    if (zoomPath.value.length > 0) {
+      const lastZoomedItem = zoomPath.value[zoomPath.value.length - 1]
+      if (lastZoomedItem.id === parent.id) {
+        zoomPath.value.push(newParent)
+      }
+    }
+
+    saveTreeState(rootItems.value)
+  }
+}
+
+const outdentItem = (id) => {
+  const itemPath = findPath(rootItems.value, id)
+  if (!itemPath || itemPath.length < 2) return
+
+  const item = itemPath[itemPath.length - 1]
+  const parent = itemPath[itemPath.length - 2]
+  const grandparent = itemPath[itemPath.length - 3]
+
+  parent.children = parent.children.filter(child => child.id !== id)
+  
+  if (grandparent) {
+    const parentIndex = grandparent.children.findIndex(child => child.id === parent.id)
+    grandparent.children.splice(parentIndex + 1, 0, item)
+  } else {
+    const parentIndex = rootItems.value.findIndex(child => child.id === parent.id)
+    rootItems.value.splice(parentIndex + 1, 0, item)
+  }
+
+  // 현재 확대 상태 업데이트
+  if (zoomPath.value.length > 0) {
+    const lastZoomedItem = zoomPath.value[zoomPath.value.length - 1]
+    if (lastZoomedItem.id === parent.id) {
+      zoomPath.value.pop()
+    }
+  }
+  saveTreeState(rootItems.value)
+}
+
 const findItem = (items, id) => {
   for (const item of items) {
     if (item.id === id) return item
     if (item.children) {
       const found = findItem(item.children, id)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+const findPath = (items, id, path = []) => {
+  for (const item of items) {
+    const newPath = [...path, item]
+    if (item.id === id) return newPath
+    if (item.children) {
+      const found = findPath(item.children, id, newPath)
+      if (found) return found
+    }
+  }
+  return null
+}
+
+const findParent = (items, id) => {
+  for (const item of items) {
+    if (item.children) {
+      if (item.children.some(child => child.id === id)) {
+        return item
+      }
+      const found = findParent(item.children, id)
       if (found) return found
     }
   }
@@ -131,11 +319,9 @@ const removeItem = (items, id) => {
   }
 }
 
-const updateItem = ({ id, content }) => {
-  const item = findItem(rootItems.value, id)
-  if (item) {
-    item.content = content
-  }
+const handleReorder = (itemId) => {
+  // 재정렬 후 트리 상태 저장
+  saveTreeState(rootItems.value)
 }
 </script>
 
@@ -196,5 +382,23 @@ const updateItem = ({ id, content }) => {
   border-radius: 8px;
   padding: 20px;
   box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.breadcrumbs {
+  margin-bottom: 10px;
+  font-size: 0.9em;
+}
+
+.breadcrumbs a {
+  color: #2196F3;
+  cursor: pointer;
+}
+
+.breadcrumbs a:hover {
+  text-decoration: underline;
+}
+
+.breadcrumbs span {
+  margin: 0 5px;
 }
 </style>

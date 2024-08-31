@@ -1,6 +1,9 @@
 <template>
     <div class="outline-item" :style="{ marginLeft: `${depth * 20}px` }">
       <div class="item-content">
+        <div class="drag-handle">
+          <Icon icon="mdi:drag-vertical" />
+        </div>
         <button @click="$emit('toggle', item)" v-if="item.children && item.children.length">
           <Icon :icon="item.expanded ? 'mdi:minus' : 'mdi:plus'" />
         </button>
@@ -9,6 +12,8 @@
           v-model="editedContent"
           @blur="finishEditing"
           @keyup.enter="finishEditing"
+          @keydown.tab.prevent="handleTab"
+          @keydown.shift.tab.prevent="handleShiftTab"
           ref="editInput"
           class="edit-input"
         />
@@ -31,29 +36,39 @@
           </button>
         </div>
       </div>
-      <div v-if="item.expanded" class="item-children">
-        <OutlineItem
-          v-for="child in item.children"
-          :key="child.id"
-          :item="child"
-          :depth="depth + 1"
-          @toggle="$emit('toggle', $event)"
-          @zoom="$emit('zoom', $event)"
-          @add="$emit('add', $event)"
-          @delete="$emit('delete', $event)"
-          @move="$emit('move', $event)"
-          @update="$emit('update', $event)"
-        />
-      </div>
+      <draggable
+        v-if="item.expanded"
+        v-model="item.children"
+        item-key="id"
+        handle=".drag-handle"
+        @change="emitChange"
+      >
+        <template #item="{ element }">
+          <OutlineItem
+            :item="element"
+            :depth="depth + 1"
+            @toggle="$emit('toggle', $event)"
+            @zoom="$emit('zoom', $event)"
+            @add="$emit('add', $event)"
+            @delete="$emit('delete', $event)"
+            @move="$emit('move', $event)"
+            @update="$emit('update', $event)"
+            @indent="$emit('indent', $event)"
+            @outdent="$emit('outdent', $event)"
+            @change="$emit('change', $event)"
+          />
+        </template>
+      </draggable>
     </div>
   </template>
   
   <script setup>
-  import { ref, nextTick } from 'vue'
+  import { ref, nextTick, computed } from 'vue'
   import { Icon } from '@iconify/vue'
+  import draggable from 'vuedraggable'
 
-  const props = defineProps(['item', 'depth'])
-  const emit = defineEmits(['toggle', 'zoom', 'add', 'delete', 'move', 'update'])
+  const props = defineProps(['item', 'depth', 'siblings'])
+  const emit = defineEmits(['toggle', 'zoom', 'add', 'delete', 'move', 'update', 'indent', 'outdent', 'reorder'])
 
   const isEditing = ref(false)
   const editedContent = ref(props.item.content)
@@ -72,6 +87,32 @@
     if (editedContent.value !== props.item.content) {
       emit('update', { id: props.item.id, content: editedContent.value })
     }
+  }
+
+  const canIndent = computed(() => {
+    if (!props.siblings || props.siblings.length < 2) return false
+    const currentIndex = props.siblings.findIndex(sibling => sibling.id === props.item.id)
+    return currentIndex > 0 && props.siblings[currentIndex - 1].children && props.siblings[currentIndex - 1].children.length > 0
+  })
+
+  const handleTab = () => {
+    if (canIndent.value) {
+      emit('indent', props.item.id)
+      nextTick(() => {
+        if (editInput.value) {
+          editInput.value.focus()
+        }
+      })
+    }
+  }
+
+  const handleShiftTab = () => {
+    emit('outdent', props.item.id)
+    nextTick(() => {
+      if (editInput.value) {
+        editInput.value.focus()
+      }
+    })
   }
   </script>
 
