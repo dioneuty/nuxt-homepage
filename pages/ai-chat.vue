@@ -42,7 +42,7 @@
                 <div v-else class="text-gray-500 italic">빈 메시지</div>
             </div>
             <p v-if="message.model" class="text-xs text-gray-500">({{ message.model }})</p>
-            <p v-if="message.created" class="text-xs text-gray-500">({{ formatDate(message.created) }})</p>
+            <p v-if="message.created" class="text-xs text-gray-500">({{ formatDate(message.created, 'HH:mm') }})</p>
           </div>
         </div>
       </div>
