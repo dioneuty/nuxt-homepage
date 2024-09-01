@@ -1,5 +1,5 @@
 <template>
-  <nav>
+  <nav class="relative">
     <!-- 데스크톱 네비게이션 -->
     <div class="hidden lg:block">
       <!-- 배경 이미지를 위한 공간 -->
@@ -204,8 +204,31 @@ import { Icon } from '@iconify/vue'
 import { useLoginModal } from '~/composables/useLoginModal'
 import { useRegisterModal } from '~/composables/useRegisterModal'
 import { useAuth } from '~/composables/useAuth'
+import NProgress from 'nprogress'
+import 'nprogress/nprogress.css'
 
 const router = useRouter()
+
+const startProgress = () => {
+  NProgress.start()
+}
+
+const endProgress = () => {
+  NProgress.done()
+}
+
+const removeBeforeEach = ref(false)
+const removeAfterEach = ref(false)
+
+onMounted(() => {
+  removeBeforeEach.value = router.beforeEach(startProgress)
+  removeAfterEach.value = router.afterEach(endProgress)
+})
+
+onUnmounted(() => {
+  if (removeBeforeEach.value) removeBeforeEach.value()
+  if (removeAfterEach.value) removeAfterEach.value()
+})
 
 const appName = ref('Dion')
 
@@ -351,5 +374,16 @@ const logout = async () => {
 
 .group:hover .group-hover\:block {
   display: block;
+}
+
+/* NProgress 스타일 커스터마이징 */
+#nprogress .bar {
+  background: #29d;
+  position: fixed;
+  z-index: 1031;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 2px;
 }
 </style>
