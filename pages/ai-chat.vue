@@ -33,16 +33,23 @@
     <!-- 메인 채팅 영역 -->
     <div class="flex-1 flex flex-col">
       <!-- 채팅 메시지 -->
-      <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800">
+      <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800">
         <div v-if="isLoading" class="loading-bar">로딩 중...</div>
         <div v-for="(message, index) in currentChat" :key="index" class="mb-4">
           <div :class="message.role === 'user' ? 'text-right' : 'text-left'">
-            <div :class="message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'" class="inline-block p-2 rounded-lg">
+            <div :class="message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'" class="inline-block p-2 rounded-lg" @click="handleClick">
                 <div v-if="message.content" v-html="renderMarkdown(message.content)"></div>
                 <div v-else class="text-gray-500 italic">빈 메시지</div>
             </div>
             <p v-if="message.model" class="text-xs text-gray-500">({{ message.model }})</p>
             <p v-if="message.created" class="text-xs text-gray-500">({{ formatDate(message.created, 'HH:mm') }})</p>
+          </div>
+          <div v-if="isWaiting && index === currentChat.length - 1" class="flex justify-center items-center dark:text-white">
+            <svg class="animate-spin h-5 w-5 mr-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+              <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v2a6 6 0 00-6 6H4z"></path>
+            </svg>
+            기다리는 중...
           </div>
         </div>
       </div>
@@ -59,11 +66,49 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, nextTick, watch } from 'vue'
 import { marked } from 'marked'
-import hljs from 'highlight.js'
+import hljs from 'highlight.js/lib/core';
+import javascript from 'highlight.js/lib/languages/javascript';
+import python from 'highlight.js/lib/languages/python';
+import css from 'highlight.js/lib/languages/css';
+import sql from 'highlight.js/lib/languages/sql';
+import json from 'highlight.js/lib/languages/json';
+import markdown from 'highlight.js/lib/languages/markdown';
+import bash from 'highlight.js/lib/languages/bash';
+import typescript from 'highlight.js/lib/languages/typescript';
+import java from 'highlight.js/lib/languages/java';
+import csharp from 'highlight.js/lib/languages/csharp';
+import cpp from 'highlight.js/lib/languages/cpp';
+import go from 'highlight.js/lib/languages/go';
+import kotlin from 'highlight.js/lib/languages/kotlin';
+import php from 'highlight.js/lib/languages/php';
+import ruby from 'highlight.js/lib/languages/ruby';
+
 import 'highlight.js/styles/github-dark.css'
 import { v4 as uuidv4 } from 'uuid'
+
+//반복문으로 언어 등록
+const languages = [
+  { name: 'javascript', lang: javascript },
+  { name: 'python', lang: python },
+  { name: 'css', lang: css },
+  { name: 'sql', lang: sql },
+  { name: 'json', lang: json },
+  { name: 'markdown', lang: markdown },
+  { name: 'bash', lang: bash },
+  { name: 'typescript', lang: typescript }, 
+  { name: 'java', lang: java },
+  { name: 'csharp', lang: csharp },
+  { name: 'cpp', lang: cpp },
+  { name: 'go', lang: go },
+  { name: 'kotlin', lang: kotlin },
+  { name: 'php', lang: php },
+  { name: 'ruby', lang: ruby },
+]
+languages.forEach(item => {
+  hljs.registerLanguage(item.name, item.lang);
+});
 
 const chatHistory = ref([])
 const currentChat = ref([])
@@ -71,6 +116,8 @@ const userInput = ref('')
 const currentScreenId = ref(null)
 const isLoading = ref(false)
 const isSidebarOpen = ref(false)
+const isWaiting = ref(false)
+const chatContainer = ref(null)
 
 onMounted(async () => {
   await loadChatHistory()
@@ -90,6 +137,7 @@ async function sendMessage() {
   currentChat.value.push(userMessage)
 
   try {
+    isWaiting.value = true
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
@@ -113,11 +161,12 @@ async function sendMessage() {
   } catch (error) {
     console.error('Error:', error)
     alert('메시지 전송 중 오류가 발생했습니다.')
+  } finally {
+    isWaiting.value = false
   }
 }
 
 async function loadChatHistory() {
-  isLoading.value = true
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
@@ -131,7 +180,6 @@ async function loadChatHistory() {
   } catch (error) {
     console.error('채팅 내역 로드 중 오류:', error)
   } finally {
-    isLoading.value = false
   }
 }
 
@@ -202,21 +250,98 @@ function toggleSidebar() {
 }
 
 function renderMarkdown(content) {
-  if (!content) return ''; // content가 falsy(undefined, null, 빈 문자열 등)인 경우 빈 문자열 반환
+  if (!content) return ''; 
 
   marked.setOptions({
-    highlight: function (code, lang) {
-      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-      return hljs.highlight(code, { language }).value;
+    highlight: function (code) {
+      if (code.lang && hljs.getLanguage(code.lang)) {
+        try {
+          return hljs.highlight(code, { language: code.lang }).value;
+        } catch (e) {
+          console.error('Highlight.js error:', e);
+          return code;
+        }
+      }
+      return code;
     },
     langPrefix: 'hljs language-'
   });
-  return marked(content);
+
+  const renderer = new marked.Renderer();
+  renderer.code = (code) => {
+    let highlightedCode = code;
+    try {
+        if (code.lang && hljs.getLanguage(code.lang)) {
+        // 언어가 지정되고 해당 언어가 지원되는 경우
+        highlightedCode = hljs.highlight(code.text, { language : code.lang });
+        console.log(highlightedCode)
+        } else {
+        // 언어가 지정되지 않았거나 지원되지 않는 경우 자동 감지
+        highlightedCode = hljs.highlightAuto(code.text);
+        }
+
+    } catch (error) {
+        console.error('Highlight.js error:', error);
+    }
+
+    return `<div class="code-block-wrapper">
+              <pre><code class="hljs ${code.lang || ''}">${highlightedCode.value}</code></pre>
+              <button class="copy-button" @click="copyCode">복사</button>
+            </div>`;
+  };
+
+  try {
+    return marked(content, { renderer: renderer });
+  } catch (e) {
+    console.error('Marked error:', e);
+    return content;
+  }
 }
+
+function handleClick(event) {
+  if (event.target.classList.contains('copy-button')) {
+    copyCode(event);
+  }
+}
+
+function copyCode(event) {
+  const button = event.target;
+  const pre = button.previousElementSibling;
+  const code = pre.querySelector('code');
+  navigator.clipboard.writeText(code.textContent).then(() => {
+    button.textContent = '복사됨!';
+    setTimeout(() => {
+      button.textContent = '복사';
+    }, 2000);
+  }).catch(err => {
+    console.error('Failed to copy text: ', err);
+  });
+}
+
 
 function formatDate(timestamp) {
   return new Date(timestamp * 1000).toLocaleString()
 }
+
+// 스크롤을 가장 아래로 이동시키는 함수
+function scrollToBottom() {
+  if (chatContainer.value) {
+    nextTick(() => {
+      chatContainer.value.scrollTop = chatContainer.value.scrollHeight
+    })
+  }
+}
+
+// 채팅 메시지가 추가될 때마다 스크롤 이동
+watch(() => currentChat.value, () => {
+  scrollToBottom()
+}, { deep: true })
+
+// 컴포넌트가 마운트된 후 초기 스크롤 설정
+onMounted(() => {
+  scrollToBottom()
+})
+
 </script>
 
 <style>
@@ -235,23 +360,41 @@ function formatDate(timestamp) {
 
 /* 마크다운 스타일 */
 .hljs {
-  background: #2d2d2d;
-  color: #ccc;
   border-radius: 0.375rem;
   padding: 1rem;
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-/* 인라인 코드 스타일 */
-code:not(.hljs) {
-  background-color: rgba(175, 184, 193, 0.2);
-  border-radius: 0.375rem;
-  padding: 0.2em 0.4em;
-  font-size: 85%;
+.code-block-wrapper {
+  position: relative;
 }
 
-/* 다크 모드에서의 인라인 코드 스타일 */
-.dark code:not(.hljs) {
-  background-color: rgba(110, 118, 129, 0.4);
+.copy-button {
+  position: absolute;
+  top: 5px;
+  right: 5px;
+  padding: 5px 10px;
+  background-color: #4a5568;
+  color: white;
+  border: none;
+  border-radius: 3px;
+  cursor: pointer;
+  font-size: 0.8rem;
+}
+
+.copy-button:hover {
+  background-color: #2d3748;
+}
+
+
+/* 코드 블록 내부의 pre 태그에 대한 스타일 */
+pre {
+  white-space: pre-wrap;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  font-size: 0.8rem;
 }
 
 /* 기타 마크다운 요소 스타일 */
@@ -274,5 +417,22 @@ blockquote {
 .dark blockquote {
   border-left-color: #4a5568;
   color: #a0aec0;
+}
+
+/* 채팅 메시지 글씨 크기 조정 */
+.chat-message {
+  font-size: 0.9rem; /* 기본 글씨 크기보다 약간 작게 설정 */
+}
+
+/* 채팅 메시지 내 마크다운 요소들의 글씨 크기 조정 */
+.chat-message h1 { font-size: 1.5em; }
+.chat-message h2 { font-size: 1.3em; }
+.chat-message h3 { font-size: 1.1em; }
+.chat-message h4, h5, h6 { font-size: 1em; }
+.chat-message p, ul, ol, blockquote { font-size: 0.9rem; }
+
+/* 코드 블록 글씨 크기 조정 */
+.chat-message .hljs {
+  font-size: 0.5rem;
 }
 </style>
