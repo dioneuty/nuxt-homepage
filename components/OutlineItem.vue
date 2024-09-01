@@ -4,7 +4,7 @@
       <div class="drag-handle text-gray-500 dark:text-gray-400 cursor-move">
         <Icon icon="mdi:drag-horizontal-variant" />
       </div>
-      <button @click="toggleItem" class="text-gray-600 dark:text-gray-300">
+      <button v-if="hasChildren" @click="toggleItem" class="text-gray-600 dark:text-gray-300">
         <Icon :icon="item.expanded ? 'mdi:chevron-down' : 'mdi:chevron-right'" />
       </button>
       <input
@@ -215,6 +215,10 @@ const updateItemContent = async (content) => {
     }
   }
 }
+
+const hasChildren = computed(() => {
+  return props.item.children && props.item.children.length > 0
+})
 </script>
 
 <style scoped>
