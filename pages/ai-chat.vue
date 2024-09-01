@@ -1,55 +1,65 @@
 <template>
-    <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
-      <!-- 사이드바 (채팅 내역) -->
-      <div class="w-64 bg-gray-300 dark:bg-gray-600 overflow-y-auto hidden md:block">
-        <div class="p-4">
-          <h2 class="text-lg font-semibold mb-4 dark:text-white">채팅 내역</h2>
-          <ul>
-            <li v-for="chat in chatHistory" :key="chat.id" class="mb-2">
-              <button @click="loadChat(chat.id)" class="w-full text-left p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
-                {{ chat.title }}
-              </button>
-              <button @click="deleteChat(chat.id)" class="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                  <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
-                </svg>
-              </button>
-            </li>
-          </ul>
-        </div>
-      </div>
-      <!-- 메인 채팅 영역 -->
-      <div class="flex-1 flex flex-col">
-        <!-- 채팅 메시지 -->
-        <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800">
-          <div v-if="isLoading" class="loading-bar">로딩 중...</div>
-          <div v-for="(message, index) in currentChat" :key="index" class="mb-4">
-            <div :class="message.role === 'user' ? 'text-right' : 'text-left'">
-              <div :class="message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'" class="inline-block p-2 rounded-lg">
-                <div v-html="renderMarkdown(message.content)"></div>
-              </div>
-              <p v-if="message.model" class="text-xs text-gray-500">({{ message.model }})</p>
-              <p v-if="message.created" class="text-xs text-gray-500">({{ formatDate(message.created) }})</p>
-            </div>
-          </div>
-        </div>
-  
-        <!-- 입력 영역 -->
-        <div class="p-4 bg-gray-200 dark:bg-gray-700">
-          <form @submit.prevent="sendMessage" class="flex">
-            <input v-model="userInput" type="text" placeholder="메시지를 입력하세요..." class="flex-1 p-2 rounded-l-lg dark:bg-gray-800 dark:text-white" />
-            <button type="submit" class="bg-blue-500 text-white p-2 rounded-r-lg">전송</button>
-          </form>
-        </div>
+  <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
+    <!-- 사이드바 토글 버튼 (모바일용) -->
+    <button @click="toggleSidebar" class="md:hidden fixed top-4 left-4 z-20 bg-blue-500 text-white p-2 rounded-full shadow-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+      </svg>
+    </button>
+
+    <!-- 사이드바 (채팅 내역) -->
+    <div :class="['w-64 bg-gray-300 dark:bg-gray-600 overflow-y-auto transition-all duration-300 ease-in-out', 
+                  isSidebarOpen ? 'translate-x-0' : '-translate-x-full', 
+                  'md:translate-x-0 md:static absolute z-10 h-full']">
+      <div class="p-4">
+        <h2 class="text-lg font-semibold mb-4 dark:text-white">채팅 내역</h2>
+        <ul>
+          <li v-for="chat in chatHistory" :key="chat.id" class="mb-2">
+            <button @click="loadChat(chat.id)" class="w-full text-left p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
+              {{ chat.title }}
+            </button>
+            <button @click="deleteChat(chat.id)" class="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+              <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
+              </svg>
+            </button>
+          </li>
+        </ul>
       </div>
     </div>
-  </template>
+    <!-- 메인 채팅 영역 -->
+    <div class="flex-1 flex flex-col">
+      <!-- 채팅 메시지 -->
+      <div class="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800">
+        <div v-if="isLoading" class="loading-bar">로딩 중...</div>
+        <div v-for="(message, index) in currentChat" :key="index" class="mb-4">
+          <div :class="message.role === 'user' ? 'text-right' : 'text-left'">
+            <div :class="message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'" class="inline-block p-2 rounded-lg">
+              <div v-html="renderMarkdown(message.content)"></div>
+            </div>
+            <p v-if="message.model" class="text-xs text-gray-500">({{ message.model }})</p>
+            <p v-if="message.created" class="text-xs text-gray-500">({{ formatDate(message.created) }})</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- 입력 영역 -->
+      <div class="p-4 bg-gray-200 dark:bg-gray-700">
+        <form @submit.prevent="sendMessage" class="flex">
+          <input v-model="userInput" type="text" placeholder="메시지를 입력하세요..." class="flex-1 p-2 rounded-l-lg dark:bg-gray-800 dark:text-white" />
+          <button type="submit" class="bg-blue-500 text-white p-2 rounded-r-lg">전송</button>
+        </form>
+      </div>
+    </div>
+  </div>
+</template>
+
 <script setup>
 import { ref, onMounted } from 'vue'
 import { onBeforeRouteLeave } from 'vue-router'
 import { marked } from 'marked'
 import hljs from 'highlight.js'
-import 'highlight.js/styles/github-dark.css' // 또는 다른 스타일을 선택할 수 있습니다.
+import 'highlight.js/styles/github-dark.css'
 import { useModal } from '~/composables/useModal'
 
 const { openModal } = useModal()
@@ -59,6 +69,11 @@ const currentChat = ref([])
 const userInput = ref('')
 const currentChatId = ref(null)
 const isLoading = ref(false)
+const isSidebarOpen = ref(false)
+
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
 
 onMounted(async () => {
   await loadChatHistory()
@@ -67,7 +82,7 @@ onMounted(async () => {
 const formatDate = computed(() => {
   return (timestamp) => {
     const date = new Date(timestamp * 1000)
-    return date.toLocaleString('ko-KR', { hour12: false }) // 24시간제로 설정
+    return date.toLocaleString('ko-KR', { hour12: false })
   }
 })
 
@@ -264,5 +279,16 @@ blockquote {
 .dark blockquote {
   border-left-color: #4a5568;
   color: #a0aec0;
+}
+
+/* 토글 버튼 스타일 */
+.fixed.top-4.left-4 {
+  display: block !important;
+}
+
+@media (min-width: 768px) {
+  .fixed.top-4.left-4 {
+    display: none !important;
+  }
 }
 </style>
