@@ -11,7 +11,13 @@ const modalCallback = ref(null)
  * @returns {Object} 모달 컴포넌트를 사용하기 위한 컴포넌트
  */
 export function useModal() {
-  // 모달 열기
+  /**
+   * 모달 열기
+   * @param {string} title - 모달 제목
+   * @param {string} content - 모달 내용
+   * @param {function} callback - 모달 확인 시 실행할 함수
+   * @param {boolean} confirm - 모달 확인 시 실행할 함수
+   */
   function openModal(title, content, callback, confirm = false) {
     modalTitle.value = title
     modalContent.value = content
@@ -26,6 +32,7 @@ export function useModal() {
     resetModal()
   }
 
+  // 모달 확인
   function confirmModal() {
     if (modalCallback.value) {
       modalCallback.value(true)
@@ -33,6 +40,7 @@ export function useModal() {
     closeModal()
   }
 
+  // 모달 취소
   function cancelModal() {
     if (modalCallback.value && isConfirm.value) {
       modalCallback.value(false)
@@ -40,6 +48,7 @@ export function useModal() {
     closeModal()
   }
 
+  // 모달 초기화
   function resetModal() {
     modalTitle.value = ''
     modalContent.value = ''

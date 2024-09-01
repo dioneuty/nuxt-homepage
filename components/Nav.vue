@@ -254,7 +254,8 @@ const menuItems = ref([
     ],
     isOpen: false,
     adminOnly: true
-  }
+  },
+  { name: 'AI 채팅', path: '/ai-chat' }
 ])
 
 const filteredMenuItems = computed(() => {
