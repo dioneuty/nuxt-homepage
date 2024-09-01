@@ -1,9 +1,9 @@
 <template>
   <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
     <!-- 사이드바 토글 버튼 (모바일용) -->
-    <button @click="toggleSidebar" class="md:hidden fixed top-4 left-4 z-20 bg-blue-500 text-white p-2 rounded-full shadow-lg">
+    <button @click="toggleSidebar" class="md:hidden ml-10 mt-4 fixed top-0 right-40 z-50 bg-blue-500 text-white p-2 rounded-full shadow-lg">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16" />
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18a1 1 0 011 1v12a1 1 0 01-1 1H4l-1 3v-3H3a1 1 0 01-1-1V4a1 1 0 011-1z" />
       </svg>
     </button>
 
