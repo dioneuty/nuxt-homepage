@@ -13,12 +13,15 @@
                   'md:translate-x-0 md:static absolute z-10 h-full']">
       <div class="p-4">
         <h2 class="text-lg font-semibold mb-4 dark:text-white">채팅 내역</h2>
+        <button @click="startNewChat" class="w-full bg-blue-500 text-white p-2 rounded mb-4 hover:bg-blue-600 transition-colors">
+          새 채팅 시작
+        </button>
         <ul>
-          <li v-for="chat in chatHistory" :key="chat.id" class="mb-2">
-            <button @click="loadChat(chat.id)" class="w-full text-left p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
+          <li v-for="chat in chatHistory" :key="chat.screenId" class="mb-2">
+            <button @click="loadChat(chat.screenId)" class="w-full text-left p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
               {{ chat.title }}
             </button>
-            <button @click="deleteChat(chat.id)" class="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
+            <button @click="deleteChat(chat.screenId)" class="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                 <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd" />
               </svg>
@@ -35,7 +38,8 @@
         <div v-for="(message, index) in currentChat" :key="index" class="mb-4">
           <div :class="message.role === 'user' ? 'text-right' : 'text-left'">
             <div :class="message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'" class="inline-block p-2 rounded-lg">
-              <div v-html="renderMarkdown(message.content)"></div>
+                <div v-if="message.content" v-html="renderMarkdown(message.content)"></div>
+                <div v-else class="text-gray-500 italic">빈 메시지</div>
             </div>
             <p v-if="message.model" class="text-xs text-gray-500">({{ message.model }})</p>
             <p v-if="message.created" class="text-xs text-gray-500">({{ formatDate(message.created) }})</p>
@@ -56,79 +60,60 @@
 
 <script setup>
 import { ref, onMounted } from 'vue'
-import { onBeforeRouteLeave } from 'vue-router'
 import { marked } from 'marked'
 import hljs from 'highlight.js'
 import 'highlight.js/styles/github-dark.css'
-import { useModal } from '~/composables/useModal'
-
-const { openModal } = useModal()
+import { v4 as uuidv4 } from 'uuid'
 
 const chatHistory = ref([])
 const currentChat = ref([])
 const userInput = ref('')
-const currentChatId = ref(null)
+const currentScreenId = ref(null)
 const isLoading = ref(false)
 const isSidebarOpen = ref(false)
 
-const toggleSidebar = () => {
-  isSidebarOpen.value = !isSidebarOpen.value
-}
-
 onMounted(async () => {
   await loadChatHistory()
+  startNewChat()
 })
 
-const formatDate = computed(() => {
-  return (timestamp) => {
-    const date = new Date(timestamp * 1000)
-    return date.toLocaleString('ko-KR', { hour12: false })
-  }
-})
-
-// marked 설정
-marked.setOptions({
-  highlight: function (code, lang) {
-    const language = hljs.getLanguage(lang) ? lang : 'plaintext';
-    return hljs.highlight(code, { language }).value;
-  },
-  langPrefix: 'hljs language-',
-})
-
-// 마크다운 렌더링 함수
-const renderMarkdown = (content) => {
-  return marked(content)
+function startNewChat() {
+  currentChat.value = []
+  currentScreenId.value = uuidv4()
+  userInput.value = ''
 }
 
-onMounted(() => {
-  hljs.highlightAll();
-})
+async function sendMessage() {
+  if (!userInput.value.trim()) return
 
-// 채팅 삭제
-async function deleteChat(chatId) {
-  openModal('확인', '이 채팅을 삭제하시겠습니까?', async (confirmed) => {
-    if (confirmed) {
-      try {
-        const response = await fetch('/api/chat', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ action: 'delete', chatId: chatId })
-        })
-        const data = await response.json()
-        if (data.success) {
-          openModal('삭제', `채팅내역이 삭제되었습니다.`)
-          chatHistory.value = chatHistory.value.filter(chat => chat.id !== chatId)
-          if (currentChat.value.id === chatId) {
-            currentChat.value = []
-          }
-        } else {
-          console.error(data.error)
-        }
-      } catch (error) {
-        console.error('채팅 삭제 오류:', error)
-      }
+  const userMessage = { role: 'user', content: userInput.value, created: Math.floor(Date.now() / 1000) }
+  currentChat.value.push(userMessage)
+
+  try {
+    const response = await fetch('/api/chat', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ 
+        action: 'chat', 
+        message: userInput.value, 
+        screenId: currentScreenId.value
+      })
+    })
+
+    const data = await response.json()
+    if (data.success) {
+      const assistantMessage = { role: 'assistant', content: data.message, model: data.model, created: data.created }
+      currentChat.value.push(assistantMessage)
+      updateChatHistory()
+    } else {
+      console.error('API 요청 실패:', data.error)
     }
-  }, true)
+
+    userInput.value = ''
+  } catch (error) {
+    console.error('Error:', error)
+    alert('메시지 전송 중 오류가 발생했습니다.')
+  }
 }
 
 async function loadChatHistory() {
@@ -150,77 +135,87 @@ async function loadChatHistory() {
   }
 }
 
-async function loadChat(chatId) {
-  const chat = chatHistory.value.find(c => c.id === chatId)
-  if (chat) {
-    currentChat.value = JSON.parse(chat.messages)
-    currentChatId.value = chatId
+function updateChatHistory() {
+  const existingChatIndex = chatHistory.value.findIndex(chat => chat.screenId === currentScreenId.value)
+  const updatedChat = {
+    screenId: currentScreenId.value,
+    title: currentChat.value[0]?.content.substring(0, 30) || '새 채팅',
+    messages: JSON.stringify(currentChat.value)
   }
+
+  if (existingChatIndex !== -1) {
+    chatHistory.value[existingChatIndex] = updatedChat
+  } else {
+    chatHistory.value.unshift(updatedChat)
+  }
+
+  saveChatToServer(updatedChat)
 }
 
-// 페이지를 떠나기 전에 채팅 내역 저장
-onBeforeRouteLeave(async (to, from, next) => {
-  if (to.name !== 'ai-chat' && currentChatId.value) {
-    await saveChat()
-  }
-  next()
-})
-
-// 채팅 내역 저장 함수
-async function saveChat() {
+async function saveChatToServer(chat) {
   try {
-    const response = await fetch('/api/chat', {
+    await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({
         action: 'save',
-        chatId: currentChatId.value,
-        title: currentChat.value[0].content.substring(0, 50),
-        messages: currentChat.value,
+        screenId: chat.screenId,
+        title: chat.title,
+        messages: chat.messages
       })
     })
-
-    const data = await response.json()
-
-    if (data.success) {
-      console.log('채팅이 성공적으로 저장되었습니다.')
-    } else {
-      console.error('채팅 저장 중 오류가 발생했습니다:', data.error)
-    }
   } catch (error) {
-    console.error('채팅 저장 중 오류가 발생했습니다:', error)
+    console.error('채팅 저장 중 오류:', error)
   }
 }
 
-async function sendMessage() {
-  if (!userInput.value.trim()) return
+async function loadChat(screenId) {
+  const chat = chatHistory.value.find(c => c.screenId === screenId)
+  console.log(chat)
+  if (chat) {
+    currentChat.value = JSON.parse(chat.messages)
+    currentScreenId.value = chat.screenId
+  }
+}
 
-  currentChat.value.push({ role: 'user', content: userInput.value, created: Math.floor(Date.now() / 1000) })
-
+async function deleteChat(screenId) {
   try {
     const response = await fetch('/api/chat', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'chat', message: userInput.value, chatId: currentChatId.value })
+      body: JSON.stringify({ action: 'delete', screenId: screenId })
     })
-
     const data = await response.json()
-    console.log(data)
     if (data.success) {
-      currentChat.value.push({ role: 'assistant', content: data.message, model: data.model, created: data.created, id: data.chatId })
-      if (data.chatId && !currentChatId.value) {
-        currentChatId.value = data.chatId
-        await loadChatHistory()
+      chatHistory.value = chatHistory.value.filter(chat => chat.screenId !== screenId)
+      if (currentScreenId.value === screenId) {
+        startNewChat()
       }
-    } else {
-      console.error('API 요청 실패:', data.error)
     }
-
-    userInput.value = ''
   } catch (error) {
-    console.error('Error:', error)
-    alert('메시지 전송 중 오류가 발생했습니다.')
+    console.error('채팅 삭제 중 오류:', error)
   }
+}
+
+function toggleSidebar() {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+function renderMarkdown(content) {
+  if (!content) return ''; // content가 falsy(undefined, null, 빈 문자열 등)인 경우 빈 문자열 반환
+
+  marked.setOptions({
+    highlight: function (code, lang) {
+      const language = hljs.getLanguage(lang) ? lang : 'plaintext';
+      return hljs.highlight(code, { language }).value;
+    },
+    langPrefix: 'hljs language-'
+  });
+  return marked(content);
+}
+
+function formatDate(timestamp) {
+  return new Date(timestamp * 1000).toLocaleString()
 }
 </script>
 
@@ -279,16 +274,5 @@ blockquote {
 .dark blockquote {
   border-left-color: #4a5568;
   color: #a0aec0;
-}
-
-/* 토글 버튼 스타일 */
-.fixed.top-4.left-4 {
-  display: block !important;
-}
-
-@media (min-width: 768px) {
-  .fixed.top-4.left-4 {
-    display: none !important;
-  }
 }
 </style>

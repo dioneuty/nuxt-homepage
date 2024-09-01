@@ -153,6 +153,7 @@ model OutlineState {
 
 model Chat {
   id        Int      @id @default(autoincrement())
+  screenId  String?  @unique
   title     String
   messages  Json
   createdAt DateTime @default(now())
