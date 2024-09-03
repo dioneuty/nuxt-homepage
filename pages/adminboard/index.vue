@@ -6,6 +6,7 @@
     api-endpoint="/api/adminboard"
     header-color-class="bg-blue-100 dark:bg-blue-800"
     :table-headers="tableHeaders"
+    :is-admin-board="true"
   />
 </template>
 

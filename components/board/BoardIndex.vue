@@ -91,6 +91,7 @@ import Pagination from '~/components/board/Pagination.vue'
 import { Icon } from '@iconify/vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
+import { useAuth } from '~/composables/useAuth'
 
 const props = defineProps({
   boardType: {
@@ -120,6 +121,10 @@ const props = defineProps({
   showWriteButton: {
     type: Boolean,
     default: true
+  },
+  isAdminBoard: {
+    type: Boolean,
+    default: false
   }
 })
 
@@ -158,9 +163,14 @@ function toggleSort(key) {
 
 const initialLoading = ref(true)
 
+//로그인한 유저이면서 role이 admin인 유저만 보도록 하기
+const auth = useAuth().auth.value
+
 const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async function() {
   try {
-    const response = await $fetch(props.apiEndpoint, {
+    let response
+    if (!props.isAdminBoard || (props.isAdminBoard && auth.isLoggedIn && auth.user.role === 'ADMIN')) {
+       response = await $fetch(props.apiEndpoint, {
       params: {
         page: currentPage.value,
         itemsPerPage: itemsPerPage.value,
@@ -169,7 +179,11 @@ const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, as
         sortColumn: sortColumn.value,
         sortOrder: sortOrder.value
       }
-    })
+      })
+    }else{
+      router.push('/')
+    }
+
     totalItems.value = response.total
     return response.posts
   } finally {
@@ -179,6 +193,8 @@ const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, as
   watch: [currentPage, itemsPerPage, searchParams, sortColumn, sortOrder],
   server: false
 })
+
+
 
 onMounted(function() {
   if (posts.value) {

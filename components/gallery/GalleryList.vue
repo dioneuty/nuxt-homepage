@@ -102,6 +102,10 @@ import { Icon } from '@iconify/vue'
 import GalleryModal from './GalleryModal.vue'
 import GalleryEditModal from './GalleryEditModal.vue'
 import { useRoute } from 'vue-router'
+import { useAuth } from '~/composables/useAuth'
+import { useRouter } from 'vue-router'
+
+const router = useRouter()
 
 const props = defineProps({
   apiEndpoint: {
@@ -114,8 +118,8 @@ const props = defineProps({
   },
   isAdminGallery: {
     type: Boolean,
-    default: false
-  }
+    default: false,
+  },
 })
 
 const items = ref([])
@@ -176,10 +180,19 @@ watch(() => route.query.id, (newId) => {
   }
 })
 
+//로그인한 유저이면서 role이 admin인 유저만 보도록 하기
+const auth = useAuth().auth.value
+
 onMounted(async () => {
-  await fetchItems()
-  if (route.query.id) {
-    openModalById(route.query.id)
+  //로그인한 유저이면서 role이 admin인 유저만 보도록 하기
+  if (!props.isAdminGallery || (props.isAdminGallery && auth.isLoggedIn && auth.user.role === 'ADMIN')) {
+    await fetchItems()
+
+    if (route.query.id) {
+      openModalById(route.query.id)
+    }
+  }else{
+    router.push('/')
   }
 })
 
