@@ -105,6 +105,14 @@ const openGalleryModal = (item) => {
 const closeGalleryModal = () => {
   selectedGalleryItem.value = null
 }
+
+definePageMeta ({
+  title: 'Dion - 홈',
+  meta: [
+    { name: 'description', content: 'Dion의 메인 페이지입니다.' },
+    { name: 'keywords', content: 'Dion, 홈, 메인' }
+  ]
+})
 </script>
 
 <style scoped>

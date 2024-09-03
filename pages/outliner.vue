@@ -54,6 +54,14 @@ import { Icon } from '@iconify/vue'
 import OutlineItem from '~/components/OutlineItem.vue'
 import draggable from 'vuedraggable'
 
+definePageMeta ({
+  title: '아웃라이너 - Dion',
+  meta: [
+    { name: 'description', content: '아웃라이너 - Dion' },
+    { name: 'keywords', content: 'Dion, 아웃라이너' }
+  ]
+})
+
 const rootItems = ref([])
 const zoomPath = ref([])
 const treeState = ref({}) // 트리 상태를 저장할 객체

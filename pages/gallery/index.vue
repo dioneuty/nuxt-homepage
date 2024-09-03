@@ -13,5 +13,13 @@
 import { Icon } from '@iconify/vue'
 import GalleryList from '~/components/gallery/GalleryList.vue'
 
+definePageMeta ({
+  title: '미디어 갤러리 - Dion',
+  meta: [
+    { name: 'description', content: 'Dion - 미디어 갤러리' },
+    { name: 'keywords', content: 'Dion, 미디어 갤러리' }
+  ]
+})
+
 const apiEndpoint = '/api/gallery'
 </script>

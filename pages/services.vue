@@ -18,6 +18,14 @@
 <script setup>
 import { Icon } from '@iconify/vue';
 
+definePageMeta ({
+  title: '웹 개발 서비스 - Dion',
+  meta: [
+    { name: 'description', content: 'Dion - 웹 개발 서비스' },
+    { name: 'keywords', content: 'Dion, 웹 개발 서비스' }
+  ]
+})
+
 const services = ref([
   { 
     id: 1, 

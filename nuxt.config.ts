@@ -1,6 +1,24 @@
 export default defineNuxtConfig({
   css: ['~/assets/css/main.css', '~/assets/css/quill-custom.css'],
-
+  app: {
+    head: {
+      title: 'Dion',
+      meta: [
+        { charset: 'utf-8' },
+        { name: 'viewport', content: 'width=device-width, initial-scale=1' },
+        { name: 'description', content: 'Dion' },
+        { name: 'author', content: 'Dion' },
+        { name: 'keywords', content: 'Dion' },
+        { name: 'robots', content: 'index, follow' },
+        { name: 'google', content: 'notranslate' },
+        { name: 'msapplication-TileColor', content: '#da532c' },
+        { name: 'theme-color', content: '#ffffff' },
+      ],
+      link: [
+        { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ]
+    }
+  },
   postcss: {
     plugins: {
       tailwindcss: {},

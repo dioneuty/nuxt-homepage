@@ -49,6 +49,14 @@ import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useAuth } from '~/composables/useAuth'
 
+definePageMeta ({
+  title: '위키 - Dion',
+  meta: [
+    { name: 'description', content: 'Dion - 위키' },
+    { name: 'keywords', content: 'Dion, 위키' }
+  ]
+})
+
 const { auth } = useAuth()
 
 const wikiPages = ref([])

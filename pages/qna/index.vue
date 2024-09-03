@@ -69,6 +69,14 @@ import SearchBar from '~/components/board/SearchBar.vue'
 import Pagination from '~/components/board/Pagination.vue'
 import { Icon } from '@iconify/vue'
 
+definePageMeta ({
+  title: '질문과 답변 - Dion',
+  meta: [
+    { name: 'description', content: 'Dion - 질문과 답변' },
+    { name: 'keywords', content: 'Dion, 질문과 답변' }
+  ]
+})
+
 const route = useRoute()
 const router = useRouter()
 

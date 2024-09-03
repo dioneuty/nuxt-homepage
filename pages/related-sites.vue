@@ -29,6 +29,14 @@
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 
+definePageMeta ({
+  title: '관련 사이트 - Dion',
+  meta: [
+    { name: 'description', content: 'Dion - 관련 사이트' },
+    { name: 'keywords', content: 'Dion, 관련 사이트' }
+  ]
+})
+
 let idx = 0
 
 const relatedSites = ref([

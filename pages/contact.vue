@@ -90,4 +90,12 @@ const submitForm = async () => {
     console.error('오류 발생:', error);
   }
 }
+
+definePageMeta ({
+  title: '문의하기 - Dion',
+  meta: [
+    { name: 'description', content: '문의 - Dion' },
+    { name: 'keywords', content: 'Dion, 문의' }
+  ]
+})
 </script>

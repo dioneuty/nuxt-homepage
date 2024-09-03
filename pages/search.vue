@@ -47,6 +47,14 @@
 import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 
+definePageMeta ({
+  title: '종합 검색 - Dion',
+  meta: [
+    { name: 'description', content: 'Dion - 종합 검색' },
+    { name: 'keywords', content: 'Dion, 종합 검색' }
+  ]
+})
+
 const searchQuery = ref('')
 const searchResults = ref([])
 const loading = ref(false)

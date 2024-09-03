@@ -88,6 +88,15 @@ import ruby from 'highlight.js/lib/languages/ruby';
 import 'highlight.js/styles/github-dark.css'
 import { v4 as uuidv4 } from 'uuid'
 
+// 페이지 제목과 설명을 동적으로 설정
+definePageMeta ({
+  title: 'AI 채팅 - Dion',
+  meta: [
+    { name: 'description', content: 'AI와 대화를 나눌 수 있는 채팅 페이지입니다.' },
+    { name: 'keywords', content: 'AI, 채팅, 대화, Dion' }
+  ]
+})
+
 //반복문으로 언어 등록
 const languages = [
   { name: 'javascript', lang: javascript },
@@ -338,7 +347,7 @@ watch(() => currentChat.value, () => {
 }, { deep: true })
 
 // 컴포넌트가 마운트된 후 초기 스크롤 설정
-onMounted(() => {
+onMounted(() => {ㅖ
   scrollToBottom()
 })
 
