@@ -1,23 +1,36 @@
 <template>
-  <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
-    <!-- 사이드바 토글 버튼 (모바일용) -->
-    <button @click="toggleSidebar" class="md:hidden ml-10 mt-4 fixed top-0 right-40 z-50 bg-blue-500 text-white p-2 rounded-full shadow-lg">
-      <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18a1 1 0 011 1v12a1 1 0 01-1 1H4l-1 3v-3H3a1 1 0 01-1-1V4a1 1 0 011-1z" />
-      </svg>
-    </button>
-
+  <div class="flex h-[calc(100vh-4.5rem)] lg:h-screen bg-gray-100 dark:bg-gray-900">
     <!-- 사이드바 (채팅 내역) -->
-    <div :class="['w-64 bg-gray-300 dark:bg-gray-600 overflow-y-auto transition-all duration-300 ease-in-out', 
+    <div :class="['w-64 bg-gray-100 dark:bg-gray-600 border-r-gray-600 border-r overflow-y-auto transition-all duration-300 ease-in-out h-[calc(100vh-4.5rem)] lg:h-screen', 
                   isSidebarOpen ? 'translate-x-0' : '-translate-x-full', 
                   'md:translate-x-0 md:static absolute z-10 h-full']">
-      <div class="p-4">
-        <h2 class="text-lg font-semibold mb-4 dark:text-white">채팅 내역</h2>
+      <div class="p-2">
+        <div class="flex items-center justify-center gap-2 mb-4">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-6 w-6 text-gray-500 dark:text-gray-400"
+          >
+            <path d="M17 18a2 2 0 0 0-2-2H9a2 2 0 0 0-2 2"></path>
+            <rect width="18" height="18" x="3" y="4" rx="2"></rect>
+            <circle cx="12" cy="10" r="2"></circle>
+            <line x1="8" x2="8" y1="2" y2="4"></line>
+            <line x1="16" x2="16" y1="2" y2="4"></line>
+          </svg>
+          <h1 class="text-lg font-bold text-gray-800 dark:text-gray-200">Chat History</h1>
+        </div>
         <button @click="startNewChat" class="w-full bg-blue-500 text-white p-2 rounded mb-4 hover:bg-blue-600 transition-colors">
           새 채팅 시작
         </button>
         <ul>
-          <li v-for="chat in chatHistory" :key="chat.screenId" class="mb-2">
+          <li v-for="chat in chatHistory" :key="chat.screenId" class="flex justify-between items-center">
             <button @click="loadChat(chat.screenId)" class="w-full text-left p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
               {{ chat.title }}
             </button>
@@ -32,6 +45,36 @@
     </div>
     <!-- 메인 채팅 영역 -->
     <div class="flex-1 flex flex-col">
+      <header class="flex items-center justify-between p-4 bg-gray-800 dark:bg-gray-900 text-white">
+        <div class="flex items-center">
+          <svg
+            xmlns="http://www.w3.org/2000/svg"
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="currentColor"
+            stroke-width="2"
+            stroke-linecap="round"
+            stroke-linejoin="round"
+            class="h-6 w-6 text-white"
+          >
+            <path d="M12 8V4H8"></path>
+            <rect width="16" height="12" x="4" y="8" rx="2"></rect>
+            <path d="M2 14h2"></path>
+            <path d="M20 14h2"></path>
+            <path d="M15 13v2"></path>
+            <path d="M9 13v2"></path>
+          </svg>
+          <span class="ml-2 text-xl font-bold">ChatGPT</span>
+          <!-- 사이드바 토글 버튼 (모바일용) -->
+          <button @click="toggleSidebar" class="md:hidden bg-blue-500 text-white p-2 rounded-full shadow-lg absolute right-4">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h18a1 1 0 011 1v12a1 1 0 01-1 1H4l-1 3v-3H3a1 1 0 01-1-1V4a1 1 0 011-1z" />
+            </svg>
+          </button>
+        </div>
+      </header>
       <!-- 채팅 메시지 -->
       <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800">
         <div v-if="isLoading" class="loading-bar">로딩 중...</div>
