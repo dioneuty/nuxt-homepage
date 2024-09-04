@@ -347,7 +347,7 @@ watch(() => currentChat.value, () => {
 }, { deep: true })
 
 // 컴포넌트가 마운트된 후 초기 스크롤 설정
-onMounted(() => {ㅖ
+onMounted(() => {
   scrollToBottom()
 })
 
