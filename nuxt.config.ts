@@ -52,7 +52,8 @@ export default defineNuxtConfig({
   nitro: {
     externals: {
       inline: ['bcryptjs', 'jose']
-    }
+    },
+    compressPublicAssets: true
   },
   modules: [
     '@pinia/nuxt',
@@ -65,10 +66,5 @@ export default defineNuxtConfig({
       rootMargin: '50px',
       threshold: 0.1
     },
-    formats: {
-      webp: {
-        quality: 80
-      }
-    }
-  }
+  },
 })
