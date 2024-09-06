@@ -17,7 +17,8 @@ export default defineNuxtConfig({
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ]
-    }
+    },
+    pageTransition: { name: 'page', mode: 'out-in' }
   },
   postcss: {
     plugins: {
@@ -31,18 +32,22 @@ export default defineNuxtConfig({
       supabaseKey: process.env.SUPABASE_KEY
     }
   },
-
   compatibilityDate: '2024-08-04',
-  app: {
-    pageTransition: { name: 'page', mode: 'out-in' }
-  },
   vite: {
     optimizeDeps: {
       include: ['vue3-quill']
+    },
+    build: {
+      minify: 'terser',
+      terserOptions: {
+        compress: {
+          drop_console: true
+        }
+      },
     }
   },
   build: {
-    transpile: ['vue3-quill', '@iconify/vue', 'bcryptjs', 'jose']
+    transpile: ['vue3-quill', '@iconify/vue', 'bcryptjs', 'jose'],
   },
   nitro: {
     externals: {
@@ -51,5 +56,19 @@ export default defineNuxtConfig({
   },
   modules: [
     '@pinia/nuxt',
+    '@nuxt/image',
   ],
+  image: {
+    inject: true,
+    defaultLazy: true,
+    observerOptions: {
+      rootMargin: '50px',
+      threshold: 0.1
+    },
+    formats: {
+      webp: {
+        quality: 80
+      }
+    }
+  }
 })
