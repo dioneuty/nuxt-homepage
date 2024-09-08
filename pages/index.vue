@@ -1,53 +1,33 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <div class="mb-8 max-w-4xl mx-auto">
-      <Carousel :images="imageMockups" />
-    </div>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-      <PostList 
-        title="최신 블로그 포스트" 
-        :posts="blogPosts" 
-        type="blog/view"
-        headerColorClass="bg-blue-600"
-      >
-        <template #icon>
-          <Icon icon="mdi:post-outline" class="w-6 h-6 mr-2" />
-        </template>
-      </PostList>
-      <PostList 
-        title="최신 게시판 글" 
-        :posts="boardPosts.posts" 
-        type="board/view"
-        headerColorClass="bg-green-600"
-      >
-        <template #icon>
-          <Icon icon="mdi:forum-outline" class="w-6 h-6 mr-2" />
-        </template>
-      </PostList>
-    </div>
-    <div class="mt-12 text-center">
-      <h2 class="text-2xl font-bold mb-4 flex items-center justify-center text-gray-800 dark:text-white">
-        <Icon icon="mdi:image-multiple" class="w-8 h-8 mr-2 text-gray-800 dark:text-white" />
-        갤러리
-      </h2>
-      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
-        <div v-for="item in galleryItems.slice(0, 10)" :key="item.id" class="relative group aspect-square" @click="openGalleryModal(item)">
-          <div v-html="item.content" class="w-full h-full object-cover rounded-lg transition-transform duration-300 transform group-hover:scale-105 cursor-pointer overflow-hidden"></div>
-          <div class="absolute inset-0 bg-black bg-opacity-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center rounded-lg">
-            <Icon icon="mdi:magnify-plus" class="text-white w-8 h-8" />
+    <div class="mb-8">
+      <h2 class="text-2xl font-bold mb-4 dark:text-gray-200">섹션 선택</h2>
+      <div class="flex flex-wrap gap-4">
+        <label v-for="section in sections" :key="section.id" class="inline-flex items-center cursor-pointer">
+          <div class="relative">
+            <input type="checkbox" v-model="selectedSections" :value="section.id" class="sr-only">
+            <div class="w-6 h-6 bg-white dark:bg-gray-700 border-2 border-gray-400 dark:border-gray-500 rounded-md transition-all duration-200 ease-in-out">
+              <svg class="w-4 h-4 text-indigo-600 dark:text-indigo-400 opacity-0 transition-opacity duration-200 ease-in-out absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+              </svg>
+            </div>
           </div>
-        </div>
+          <span class="ml-2 text-gray-700 dark:text-gray-300">{{ section.label }}</span>
+        </label>
       </div>
-      <NuxtLink to="/gallery" class="inline-flex items-center mt-6 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors duration-300">
-        <Icon icon="mdi:chevron-right" class="w-5 h-5 mr-2" />
-        더 보기
-      </NuxtLink>
     </div>
+
+    <Suspense v-for="section in sections" :key="section.id">
+      <template v-if="selectedSections.includes(section.id)">
+        <component :is="getSectionComponent(section.id)" />
+      </template>
+    </Suspense>
+
     <GalleryModal
-      v-if="selectedGalleryItem"
-      :item="selectedGalleryItem"
+      v-if="galleryStore.selectedItem"
+      :item="galleryStore.selectedItem"
       :apiEndpoint="apiEndpoint"
-      @close="closeGalleryModal"
+      @close="galleryStore.clearSelectedItem"
       @edit="openEditModal"
       @delete="deleteItem"
       @update="fetchItems"
@@ -56,57 +36,52 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
-import { Icon } from '@iconify/vue'
-import Carousel from '@/components/Carousel.vue'
-import PostList from '@/components/PostList.vue'
+import { ref, computed, defineAsyncComponent, onMounted, watch } from 'vue'
 import GalleryModal from '@/components/gallery/GalleryModal.vue'
+import { useGalleryStore } from '@/stores/galleryStore'
 
-// 각 API에서 데이터 가져오기
-const { data: blogPosts } = await useFetch('/api/blogPosts')
-const { data: boardPosts } = await useFetch('/api/boardPosts')
-const { data: galleryItems } = await useFetch('/api/gallery')
+const sections = [
+  { id: 'carousel', label: '슬라이드 보기' },
+  { id: 'posts', label: '게시판 보기' },
+  { id: 'gallery', label: '갤러리 보기' },
+]
 
-// Carousel 이미지는 갤러리 아이템의 이미지 URL을 사용합니다
-const images = computed(() => galleryItems.value.map(item => item.imageUrl))
+const selectedSections = ref([])
+
+// 로컬 스토리지에서 선택된 섹션 불러오기
+onMounted(() => {
+  const savedSections = localStorage.getItem('selectedSections')
+  if (savedSections) {
+    selectedSections.value = JSON.parse(savedSections)
+  } else {
+    selectedSections.value = ['carousel'] // 기본값 설정
+  }
+})
+
+// 선택된 섹션이 변경될 때마다 로컬 스토리지에 저장
+watch(selectedSections, (newValue) => {
+  localStorage.setItem('selectedSections', JSON.stringify(newValue))
+}, { deep: true })
+
+const getSectionComponent = (sectionId) => {
+  switch (sectionId) {
+    case 'carousel':
+      return defineAsyncComponent(() => import('@/components/home/CarouselSection.vue'))
+    case 'posts':
+      return defineAsyncComponent(() => import('@/components/home/PostsSection.vue'))
+    case 'gallery':
+      return defineAsyncComponent(() => import('@/components/home/GallerySection.vue'))
+    default:
+      return null
+  }
+}
+
 const apiEndpoint = '/api/gallery'
+const galleryStore = useGalleryStore()
 
-const imageMockups = ref([
-  'images/foods/02622-2946913328-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02627-3520537961-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02628-969862558-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02631-1493736721-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02632-1910364399-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02633-1183833072-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02635-2468241200-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02636-2010697720-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02638-138639311-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02639-3506920034-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02641-464823937-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02642-3197523906-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02644-2095761223-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02645-2150047310-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02646-277971245-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02647-2981120122-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02648-612170913-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02652-2595417360-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02654-2797699637-ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), physically-based render.webp',
-  'images/foods/02658-588456811-intricate details, ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), phys.webp',
-  'images/foods/02666-1339467618-intricate details, ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), phys.webp',
-  'images/foods/02670-2708671754-intricate details, ultra detailed, highres, (realistic, photo-realistic_1.4), 8k, raw photo, (masterpiece), (best quality), phys.webp',
-])
+// selectedGalleryItem ref와 closeGalleryModal 함수는 더 이상 필요하지 않습니다.
 
-const selectedGalleryItem = ref(null)
-
-const openGalleryModal = (item) => {
-  selectedGalleryItem.value = item
-}
-
-const closeGalleryModal = () => {
-  selectedGalleryItem.value = null
-}
-
-definePageMeta ({
+definePageMeta({
   title: 'Dion - 홈',
   meta: [
     { name: 'description', content: 'Dion의 메인 페이지입니다.' },
@@ -122,5 +97,23 @@ definePageMeta ({
 
 .aspect-square {
   aspect-ratio: 1 / 1;
+}
+
+/* 체크박스 커스텀 스타일 */
+input:checked + div {
+  @apply bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500;
+}
+
+input:checked + div svg {
+  @apply opacity-100;
+}
+
+input:focus + div {
+  @apply ring-2 ring-offset-2 ring-indigo-500 dark:ring-indigo-400 dark:ring-offset-gray-800;
+}
+
+/* 호버 효과 */
+label:hover div {
+  @apply border-indigo-500 dark:border-indigo-400;
 }
 </style>

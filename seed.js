@@ -9,7 +9,7 @@ const supabaseKey = process.env.SUPABASE_KEY
 const supabase = createClient(supabaseUrl, supabaseKey)
 
 async function seedDatabase() {
-  const tables = ['Category', 'BlogPost', 'BoardPost', 'Image', 'Contact', 'AdminBoard', 'QnA']
+  const tables = ['Category', 'BlogPost', 'BoardPost', 'Image', 'Contact', 'AdminBoard', 'QnA', 'Menu']
 
   for (const table of tables) {
     const { count } = await supabase
@@ -30,6 +30,46 @@ async function insertSampleData(table) {
   let result
 
   switch (table) {
+    case 'Menu':
+      sampleData = [
+        { name: '홈', path: '/', children: [] },
+        { name: '블로그', path: '/blog', children: [] },
+        { 
+          name: '소개', 
+          path: null,
+          children: [
+            { name: '개인소개', path: '/about' },
+            { name: '서비스', path: '/services' }
+          ]
+        },
+        { 
+          name: '게시판', 
+          path: null,
+          children: [
+            { name: '자유게시판', path: '/board' },
+            { name: '질문과답변', path: '/qna' },
+            { name: '유머게시판', path: '/humor' }
+          ]
+        },
+        { name: '문의', path: '/contact', children: [] },
+        { name: '갤러리', path: '/gallery', children: [] },
+        { name: '위키', path: '/wiki', children: [] },
+        { name: '관련 사이트', path: '/related-sites', children: [] },
+        { name: '종합 검색', path: '/search', children: [] },
+        { name: '아웃라이너', path: '/outliner', children: [] },
+        { 
+          name: '관리자', 
+          path: null,
+          children: [
+            { name: '관리자용 문의 게시판', path: '/contactboard' },
+            { name: '관리자용 게시판', path: '/adminboard' },
+            { name: '관리자용 갤러리', path: '/admingallery' }
+          ],
+          adminOnly: true
+        },
+        { name: 'AI 채팅', path: '/ai-chat', children: [] }
+      ]
+      break
     case 'Category':
       sampleData = [
         { name: '부분 수리', slug: 'partial-repair' },

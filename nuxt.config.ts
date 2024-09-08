@@ -18,7 +18,6 @@ export default defineNuxtConfig({
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
       ]
     },
-    pageTransition: { name: 'page', mode: 'out-in' }
   },
   postcss: {
     plugins: {
@@ -53,7 +52,6 @@ export default defineNuxtConfig({
     externals: {
       inline: ['bcryptjs', 'jose']
     },
-    compressPublicAssets: true
   },
   modules: [
     '@pinia/nuxt',

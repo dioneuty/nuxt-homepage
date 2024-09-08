@@ -161,3 +161,16 @@ model Chat {
   userId    Int?
   user      User?    @relation(fields: [userId], references: [id])
 }
+
+//메뉴 model
+ // Start of Selection
+model Menu {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String
+  children  Menu[]   @relation("Children")
+  parentId  Int?
+  parent    Menu?    @relation("Children", fields: [parentId], references: [id])
+  isOpen    Boolean   @default(false) // 메뉴 열림 상태
+  adminOnly Boolean   @default(false) // 관리자 전용 여부
+}
