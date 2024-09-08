@@ -44,6 +44,8 @@ const sections = [
   { id: 'carousel', label: '슬라이드 보기' },
   { id: 'posts', label: '게시판 보기' },
   { id: 'gallery', label: '갤러리 보기' },
+  { id: 'weather', label: '일기예보' },
+  { id: 'calendar', label: '달력' },
 ]
 
 const selectedSections = ref([])
@@ -71,6 +73,10 @@ const getSectionComponent = (sectionId) => {
       return defineAsyncComponent(() => import('@/components/home/PostsSection.vue'))
     case 'gallery':
       return defineAsyncComponent(() => import('@/components/home/GallerySection.vue'))
+    case 'weather':
+      return defineAsyncComponent(() => import('@/components/home/WeatherSection.vue'))
+    case 'calendar':
+      return defineAsyncComponent(() => import('@/components/home/CalendarSection.vue'))
     default:
       return null
   }

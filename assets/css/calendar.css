@@ -1,0 +1,119 @@
+/* FullCalendar 스타일 커스터마이징 */
+.fc {
+  font-family: inherit;
+}
+
+.fc-button {
+  background-color: #4a5568;
+  border-color: #4a5568;
+  color: #ffffff;
+}
+
+.fc-button:hover {
+  background-color: #2d3748;
+  border-color: #2d3748;
+}
+
+.fc-day-today {
+  background-color: #ebf8ff !important;
+}   
+
+.fc-event {
+  background-color: #4299e1;
+  border-color: #4299e1;
+}
+
+/* 평일 텍스트 및 헤드라인 다크모드에서는 하얀색으로 변경 */
+.dark .fc-day {
+  color: white !important;
+}
+
+.dark .fc-col-header-cell {
+  color: white !important;
+}
+
+.fc-day-sun {
+  color: #e53e3e !important; /* 일요일 빨간색 */
+}
+
+.fc-day-sat {
+  color: #3182ce !important; /* 토요일 파란색 */
+}
+/* 공휴일 스타일 s*/
+.fc-day-holiday {
+  background-color: #ffcccc; /* 공휴일 배경 색 */
+  color: #e53e3e; /* 공휴일 텍스트 색 */
+}
+
+/* 다크모드 스타일 */
+.dark .fc-day-sun {
+  color: #fc8181 !important; /* 다크모드 일요일 밝은 빨간색 */
+}
+
+.dark .fc-day-sat {
+  color: #63b3ed !important; /* 다크모드 토요일 밝은 파란색 */
+}
+
+.dark .fc-col-header-cell.fc-day-sun {
+  color: #fc8181 !important;
+}
+
+.dark .fc-col-header-cell.fc-day-sat {
+  color: #63b3ed !important;
+}
+
+/* 다른 다크모드 스타일들 */
+.dark .fc {
+  color: #e2e8f0;
+}
+
+.dark .fc-button {
+  background-color: #4a5568;
+  border-color: #4a5568;
+  color: #ffffff;
+}
+
+.dark .fc-button:hover {
+  background-color: #2d3748;
+  border-color: #2d3748;
+}
+
+.dark .fc-day-today {
+  background-color: #2a4365 !important;
+}
+
+.dark .fc-event {
+  background-color: #3182ce;
+  border-color: #3182ce;
+  color: #ffffff;
+}
+
+.dark .fc-day {
+  background-color: #1a202c;
+}
+
+.dark .fc-day-other {
+  background-color: #2d3748;
+}
+
+.dark .fc-highlight {
+  background-color: #4a5568;
+}
+
+.dark .fc-col-header-cell {
+  background-color: #2d3748;
+  color: #ffffff;
+}
+
+.dark .fc-daygrid-day-number {
+  color: #ffffff;
+}
+
+.dark .fc-list-day-cushion, .dark .fc-list-table td {
+  background-color: #2d3748;
+  color: #ffffff;
+}
+
+.dark .fc-toolbar-title {
+  color: #ffffff;
+}

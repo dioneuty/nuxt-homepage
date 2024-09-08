@@ -1,5 +1,5 @@
 export default defineNuxtConfig({
-  css: ['~/assets/css/main.css', '~/assets/css/quill-custom.css'],
+  css: ['~/assets/css/main.css', '~/assets/css/quill-custom.css', '@/assets/css/calendar.css'],
   app: {
     head: {
       title: 'Dion',
