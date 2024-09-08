@@ -86,7 +86,8 @@ definePageMeta ({
   meta: [
     { name: 'description', content: 'Dion' },
     { name: 'keywords', content: 'Dion' }
-  ]
+  ],
+  static: true
 })
 
 </script>

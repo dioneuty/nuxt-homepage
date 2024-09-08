@@ -92,6 +92,7 @@ const submitForm = async () => {
 }
 
 definePageMeta ({
+  static: true,
   title: '문의하기 - Dion',
   meta: [
     { name: 'description', content: '문의 - Dion' },

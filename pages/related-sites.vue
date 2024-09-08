@@ -30,6 +30,7 @@ import { ref } from 'vue'
 import { Icon } from '@iconify/vue'
 
 definePageMeta ({
+  static: true,
   title: '관련 사이트 - Dion',
   meta: [
     { name: 'description', content: 'Dion - 관련 사이트' },
