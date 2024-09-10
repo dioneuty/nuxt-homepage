@@ -56,6 +56,7 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@nuxt/image',
+    '@nuxt/devtools'
   ],
   image: {
     inject: true,
