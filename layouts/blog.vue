@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" />
-    <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row">
+    <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" @updateNavFixedState="updateNavFixedState" />
+    <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': isNavFixed }">
       <aside class="w-full md:w-1/4 pr-0 md:pr-8 mb-8 md:mb-0 hidden md:block">
         <BlogSidebar :categories="categories" />
       </aside>
@@ -56,6 +56,7 @@ async function fetchCategories() {
 }
 
 const isMenuOpen = ref(false)
+const isNavFixed = ref(false)
 
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value
@@ -63,6 +64,10 @@ function toggleMenu() {
 
 function closeMenu() {
   isMenuOpen.value = false
+}
+
+function updateNavFixedState(state) {
+  isNavFixed.value = state
 }
 
 // 초기 카테고리 로드

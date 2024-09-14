@@ -4,8 +4,9 @@
       :isMenuOpen="isMenuOpen" 
       @openMenu="openMenu" 
       @closeMenu="closeMenu" 
+      @updateNavFixedState="updateNavFixedState"
     />
-    <div class="flex-grow pt-16">
+    <div class="flex-grow" :class="{ 'pt-28': isNavFixed }">
       <slot />
     </div>
     <Footer />
@@ -20,12 +21,13 @@
 </template>
 
 <script setup>
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
 
 const isMenuOpen = ref(false)
+const isNavFixed = ref(false)
 
 function openMenu() {
   isMenuOpen.value = true
@@ -35,5 +37,10 @@ function openMenu() {
 function closeMenu() {
   isMenuOpen.value = false
   document.body.classList.remove('menu-open')
+}
+
+// Nav 컴포넌트에서 isAlwaysOnTop 상태를 받아오는 함수
+function updateNavFixedState(state) {
+  isNavFixed.value = state
 }
 </script>
