@@ -386,17 +386,7 @@ function toggleAlwaysOnTop() {
   updateBodyPadding()
 }
 
-const navHeight = ref(100)
-
-function updateNavHeight() {
-  nextTick(() => {
-    const navElement = document.querySelector('nav')
-    if (navElement) {
-      navHeight.value = isAlwaysOnTop.value ? navElement.offsetHeight : 0
-      updateBodyPadding()
-    }
-  })
-}
+const navHeight = ref(120)
 
 function updateBodyPadding() {
   if (isAlwaysOnTop.value) {
@@ -410,12 +400,12 @@ onMounted(() => {
   if (process.client) {
     isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
   }
-  updateNavHeight()
-  window.addEventListener('resize', updateNavHeight)
+  updateBodyPadding()
+  window.addEventListener('resize', updateBodyPadding)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', updateNavHeight)
+  window.removeEventListener('resize', updateBodyPadding)
   document.body.style.paddingTop = '0px'
 })
 

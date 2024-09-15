@@ -5,7 +5,7 @@
       @openMenu="openMenu" 
       @closeMenu="closeMenu" 
     />
-    <div class="flex-grow" :class="{ 'pt-28': isAlwaysOnTop }">
+    <div class="flex-grow">
       <slot />
     </div>
     <Footer />
