@@ -69,9 +69,9 @@
                 <Icon :icon="isAlwaysOnTop ? 'mdi:pin-off' : 'mdi:pin'" class="h-6 w-6" />
               </button>
               <button @click="toggleColorMode" class="text-white hover:text-blue-200 p-2 rounded-full">
-                <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
-                <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
-                <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
+                <SunIcon v-if="$colorMode.value === 'light'" class="h-6 w-6" />
+                <MoonIcon v-if="$colorMode.value === 'dark'" class="h-6 w-6" />
+                <ComputerDesktopIcon v-if="$colorMode.value === 'system'" class="h-6 w-6" />
               </button>
 
               <div v-if="auth.isLoggedIn && auth.user" class="flex items-center space-x-2">
@@ -108,9 +108,9 @@
           </NuxtLink>
           <div class="flex items-center space-x-2">
             <button @click="toggleColorMode" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
-              <SunIcon v-if="colorMode === 'light'" class="h-6 w-6" />
-              <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6" />
-              <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6" />
+              <SunIcon v-if="$colorMode.value === 'light'" class="h-6 w-6" />
+              <MoonIcon v-if="$colorMode.value === 'dark'" class="h-6 w-6" />
+              <ComputerDesktopIcon v-if="$colorMode.value === 'system'" class="h-6 w-6" />
             </button>
             <div v-if="auth.isLoggedIn && auth.user" class="flex items-center space-x-2">
               <NuxtLink to="/personal-info" class="flex items-center space-x-2 text-white" :class="{ 'pointer-events-none': isMenuOpen }">
@@ -186,10 +186,10 @@
               </transition>
             </div>
             <button @click="toggleColorMode" class="w-full text-left py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-600 transition duration-200 ease-in-out flex items-center">
-              <SunIcon v-if="colorMode === 'light'" class="h-6 w-6 mr-2" />
-              <MoonIcon v-if="colorMode === 'dark'" class="h-6 w-6 mr-2" />
-              <ComputerDesktopIcon v-if="colorMode === 'system'" class="h-6 w-6 mr-2" />
-              {{ colorMode === 'light' ? '다크 모드' : colorMode === 'dark' ? '시스템 설정' : '라이트 모드' }}
+              <SunIcon v-if="$colorMode.value === 'light'" class="h-6 w-6 mr-2" />
+              <MoonIcon v-if="$colorMode.value === 'dark'" class="h-6 w-6 mr-2" />
+              <ComputerDesktopIcon v-if="$colorMode.value === 'system'" class="h-6 w-6 mr-2" />
+              {{ $colorMode.value === 'light' ? '다크 모드' : $colorMode.value === 'dark' ? '시스템 설정' : '라이트 모드' }}
             </button>
           </div>
         </div>
@@ -309,10 +309,12 @@ const handleItemClick = (item) => {
   }
 }
 
-const isDarkMode = inject('isDarkMode')
-const toggleColorMode = inject('toggleColorMode')
-const colorMode = inject('colorMode')
-
+const colorMode = useColorMode()
+const toggleColorMode = () => {
+  if (colorMode.value === 'light') colorMode.value = 'dark' // 라이트 모드
+  else if (colorMode.value === 'dark') colorMode.value = 'system' // 다크 모드
+  else colorMode.value = 'light' // 시스템 설정
+}
 const isMenuOpen = ref(false)
 
 const openMenu = () => {
@@ -386,7 +388,7 @@ function toggleAlwaysOnTop() {
   updateBodyPadding()
 }
 
-const navHeight = ref(120)
+const navHeight = ref(10)
 
 function updateBodyPadding() {
   if (isAlwaysOnTop.value) {

@@ -28,11 +28,20 @@ import ScrollToTop from '~/components/common/ScrollToTop.vue'
 const isMenuOpen = ref(false)
 const isAlwaysOnTop = ref(false)
 
+function openMenu() {
+  isMenuOpen.value = true
+  document.body.classList.add('menu-open')
+}
+
+function closeMenu() {
+  isMenuOpen.value = false
+  document.body.classList.remove('menu-open')
+}
+
 onMounted(() => {
   if (process.client) {
     isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
   }
 })
 
-// ... 나머지 코드 ...
 </script>

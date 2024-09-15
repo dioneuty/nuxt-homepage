@@ -56,7 +56,11 @@ export default defineNuxtConfig({
   modules: [
     '@pinia/nuxt',
     '@nuxt/image',
-    '@nuxt/devtools'
+    '@nuxt/devtools',
+    '@nuxtjs/tailwindcss',
+    '@nuxtjs/i18n',
+    'pinia-plugin-persistedstate',
+    '@nuxtjs/color-mode',
   ],
   image: {
     inject: true,
@@ -66,4 +70,14 @@ export default defineNuxtConfig({
       threshold: 0.1
     },
   },
+  colorMode: {
+    preference: 'system', // 기본 설정
+    fallback: 'light', // 시스템 설정을 사용할 수 없을 때의 폴백
+    hid: 'nuxt-color-mode-script',
+    globalName: '__NUXT_COLOR_MODE__',
+    componentName: 'ColorScheme',
+    classPrefix: '',
+    classSuffix: '',
+    storageKey: 'nuxt-color-mode'
+  }
 })

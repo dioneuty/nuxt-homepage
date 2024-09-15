@@ -1,5 +1,5 @@
 <template>
-  <div :class="{ 'dark': isDarkMode }">
+  <div>
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -17,61 +17,15 @@ import LoginModal from '~/components/common/LoginModal.vue'
 import RegisterModal from '~/components/common/RegisterModal.vue'
 import { useAuth } from '~/composables/useAuth'
 
-const colorMode = ref('system') // 'light', 'dark', 'system' 중 하나
-
-const isDarkMode = ref(false)
-
-watch(colorMode, (newValue) => {
-  if (newValue === 'system') {
-    isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
-  } else {
-    isDarkMode.value = newValue === 'dark'
-  }
-})
-
-watch(isDarkMode, (newValue) => {
-  if (newValue) {
-    document.documentElement.classList.add('dark')
-  } else {
-    document.documentElement.classList.remove('dark')
-  }
-})
-
-const toggleColorMode = () => {
-  if (colorMode.value === 'light') colorMode.value = 'dark' // 라이트 모드
-  else if (colorMode.value === 'dark') colorMode.value = 'system' // 다크 모드
-  else colorMode.value = 'light' // 시스템 설정
-  localStorage.setItem('colorMode', colorMode.value)
-}
-
 const { checkAuth } = useAuth()
 
 // 초기 컬러 모드 설정
 onMounted(() => {
-  const savedColorMode = localStorage.getItem('colorMode')
-  if (savedColorMode) {
-    colorMode.value = savedColorMode
-  }
-  if (colorMode.value === 'system') {
-    isDarkMode.value = window.matchMedia('(prefers-color-scheme: dark)').matches
-  }
-  document.documentElement.classList.toggle('dark', isDarkMode.value)
-
-  // 시스템 설��� 변경 감지
-  const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)')
-  mediaQuery.addEventListener('change', (e) => {
-    if (colorMode.value === 'system') {
-      isDarkMode.value = e.matches
-    }
-  })
 
   // 인증 확인
   checkAuth()
 })
 
-provide('isDarkMode', isDarkMode)
-provide('toggleColorMode', toggleColorMode)
-provide('colorMode', colorMode)
 </script>
 <style>
 html {
