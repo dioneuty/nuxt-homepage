@@ -5,7 +5,7 @@
         @openMenu="openMenu" 
         @closeMenu="closeMenu" 
       />
-      <div :class="{ 'pt-[2.5rem]': isNavFixed, 'lg:pt-0': !isNavFixed }">
+      <div :class="{ 'lg:pt-0': !isNavFixed }">
         <slot />
       </div>
       <Footer />
