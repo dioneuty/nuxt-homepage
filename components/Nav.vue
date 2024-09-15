@@ -202,8 +202,6 @@
         @click.self="closeMenu"
       ></div>
     </nav>
-    <!-- 상단 고정 시 페이지 콘텐츠가 가려지지 않도록 하는 더미 요소 -->
-    <div v-if="isAlwaysOnTop" :style="{ height: navHeight + 'px' }"></div>
   </div>
 </template>
 
@@ -218,6 +216,7 @@ import { useRegisterModal } from '~/composables/useRegisterModal'
 import { useAuth } from '~/composables/useAuth'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import { useNavStore } from '~/stores/navStore'
 
 const router = useRouter()
 
@@ -378,13 +377,16 @@ const logout = async () => {
   }
 }
 
-const isAlwaysOnTop = ref(false)
-const navHeight = ref(100)
+const navStore = useNavStore()
+
+const isAlwaysOnTop = computed(() => navStore.isAlwaysOnTop)
 
 function toggleAlwaysOnTop() {
-  isAlwaysOnTop.value = !isAlwaysOnTop.value
+  navStore.setAlwaysOnTop(!isAlwaysOnTop.value)
   updateBodyPadding()
 }
+
+const navHeight = ref(100)
 
 function updateNavHeight() {
   nextTick(() => {

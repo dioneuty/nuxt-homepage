@@ -1,2 +1,0 @@
--- AlterTable
-ALTER TABLE "OutlineItem" ALTER COLUMN "order" SET DATA TYPE BIGINT;
