@@ -5,7 +5,7 @@
       @openMenu="openMenu" 
       @closeMenu="closeMenu" 
     />
-    <div class="flex-grow" :class="{ 'pt-28': isNavFixed }">
+    <div class="flex-grow" :class="{ 'pt-28': isAlwaysOnTop }">
       <slot />
     </div>
     <Footer />
@@ -20,23 +20,19 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, onMounted } from 'vue'
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
-import { useNavStore } from '~/stores/navStore'
 
 const isMenuOpen = ref(false)
-const navStore = useNavStore()
-const isNavFixed = computed(() => navStore.isAlwaysOnTop)
+const isAlwaysOnTop = ref(false)
 
-function openMenu() {
-  isMenuOpen.value = true
-  document.body.classList.add('menu-open')
-}
+onMounted(() => {
+  if (process.client) {
+    isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
+  }
+})
 
-function closeMenu() {
-  isMenuOpen.value = false
-  document.body.classList.remove('menu-open')
-}
+// ... 나머지 코드 ...
 </script>

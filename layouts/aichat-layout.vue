@@ -5,7 +5,7 @@
         @openMenu="openMenu" 
         @closeMenu="closeMenu" 
       />
-      <div :class="{ 'lg:pt-0': !isNavFixed }">
+      <div :class="{ 'lg:pt-0': !isAlwaysOnTop }">
         <slot />
       </div>
       <Footer />
@@ -20,15 +20,19 @@
   </template>
   
   <script setup>
-  import { ref, computed } from 'vue'
+  import { ref, onMounted } from 'vue'
   import Nav from '~/components/Nav.vue'
   import Footer from '~/components/Footer.vue'
   import ScrollToTop from '~/components/common/ScrollToTop.vue'
-  import { useNavStore } from '~/stores/navStore'
 
   const isMenuOpen = ref(false)
-  const navStore = useNavStore()
-  const isNavFixed = computed(() => navStore.isAlwaysOnTop)
+  const isAlwaysOnTop = ref(false)
+
+  onMounted(() => {
+    if (process.client) {
+      isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
+    }
+  })
 
   function openMenu() {
     isMenuOpen.value = true

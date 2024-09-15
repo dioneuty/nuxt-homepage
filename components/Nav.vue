@@ -216,7 +216,6 @@ import { useRegisterModal } from '~/composables/useRegisterModal'
 import { useAuth } from '~/composables/useAuth'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
-import { useNavStore } from '~/stores/navStore'
 
 const router = useRouter()
 
@@ -377,12 +376,13 @@ const logout = async () => {
   }
 }
 
-const navStore = useNavStore()
-
-const isAlwaysOnTop = computed(() => navStore.isAlwaysOnTop)
+const isAlwaysOnTop = ref(false)
 
 function toggleAlwaysOnTop() {
-  navStore.setAlwaysOnTop(!isAlwaysOnTop.value)
+  isAlwaysOnTop.value = !isAlwaysOnTop.value
+  if (process.client) {
+    localStorage.setItem('isAlwaysOnTop', isAlwaysOnTop.value)
+  }
   updateBodyPadding()
 }
 
@@ -407,6 +407,9 @@ function updateBodyPadding() {
 }
 
 onMounted(() => {
+  if (process.client) {
+    isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
+  }
   updateNavHeight()
   window.addEventListener('resize', updateNavHeight)
 })

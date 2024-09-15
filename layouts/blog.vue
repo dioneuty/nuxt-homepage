@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" />
-    <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': isNavFixed }">
+    <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': isAlwaysOnTop }">
       <aside class="w-full md:w-1/4 pr-0 md:pr-8 mb-8 md:mb-0 hidden md:block">
         <BlogSidebar :categories="categories" />
       </aside>
@@ -28,21 +28,23 @@
 </template>
 
 <script setup>
+import { ref, onMounted } from 'vue'
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import BlogSidebar from '~/components/blog/BlogSidebar.vue'
 import MobileCategoryDropdown from '~/components/MobileCategoryDropdown.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
-import { ref, provide, computed } from 'vue'
 import { useRoute } from 'vue-router'
-import { useNavStore } from '~/stores/navStore'
 
 const route = useRoute()
 const categories = ref([])
-const navStore = useNavStore()
+const isMenuOpen = ref(false)
+const isAlwaysOnTop = ref(false)
 
-const showMobileCategory = computed(() => {
-  return !['blog-edit', 'blog-write', 'blog-view'].includes(route.name)
+onMounted(() => {
+  if (process.client) {
+    isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
+  }
 })
 
 async function fetchCategories() {
@@ -56,9 +58,6 @@ async function fetchCategories() {
     console.error('카테고리를 불러오는 데 실패했습니다:', error)
   }
 }
-
-const isMenuOpen = ref(false)
-const isNavFixed = computed(() => navStore.isAlwaysOnTop)
 
 function toggleMenu() {
   isMenuOpen.value = !isMenuOpen.value
