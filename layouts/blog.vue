@@ -1,7 +1,7 @@
 <template>
   <div class="flex flex-col min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
     <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" />
-    <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': isAlwaysOnTop }">
+    <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': navStore.isAlwaysOnTop }">
       <aside class="w-full md:w-1/4 pr-0 md:pr-8 mb-8 md:mb-0 hidden md:block">
         <BlogSidebar :categories="categories" />
       </aside>
@@ -35,17 +35,13 @@ import BlogSidebar from '~/components/blog/BlogSidebar.vue'
 import MobileCategoryDropdown from '~/components/MobileCategoryDropdown.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
 import { useRoute } from 'vue-router'
+import { useNavStore } from '~/stores/navStore'
 
 const route = useRoute()
 const categories = ref([])
 const isMenuOpen = ref(false)
-const isAlwaysOnTop = ref(false)
+const navStore = useNavStore()
 
-onMounted(() => {
-  if (process.client) {
-    isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
-  }
-})
 
 async function fetchCategories() {
   try {

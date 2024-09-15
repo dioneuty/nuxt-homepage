@@ -2,14 +2,14 @@
   <div>
     <nav :class="[
       'transition-all duration-300 ease-in-out',
-      isAlwaysOnTop ? 'fixed top-0 left-0 right-0 z-50' : 'relative'
+      navStore.isAlwaysOnTop ? 'fixed top-0 left-0 right-0 z-50' : 'relative'
     ]">
       <!-- 데스크톱 네비게이션 -->
       <div class="hidden lg:block">
         <!-- 로고 영역 -->
         <div :class="[
           'relative overflow-hidden bg-blue-600 dark:bg-gray-800',
-          isAlwaysOnTop ? 'h-16' : 'h-16'
+          navStore.isAlwaysOnTop ? 'h-16' : 'h-16'
         ]">
           <NuxtLink to="/" class="absolute inset-0 flex items-center justify-center">
             <div class="text-white text-3xl font-bold flex items-center">
@@ -66,7 +66,7 @@
             <div class="flex items-center space-x-4">
               <!-- 상단 고정 토글 버튼 -->
               <button @click="toggleAlwaysOnTop" class="text-white hover:text-blue-200 p-2 rounded-full">
-                <Icon :icon="isAlwaysOnTop ? 'mdi:pin-off' : 'mdi:pin'" class="h-6 w-6" />
+                <Icon :icon="navStore.isAlwaysOnTop ? 'mdi:pin-off' : 'mdi:pin'" class="h-6 w-6" />
               </button>
               <button @click="toggleColorMode" class="text-white hover:text-blue-200 p-2 rounded-full">
                 <SunIcon v-if="$colorMode.value === 'light'" class="h-6 w-6" />
@@ -214,6 +214,7 @@ import { Icon } from '@iconify/vue'
 import { useLoginModal } from '~/composables/useLoginModal'
 import { useRegisterModal } from '~/composables/useRegisterModal'
 import { useAuth } from '~/composables/useAuth'
+import { useNavStore } from '~/stores/navStore'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
@@ -378,20 +379,20 @@ const logout = async () => {
   }
 }
 
-const isAlwaysOnTop = ref(false)
+const navStore = useNavStore()
 
 function toggleAlwaysOnTop() {
-  isAlwaysOnTop.value = !isAlwaysOnTop.value
-  if (process.client) {
-    localStorage.setItem('isAlwaysOnTop', isAlwaysOnTop.value)
-  }
   updateBodyPadding()
+  
+  // navStore 업데이트
+  navStore.toggleIsAlwaysOnTop()
 }
 
-const navHeight = ref(10)
+const navHeight = ref(120)
 
 function updateBodyPadding() {
-  if (isAlwaysOnTop.value) {
+  // navStore의 값 사용
+  if (navStore.isAlwaysOnTop) {
     document.body.style.paddingTop = `${navHeight.value}px`
   } else {
     document.body.style.paddingTop = '0px'
@@ -399,24 +400,19 @@ function updateBodyPadding() {
 }
 
 onMounted(() => {
-  if (process.client) {
-    isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
-  }
   updateBodyPadding()
   window.addEventListener('resize', updateBodyPadding)
 })
 
-onUnmounted(() => {
-  window.removeEventListener('resize', updateBodyPadding)
-  document.body.style.paddingTop = '0px'
-})
+// ... (기존 코드 유지)
 
-watch(isAlwaysOnTop, (newValue) => {
+// isAlwaysOnTop watch 대신 navStore.isAlwaysOnTop watch
+watch(() => navStore.isAlwaysOnTop, (newValue) => {
   emit('updateNavFixedState', newValue)
   updateBodyPadding()
 })
 
-watch(isAlwaysOnTop, updateBodyPadding)
+// ... (나머지 기존 코드 유지)
 </script>
 
 <style scoped>

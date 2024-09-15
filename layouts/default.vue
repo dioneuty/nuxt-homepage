@@ -26,7 +26,6 @@ import Footer from '~/components/Footer.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
 
 const isMenuOpen = ref(false)
-const isAlwaysOnTop = ref(false)
 
 function openMenu() {
   isMenuOpen.value = true
@@ -38,10 +37,6 @@ function closeMenu() {
   document.body.classList.remove('menu-open')
 }
 
-onMounted(() => {
-  if (process.client) {
-    isAlwaysOnTop.value = localStorage.getItem('isAlwaysOnTop') === 'true'
-  }
-})
+
 
 </script>
