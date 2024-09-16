@@ -19,6 +19,10 @@ export default defineNuxtConfig({
       ]
     },
   },
+  plugins: [
+    '~/plugins/v-html-img.js',
+    '~/plugins/v-html-img-one.js'
+  ],
   postcss: {
     plugins: {
       tailwindcss: {},

@@ -11,3 +11,7 @@ body.menu-open nav,
 body.menu-open .pointer-events-auto {
   pointer-events: auto;
 }
+
+img {
+  content-visibility: auto;
+}

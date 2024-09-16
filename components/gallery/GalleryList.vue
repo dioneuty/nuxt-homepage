@@ -43,7 +43,7 @@
       <div v-for="item in filteredItems" :key="item.id" class="masonry-item mb-4 break-inside-avoid">
         <div @click="openModal(item)" class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg relative cursor-pointer">
           <div class="w-full h-48 overflow-hidden">
-            <div v-html="item.content" class="w-full h-full object-cover"></div>
+            <div v-html-img-one="item.content" class="w-full h-full object-cover"></div>
           </div>
           <div class="p-4">
             <h2 class="text-xl font-bold mb-2 dark:text-white flex items-center">
