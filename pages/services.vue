@@ -19,7 +19,6 @@
 import { Icon } from '@iconify/vue';
 
 definePageMeta ({
-  static: true,
   title: '웹 개발 서비스 - Dion',
   meta: [
     { name: 'description', content: 'Dion - 웹 개발 서비스' },

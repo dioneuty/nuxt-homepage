@@ -79,5 +79,42 @@ export default defineNuxtConfig({
     classPrefix: '',
     classSuffix: '',
     storageKey: 'nuxt-color-mode'
+  },
+  routeRules: {
+    // 정적으로 생성할 페이지들 - about, services, related-sites, contact, under-construction
+    '/about': { prerender: true },
+    '/services': { prerender: true },
+    '/related-sites': { prerender: true },
+    '/contact': { prerender: true },
+    '/under-construction': { prerender: true },
+    
+    // 동적 콘텐츠 (서버 사이드 렌더링) 에 대한 설정 - 메인 페이지
+    
+    // 동적 라우트에 대한 설정 - blog, gallery, admin-gallery, wiki, ai-chat, board, adminboard, contactboard, qna
+    '/': { swr: true },
+    '/qna': { swr: true },
+    '/contactboard': { swr: true },
+    '/adminboard': { swr: true },
+    '/board': { swr: true },
+    '/blog/**': { swr: true }, // Stale-While-Revalidate 전략 사용
+    '/gallery/**': { swr: true },
+    '/admin-gallery/**': { swr: true },
+    '/wiki/**': { swr: true },
+    '/ai-chat/**': { swr: true },
+
+    // API 라우트
+    '/api/**': { cors: true, headers: { 'access-control-allow-methods': 'GET, POST, PUT, DELETE' } },
+
+    // 클라이언트 사이드 렌더링 - outliner
+    '/outliner/**': { ssr: false },
+
+    // 관리자 페이지 (클라이언트 사이드 렌더링)
+    //'/admin/**': { ssr: false },
+
+    // 동적 콘텐츠가 있는 페이지 (서버 사이드 렌더링)
+    //'/dynamic/**': { ssr: true },
+
+    // 주기적으로 업데이트되는 페이지 (증분 정적 재생성)
+    //'/frequently-updated/**': { isr: 60 } // 60초마다 재생성
   }
 })
