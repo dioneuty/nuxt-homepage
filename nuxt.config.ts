@@ -69,6 +69,14 @@ export default defineNuxtConfig({
       rootMargin: '50px',
       threshold: 0.1
     },
+    format: ['webp'],
+    screens: {
+      'sm': 640,
+      'md': 768,
+      'lg': 1024,
+      'xl': 1280,
+      '2xl': 1536,
+    },
   },
   colorMode: {
     preference: 'system', // 기본 설정
