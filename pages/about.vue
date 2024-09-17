@@ -46,17 +46,61 @@
       </div>
     </div>
 
-    <div class="mb-12">
-      <h2 class="text-2xl font-semibold mb-4 text-center text-gray-800 dark:text-gray-200">주요 기술 스택</h2>
-      <p class="text-center text-gray-600 dark:text-gray-400 mb-4">
-        HTML5, CSS3, JavaScript, TypeScript, React, Vue.js, Node.js
-      </p>
-      <p class="text-center text-gray-600 dark:text-gray-400 mb-4">
-        Express.js, MongoDB, PostgreSQL, AWS, Docker, Git
-      </p>
+    <div class="mb-12 bg-gradient-to-r from-green-100 to-mint-100 dark:from-green-900 dark:to-mint-500 rounded-lg shadow-lg p-6">
+      <h2 class="text-3xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">주요 기술 스택</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-blue-500 dark:text-blue-300">백엔드</h3>
+          <p class="text-gray-700 dark:text-gray-300">JAVA, Spring Boot, Node.js, Express, SQL, Supabase</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-green-500 dark:text-green-300">프론트엔드</h3>
+          <p class="text-gray-700 dark:text-gray-300">Svelte.kit, Nuxt.js (Vue.js 3), Tailwind CSS</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-purple-500 dark:text-purple-300">개발환경</h3>
+          <p class="text-gray-700 dark:text-gray-300">Cent OS 7, Git, Naver Cloud, Nginx, Docker, DNS, let's encrypt SSL</p>
+        </div>
+        <!--개발 툴 Cursor IDE, JetBrains Tools(IntelliJ IDEA, Web storm), MobaXterm -->
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">  
+          <h3 class="text-xl font-semibold mb-3 text-red-500 dark:text-red-300">개발 툴</h3>
+          <p class="text-gray-700 dark:text-gray-300">Cursor IDE, JetBrains Tools(IntelliJ IDEA, Web storm 등), MobaXterm</p>
+        </div>
+      </div>
     </div>
 
-    <div class="text-center">
+    <!-- 자격증 - 정보처리기사, 리눅스 마스터 2급, 진흥회 한자 3급, 운전면허증 1종 보통, 영어 중급(과거 TOEIC 800점), 일본어 중상급 (JLPT N2)-->
+    <div class="mb-12 bg-gradient-to-r from-blue-100 to-purple-100 dark:from-blue-900 dark:to-purple-900 rounded-lg shadow-lg p-6">
+      <h2 class="text-3xl font-bold mb-6 text-center text-blue-600 dark:text-blue-400">자격증</h2>
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-blue-500 dark:text-blue-300">정보처리기사</h3>
+          <p class="text-gray-700 dark:text-gray-300">국가공인 정보처리기사 자격증</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-green-500 dark:text-green-300">리눅스 마스터 2급</h3>
+          <p class="text-gray-700 dark:text-gray-300">리눅스 마스터 2급 자격증</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-purple-500 dark:text-purple-300">진흥회 한자 3급</h3>
+          <p class="text-gray-700 dark:text-gray-300">진흥회 한자 3급 자격증</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-red-500 dark:text-red-300">운전면허증 1종 보통</h3>
+          <p class="text-gray-700 dark:text-gray-300">운전면허증 1종 보통 자격증</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-orange-500 dark:text-orange-300">영어 중급</h3>
+          <p class="text-gray-700 dark:text-gray-300">과거 TOEIC 800점</p>
+        </div>
+        <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-4 transition-transform duration-300 hover:scale-105">
+          <h3 class="text-xl font-semibold mb-3 text-pink-500 dark:text-pink-300">일본어 중상급</h3>
+          <p class="text-gray-700 dark:text-gray-300">JLPT N2</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- <div class="text-center">
       <h2 class="text-2xl font-semibold mb-4 text-gray-800 dark:text-gray-200">프로젝트 문의</h2>
       <p class="text-gray-600 dark:text-gray-400 mb-4">
         새로운 웹 프로젝트나 기존 웹사이트 개선에 대해 상담해 드립니다.
@@ -67,7 +111,7 @@
       <NuxtLink to="/contact" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
         문의하기
       </NuxtLink>
-    </div>
+    </div> -->
   </div>
 </template>
 

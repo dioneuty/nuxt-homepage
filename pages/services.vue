@@ -30,25 +30,25 @@ const services = ref([
   { 
     id: 1, 
     title: '반응형 웹사이트 개발', 
-    description: '모든 디바이스에서 최적화된 경험을 제공하는 반응형 웹사이트를 개발합니다. 모바일, 태블릿, 데스크톱에서 완벽하게 작동합니다.',
+    description: 'Tailwind CSS를 사용하여 모든 디바이스에서 최적화된 경험을 제공하는 반응형 웹사이트를 개발합니다. 모바일, 태블릿, 데스크톱에서 완벽하게 작동합니다.',
     icon: 'mdi:responsive'
   },
   { 
     id: 2, 
     title: '프론트엔드 개발', 
-    description: 'React, Vue, Angular 등의 최신 프레임워크를 사용하여 동적이고 인터랙티브한 사용자 인터페이스를 구축합니다.',
+    description: 'Nuxt.js, Svelte.kit 등의 최신 프레임워크를 사용하여 동적이고 인터랙티브한 사용자 인터페이스를 구축합니다.',
     icon: 'mdi:language-javascript'
   },
   { 
     id: 3, 
     title: '백엔드 개발', 
-    description: 'Node.js, Python, Ruby 등을 사용하여 안정적이고 확장 가능한 서버 사이드 애플리케이션을 개발합니다.',
+    description: 'Node.js, Express, Spring Boot 등을 사용하여 안정적이고 확장 가능한 서버 사이드 애플리케이션을 개발합니다.',
     icon: 'mdi:server'
   },
   { 
     id: 4, 
     title: 'API 개발', 
-    description: 'RESTful API 또는 GraphQL을 사용하여 효율적이고 안전한 데이터 교환 시스템을 구축합니다.',
+    description: 'RESTful API, SQL, SPRING BOOT 등을 사용하여 효율적이고 안전한 데이터 교환 시스템을 구축합니다.',
     icon: 'mdi:api'
   },
   { 
@@ -60,26 +60,14 @@ const services = ref([
   { 
     id: 6, 
     title: '웹 성능 최적화', 
-    description: '웹사이트의 로딩 속도를 개선하고 전반적인 성능을 최적화하여 사용자 경험을 향상시킵니다.',
+    description: '웹사이트의 로딩 속도를 개선하고 전반적인 성능을 최적화하여 사용자 경험을 향상시킵니다. SWR, ISR, 캐싱 등을 사용하여 성능을 최적화합니다.',
     icon: 'mdi:speedometer'
-  },
-  { 
-    id: 7, 
-    title: 'CMS 개발 및 통합', 
-    description: 'WordPress, Drupal 등의 CMS를 커스터마이징하거나 자체 CMS를 개발하여 콘텐츠 관리를 용이하게 합니다.',
-    icon: 'mdi:file-document-edit'
   },
   { 
     id: 8, 
     title: '웹 애플리케이션 보안', 
-    description: 'HTTPS 구현, XSS 및 CSRF 방지 등 웹 애플리케이션의 보안을 강화하여 데이터와 사용자를 보호합니다.',
+    description: 'HTTPS 구현, XSS 및 CSRF 방지 등 SPRING SECURITY와 자체 프론트엔드 프레임워크의 보안 기능 등을 이용하여, 웹 애플리케이션의 보안을 강화하여 데이터와 사용자를 보호합니다.',
     icon: 'mdi:security'
   },
-  { 
-    id: 9, 
-    title: '클라우드 서비스 통합', 
-    description: 'AWS, Google Cloud, Azure 등의 클라우드 서비스를 활용하여 확장 가능하고 안정적인 웹 서비스를 구축합니다.',
-    icon: 'mdi:cloud'
-  }
 ])
 </script>
