@@ -113,6 +113,8 @@ export default defineNuxtConfig({
     '/admingallery/**': { swr: true },
     '/wiki/**': { swr: true },
     '/ai-chat/**': { swr: true },
+    '/search/**': { swr: true },
+    '/youtube-gallery/**': { swr: true },
 
     // API 라우트
     '/api/**': { cors: true, headers: { 'access-control-allow-methods': 'GET, POST, PUT, DELETE' } },
