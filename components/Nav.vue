@@ -280,6 +280,14 @@ const menuItems = ref([
   { name: '종합 검색', path: '/search' },
   { name: '아웃라이너', path: '/outliner' },
   { 
+    name: '외국어 학습', 
+    children: [
+      { name: '영어', path: '/english' },
+      { name: '일본어', path: '/japanese' }
+    ],
+    isOpen: false
+  },
+  { 
     name: '관리자', 
     children: [
       { name: '관리자용 문의 게시판', path: '/contactboard' },
