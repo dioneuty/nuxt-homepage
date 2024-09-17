@@ -1,3 +1,5 @@
+import { hash } from 'ohash'
+
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.vueApp.directive('html-img-one', {
 
@@ -15,6 +17,9 @@ export default defineNuxtPlugin((nuxtApp) => {
             img.setAttribute('format', 'webp')
             img.setAttribute('data-src', img.src)
             img.setAttribute('src', '')
+
+            const cacheKey = hash({ dataSrc: img.dataset.src, width: img.width, height: img.height, format: img.format, loading: img.loading})
+            img.setAttribute('data-cache-key', cacheKey)
 
             el.appendChild(img)
         }

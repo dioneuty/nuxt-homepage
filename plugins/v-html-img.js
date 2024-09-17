@@ -1,3 +1,5 @@
+import { hash } from 'ohash'
+
 export default defineNuxtPlugin((nuxtApp) => {
     nuxtApp.vueApp.directive('html-img', {
 
@@ -17,6 +19,9 @@ export default defineNuxtPlugin((nuxtApp) => {
                 img.setAttribute('format', 'webp')
                 img.setAttribute('data-src', img.src)
                 img.setAttribute('src', '')
+
+                const cacheKey = hash({ dataSrc: img.dataset.src, width: img.width, height: img.height, format: img.format, loading: img.loading})
+                img.setAttribute('data-cache-key', cacheKey)
 
                 //img 태그를 nuxtImg 태그로 치환
                 el.appendChild(img)
