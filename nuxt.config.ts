@@ -110,7 +110,7 @@ export default defineNuxtConfig({
     '/board': { swr: true },
     '/blog/**': { swr: true }, // Stale-While-Revalidate 전략 사용
     '/gallery/**': { swr: true },
-    '/admin-gallery/**': { swr: true },
+    '/admingallery/**': { swr: true },
     '/wiki/**': { swr: true },
     '/ai-chat/**': { swr: true },
 
