@@ -13,25 +13,33 @@
           :ref="(el) => { if (el) videoRefs[video.id] = el }"
         >
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
-            <div 
-              v-lazy-load="() => loadVideo(video)"
-            >
+            <div @click="loadVideo(video)" class='cursor-pointer'>
               <div v-if="video.loaded">
                 <iframe 
-                  :class="{ 'w-full h-auto aspect-[16/9]': !video.isShort, 'w-full h-auto aspect-[9/16]': video.isShort }"
+                  :class="{ 'w-full min-h-[225px] h-auto aspect-[16/9]': !video.isShort, 'w-full h-auto aspect-[9/16]': video.isShort }"
                   :src="getEmbedUrl(video)"
                   frameborder="0" 
+                  :autoplay="video.loaded"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowfullscreen
                 ></iframe>
               </div>
-              <div v-else :class="getAspectRatioClass(video) + ' bg-gray-200 dark:bg-gray-700 flex items-center justify-center'">
-                <span class="text-gray-500 dark:text-gray-400">로딩 중...</span>
+              <div v-else>
+                <img
+                    :src="`https://img.youtube.com/vi/${video.id}/0.jpg`"
+                    :alt="video.title"
+                    :class="{'w-full min-h-[225px] h-auto aspect-[16/9] object-cover': !video.isShort, 'w-full h-auto aspect-[9/16] object-cover': video.isShort}"
+                    loading="lazy"
+                    />
               </div>
             </div>
             <div class="p-4">
               <h2 class="text-lg font-semibold mb-2 dark:text-white">{{ video.title }}</h2>
               <p class="text-sm text-gray-600 dark:text-gray-300">{{ video.description }}</p>
+              <div class="flex justify-between">
+                <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="unloadVideo(video)">썸네일</button>
+                <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="loadVideo(video)">플레이어</button>
+              </div>
             </div>
           </div>
         </div>
@@ -50,19 +58,59 @@
     { id: 'x1sZjAtePx8', title: 'YouTube 비디오 2', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
     { id: 'jNQXAC9IVRw', title: 'Me at the zoo', description: 'The first video on YouTube', loaded: false, isShort: false },
     { id: '6A0bCLmAXrk', title: 'YouTube 비디오 3', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=mHUrRj0IoIs&list=RDmHUrRj0IoIs&start_radio=1
+    { id: 'mHUrRj0IoIs', title: 'YouTube 비디오 4', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=Mgg90NYAvvc
+    { id: 'Mgg90NYAvvc', title: 'YouTube 비디오 5', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    { id: '5em1MuTz3aQ', title: 'YouTube Short 2', description: '새로 추가된 YouTube Short', loaded: false, isShort: true },
+    { id: 'xqvHMmc1csM', title: 'YouTube 비디오 6', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=Ev2DJFa9isY
+    { id: 'Ev2DJFa9isY', title: 'YouTube 비디오 7', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    { id: 'SO-ABoaaCNg', title: 'YouTube 비디오 8', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=odRZzI_P0Lk
+    { id: 'WlXjN48UyFM', title: 'YouTube Short 3', description: '새로 추가된 YouTube Short', loaded: false, isShort: true },
+    { id: 'odRZzI_P0Lk', title: 'YouTube 비디오 9', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/shorts/WlXjN48UyFM
+    //https://www.youtube.com/watch?v=EHhvP0EMhfE
+    { id: 'EHhvP0EMhfE', title: 'YouTube 비디오 10', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=XIPLXi1gfv8
+    { id: 'XIPLXi1gfv8', title: 'YouTube 비디오 11', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=WIA825Dd8dc
+    { id: 'WIA825Dd8dc', title: 'YouTube 비디오 12', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=EHhvP0EMhfE
+    { id: 'EHhvP0EMhfE', title: '피식대학 - 헬스장 레전드', description: '피식대학의 유머러스한 헬스장 상황', loaded: false, isShort: false },
+    //https://www.youtube.com/watch?v=XIPLXi1gfv8
+    { id: 'XIPLXi1gfv8', title: '피식대학 - 학교에서 생긴 일', description: '학교 생활을 재치있게 표현한 영상', loaded: false, isShort: false },
+  { id: 'WlXjN48UyFM', title: '피식대학 쇼츠 - 웃긴 순간 모음', description: '피식대학의 짧은 웃음 영상', loaded: false, isShort: true },
+    
   ])
+
+  function getThumbnailUrl(videoId) {
+  return `https://img.youtube.com/vi/${videoId}/0.jpg`
+}
   
   const videoRefs = ref({})
   
   function loadVideo(video) {
     video.loaded = true
+
+    // 다른 곳의 video.loaded를 false로 만들기
+    videos.value.forEach(v => {
+      if (v.id !== video.id) {
+        v.loaded = false
+      }
+    })
+  }
+
+  function unloadVideo(video) {
+    video.loaded = false
   }
   
   function getEmbedUrl(video) {
     if (video.isShort) {
-      return `https://www.youtube.com/embed/${video.id}?loop=1&playlist=${video.id}`
+      return `https://www.youtube.com/embed/${video.id}?autoplay=1`
     }
-    return `https://www.youtube.com/embed/${video.id}`
+    return `https://www.youtube.com/embed/${video.id}?autoplay=1`
   }
   
   function getAspectRatioClass(video) {
@@ -75,9 +123,9 @@
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const video = videos.value.find(v => videoRefs.value[v.id] === entry.target)
-            if (video) {
-              loadVideo(video)
-            }
+            // if (video) {
+            //   loadVideo(video)
+            // }
             observer.unobserve(entry.target)
           }
         })
@@ -131,7 +179,7 @@
   
   @media (min-width: 1920px) {
     .masonry-layout {
-      column-count: 6;
+      column-count: 5;
     }
   }
   
