@@ -97,7 +97,7 @@
       </div>
 
       <!-- 모바일 네비게이션 헤더 -->
-      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 dark:bg-gray-800 text-white p-4">
+      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 dark:bg-gray-800 text-white px-4 py-2">
         <div class="flex items-center justify-between" :class="{ 'pointer-events-auto': isMenuOpen }">
           <button @click="openMenu" class="text-white" :class="{ 'pointer-events-none': isMenuOpen }">
             <Bars3Icon class="h-6 w-6" />
@@ -141,7 +141,7 @@
         ]"
       >
         <div class="flex flex-col h-full">
-          <div class="bg-blue-800 dark:bg-gray-700 p-6 flex justify-between items-center">
+          <div class="bg-blue-800 dark:bg-gray-700 p-4 flex justify-between items-center">
             <NuxtLink to="/" class="text-2xl font-bold flex items-center" @click="closeMenu">
               <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
               <span>{{ appName }}</span>
@@ -150,7 +150,7 @@
               <XMarkIcon class="h-6 w-6" />
             </button>
           </div>
-          <div class="flex-grow p-6 space-y-4 overflow-y-auto">
+          <div class="flex-grow p-2 space-y-2 overflow-y-auto">
             <div v-for="item in filteredMenuItems" :key="item.name" class="relative">
               <div
                 @click="handleItemClick(item)"
