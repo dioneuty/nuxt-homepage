@@ -297,7 +297,8 @@ const menuItems = ref([
     isOpen: false,
     adminOnly: true
   },
-  { name: 'AI 채팅', path: '/ai-chat' }
+  { name: 'AI 채팅', path: '/ai-chat' },
+  { name: '유튜브 갤러리', path: '/youtube-gallery' }
 ])
 
 const filteredMenuItems = computed(() => {
