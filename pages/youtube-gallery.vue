@@ -39,17 +39,24 @@
               <div class="flex justify-between">
                 <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="unloadVideo(video)">썸네일</button>
                 <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="loadVideo(video)">플레이어</button>
+                <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="openModal(video)">모달</button>
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
+    <PlayModal :video="selectedVideo" :isOpen="isModalOpen" @close="closeModal" @timeUpdate="updateTime" />
   </template>
   
   <script setup>
   import { ref, onMounted } from 'vue'
   import { Icon } from '@iconify/vue'
+  import PlayModal from '@/components/youtubeGallery/PlayModal.vue'
+
+  const selectedVideo = ref(null)
+  const isModalOpen = ref(false)
+
   
   const videos = ref([
     { id: 'dQw4w9WgXcQ', title: 'Rick Astley - Never Gonna Give You Up', description: 'Official music video', loaded: false, isShort: false },
@@ -101,6 +108,25 @@
       }
     })
   }
+
+  function openModal(video) {
+  selectedVideo.value = video
+  isModalOpen.value = true
+}
+
+
+  function closeModal() {
+  isModalOpen.value = false
+  selectedVideo.value = null
+}
+
+function updateVideoTime(time) {
+  if (selectedVideo.value) {
+    selectedVideo.value.currentTime = time
+  }
+}
+
+
 
   function unloadVideo(video) {
     video.loaded = false
