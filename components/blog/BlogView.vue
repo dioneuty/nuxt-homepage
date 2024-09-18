@@ -80,7 +80,7 @@ onMounted(async () => {
   }
 })
 
-const formatDate = (dateString) => {
+function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('ko-KR', {
     year: 'numeric',
     month: 'long',

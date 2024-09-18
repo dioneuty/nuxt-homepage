@@ -90,11 +90,11 @@ const lastPlayedSentence = ref('')
 const isReadingSectionVisible = ref(false)
 const checkedSentences = ref([])
 
-const toggleReadingSection = () => {
+function toggleReadingSection() {
   isReadingSectionVisible.value = !isReadingSectionVisible.value
 }
 
-const speak = (index) => {
+function speak(index) {
   const text = sentences.value[index]
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.lang = 'ja-JP'
@@ -131,7 +131,7 @@ const speak = (index) => {
   currentUtterance.value = utterance
 }
 
-const playAll = () => {
+function playAll() {
   if (sentences.value.length === 0) {
     alert('문장이 없습니다. 먼저 텍스트 파일을 가져와주세요.')
     return
@@ -143,7 +143,7 @@ const playAll = () => {
   playNext()
 }
 
-const playHundred = () => {
+function playHundred() {
   if (sentences.value.length === 0) {
     alert('문장이 없습니다. 먼저 텍스트 파일을 가져와주세요.')
     return
@@ -155,13 +155,13 @@ const playHundred = () => {
   playNext()
 }
 
-const playNext = () => {
+function playNext() {
   if (isPlaying.value && !isPaused.value && currentIndex.value < endIndex.value) {
     speak(currentIndex.value)
   }
 }
 
-const stopPlayback = () => {
+function stopPlayback() {
   isPlaying.value = false
   isPaused.value = false
   if (currentUtterance.value) {
@@ -170,7 +170,7 @@ const stopPlayback = () => {
   currentPlayingSentence.value = ''
 }
 
-const togglePauseResume = () => {
+function togglePauseResume() {
   if (isPlaying.value) {
     if (isPaused.value) {
       isPaused.value = false
@@ -182,7 +182,7 @@ const togglePauseResume = () => {
   }
 }
 
-const resetSentences = () => {
+function resetSentences() {
   sentences.value = []
   checkedSentences.value = []
   stopPlayback()
@@ -191,7 +191,7 @@ const resetSentences = () => {
   alert('문장이 리셋되었습니다.')
 }
 
-const importTXT = (event) => {
+function importTXT(event) {
   const file = event.target.files[0]
   if (file) {
     const reader = new FileReader()
@@ -215,7 +215,7 @@ const importTXT = (event) => {
   }
 }
 
-const playChecked = () => {
+function playChecked() {
   const checkedIndices = checkedSentences.value.reduce((acc, checked, index) => {
     if (checked) acc.push(index)
     return acc
@@ -233,7 +233,7 @@ const playChecked = () => {
   playNextChecked(checkedIndices)
 }
 
-const playNextChecked = (checkedIndices) => {
+function playNextChecked(checkedIndices) {
   if (isPlaying.value && !isPaused.value && currentIndex.value < endIndex.value) {
     speak(checkedIndices[currentIndex.value])
   }

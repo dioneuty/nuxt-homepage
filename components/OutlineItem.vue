@@ -110,7 +110,7 @@ onMounted(async () => {
   }
 })
 
-const fetchItemContent = async () => {
+async function fetchItemContent() {
   try {
     const response = await fetch(`/api/outline-item/${props.item.id.toString()}`)
     if (response.ok) {
@@ -124,7 +124,7 @@ const fetchItemContent = async () => {
   }
 }
 
-const startEditing = () => {
+function startEditing() {
   if (!isLocked.value) {
     isEditing.value = true
     editedContent.value = props.item.content
@@ -134,7 +134,7 @@ const startEditing = () => {
   }
 }
 
-const finishEditing = () => {
+function finishEditing() {
   isEditing.value = false
   if (editedContent.value !== props.item.content) {
     emit('update', { id: props.item.id, content: editedContent.value })
@@ -151,35 +151,35 @@ const canOutdent = computed(() => {
   return props.depth > 0 // 최상위 항목이 아니면 내어쓰기 가능
 })
 
-const handleTab = (event) => {
+function handleTab(event) {
   event.preventDefault()
   if (canIndent.value) {
     emit('indent', props.item.id)
   }
 }
 
-const handleShiftTab = (event) => {
+function handleShiftTab(event) {
   event.preventDefault()
   if (canOutdent.value) {
     emit('outdent', props.item.id)
   }
 }
 
-const emitChange = () => {
+function emitChange() {
   emit('reorder')
 }
 
-const toggleItem = () => {
+function toggleItem() {
   if (props.item.children && props.item.children.length > 0) {
     emit('toggle', props.item)
   }
 }
 
-const toggleContent = () => {
+function toggleContent() {
   showContent.value = !showContent.value
 }
 
-const saveContent = async () => {
+async function saveContent() {
   try {
     await fetch(`/api/outline-item/${props.item.id}`, {
       method: 'PUT',
@@ -194,14 +194,14 @@ const saveContent = async () => {
   }
 }
 
-const toggleLock = () => {
+function toggleLock() {
   isLocked.value = !isLocked.value
   if (isLocked.value && isEditing.value) {
     finishEditing()
   }
 }
 
-const updateItemContent = async (content) => {
+async function updateItemContent(content) {
   if (!isLocked.value) {
     itemContent.value = content
     try {

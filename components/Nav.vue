@@ -220,11 +220,11 @@ import 'nprogress/nprogress.css'
 
 const router = useRouter()
 
-const startProgress = () => {
+function startProgress() {
   NProgress.start()
 }
 
-const endProgress = () => {
+function endProgress() {
   NProgress.done()
 }
 
@@ -310,7 +310,7 @@ const filteredMenuItems = computed(() => {
   })
 })
 
-const handleItemClick = (item) => {
+function handleItemClick(item) {
   if (item.children) {
     item.isOpen = !item.isOpen
   } else if (item.path) {
@@ -320,19 +320,19 @@ const handleItemClick = (item) => {
 }
 
 const colorMode = useColorMode()
-const toggleColorMode = () => {
+function toggleColorMode() {
   if (colorMode.value === 'light') colorMode.value = 'dark' // 라이트 모드
   else if (colorMode.value === 'dark') colorMode.value = 'system' // 다크 모드
   else colorMode.value = 'light' // 시스템 설정
 }
 const isMenuOpen = ref(false)
 
-const openMenu = () => {
+function openMenu() {
   isMenuOpen.value = true
   document.body.style.overflow = 'hidden'
 }
 
-const closeMenu = () => {
+function closeMenu() {
   isMenuOpen.value = false
   document.body.style.overflow = ''
 }
@@ -347,11 +347,11 @@ watch(isMenuOpen, (newValue) => {
 
 const route = useRouter().currentRoute
 
-const isActive = (path) => {
+function isActive(path) {
   return route.value.path === path
 }
 
-const isActiveOrHasActiveChild = (item) => {
+function isActiveOrHasActiveChild(item) {
   if (isActive(item.path)) {
     return true
   }
@@ -371,7 +371,7 @@ const { openModal: openLoginModal } = useLoginModal()
 const { openModal: openRegisterModal } = useRegisterModal()
 const { auth, setAuth } = useAuth()
 
-const logout = async () => {
+async function logout() {
   try {
     const response = await fetch('/api/user?type=logout', {
       method: 'POST',

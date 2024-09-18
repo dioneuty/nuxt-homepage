@@ -110,21 +110,21 @@
   }
 
   function openModal(video) {
-  selectedVideo.value = video
-  isModalOpen.value = true
-}
+    selectedVideo.value = video
+    isModalOpen.value = true
+  }
 
 
   function closeModal() {
-  isModalOpen.value = false
-  selectedVideo.value = null
-}
-
-function updateVideoTime(time) {
-  if (selectedVideo.value) {
-    selectedVideo.value.currentTime = time
+    isModalOpen.value = false
+    selectedVideo.value = null
   }
-}
+
+  function updateVideoTime(time) {
+    if (selectedVideo.value) {
+      selectedVideo.value.currentTime = time
+    }
+  }
 
 
 

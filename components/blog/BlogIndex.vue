@@ -70,7 +70,7 @@ const error = ref(null)
 
 const router = useRouter()
 
-const navigateToPost = (postId) => {
+function navigateToPost(postId) {
   router.push(`${props.postLink}?id=${postId}`)
 }
 
@@ -88,7 +88,7 @@ onMounted(async () => {
   }
 })
 
-const formatDate = (dateString) => {
+function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString()
 }
 </script>

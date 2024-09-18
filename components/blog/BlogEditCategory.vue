@@ -96,7 +96,7 @@ onMounted(async () => {
   }
 })
 
-const addCategory = () => {
+function addCategory() {
   if (newCategory.value.trim()) {
     categories.value.push({ 
       name: newCategory.value.trim(), 
@@ -107,14 +107,14 @@ const addCategory = () => {
   }
 }
 
-const removeCategory = (index) => {
+function removeCategory(index) {
   const removedCategory = categories.value.splice(index, 1)[0]
   if (removedCategory.id) {
     deletedCategories.value.push(removedCategory.id)
   }
 }
 
-const saveCategories = async () => {
+async function saveCategories() {
   try {
     await $fetch(props.apiEndpoint, {
       method: 'PUT',
@@ -129,7 +129,7 @@ const saveCategories = async () => {
   }
 }
 
-const cancelEdit = () => {
+function cancelEdit() {
   router.back() // 이전 페이지로 돌아가기
 }
 </script>

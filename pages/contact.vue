@@ -62,12 +62,12 @@ const form = ref({
 })
 
 // 이전 버튼 클릭 시 호출되는 함수
-const goBack = () => {
+function goBack() {
   // 이전 페이지로 이동
   window.history.back();
 }
 
-const submitForm = async () => {
+async function submitForm() {
   try {
     const response = await fetch('/api/contact', {
       method: 'POST',

@@ -65,7 +65,7 @@ watch(selectedSections, (newValue) => {
   localStorage.setItem('selectedSections', JSON.stringify(newValue))
 }, { deep: true })
 
-const getSectionComponent = (sectionId) => {
+function getSectionComponent(sectionId) {
   switch (sectionId) {
     case 'carousel':
       return defineAsyncComponent(() => import('@/components/home/CarouselSection.vue'))
