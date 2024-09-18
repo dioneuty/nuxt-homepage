@@ -17,11 +17,19 @@
       </div>
     </div>
 
-    <Suspense v-for="section in sections" :key="section.id">
+    <template v-for="section in sections" :key="section.id">
       <template v-if="selectedSections.includes(section.id)">
-        <component :is="getSectionComponent(section.id)" />
+        <Suspense>
+          <component :is="getSectionComponent(section.id)" />
+          <template #fallback>
+            <div class="flex justify-center items-center h-full py-8">
+              <Icon icon="mdi:loading" class="animate-spin w-8 h-8 text-blue-500" />
+              <p class="mt-2 text-gray-600 dark:text-gray-400">데이터를 불러오는 중...</p>
+            </div>
+          </template>
+        </Suspense>
       </template>
-    </Suspense>
+    </template>
 
     <GalleryModal
       v-if="galleryStore.selectedItem"
@@ -39,6 +47,7 @@
 import { ref, computed, defineAsyncComponent, onMounted, watch } from 'vue'
 import GalleryModal from '@/components/gallery/GalleryModal.vue'
 import { useGalleryStore } from '@/stores/galleryStore'
+import { Icon } from '@iconify/vue'
 
 const sections = [
   { id: 'carousel', label: '슬라이드 보기' },
