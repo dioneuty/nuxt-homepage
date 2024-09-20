@@ -66,19 +66,20 @@ const post = ref(null)
 const pending = ref(false)
 const error = ref(null)
 
-onMounted(async () => {
+async function fetchData() {
   pending.value = true
   try {
-    const { data } = await useFetch(`${props.apiEndpoint}?id=${props.id}`, {
-      method: 'GET'
-    })
+    const { data } = await useFetch(`${props.apiEndpoint}?id=${props.id}`)
     post.value = data.value
   } catch (e) {
     error.value = e
   } finally {
     pending.value = false
   }
-})
+}
+
+onBeforeMount(fetchData)
+onMounted(fetchData)
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('ko-KR', {
