@@ -74,7 +74,7 @@ function navigateToPost(postId) {
   router.push(`${props.postLink}?id=${postId}`)
 }
 
-onMounted(async () => {
+async function fetchPosts() {
   pending.value = true
   try {
     const { data } = await useFetch(props.apiEndpoint, {
@@ -86,7 +86,11 @@ onMounted(async () => {
   } finally {
     pending.value = false
   }
-})
+}
+
+onBeforeMount(fetchPosts)
+onMounted(fetchPosts)
+
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString()
