@@ -2,11 +2,48 @@ import prisma from '~/server/utils/prisma'
 
 export default defineEventHandler(async (event) => {
   const method = event.node.req.method
+  const { id, category, type } = getQuery(event)
 
   // GET 요청 처리
   if (method === 'GET') {
-    const { id, category } = getQuery(event)
+    // 네비게이션 요청 처리
+    if (type === 'navigation') {
+      if (!id) {
+        throw createError({ statusCode: 400, statusMessage: 'ID가 필요합니다' })
+      }
+
+      const currentPost = await prisma.blogPost.findUnique({
+        where: { id: parseInt(id) },
+        select: { id: true, categoryId: true }
+      })
+
+      if (!currentPost) {
+        throw createError({ statusCode: 404, statusMessage: '블로그 포스트를 찾을 수 없습니다' })
+      }
+
+      const [prev, next] = await Promise.all([
+        prisma.blogPost.findFirst({
+          where: {
+            id: { lt: currentPost.id },
+            categoryId: currentPost.categoryId
+          },
+          orderBy: { id: 'desc' },
+          select: { id: true, title: true }
+        }),
+        prisma.blogPost.findFirst({
+          where: {
+            id: { gt: currentPost.id },
+            categoryId: currentPost.categoryId
+          },
+          orderBy: { id: 'asc' },
+          select: { id: true, title: true }
+        })
+      ])
+
+      return { prev, next }
+    }
     
+    // 기존의 GET 요청 처리 로직
     if (id) {
       const post = await prisma.blogPost.findUnique({
         where: { id: parseInt(id) },

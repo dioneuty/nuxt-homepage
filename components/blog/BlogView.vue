@@ -21,6 +21,7 @@
         </div>
         <div class="prose dark:prose-invert max-w-none" v-html="post.content"></div>
         
+        
         <!-- 버튼 그룹 -->
         <div class="mt-8 flex flex-wrap justify-between items-center">
           <div class="space-x-4 mb-4 sm:mb-0">
@@ -40,6 +41,27 @@
         </div>
       </div>
     </div>
+    <!-- 이전 글, 다음 글 네비게이션 추가 -->
+    <div class="mt-8 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+      <div class="flex flex-col divide-y divide-gray-200 dark:divide-gray-600">
+        <NuxtLink v-if="prevPost" :to="`${$route.path}?id=${prevPost.id}`" class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
+          <div class="flex items-center text-gray-700 dark:text-gray-300">
+            <Icon icon="mdi:chevron-left" class="mr-2" />
+            <span class="truncate">이전 글:</span>
+          </div>
+          <span class="truncate text-blue-600 dark:text-blue-400 ml-2">{{ prevPost.title }}</span>
+        </NuxtLink>
+        <NuxtLink v-if="nextPost" :to="`${$route.path}?id=${nextPost.id}`" class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
+          <div class="flex items-center text-gray-700 dark:text-gray-300">
+            <span class="truncate">다음 글:</span>
+          </div>
+          <div class="flex items-center text-blue-600 dark:text-blue-400">
+            <span class="truncate mr-2">{{ nextPost.title }}</span>
+            <Icon icon="mdi:chevron-right" />
+          </div>
+        </NuxtLink>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -47,7 +69,8 @@
 import { Icon } from '@iconify/vue'
 import { useModal } from '~/composables/useModal'
 import { useRouter } from 'vue-router'
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, watch } from 'vue'
+import { useRoute } from 'vue-router'
 
 const props = defineProps({
   editButtonText: { type: String, default: '수정하기' },
@@ -61,16 +84,24 @@ const props = defineProps({
 
 const router = useRouter()
 const { openModal } = useModal()
+const route = useRoute()
 
 const post = ref(null)
 const pending = ref(false)
 const error = ref(null)
+const prevPost = ref(null)
+const nextPost = ref(null)
 
 async function fetchData() {
   pending.value = true
   try {
     const { data } = await useFetch(`${props.apiEndpoint}?id=${props.id}`)
     post.value = data.value
+    
+    // 이전 글과 다음 글 데이터 가져오기
+    const { data: navigationData } = await useFetch(`${props.apiEndpoint}?type=navigation&id=${props.id}`)
+    prevPost.value = navigationData.value?.prev || null
+    nextPost.value = navigationData.value?.next || null
   } catch (e) {
     error.value = e
   } finally {
@@ -80,6 +111,13 @@ async function fetchData() {
 
 onBeforeMount(fetchData)
 onMounted(fetchData)
+
+// props.id가 변경될 때마다 fetchData 함수를 호출합니다.
+watch(() => props.id, (newId) => {
+  if (newId) {
+    fetchData()
+  }
+})
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString('ko-KR', {

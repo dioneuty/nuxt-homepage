@@ -1,9 +1,9 @@
 <template>
   <BlogView
-    :editLink="`/blog/write?id=${id}`"
+    :editLink="`/blog/write?id=${$route.query.id}`"
     :listLink="`/blog?category=${currentCategoryId}`"
     apiEndpoint="/api/blogPosts"
-    :id="id"
+    :id="$route.query.id"
   />
 </template>
 
@@ -16,6 +16,4 @@ import BlogView from '~/components/blog/BlogView.vue'
 const route = useRoute()
 const categoryStore = useCategoryStore()
 const { currentCategoryId } = storeToRefs(categoryStore)
-
-const id = route.query.id
 </script>

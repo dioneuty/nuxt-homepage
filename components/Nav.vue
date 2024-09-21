@@ -1,6 +1,6 @@
 <template>
   <div>
-    <nav :class="[
+    <nav :key="navKey" :class="[
       'transition-all duration-300 ease-in-out',
       navStore.isAlwaysOnTop ? 'fixed top-0 left-0 right-0 z-50' : 'relative'
     ]">
@@ -219,6 +219,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 
 const router = useRouter()
+const navKey = ref(0)
 
 function startProgress() {
   NProgress.start()
@@ -410,6 +411,7 @@ function updateBodyPadding() {
 
 onMounted(() => {
   updateBodyPadding()
+  navKey.value++ //강제 리렌더링 유도
   window.addEventListener('resize', updateBodyPadding)
 })
 
@@ -423,7 +425,6 @@ watch(() => navStore.isAlwaysOnTop, (newValue) => {
 
 // ... (나머지 기존 코드 유지)
 </script>
-
 <style scoped>
 .text-shadow-lg {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
