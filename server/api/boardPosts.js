@@ -8,18 +8,50 @@ export default defineEventHandler(async (event) => {
     const { id, page = 1, itemsPerPage = 10, type, text, sortColumn, sortOrder } = getQuery(event)
     try {
       if (id && id !== '-1') {
-        const post = await prisma.boardPost.findUnique({
-          where: { id: parseInt(id) }
-        })
-        if (post) {
-          return post
-        } else {
-          throw createError({
-            statusCode: 404,
-            statusMessage: '게시글을 찾을 수 없습니다'
+        if (type === 'navigation') {
+          // 이전 글과 다음 글 조회
+          const currentPost = await prisma.boardPost.findUnique({
+            where: { id: parseInt(id) },
+            select: { createdAt: true }
           })
+
+          if (!currentPost) {
+            throw createError({
+              statusCode: 404,
+              statusMessage: '게시글을 찾을 수 없습니다'
+            })
+          }
+
+          const [prevPost, nextPost] = await Promise.all([
+            prisma.boardPost.findFirst({
+              where: { createdAt: { lt: currentPost.createdAt } },
+              orderBy: { createdAt: 'desc' },
+              select: { id: true, title: true }
+            }),
+            prisma.boardPost.findFirst({
+              where: { createdAt: { gt: currentPost.createdAt } },
+              orderBy: { createdAt: 'asc' },
+              select: { id: true, title: true }
+            })
+          ])
+
+          return { prev: prevPost, next: nextPost }
+        } else {
+          // 기존 단일 게시글 조회 로직
+          const post = await prisma.boardPost.findUnique({
+            where: { id: parseInt(id) }
+          })
+          if (post) {
+            return post
+          } else {
+            throw createError({
+              statusCode: 404,
+              statusMessage: '게시글을 찾을 수 없습니다'
+            })
+          }
         }
       } else {
+        // 기존 게시글 목록 조회 로직
         const skip = (page - 1) * itemsPerPage
         let whereClause = {}
 

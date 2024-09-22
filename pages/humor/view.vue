@@ -1,8 +1,9 @@
 <template>
   <BoardView
     board-type="humor"
-    :api-endpoint="`/api/humorPosts?id=${$route.query.id}`"
+    :api-endpoint="`/api/humorPosts`"
     board-icon="mdi:emoticon-happy-outline"
+    :id="$route.query.id"
   >
     <template #extra-info="{ post }">
       <div class="flex items-center mt-2">

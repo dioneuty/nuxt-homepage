@@ -49,6 +49,28 @@
           삭제하기
         </button>
       </div>
+      
+      <!-- 이전 글, 다음 글 네비게이션 추가 -->
+      <div v-if="post" class="mt-8 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
+        <div class="flex flex-col divide-y divide-gray-200 dark:divide-gray-600">
+          <NuxtLink v-if="prevPost" :to="`${$route.path}?id=${prevPost.id}`" class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
+            <div class="flex items-center text-gray-700 dark:text-gray-300">
+              <Icon icon="mdi:chevron-left" class="mr-2" />
+              <span class="truncate">이전 글:</span>
+            </div>
+            <span class="truncate text-blue-600 dark:text-blue-400 ml-2">{{ prevPost.title }}</span>
+          </NuxtLink>
+          <NuxtLink v-if="nextPost" :to="`${$route.path}?id=${nextPost.id}`" class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
+            <div class="flex items-center text-gray-700 dark:text-gray-300">
+              <span class="truncate">다음 글:</span>
+            </div>
+            <div class="flex items-center text-blue-600 dark:text-blue-400">
+              <span class="truncate mr-2">{{ nextPost.title }}</span>
+              <Icon icon="mdi:chevron-right" />
+            </div>
+          </NuxtLink>
+        </div>
+      </div>
     </div>
   </template>
   
@@ -71,6 +93,10 @@
     boardIcon: {
       type: String,
       required: true
+    },
+    id: {
+      type: Number,
+      required: true
     }
   })
   
@@ -78,21 +104,51 @@
   const router = useRouter()
   const { openModal } = useModal()
   const { openReplyModal } = useReplyModal()
-  const id = route.query.id
   const isMobile = ref(false)
   
   const { data: post, error, pending } = await useFetch(props.apiEndpoint, {
     method: 'GET',
-    params: { id },
+    params: { id: props.id },
     lazy: true
   })
   
   const replyContent = ref('')
   
-  onMounted(() => {
+  const prevPost = ref(null)
+  const nextPost = ref(null)
+  
+  async function fetchData() {
+    pending.value = true
+    try {
+      const [postResponse, navigationResponse] = await Promise.all([
+        useFetch(props.apiEndpoint, {
+          method: 'GET',
+          query: { id: props.id }
+        }),
+        useFetch(props.apiEndpoint, {
+          method: 'GET',
+          query: { id: props.id, type: 'navigation' }
+        })
+      ])
+
+      post.value = postResponse.data.value
+      prevPost.value = navigationResponse.data.value?.prev || null
+      nextPost.value = navigationResponse.data.value?.next || null
+    } catch (e) {
+      error.value = e
+    } finally {
+      pending.value = false
+    }
+  }
+
+  function init() {
     checkMobile()
     window.addEventListener('resize', checkMobile)
-  })
+    fetchData()
+  }
+  
+  onMounted(init)
+  onBeforeMount(init)
   
   function checkMobile() {
     isMobile.value = window.innerWidth < 640
@@ -114,12 +170,12 @@
             method: 'DELETE',
             body: JSON.stringify({ id })
           })
-  
+
           if (error.value) {
             openModal('오류', '게시글 삭제에 실패했습니다.')
             return
           }
-  
+
           openModal('성공', '게시글이 성공적으로 삭제되었습니다.', () => {
             router.push(`/${props.boardType}`)
           })
@@ -166,6 +222,12 @@
       openModal('오류', '서버 오류가 발생했습니다.')
     }
   }
+  
+  watch(() => route.query.id, (newId) => {
+    if (newId) {
+      fetchData()
+    }
+  })
   </script>
   
   <style scoped>

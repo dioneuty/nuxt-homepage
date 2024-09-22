@@ -1,8 +1,9 @@
 <template>
   <BoardView
     board-type="contactboard"
-    :api-endpoint="`/api/contact?id=${$route.query.id}`"
+    :api-endpoint="`/api/contact`"
     board-icon="mdi:message-text"
+    :id="$route.query.id"
   >
     <template #extra-info="{ post }">
       <div class="text-gray-600 dark:text-gray-300 mb-2 flex items-center">
