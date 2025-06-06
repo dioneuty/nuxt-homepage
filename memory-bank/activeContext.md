@@ -14,6 +14,10 @@
      - `components/board/BoardView.vue`: 게시글 상세 페이지에서 답변을 작성하고 조회하는 기능 구현. 답변 작성 후에는 페이지 새로고침 없이 동적으로 목록이 갱신되도록 개선.
      - `components/common/ReplyModal.vue`: 답변 모달에 '작성자' 입력 필드를 추가.
      - `components/board/BoardIndex.vue`: 게시판 목록에서 답변 글을 시각적으로 구분할 수 있도록 아이콘(↵)과 들여쓰기를 적용하고, 원본 글 바로 아래에 정렬되도록 수정.
+   - `components/PostList.vue`: "최신 게시판 글" 목록에서 답변 글일 경우, 제목 왼편에 답변 기호(↳)를 추가하여 시각적 구분을 명확히 함.
+   - `components/gallery/GalleryModal.vue`:
+     - 모달의 이전/다음 화살표 아이콘이 이미지에 가려지지 않도록 `z-index`를 조정.
+     - 화살표 아이콘을 기본적으로 반투명 처리하고, 마우스를 올리면 불투명해지도록 `opacity`와 `transition`을 적용하여 사용자 경험을 개선.
 
 2. 데이터베이스 설정
    - Prisma 스키마 업데이트 및 DB 푸시 (`npx prisma db push`)
@@ -35,6 +39,10 @@
 5. 프론트엔드 컴포넌트 수정
    - `components/Nav.vue`: 헤더 메뉴에 '방명록' 링크 추가
    - `components/board/BoardView.vue`: 관리자 게시판 상세 페이지 '목록으로' 버튼 버그 및 로직 수정
+   - `components/PostList.vue`: "최신 게시판 글" 목록에서 답변 글일 경우, 제목 왼편에 답변 기호(↳)를 추가하여 시각적 구분을 명확히 함.
+   - `components/gallery/GalleryModal.vue`:
+     - 모달의 이전/다음 화살표 아이콘이 이미지에 가려지지 않도록 `z-index`를 조정.
+     - 화살표 아이콘을 기본적으로 반투명 처리하고, 마우스를 올리면 불투명해지도록 `opacity`와 `transition`을 적용하여 사용자 경험을 개선.
 
 ## 다음 단계
 1. **기능 안정화 및 고도화**

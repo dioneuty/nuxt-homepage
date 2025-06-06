@@ -11,7 +11,7 @@
 
 2. 백엔드
    - Nuxt.js 서버
-   - Prisma ORM
+   - Prisma ORM (상세 모델은 `dbModels.md` 참조)
    - Node.js
    - JWT (jose)
    - bcryptjs
@@ -66,3 +66,7 @@
    - @nuxtjs/tailwindcss
    - @nuxtjs/i18n
    - @nuxtjs/color-mode 
+
+## 데이터베이스 스키마
+프로젝트의 전체 데이터베이스 모델 및 관계는 다음 문서에서 확인할 수 있습니다.
+- [[dbModels.md]] 

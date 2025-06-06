@@ -8,7 +8,10 @@
       <li v-for="post in posts" :key="post.id" class="post-list-item hover:bg-gray-50 dark:hover:bg-gray-700">
         <NuxtLink :to="`/${type}?id=${post.id}`" class="block">
           <div class="flex justify-between items-center">
-            <span class="text-gray-900 dark:text-gray-100 truncate">{{ post.title }}</span>
+            <span class="text-gray-900 dark:text-gray-100 truncate">
+              <span v-if="post.parentId" class="mr-2 text-gray-500">↳</span>
+              {{ post.title }}
+            </span>
             <span class="text-gray-500 dark:text-gray-400 text-xs">{{ formatDate(post.createdAt) }}</span>
           </div>
         </NuxtLink>

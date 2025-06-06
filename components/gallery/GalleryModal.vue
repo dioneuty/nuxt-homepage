@@ -2,12 +2,12 @@
   <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50" @click.self="$emit('close')">
     <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto relative">
       <!-- 이전 버튼 -->
-      <button v-if="!isFirstItem" @click="$emit('previous')" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md">
+      <button v-if="!isFirstItem" @click="$emit('previous')" class="absolute left-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md z-10 opacity-50 hover:opacity-100 transition-opacity">
         <Icon icon="mdi:chevron-left" class="w-6 h-6 text-gray-600 dark:text-gray-300" />
       </button>
       
       <!-- 다음 버튼 -->
-      <button v-if="!isLastItem" @click="$emit('next')" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md">
+      <button v-if="!isLastItem" @click="$emit('next')" class="absolute right-2 top-1/2 transform -translate-y-1/2 bg-white dark:bg-gray-700 rounded-full p-2 shadow-md z-10 opacity-50 hover:opacity-100 transition-opacity">
         <Icon icon="mdi:chevron-right" class="w-6 h-6 text-gray-600 dark:text-gray-300" />
       </button>
 

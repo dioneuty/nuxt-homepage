@@ -1,0 +1,206 @@
+# Database Models (Prisma Schema)
+
+이 문서는 프로젝트의 데이터베이스 스키마를 정의하는 `prisma/schema.prisma` 파일의 내용을 담고 있습니다.
+
+```prisma
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+// npm run prisma:migrate - 데이터베이스 스키마 변경사항을 적용합니다.
+// npm run prisma:generate - Prisma 클라이언트를 생성합니다.
+// npm run prisma:studio - Prisma Studio를 실행하여 데이터베이스를 시각적으로 관리합니다.
+// npm run prisma:reset - 데이터베이스를 초기화하고 모든 마이그레이션을 다시 적용합니다.
+// npx prisma migrate dev --name init - 새로운 마이그레이션을 생성합니다.
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+        
+
+model Category {
+  id        Int        @id @default(autoincrement())
+  name      String
+  slug      String     @unique
+  blogPosts BlogPost[]
+}
+
+model BlogPost {
+  id         Int      @id @default(autoincrement())
+  title      String
+  content    String
+  category   Category @relation(fields: [categoryId], references: [id])
+  categoryId Int
+  createdAt  DateTime @default(now())
+}
+
+model BoardPost {
+  id        Int         @id @default(autoincrement())
+  title     String?
+  content   String
+  author    String
+  createdAt DateTime    @default(now())
+  parentId  Int?
+  parent    BoardPost?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   BoardPost[] @relation("Replies")
+}
+
+model Image {
+  id  Int    @id @default(autoincrement())
+  url String
+  alt String
+}
+
+model Contact {
+  id        Int      @id @default(autoincrement())
+  author    String
+  email     String?
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model AdminBoard {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model QnA {
+  id            Int      @id @default(autoincrement())
+  questionTitle String
+  questionContent String
+  answerContent String?
+  author        String
+  answerer      String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime? @updatedAt
+}
+
+model GalleryItem {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String
+  content     String?           // imageUrl 대신 content 컬럼 추가
+  tags        String[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+  comments    GalleryComment[]
+}
+
+model GalleryComment {
+  id            Int         @id @default(autoincrement())
+  content       String
+  author        String?
+  authorId      Int?
+  createdAt     DateTime    @default(now())
+  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id])
+  galleryItemId Int
+}
+
+model AdminGalleryItem {
+  id          Int              @id @default(autoincrement())
+  title       String
+  description String
+  content     String?           // imageUrl 대신 content 컬럼 추가
+  tags        String[]
+  createdAt   DateTime         @default(now())
+  updatedAt   DateTime         @updatedAt
+}
+
+model User {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  email     String   @unique
+  role      String   @default("user")
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  chats     Chat[]
+}
+
+model HumorPost {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  author    String
+  createdAt DateTime @default(now())
+  likes     Int      @default(0)
+}
+
+model Wiki {
+  id        Int      @id @default(autoincrement())
+  title     String?
+  content   String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime? @updatedAt
+  author    String?
+  createdBy String?
+  updatedBy String?
+}
+
+model OutlineItem {
+  id        BigInt    @id
+  content   String
+  parentId  BigInt?
+  order     Int?
+  parent    OutlineItem?  @relation("ChildItems", fields: [parentId], references: [id])
+  children  OutlineItem[] @relation("ChildItems")
+}
+
+model OutlineState {
+  id        Int      @id @default(autoincrement())
+  state     Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  screenId  String?  @unique
+  title     String
+  messages  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  userId    Int?
+  user      User?    @relation(fields: [userId], references: [id])
+}
+
+model Holiday {
+  id    Int      @id @default(autoincrement())
+  year  Int      // 년도 필드 추가
+  month Int      // 월 필드 추가
+  day   Int      // 일 필드 추가
+  name  String
+}
+
+model Guestbook {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String   @db.Text
+  author    String?  // 익명 작성자 이름 (선택사항)
+  password  String?  // 익명 작성자의 비밀번호 (선택사항)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  comments  GuestbookComment[]
+
+  @@map("guestbooks")
+}
+
+model GuestbookComment {
+  id          Int       @id @default(autoincrement())
+  content     String    @db.Text
+  author      String?   // 익명 작성자 이름 (선택사항)
+  password    String?   // 익명 작성자의 비밀번호 (선택사항)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  guestbook   Guestbook @relation(fields: [guestbookId], references: [id])
+  guestbookId Int
+
+  @@map("guestbook_comments")
+}
+``` 
