@@ -75,7 +75,7 @@
   </template>
   
   <script setup>
-  import { ref, computed, onMounted } from 'vue'
+  import { ref, computed, onMounted, watch } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useModal } from '~/composables/useModal'
   import { useReplyModal } from '~/composables/useReplyModal'
@@ -106,36 +106,34 @@
   const { openReplyModal } = useReplyModal()
   const isMobile = ref(false)
   
-  const { data: post, error, pending } = await useFetch(props.apiEndpoint, {
-    method: 'GET',
-    params: { id: props.id },
-    lazy: true
-  })
-  
+  const post = ref(null)
+  const error = ref(null)
+  const pending = ref(false)
   const replyContent = ref('')
-  
   const prevPost = ref(null)
   const nextPost = ref(null)
   
   async function fetchData() {
     pending.value = true
+    error.value = null
     try {
       const [postResponse, navigationResponse] = await Promise.all([
-        useFetch(props.apiEndpoint, {
+        $fetch(props.apiEndpoint, {
           method: 'GET',
           query: { id: props.id }
         }),
-        useFetch(props.apiEndpoint, {
+        $fetch(props.apiEndpoint, {
           method: 'GET',
           query: { id: props.id, type: 'navigation' }
-        })
+        }).catch(() => ({ prev: null, next: null })) // navigation API가 없을 경우 에러 방지
       ])
 
-      post.value = postResponse.data.value
-      prevPost.value = navigationResponse.data.value?.prev || null
-      nextPost.value = navigationResponse.data.value?.next || null
+      post.value = postResponse
+      prevPost.value = navigationResponse?.prev || null
+      nextPost.value = navigationResponse?.next || null
     } catch (e) {
-      error.value = e
+      error.value = e.message || '데이터를 불러오는데 실패했습니다.'
+      console.error('Fetch error:', e)
     } finally {
       pending.value = false
     }
@@ -148,7 +146,6 @@
   }
   
   onMounted(init)
-  onBeforeMount(init)
   
   function checkMobile() {
     isMobile.value = window.innerWidth < 640
@@ -166,15 +163,10 @@
     openModal('확인', '정말로 이 게시글을 삭제하시겠습니까?', async (confirmed) => {
       if (confirmed) {
         try {
-          const { error } = await useFetch(props.apiEndpoint, {
+          await $fetch(props.apiEndpoint, {
             method: 'DELETE',
-            body: JSON.stringify({ id })
+            body: { id: props.id }
           })
-
-          if (error.value) {
-            openModal('오류', '게시글 삭제에 실패했습니다.')
-            return
-          }
 
           openModal('성공', '게시글이 성공적으로 삭제되었습니다.', () => {
             router.push(`/${props.boardType}`)
@@ -201,19 +193,14 @@
 
   async function submitReply() {
     try {
-      const { error } = await useFetch(props.apiEndpoint, {
+      await $fetch(props.apiEndpoint, {
         method: 'POST',
-        body: JSON.stringify({
-          id: id,
+        body: {
+          id: props.id,
           type: 'reply',
           content: replyContent.value
-        })
+        }
       })
-
-      if (error.value) {
-        openModal('오류', '답변 등록에 실패했습니다.')
-        return
-      }
 
       openModal('성공', '답변이 성공적으로 등록되었습니다.', () => {
         location.reload()
@@ -223,7 +210,7 @@
     }
   }
   
-  watch(() => route.query.id, (newId) => {
+  watch(() => props.id, (newId) => {
     if (newId) {
       fetchData()
     }

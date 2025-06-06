@@ -8,12 +8,14 @@
 
 ## 최근 변경사항
 1. 데이터베이스 설정
-   - Prisma 스키마 업데이트
-   - 마이그레이션 파일 생성
+   - Prisma 스키마 업데이트 및 DB 푸시 (`npx prisma db push`)
+   - `seed.js` 스크립트 수정 및 실행 (`bcrypt` 누락 해결, 초기 관리자 계정 생성)
    - 데이터베이스 연결 설정
    - 테넌트/사용자 모델 구현
 
 2. API 구현
+   - `server/utils/prisma.js` 유틸리티를 통한 Prisma Client 중앙 관리
+   - 모든 API 관련 파일에서 Prisma Client import 경로 수정
    - RESTful API 엔드포인트 설계
    - 인증 미들웨어 구현
    - 데이터 검증 로직 추가
@@ -21,6 +23,10 @@
 
 3. API 문서화
    - `api-docs` 디렉토리 내 전체 API 문서 생성 완료
+
+4. 프론트엔드 컴포넌트 수정
+   - `components/Nav.vue`: 헤더 메뉴에 '방명록' 링크 추가
+   - `components/board/BoardView.vue`: 관리자 게시판 상세 페이지 '목록으로' 버튼 버그 및 로직 수정
 
 ## 다음 단계
 1. API 및 데이터베이스 테스트
