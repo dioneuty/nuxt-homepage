@@ -9,7 +9,8 @@
     "preview": "nuxt preview",
     "postinstall": "prisma generate",
     "vercel-build": "npm run build",
-    "seed": "node seed.js"
+    "seed": "node seed.js",
+    "migrate": "prisma migrate dev"
   },
   "prisma": {
     "seed": "node seed.js"

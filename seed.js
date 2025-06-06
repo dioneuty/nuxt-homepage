@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client'
 import dotenv from 'dotenv'
+import bcrypt from 'bcrypt'
 
 dotenv.config()
 const prisma = new PrismaClient()
@@ -8,6 +9,7 @@ async function main() {
   console.log('Start seeding ...')
 
   // 기존 데이터 삭제 (옵션)
+  await prisma.user.deleteMany({})
   await prisma.blogPost.deleteMany({})
   await prisma.category.deleteMany({})
   await prisma.boardPost.deleteMany({})
@@ -16,6 +18,18 @@ async function main() {
   await prisma.adminBoard.deleteMany({})
   await prisma.qnA.deleteMany({})
   // 다른 모델들도 필요에 따라 추가
+
+  // User 데이터 생성 (admin)
+  const hashedPassword = await bcrypt.hash('15234', 10)
+  await prisma.user.create({
+    data: {
+      username: 'admin',
+      email: 'admin@example.com',
+      password: hashedPassword,
+      role: 'ADMIN',
+    },
+  })
+  console.log('Admin user created.')
 
   // Category 데이터 생성
   const categories = await prisma.category.createManyAndReturn({
