@@ -1,4 +1,4 @@
-import { prisma } from '~/server/db/init.js'
+import prisma from '~/server/utils/prisma'
 
 // 방명록 목록 조회
 export default defineEventHandler(async (event) => {

@@ -1,7 +1,5 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '~/server/utils/prisma'
 import { defineEventHandler, readBody } from 'h3'
-
-const prisma = new PrismaClient()
 
 // BigInt를 문자열로 변환하는 함수
 const bigIntToString = (data) => {

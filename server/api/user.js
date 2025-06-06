@@ -1,8 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '~/server/utils/prisma'
 import bcrypt from 'bcrypt'
 import * as jose from 'jose'
-
-const prisma = new PrismaClient()
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)

@@ -1,4 +1,4 @@
-import { prisma } from '~/server/db/init.js'
+import prisma from '~/server/utils/prisma'
 
 // 댓글 작성
 export const POST = defineEventHandler(async (event) => {

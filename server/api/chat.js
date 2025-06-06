@@ -1,7 +1,6 @@
-import { PrismaClient } from '@prisma/client'
+import prisma from '~/server/utils/prisma'
 import OpenAI from 'openai';
 
-const prisma = new PrismaClient();
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY // API 키를 환경 변수에서 가져옵니다.
 });
