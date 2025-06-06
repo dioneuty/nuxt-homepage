@@ -11,6 +11,9 @@
     "vercel-build": "npm run build",
     "seed": "node seed.js"
   },
+  "prisma": {
+    "seed": "node seed.js"
+  },
   "dependencies": {
     "@fullcalendar/core": "^6.1.15",
     "@fullcalendar/daygrid": "^6.1.15",

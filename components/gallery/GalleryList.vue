@@ -1,8 +1,10 @@
 <template>
   <div>
-    <!-- 검색 바와 글쓰기 버튼 -->
+    <!-- 상단 검색바와 새 갤러리 항목 추가 버튼 영역 -->
     <div class="mb-6 flex justify-between items-center">
+      <!-- 검색 입력창 -->
       <div class="relative flex-grow mr-4">
+        <!-- 검색 아이콘 -->
         <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
         <input 
           type="text" 
@@ -11,6 +13,7 @@
           class="w-full p-2 pl-10 border rounded-md dark:bg-gray-700 dark:text-white"
         >
       </div>
+      <!-- 새 갤러리 항목 추가 버튼 -->
       <button 
         @click="openEditModal()" 
         class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
@@ -20,42 +23,49 @@
       </button>
     </div>
 
-    <!-- 로딩 상태 표시 -->
+    <!-- 상태별 화면 표시 영역 -->
+    <!-- 로딩 중일 때 표시되는 스피너 -->
     <div v-if="loading" class="text-center py-8">
       <Icon icon="mdi:loading" class="animate-spin w-8 h-8 text-blue-500" />
       <p class="mt-2 text-gray-600 dark:text-gray-400">데이터를 불러오는 중...</p>
     </div>
 
-    <!-- 에러 메시지 표시 -->
+    <!-- 에러 발생 시 표시되는 메시지 -->
     <div v-else-if="error" class="text-center py-8 text-red-500">
       <Icon icon="mdi:alert-circle" class="w-8 h-8 mb-2" />
       <p>데이터를 불러오는 데 실패했습니다. 다시 시도해 주세요.</p>
     </div>
 
-    <!-- 데이터가 없을 때 메시지 표시 -->
+    <!-- 검색 결과가 없을 때 표시되는 메시지 -->
     <div v-else-if="filteredItems.length === 0" class="text-center py-8 text-gray-600 dark:text-gray-400">
       <Icon icon="mdi:image-off" class="w-8 h-8 mb-2" />
       <p>표시할 갤러리 항목이 없습니다.</p>
     </div>
 
-    <!-- 갤러리 masonry 레이아웃 -->
+    <!-- 갤러리 메인 컨텐츠 영역 (Masonry 레이아웃) -->
     <div v-else class="masonry-layout">
+      <!-- 각 갤러리 아이템 -->
       <div v-for="item in filteredItems" :key="item.id" class="masonry-item mb-4 break-inside-avoid">
         <div @click="openModal(item)" class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg relative cursor-pointer">
+          <!-- 이미지 영역 -->
           <div class="w-full h-48 overflow-hidden">
             <ClientOnly>
               <div v-html-img-one="item.content" class="w-full h-full object-cover"></div>
             </ClientOnly>
           </div>
+          <!-- 컨텐츠 정보 영역 -->
           <div class="p-4">
+            <!-- 제목 -->
             <h2 class="text-xl font-bold mb-2 dark:text-white flex items-center">
               <Icon icon="mdi:image" class="mr-2" />
               {{ item.title }}
             </h2>
+            <!-- 설명 -->
             <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 flex items-center">
               <Icon icon="mdi:information-outline" class="mr-2" />
               {{ item.description }}
             </p>
+            <!-- 태그 목록 -->
             <div class="flex flex-wrap gap-2 mb-8">
               <span v-for="tag in item.tags" :key="tag" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center">
                 <Icon icon="mdi:tag" class="mr-1" />
@@ -63,7 +73,7 @@
               </span>
             </div>
           </div>
-          <!-- 댓글 알림 박스 -->
+          <!-- 댓글 수 표시 뱃지 -->
           <div v-if="showComments" class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
             <Icon icon="mdi:comment-outline" class="mr-1" />
             {{ item.comments ? item.comments.length : 0 }}
@@ -72,6 +82,8 @@
       </div>
     </div>
 
+    <!-- 모달 컴포넌트들 -->
+    <!-- 갤러리 상세 보기 모달 -->
     <GalleryModal
       v-if="selectedItem"
       :item="selectedItem"
@@ -88,6 +100,7 @@
       :showComments="showComments"
     />
     
+    <!-- 갤러리 항목 편집 모달 -->
     <GalleryEditModal
       v-if="showEditModal"
       :item="editingItem"
@@ -97,8 +110,9 @@
     />
   </div>
 </template>
-  
+
 <script setup>
+// 필요한 의존성 import
 import { ref, computed, onMounted, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import GalleryModal from './GalleryModal.vue'
@@ -109,6 +123,7 @@ import { useRouter } from 'vue-router'
 
 const router = useRouter()
 
+// props 정의
 const props = defineProps({
   apiEndpoint: {
     type: String,
@@ -124,14 +139,16 @@ const props = defineProps({
   },
 })
 
-const items = ref([])
-const searchQuery = ref('')
-const selectedItem = ref(null)
-const showEditModal = ref(false)
-const editingItem = ref(null)
-const loading = ref(true)
-const error = ref(null)
+// 반응형 상태 변수들
+const items = ref([])                // 갤러리 아이템 목록
+const searchQuery = ref('')          // 검색어
+const selectedItem = ref(null)       // 선택된 아이템
+const showEditModal = ref(false)     // 편집 모달 표시 여부
+const editingItem = ref(null)        // 편집 중인 아이템
+const loading = ref(true)            // 로딩 상태
+const error = ref(null)              // 에러 상태
 
+// 검색어에 따른 필터링된 아이템 목록
 const filteredItems = computed(() => {
   if (!searchQuery.value) return items.value
   return items.value.filter(item => 
@@ -140,14 +157,17 @@ const filteredItems = computed(() => {
   )
 })
 
+// 현재 선택된 아이템의 인덱스
 const selectedItemIndex = computed(() => {
   if (!selectedItem.value) return -1
   return filteredItems.value.findIndex(item => item.id === selectedItem.value.id)
 })
 
+// 이전/다음 버튼 활성화 여부
 const isFirstItem = computed(() => selectedItemIndex.value === 0)
 const isLastItem = computed(() => selectedItemIndex.value === filteredItems.value.length - 1)
 
+// 갤러리 아이템 데이터 가져오기
 async function fetchItems() {
   loading.value = true
   error.value = null
@@ -165,6 +185,7 @@ async function fetchItems() {
 
 const route = useRoute()
 
+// ID로 모달 열기
 async function openModalById(id) {
   if (items.value.length === 0) {
     const success = await fetchItems()
@@ -176,28 +197,31 @@ async function openModalById(id) {
   }
 }
 
+// URL 쿼리 파라미터 변경 감지
 watch(() => route.query.id, (newId) => {
   if (newId) {
     openModalById(newId)
   }
 })
 
-//로그인한 유저이면서 role이 admin인 유저만 보도록 하기
+// 인증 상태 가져오기
 const auth = useAuth().auth.value
 
+// 컴포넌트 마운트 시 초기화
 onMounted(async () => {
-  //로그인한 유저이면서 role이 admin인 유저만 보도록 하기
+  // 관리자 갤러리인 경우 권한 체크
   if (!props.isAdminGallery || (props.isAdminGallery && auth.isLoggedIn && auth.user.role === 'ADMIN')) {
     await fetchItems()
 
     if (route.query.id) {
       openModalById(route.query.id)
     }
-  }else{
+  } else {
     router.push('/')
   }
 })
 
+// 모달 관련 함수들
 function openModal(item) {
   selectedItem.value = item
 }
@@ -216,6 +240,7 @@ function closeEditModal() {
   showEditModal.value = false
 }
 
+// 아이템 업데이트 함수
 async function updateItem(updatedItem) {
   const index = items.value.findIndex(function(item) { return item.id === updatedItem.id })
   if (index !== -1) {
@@ -229,11 +254,13 @@ async function updateItem(updatedItem) {
   closeEditModal()
 }
 
+// 아이템 삭제 함수
 function deleteItem(deletedItemId) {
   items.value = items.value.filter(function(item) { return item.id !== deletedItemId })
   selectedItem.value = null
 }
 
+// 이전/다음 아이템 표시 함수
 function showPreviousItem() {
   if (!isFirstItem.value) {
     selectedItem.value = filteredItems.value[selectedItemIndex.value - 1]
@@ -246,10 +273,12 @@ function showNextItem() {
   }
 }
 
+// 외부에서 접근 가능한 메서드 노출
 defineExpose({ fetchItems })
 </script>
-  
+
 <style scoped>
+/* 반응형 Masonry 레이아웃 스타일 */
 .masonry-layout {
   column-count: 1;
   column-gap: 1rem;
@@ -260,6 +289,7 @@ defineExpose({ fetchItems })
   width: 100%;
 }
 
+/* 반응형 브레이크포인트에 따른 column 수 조정 */
 @media (min-width: 640px) {
   .masonry-layout {
     column-count: 2;

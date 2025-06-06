@@ -13,6 +13,7 @@ export function useLoginModal() {
 
   return {
     isOpen: isLoginModalOpen,
+    
     openModal,
     closeModal
   }

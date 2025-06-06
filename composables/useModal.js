@@ -61,6 +61,7 @@ export function useModal() {
     modalTitle,
     modalContent,
     isConfirm,
+    
     openModal,
     closeModal,
     confirmModal,

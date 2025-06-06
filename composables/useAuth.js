@@ -6,7 +6,7 @@ export function useAuth() {
     user: null
   }))
 
-  const setAuth = (isLoggedIn, user) => {
+  function setAuth(isLoggedIn, user) {
     auth.value = { isLoggedIn, user }
   }
 

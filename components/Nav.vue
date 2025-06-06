@@ -1,3 +1,4 @@
+<!-- 주요 네비게이션 컴포넌트 -->
 <template>
   <div>
     <nav :key="navKey" :class="[
@@ -206,6 +207,7 @@
 </template>
 
 <script setup>
+// 필요한 의존성 import
 import { ref, inject, watch, onMounted, computed, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { WrenchScrewdriverIcon, ChevronDownIcon } from '@heroicons/vue/24/outline'
@@ -221,6 +223,7 @@ import 'nprogress/nprogress.css'
 const router = useRouter()
 const navKey = ref(0)
 
+// NProgress 설정 및 라우터 네비게이션 진행률 표시 관련 함수
 function startProgress() {
   NProgress.start()
 }
@@ -270,7 +273,8 @@ const menuItems = ref([
     children: [
       { name: '자유게시판', path: '/board' },
       { name: '질문과답변', path: '/qna' },
-      { name: '유머게시판', path: '/humor' }
+      { name: '유머게시판', path: '/humor' },
+      { name: '방명록', path: '/guestbook' }
     ],
     isOpen: false
   },
@@ -302,6 +306,7 @@ const menuItems = ref([
   { name: '유튜브 갤러리', path: '/youtube-gallery' }
 ])
 
+// 사용자 권한에 따른 메뉴 필터링
 const filteredMenuItems = computed(() => {
   return menuItems.value.filter(item => {
     if (item.adminOnly) {
@@ -321,11 +326,14 @@ function handleItemClick(item) {
 }
 
 const colorMode = useColorMode()
+
+// 다크모드/라이트모드 토글 함수
 function toggleColorMode() {
   if (colorMode.value === 'light') colorMode.value = 'dark' // 라이트 모드
   else if (colorMode.value === 'dark') colorMode.value = 'system' // 다크 모드
   else colorMode.value = 'light' // 시스템 설정
 }
+
 const isMenuOpen = ref(false)
 
 function openMenu() {
@@ -372,6 +380,7 @@ const { openModal: openLoginModal } = useLoginModal()
 const { openModal: openRegisterModal } = useRegisterModal()
 const { auth, setAuth } = useAuth()
 
+// 로그아웃 처리 함수
 async function logout() {
   try {
     const response = await fetch('/api/user?type=logout', {
@@ -400,6 +409,7 @@ function toggleAlwaysOnTop() {
 
 const navHeight = ref(120)
 
+// 네비게이션 고정 상태에 따른 body padding 조정
 function updateBodyPadding() {
   // navStore의 값 사용
   if (navStore.isAlwaysOnTop) {
@@ -411,7 +421,7 @@ function updateBodyPadding() {
 
 onMounted(() => {
   updateBodyPadding()
-  navKey.value++ //강제 리렌더링 유도
+  navKey.value++ // 네비게이션 강제 리렌더링
   window.addEventListener('resize', updateBodyPadding)
 })
 
@@ -426,10 +436,12 @@ watch(() => navStore.isAlwaysOnTop, (newValue) => {
 // ... (나머지 기존 코드 유지)
 </script>
 <style scoped>
+/* 네비게이션 시각적 효과 스타일 */
 .text-shadow-lg {
   text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
 }
 
+/* 드롭다운 메뉴 표시 관련 스타일 */
 .group:hover .group-hover\:block {
   display: block;
 }

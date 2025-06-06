@@ -1,6 +1,7 @@
 <template>
   <div class="max-w-3xl mx-auto p-5 font-sans dark:bg-gray-800">
     <h1 class="text-3xl text-gray-800 dark:text-gray-200 mb-5 text-center">아웃라이너</h1>
+    <!-- 버튼 -->
     <div class="flex justify-between mb-5">
       <button @click="addItem(null)" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors duration-300 transform active:scale-98">
         <Icon icon="mdi:plus" /> 최상위 항목 추가
@@ -9,6 +10,7 @@
         <Icon icon="mdi:arrow-collapse-all" /> 확대 해제
       </button>
     </div>
+    <!-- 확대 경로 -->
     <div class="mb-2.5 text-sm" v-if="zoomPath.length > 0">
       <span>
         <a @click="zoomTo(-1)" class="text-blue-500 dark:text-blue-400 cursor-pointer hover:underline">최상단</a>
@@ -18,7 +20,9 @@
         <a @click="zoomTo(index)" class="text-blue-500 dark:text-blue-400 cursor-pointer hover:underline">{{ item.content }}</a>
       </span>
     </div>
+    <!-- 아웃라이너 -->
     <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-5 shadow-sm">
+      <!-- 드래그 가능한 아웃라이너 항목 -->
       <draggable
         v-model="currentItems"
         item-key="id"
@@ -28,6 +32,7 @@
         :animation="200"
       >
         <template #item="{ element }">
+          <!-- 아웃라이너 항목 -->
           <OutlineItem
             :item="element"
             :depth="0"
@@ -43,7 +48,7 @@
             @reorder="handleReorder"
           />
         </template>
-      </draggable>
+      </draggable>cu
     </div>
   </div>
 </template>
@@ -54,6 +59,7 @@ import { Icon } from '@iconify/vue'
 import OutlineItem from '~/components/OutlineItem.vue'
 import draggable from 'vuedraggable'
 
+//메타 데이터
 definePageMeta ({
   title: '아웃라이너 - Dion',
   meta: [
@@ -62,6 +68,7 @@ definePageMeta ({
   ]
 })
 
+// 데이터
 const rootItems = ref([])
 const zoomPath = ref([])
 const treeState = ref({}) // 트리 상태를 저장할 객체
@@ -153,6 +160,7 @@ async function saveToDB(data) {
   }
 }
 
+// 데이터 로드
 onMounted(async () => {
   try {
     const dbData = await loadFromDB()
@@ -174,6 +182,7 @@ onMounted(async () => {
   }
 })
 
+// 데이터 저장
 onBeforeUnmount(async () => {
   await saveToDB(rootItems.value)
   localStorage.removeItem('outlineData')
@@ -221,11 +230,9 @@ function zoomOut() {
  * @param index 확대할 항목의 인덱스
  */
 function zoomTo(index) {
-  if (index === -1) {
-    // 최상단으로 이동
+  if (index === -1) { // 최상단으로 이동
     zoomPath.value = []
-  } else if (index < zoomPath.value.length - 1) {
-    // 현재 확대 레벨보다 상위로 이동할 때만 처리
+  } else if (index < zoomPath.value.length - 1) { // 현재 확대 레벨보다 상위로 이동할 때만 처리
     zoomPath.value = zoomPath.value.slice(0, index + 1)
   }
   restoreTreeState() // 트리 상태 복원
@@ -240,7 +247,7 @@ function saveTreeState(items) {
   const saveState = (item) => {
     treeState.value[item.id] = { expanded: item.expanded }
     if (item.children) {
-      item.children.forEach(saveState)
+      item.children.forEach(saveState) // 자식 항목들에 대해 재귀적으로 상태 저장
     }
   }
   items.forEach(saveState)
@@ -251,11 +258,11 @@ function saveTreeState(items) {
  */
 function restoreTreeState() {
   const restoreState = (item) => {
-    if (treeState.value[item.id]) {
-      item.expanded = treeState.value[item.id].expanded
+    if (treeState.value[item.id]) { // 항목 ID가 트리 상태에 있는 경우
+      item.expanded = treeState.value[item.id].expanded // 항목 확장 상태 복원
     }
     if (item.children) {
-      item.children.forEach(restoreState)
+      item.children.forEach(restoreState) // 자식 항목들에 대해 재귀적으로 상태 복원
     }
   }
   rootItems.value.forEach(restoreState)
@@ -268,22 +275,22 @@ function restoreTreeState() {
  */
 function addItem(parentId, content = '새 항목') {
   const newItem = { // 새 항목 생성
-    id: Date.now(),
-    content,
-    children: []
+    id: Date.now(), // 항목 ID 생성
+    content, // 항목 내용
+    children: [] // 자식 항목 배열
   }
 
   if (parentId) { // 부모 항목이 있는 경우
-    const parent = findItem(rootItems.value, parentId)
+    const parent = findItem(rootItems.value, parentId) // 부모 항목 찾기
     if (parent) {
       if (!parent.children) { // 부모 항목의 children 배열이 없는 경우 생성
         parent.children = []
       }
-      parent.children.push(newItem)
+      parent.children.push(newItem) // 부모 항목의 children 배열에 새 항목 추가
       parent.expanded = true // 부모 항목을 확장 상태로 설정
     }
   } else { // 부모 항목이 없는 경우
-    rootItems.value.push(newItem)
+    rootItems.value.push(newItem) // 루트 항목 배열에 새 항목 추가
   }
 
   // 트리 상태 저장
@@ -295,7 +302,7 @@ function addItem(parentId, content = '새 항목') {
  * @param id 항목 ID
  */
 function deleteItem(id) {
-  removeItem(rootItems.value, id)
+  removeItem(rootItems.value, id) // 항목 제거
 }
 
 /**
@@ -415,7 +422,7 @@ function outdentItem(id) {
  * @param id 항목 ID
  * @returns 항목 객체 또는 null
  */
-const findItem = (items, id) => {
+function findItem(items, id) {
   // 항목 배열을 순회하면서 항목 찾기
   for (const item of items) {
     if (item.id === id) return item
@@ -455,11 +462,11 @@ function findPath(items, id, path = []) {
  */
 function findParent(items, id) {
   for (const item of items) {
-    if (item.children) {
-      if (item.children.some(child => child.id === id)) {
+    if (item.children) { // 자식 항목이 있는 경우
+      if (item.children.some(child => child.id === id)) { // 자식 항목 중 항목 ID가 있는 경우
         return item
       }
-      const found = findParent(item.children, id)
+      const found = findParent(item.children, id) // 자식 항목들에 대해 재귀적으로 부모 항목 찾기
       if (found) return found
     }
   }
@@ -472,13 +479,13 @@ function findParent(items, id) {
  * @param id 항목 ID
  */
 function removeItem(items, id) {
-  const index = items.findIndex(item => item.id === id)
+  const index = items.findIndex(item => item.id === id) // 항목 ID가 존재하는 경우
   if (index !== -1) {
-    items.splice(index, 1)
+    items.splice(index, 1) // 항목 제거
   } else {
     for (const item of items) {
       if (item.children) {
-        removeItem(item.children, id)
+        removeItem(item.children, id) // 자식 항목들에 대해 재귀적으로 항목 제거
       }
     }
   }
