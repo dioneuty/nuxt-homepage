@@ -33,11 +33,14 @@ model BlogPost {
 }
 
 model BoardPost {
-  id        Int      @id @default(autoincrement())
-  title     String
+  id        Int         @id @default(autoincrement())
+  title     String?
   content   String
   author    String
-  createdAt DateTime @default(now())
+  createdAt DateTime    @default(now())
+  parentId  Int?
+  parent    BoardPost?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
+  replies   BoardPost[] @relation("Replies")
 }
 
 model Image {

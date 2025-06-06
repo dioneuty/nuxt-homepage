@@ -43,8 +43,10 @@
                     <Icon icon="mdi:account" class="inline mr-1" />{{ post.author }} | 
                     <Icon icon="mdi:calendar" class="inline mr-1" />{{ formatDate(post.createdAt) }}
                   </span>
-                  <span class="truncate block max-w-xs sm:max-w-none">
-                    <Icon icon="mdi:text" class="inline mr-1" />{{ post.title }}
+                  <span class="truncate block max-w-xs sm:max-w-none" :class="{ 'pl-5': post.parentId }">
+                    <Icon v-if="post.parentId" icon="mdi:subdirectory-arrow-right" class="inline mr-1 text-gray-500" />
+                    <Icon v-else icon="mdi:text" class="inline mr-1" />
+                    {{ post.title || '(제목 없음)' }}
                   </span>
                 </template>
                 <template v-else>

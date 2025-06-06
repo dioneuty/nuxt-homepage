@@ -39,7 +39,14 @@ export default defineEventHandler(async (event) => {
         } else {
           // 기존 단일 게시글 조회 로직
           const post = await prisma.boardPost.findUnique({
-            where: { id: parseInt(id) }
+            where: { id: parseInt(id) },
+            include: {
+              replies: {
+                orderBy: {
+                  createdAt: 'asc'
+                }
+              }
+            }
           })
           if (post) {
             return post
@@ -72,15 +79,52 @@ export default defineEventHandler(async (event) => {
           orderBy = { id: 'desc' } // 기본 정렬
         }
 
-        const [posts, totalCount] = await Promise.all([
+        const whereWithParent = { ...whereClause, parentId: null }
+
+        const [parentPosts, totalCount] = await Promise.all([
           prisma.boardPost.findMany({
-            where: whereClause,
+            where: whereWithParent,
             orderBy: orderBy,
             take: parseInt(itemsPerPage),
             skip: skip
           }),
-          prisma.boardPost.count({ where: whereClause })
+          prisma.boardPost.count({ where: whereWithParent })
         ])
+
+        const parentIds = parentPosts.map(p => p.id)
+        
+        const replies = await prisma.boardPost.findMany({
+          where: {
+            parentId: { in: parentIds }
+          },
+          include: {
+            parent: {
+              select: { title: true }
+            }
+          },
+          orderBy: {
+            createdAt: 'asc'
+          }
+        })
+
+        const repliesByParentId = replies.reduce((acc, reply) => {
+          if (!acc[reply.parentId]) {
+            acc[reply.parentId] = []
+          }
+          acc[reply.parentId].push({
+            ...reply,
+            title: `${reply.parent.title}의 답변 글입니다`
+          })
+          return acc
+        }, {})
+
+        const posts = []
+        parentPosts.forEach(p => {
+          posts.push(p)
+          if (repliesByParentId[p.id]) {
+            posts.push(...repliesByParentId[p.id])
+          }
+        })
 
         return {
           posts,
@@ -100,10 +144,21 @@ export default defineEventHandler(async (event) => {
 
   // POST 요청 처리
   if (method === 'POST') {
-    const { title, author, content } = await readBody(event)
+    const { title, author, content, parentId } = await readBody(event)
     try {
+      if (!parentId && !title) {
+        throw createError({
+          statusCode: 400,
+          statusMessage: '새 게시물에는 제목이 필요합니다.'
+        })
+      }
       const result = await prisma.boardPost.create({
-        data: { title, author, content }
+        data: {
+          title,
+          author,
+          content,
+          parentId: parentId ? parseInt(parentId) : null
+        }
       })
       return { success: true, id: result.id }
     } catch (error) {

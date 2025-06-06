@@ -24,13 +24,21 @@
         </div>
       </div>
       
-      <!-- 답변 섹션 추가 -->
-      <div v-if="post && post.reply" class="mt-8 bg-gray-100 dark:bg-gray-700 p-6 rounded-lg">
+      <!-- 답변 목록 -->
+      <div v-if="post && post.replies && post.replies.length > 0" class="mt-8">
         <h2 class="text-2xl font-bold mb-4 dark:text-white flex items-center">
-          <Icon icon="mdi:reply" class="mr-2 text-green-500" width="24" height="24" />
-          답변
+          <Icon icon="mdi:message-reply-text" class="mr-2 text-green-500" width="24" height="24" />
+          답변 ({{ post.replies.length }})
         </h2>
-        <div class="prose dark:prose-invert max-w-none" v-html="post.reply"></div>
+        <div v-for="reply in post.replies" :key="reply.id" class="bg-gray-100 dark:bg-gray-700 p-4 rounded-lg mb-4">
+          <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-2">
+            <Icon icon="mdi:account" class="mr-1" />
+            <span class="font-bold mr-4">{{ reply.author }}</span>
+            <Icon icon="mdi:calendar" class="mr-1" />
+            <span>{{ formatDate(reply.createdAt) }}</span>
+          </div>
+          <div class="prose dark:prose-invert max-w-none" v-html="reply.content"></div>
+        </div>
       </div>
       
       <!-- 버튼 그룹 -->
@@ -180,30 +188,29 @@
   
   function openReply() {
     openReplyModal('답변 작성', 
-      async (content) => {
-        replyContent.value = content
-        if (content) {
-          await submitReply()
+      async (data) => {
+        if (data && data.content && data.author) {
+          await submitReply(data)
+        } else if (data && data.content && !data.author) {
+          openModal('오류', '작성자를 입력해주세요.')
         }
-      },
-      true,
-      { replyContent }
+      }
     )
   }
 
-  async function submitReply() {
+  async function submitReply(replyData) {
     try {
       await $fetch(props.apiEndpoint, {
         method: 'POST',
         body: {
-          id: props.id,
-          type: 'reply',
-          content: replyContent.value
+          parentId: props.id,
+          content: replyData.content,
+          author: replyData.author
         }
       })
 
       openModal('성공', '답변이 성공적으로 등록되었습니다.', () => {
-        location.reload()
+        fetchData()
       })
     } catch (error) {
       openModal('오류', '서버 오류가 발생했습니다.')

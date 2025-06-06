@@ -3,6 +3,12 @@
       <div v-if="isReplyModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-lg">
           <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">{{ replyModalTitle }}</h2>
+          <input
+            v-model="replyAuthor"
+            type="text"
+            class="w-full p-2 mb-4 border rounded-md dark:bg-gray-700 dark:text-white"
+            placeholder="작성자"
+          />
           <textarea
             v-model="replyContent"
             class="w-full h-32 p-2 mb-4 border rounded-md resize-none dark:bg-gray-700 dark:text-white"
@@ -27,14 +33,17 @@
   
   const { isReplyModalOpen, replyModalTitle, closeReplyModal, confirmReplyModal, cancelReplyModal } = useReplyModal()
   const replyContent = ref('')
+  const replyAuthor = ref('')
   
   function confirmReply() {
-    confirmReplyModal(replyContent.value)
+    confirmReplyModal({ author: replyAuthor.value, content: replyContent.value })
     replyContent.value = ''
+    replyAuthor.value = ''
   }
   
   function cancelReply() {
     cancelReplyModal()
     replyContent.value = ''
+    replyAuthor.value = ''
   }
   </script>

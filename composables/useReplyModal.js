@@ -16,9 +16,9 @@ export function useReplyModal() {
     resetReplyModal()
   }
 
-  function confirmReplyModal(content) {
+  function confirmReplyModal(data) {
     if (replyCallback.value) {
-      replyCallback.value(content)
+      replyCallback.value(data)
     }
     closeReplyModal()
   }
