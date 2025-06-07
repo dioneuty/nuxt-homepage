@@ -19,6 +19,27 @@
   - **아웃라이너 페이지 오류 수정**: `vuedraggable`의 `Item slot must have only one child` 오류 해결을 위해 `pages/outliner.vue` 및 `components/OutlineItem.vue`에서 드래그 가능한 항목 슬롯 내부에 단일 최상위 요소(`div`)를 명시적으로 감싸는 구조로 수정 완료.
   - **관리자 페이지 UI 개선**: `/adminpage/posts`에 게시판 관리 페이지 UI(목록 테이블, '새 게시판 추가' 버튼, 추가/수정 모달) 구현 및 더미 데이터 기반 CRUD 기능(추가, 수정, 삭제) 포함 완료.
   - **관리자 페이지 다크 모드 스타일 적용**: `pages/adminpage/index.vue`, `pages/adminpage/database.vue`, `pages/adminpage/menus.vue`, `pages/adminpage/posts.vue` 등 주요 관리자 페이지에 다크 모드에 맞는 텍스트 및 UI 요소 색상 스타일 적용 완료.
+- **API 파일 TypeScript -> JavaScript 변환**: `server/api/admin/db/` 경로의 `.ts` API 파일들을 `.js`로 변환 완료.
+- **테마 설정 기능 구현**: 
+  - 일반 사용자 페이지의 헤더, 푸터, 배경 색상 (라이트/다크 모드별) 사용자 정의 기능 구현 완료.
+  - 새로운 `SiteConfig` Prisma 모델 정의 및 마이그레이션 완료.
+  - 테마 설정을 위한 API 엔드포인트 (`/api/admin/theme-settings`, `/api/theme-settings`) 구현 완료.
+  - 관리자 테마 설정 UI를 `pages/adminpage/theme.vue`로 분리하고, 관리자 사이드바 메뉴에 링크 추가 완료.
+  - `layouts/default.vue`, `components/Nav.vue`, `components/Footer.vue`를 업데이트하여 동적으로 테마 색상 적용 완료.
+- **토스트 알림 시스템 구현**: 
+  - `composables/useToast.js` 컴포저블 및 `components/common/Toast.vue` 컴포넌트를 통해 전역 토스트 알림 시스템 구축 완료.
+  - 토스트 알림 위치를 페이지 상단 중앙으로 변경 완료.
+  - 테마 설정 페이지 및 메뉴 관리 페이지에서 `alert` 대신 토스트 알림 사용으로 변경 완료.
+- **관리자 페이지 UI 개선**: 
+  - `layouts/admin.vue` 파일의 메인 헤더바 왼쪽에 사람 상반신 아이콘 추가 완료.
+- **토스트 알림 시스템 개선**: 
+  - 토스트 알림에 애니메이션 효과를 추가하고, 새로운 알림이 열리면 이전 알림이 자동적으로 닫히도록 중복 방지 기능 구현 완료.
+  - 토스트 애니메이션을 더 부드럽게 조정 완료.
+- **테마 색상 적용 안정화**: 
+  - `layouts/default.vue` 및 `layouts/blog.vue`에서 `body` 태그에 직접 배경색을 적용하여 새로고침 시 배경색이 제대로 표시되지 않던 문제 해결 완료.
+  - `assets/css/main.css` 파일에 `html`, `body` 요소의 기본 배경색을 설정하여 첫 로딩 시 흰색 화면 방지 완료.
+- **테마 색상 실시간 적용 문제 해결**: 
+  - `layouts/default.vue` 및 `layouts/blog.vue`에서 `document.body.style.backgroundColor`를 직접 제어하는 로직을 제거하고, `@nuxtjs/color-mode` 모듈이 `html` 태그에 `dark` 클래스를 올바르게 추가하여 Tailwind CSS 규칙에 따라 배경색이 적용되도록 수정 완료.
 
 ## 남은 작업
 - **관리자 기능 - 콘텐츠 관리**:

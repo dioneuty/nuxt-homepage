@@ -1,5 +1,5 @@
 <template>
-  <div class="fixed top-4 right-4 z-50 max-w-sm">
+  <Transition name="toast">
     <div
       :class="[
         'rounded-lg shadow-lg p-4 mb-4 transition-all duration-300 transform',
@@ -25,12 +25,12 @@
         </button>
       </div>
     </div>
-  </div>
+  </Transition>
 </template>
 
 <script setup>
 import { Icon } from '@iconify/vue'
-import { computed, onMounted } from 'vue'
+import { computed } from 'vue'
 
 const props = defineProps({
   message: {
@@ -62,12 +62,14 @@ const getIcon = computed(() => {
       return 'mdi:information'
   }
 })
+</script>
 
-onMounted(() => {
-  if (props.duration > 0) {
-    setTimeout(() => {
-      emit('close')
-    }, props.duration)
-  }
-})
-</script> 
+<style>
+.toast-enter-active, .toast-leave-active {
+  transition: all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+}
+.toast-enter-from, .toast-leave-to {
+  opacity: 0;
+  transform: translateY(-50px);
+}
+</style> 

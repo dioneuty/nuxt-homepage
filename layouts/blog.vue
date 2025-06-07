@@ -1,6 +1,6 @@
 <template>
-  <div class="flex flex-col min-h-screen bg-white dark:bg-gray-900 text-gray-900 dark:text-gray-100">
-    <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" />
+  <div class="flex flex-col min-h-screen">
+    <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" :headerColor="currentHeaderColor" />
     <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': navStore.isAlwaysOnTop }">
       <aside class="w-full md:w-1/4 pr-0 md:pr-8 mb-8 md:mb-0 hidden md:block">
         <BlogSidebar :categories="categories" />
@@ -14,7 +14,7 @@
         <slot />
       </main>
     </div>
-    <Footer />
+    <Footer :footerColor="currentFooterColor" />
     <ScrollToTop />
     <!-- 배경 오버레이 -->
     <Transition name="fade">
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, computed } from 'vue'
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import BlogSidebar from '~/components/blog/BlogSidebar.vue'
@@ -43,6 +43,38 @@ const isMenuOpen = ref(false)
 const navStore = useNavStore()
 const showMobileCategory = ref(true)
 
+const colorMode = useColorMode();
+
+const { data: fetchedThemeSettings } = await useFetch('/api/theme-settings', {
+  default: () => ({
+    lightHeaderColor: '#FFFFFF',
+    darkHeaderColor: '#1A202C',
+    lightFooterColor: '#F7FAFC',
+    darkFooterColor: '#1A202C',
+    lightBackgroundColor: '#FFFFFF',
+    darkBackgroundColor: '#1A202C',
+  }),
+  transform: (data) => ({
+    lightHeaderColor: data?.lightHeaderColor || '#FFFFFF',
+    darkHeaderColor: data?.darkHeaderColor || '#1A202C',
+    lightFooterColor: data?.lightFooterColor || '#F7FAFC',
+    darkFooterColor: data?.darkFooterColor || '#1A202C',
+    lightBackgroundColor: data?.lightBackgroundColor || '#FFFFFF',
+    darkBackgroundColor: data?.darkBackgroundColor || '#1A202C',
+  }),
+});
+
+const currentHeaderColor = computed(() => {
+  return colorMode.value === 'dark' ? fetchedThemeSettings.value.darkHeaderColor : fetchedThemeSettings.value.lightHeaderColor;
+});
+
+const currentFooterColor = computed(() => {
+  return colorMode.value === 'dark' ? fetchedThemeSettings.value.darkFooterColor : fetchedThemeSettings.value.lightFooterColor;
+});
+
+const currentBackgroundColor = computed(() => {
+  return colorMode.value === 'dark' ? fetchedThemeSettings.value.darkBackgroundColor : fetchedThemeSettings.value.lightBackgroundColor;
+});
 
 async function fetchCategories() {
   try {
@@ -64,8 +96,10 @@ function closeMenu() {
   isMenuOpen.value = false
 }
 
-// 초기 카테고리 로드
-onMounted(fetchCategories)
+// 초기 카테고리 로드 및 색상 모드 감지
+onMounted(() => {
+  fetchCategories();
+});
 
 // 카테고리 갱신 함수를 제공
 provide('refreshCategories', fetchCategories)

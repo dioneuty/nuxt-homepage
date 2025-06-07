@@ -82,6 +82,7 @@
 import { ref, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import draggable from 'vuedraggable';
+import { useToast } from '~/composables/useToast';
 
 definePageMeta({
   layout: 'admin',
@@ -101,6 +102,8 @@ const editingMenu = ref({
   role: 'public',
   parentId: null
 });
+
+const { showToast } = useToast();
 
 async function fetchMenus() {
   menus.value = await $fetch('/api/menus');
@@ -124,27 +127,40 @@ function closeModal() {
 }
 
 async function saveMenu() {
-  if (editingMenu.value.id) {
-    // 수정
-    await $fetch(`/api/menus/${editingMenu.value.id}`, {
-      method: 'PUT',
-      body: editingMenu.value
-    });
-  } else {
-    // 추가
-    await $fetch('/api/menus', {
-      method: 'POST',
-      body: editingMenu.value
-    });
+  try {
+    if (editingMenu.value.id) {
+      // 수정
+      await $fetch(`/api/menus/${editingMenu.value.id}`, {
+        method: 'PUT',
+        body: editingMenu.value
+      });
+      showToast('메뉴가 성공적으로 수정되었습니다.', 'success');
+    } else {
+      // 추가
+      await $fetch('/api/menus', {
+        method: 'POST',
+        body: editingMenu.value
+      });
+      showToast('메뉴가 성공적으로 추가되었습니다.', 'success');
+    }
+    closeModal();
+    await fetchMenus();
+  } catch (error) {
+    console.error('메뉴 저장 실패:', error);
+    showToast('메뉴 저장에 실패했습니다.', 'error');
   }
-  closeModal();
-  await fetchMenus();
 }
 
 async function deleteMenu(id) {
   if (confirm('정말로 이 메뉴를 삭제하시겠습니까? 하위 메뉴도 모두 삭제됩니다.')) {
-    await $fetch(`/api/menus/${id}`, { method: 'DELETE' });
-    await fetchMenus();
+    try {
+      await $fetch(`/api/menus/${id}`, { method: 'DELETE' });
+      await fetchMenus();
+      showToast('메뉴가 성공적으로 삭제되었습니다.', 'success');
+    } catch (error) {
+      console.error('메뉴 삭제 실패:', error);
+      showToast('메뉴 삭제에 실패했습니다.', 'error');
+    }
   }
 }
 
@@ -186,8 +202,14 @@ async function onDragEnd(event) {
     });
   }
   
-  await Promise.all(updatePromises);
-  await fetchMenus();
+  try {
+    await Promise.all(updatePromises);
+    await fetchMenus();
+    showToast('메뉴 위치가 성공적으로 업데이트되었습니다.', 'success');
+  } catch (error) {
+    console.error('메뉴 위치 업데이트 실패:', error);
+    showToast('메뉴 위치 업데이트에 실패했습니다.', 'error');
+  }
 }
 
 // 재귀적으로 메뉴를 찾아 삭제하고 반환하는 헬퍼 함수

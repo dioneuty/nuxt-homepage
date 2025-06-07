@@ -10,9 +10,9 @@
 definePageMeta({
   layout: 'admin',
   middleware: 'admin-auth'
-})
+});
 
 useHead({
   title: '관리자 대시보드'
-})
+});
 </script> 

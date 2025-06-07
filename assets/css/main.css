@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 /* 추가 커스텀 스타일 */
+html,
+body {
+  height: 100%;
+  /* 기본 배경색 설정 */
+  @apply bg-white dark:bg-gray-900;
+}
+
 body.menu-open {
   pointer-events: none;
 }

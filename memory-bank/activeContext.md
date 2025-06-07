@@ -25,6 +25,37 @@
     - **게시판 UI**: `components/PostList.vue`에서 답변 글일 경우 제목 왼편에 답변 기호(↳)를 추가하여 시각적 구분을 명확히 했습니다.
     - **갤러리 모달**: `components/gallery/GalleryModal.vue`에서 화살표 아이콘이 이미지에 가려지지 않도록 `z-index`를 조정하고, 반투명 처리 및 스크롤 고정을 통해 사용자 경험을 개선했습니다.
 
+4.  **API 파일 TypeScript -> JavaScript 변환**
+    - `server/api/admin/db/` 경로의 모든 `.ts` API 파일들이 `.js`로 변환되었습니다. 이 과정에서 발생한 TypeScript 관련 린터 오류를 수정하고 원본 `.ts` 파일은 삭제되었습니다.
+
+5.  **테마 설정 기능 구현**
+    - 일반 사용자 페이지의 헤더, 푸터, 배경 색상을 라이트/다크 모드에 따라 팔레트에서 선택하고 데이터베이스에 저장하는 기능을 구현했습니다.
+    - `prisma/schema.prisma`에 `SiteConfig` 모델을 추가하여 `lightHeaderColor`, `darkHeaderColor`, `lightFooterColor`, `darkFooterColor`, `lightBackgroundColor`, `darkBackgroundColor` 필드를 정의하고 관련 데이터베이스 마이그레이션을 완료했습니다.
+    - 관리자용 테마 설정 조회/업데이트 API (`server/api/admin/theme-settings.get.js`, `server/api/admin/theme-settings.put.js`)와 일반 사용자용 테마 설정 조회 API (`server/api/theme-settings.get.js`)를 구현하고 새로운 색상 필드를 처리하도록 업데이트했습니다.
+    - 관리자 페이지의 테마 설정 UI를 `pages/adminpage/theme.vue` 경로로 분리하고, `layouts/admin.vue`의 사이드바에 해당 페이지로 이동하는 링크를 추가했습니다. 기존 `pages/adminpage/index.vue`에서는 테마 설정 UI를 제거했습니다.
+    - `components/Nav.vue`와 `components/Footer.vue`가 색상 prop을 받도록 수정하고, `layouts/default.vue`에서 API를 통해 색상 설정을 불러와 현재 테마 모드에 따라 적절한 색상을 컴포넌트에 전달하도록 로직을 변경했습니다.
+
+6.  **토스트 알림 시스템 구현**
+    - 전역적으로 사용할 수 있는 토스트 알림 시스템을 `composables/useToast.js` 컴포저블과 `components/common/Toast.vue` 컴포넌트를 사용하여 구축했습니다.
+    - `app.vue`에 `Toast.vue` 컴포넌트를 추가하여 `useToast` 컴포저블과 연결함으로써 전역적으로 토스트 알림을 사용할 수 있도록 설정했습니다.
+    - 토스트 알림이 가로로 표시되도록 UI 위치를 조정했습니다.
+    - 테마 설정 저장 시 (`pages/adminpage/theme.vue`) 및 메뉴 관리 페이지 (`pages/adminpage/menus.vue`)의 메뉴 이동, 추가/수정, 삭제 시 `alert` 창 대신 토스트 알림을 사용하도록 변경했습니다.
+
+7.  **관리자 페이지 UI 개선**
+    - `layouts/admin.vue` 파일의 메인 헤더바 왼쪽에 사람 상반신 아이콘(`mdi:account`)을 추가하여 시각적인 구분을 명확히 했습니다.
+
+8.  **토스트 알림 시스템 개선**
+    - `composables/useToast.js`를 수정하여 새로운 알림이 열리면 이전 알림이 자동으로 닫히도록 중복 방지 로직을 추가했습니다.
+    - `components/common/Toast.vue`에 Vue `<Transition>` 컴포넌트와 개선된 CSS 트랜지션 (`all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55)`)을 적용하여 토스트 알림의 나타남/사라짐 애니메이션을 더 부드럽게 개선했습니다.
+
+9.  **테마 색상 적용 안정화 및 초기 로딩 배경색 문제 해결**
+    - `layouts/default.vue` 및 `layouts/blog.vue`에서 `onMounted` 훅 내부의 `fetchThemeSettings` 호출을 `await useFetch`로 변경하여 서버 사이드 렌더링(SSR) 시에도 테마 설정 데이터가 미리 로드되도록 수정했습니다.
+    - `layouts/default.vue`의 최상위 `div`에서 불필요한 배경색 클래스를 제거하고, `document.body.style.backgroundColor`에 `currentBackgroundColor`를 `watch`하여 동적으로 적용하도록 로직을 변경했습니다.
+    - `layouts/blog.vue`에도 `layouts/default.vue`와 동일하게 테마 설정 로직을 적용하여 헤더, 푸터, 배경색이 동적으로 반영되도록 했습니다.
+    - `assets/css/main.css` 파일의 `html, body` 선택자에 `@apply bg-white dark:bg-gray-900;` 기본 배경색을 추가하여 첫 로딩 시 흰색 화면이 나타나는 문제를 해결했습니다.
+    - `layouts/default.vue` 및 `layouts/blog.vue`에서 `document.body.style.backgroundColor`를 직접 제어하는 로직을 제거하고, `@nuxtjs/color-mode` 모듈이 `html` 태그에 `dark` 클래스를 올바르게 추가하여 Tailwind CSS 규칙에 따라 배경색이 적용되도록 최종 수정하여 시스템 색상 설정 시 배경색이 실시간으로 전환되지 않던 문제를 해결했습니다.
+    - `layouts/default.vue` 및 `layouts/blog.vue`에서 테마 색상을 결정하는 computed 속성(`currentHeaderColor`, `currentFooterColor`, `currentBackgroundColor`)에 `colorMode.preference` 대신 `colorMode.value`를 사용하여 실제 적용된 색상 모드를 기준으로 색상을 선택하도록 수정하여 시스템 색상 설정 시 헤더바가 라이트 모드 기준으로 색상이 뜨던 문제를 해결했습니다.
+
 ## 다음 단계
 1.  **기능 안정성 검토 및 버그 수정**: 현재까지 구현된 모든 기능(특히 Quill 에디터, 관리자 페이지)에 대한 종합적인 테스트를 수행하고 안정성을 확보합니다. 사용자 피드백을 수집하여 잠재적인 버그나 개선점을 수정합니다.
 2.  **콘텐츠 관리 고도화 (장기 목표)**:

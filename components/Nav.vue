@@ -9,9 +9,9 @@
       <div class="hidden lg:block">
         <!-- 로고 영역 -->
         <div :class="[
-          'relative overflow-hidden bg-blue-600 dark:bg-gray-800',
+          'relative overflow-hidden dark:bg-gray-800',
           navStore.isAlwaysOnTop ? 'h-16' : 'h-16'
-        ]">
+        ]" :style="{ backgroundColor: headerColor }">
           <NuxtLink to="/" class="absolute inset-0 flex items-center justify-center">
             <div class="text-white text-3xl font-bold flex items-center">
               <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
@@ -20,7 +20,7 @@
           </NuxtLink>
         </div>
         <!-- 네비게이션 바 -->
-        <div class="bg-blue-600 dark:bg-gray-800 text-white p-2 shadow-lg">
+        <div class="dark:bg-gray-800 text-white p-2 shadow-lg" :style="{ backgroundColor: headerColor }">
           <div class="container mx-auto flex justify-between items-center">
             <div class="space-x-4">
               <AppMenu />
@@ -62,7 +62,7 @@
       </div>
 
       <!-- 모바일 네비게이션 헤더 -->
-      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 bg-blue-600 dark:bg-gray-800 text-white px-4 py-2">
+      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 dark:bg-gray-800 text-white px-4 py-2" :style="{ backgroundColor: headerColor }">
         <div class="flex items-center justify-between" :class="{ 'pointer-events-auto': isMenuOpen }">
           <button @click="openMenu" class="text-white" :class="{ 'pointer-events-none': isMenuOpen }">
             <Bars3Icon class="h-6 w-6" />
@@ -188,6 +188,10 @@ const appName = 'Dion'
 
 const props = defineProps({
   isMenuOpen: Boolean,
+  headerColor: {
+    type: String,
+    default: '#FFFFFF' // Default white if not provided
+  }
 })
 
 const emit = defineEmits(['openMenu', 'closeMenu', 'updateNavFixedState'])
