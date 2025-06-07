@@ -5,7 +5,7 @@
 /* 추가 커스텀 스타일 */
 html,
 body {
-  height: 100%;
+  min-height: 100vh;
   /* 기본 배경색 설정 */
   @apply bg-white dark:bg-gray-900;
 }
