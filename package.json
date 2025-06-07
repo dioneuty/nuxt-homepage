@@ -3,11 +3,11 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "build": "prisma generate && prisma migrate deploy && nuxt build",
+    "build": "nuxt build",
     "dev": "nuxt dev",
     "generate": "nuxt generate",
     "preview": "nuxt preview",
-    "postinstall": "prisma generate && prisma migrate deploy",
+    "postinstall": "prisma generate",
     "vercel-build": "npm run build",
     "seed": "node seed.js",
     "migrate": "prisma migrate dev"
@@ -57,7 +57,7 @@
     "autoprefixer": "^10.4.20",
     "pinia-plugin-persistedstate": "^4.0.1",
     "postcss": "^8.4.40",
-    "prisma": "^6.9.0"
+    "prisma": "^5.18.0"
   },
   "overrides": {
     "vue": "latest"
