@@ -6,6 +6,8 @@
    - Vue.js 3.x
    - Tailwind CSS
    - @vueup/vue-quill
+   - quill-resize-module
+   - sass
    - @iconify/vue
    - quill-markdown-shortcuts
 
@@ -52,8 +54,12 @@
        "tailwindcss": "latest",
        "@iconify/vue": "latest",
        "quill-markdown-shortcuts": "latest",
+       "quill-resize-module": "latest",
        "jose": "latest",
        "bcryptjs": "latest"
+     },
+     "devDependencies": {
+       "sass": "latest"
      }
    }
    ```

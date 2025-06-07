@@ -3,86 +3,150 @@
   <ClientOnly>
     <!-- QuillEditor 컴포넌트 - 텍스트 에디터 구현 -->
     <QuillEditor
+      ref="quillEditorRef"
       :content="value"
       content-type="html"
       @update:content="onContentUpdate"
       :options="editorOptions"
       @blur="onEditorBlur"
       @focus="onEditorFocus"
-      @ready="onEditorReady"
+      @ready="onReady"
       @change="onEditorChange"
     />
   </ClientOnly>
 </template>
 
 <script setup>
-// Vue Quill 에디터 컴포넌트와 스타일 import
-import { QuillEditor } from '@vueup/vue-quill'
-import '@vueup/vue-quill/dist/vue-quill.snow.css'
+import { ref } from 'vue';
+import { QuillEditor, Quill } from '@vueup/vue-quill';
+import '@vueup/vue-quill/dist/vue-quill.snow.css';
+import QuillResize from 'quill-resize-module';
+
+Quill.register('modules/resize', QuillResize);
 
 // props 정의
 const props = defineProps({
-  value: {
-    type: String,
-    default: '', // 기본값은 빈 문자열
-  },
-  placeholder: {
-    type: String,
-    default: '내용을 입력하세요...', // 플레이스홀더 기본 텍스트
-  },
-})
+  value: { type: String, default: '' },
+  placeholder: { type: String, default: '내용을 입력하세요...' },
+});
 
 // 이벤트 emit 정의
-const emit = defineEmits(['input', 'blur', 'focus', 'ready', 'change'])
+const emit = defineEmits(['input', 'blur', 'focus', 'ready', 'change']);
 
-// Quill 에디터 설정 옵션
+// Refs
+const quillInstance = ref(null);
+
 const editorOptions = {
-  theme: 'snow', // 스노우 테마 사용
+  theme: 'snow',
   modules: {
     toolbar: [
-      ['bold', 'italic', 'underline', 'strike'], // 텍스트 스타일 옵션
-      ['blockquote', 'code-block'], // 인용구와 코드 블록
-      [{ 'header': 1 }, { 'header': 2 }], // 헤더 스타일
-      [{ 'list': 'ordered' }, { 'list': 'bullet' }], // 순서 있는/없는 목록
-      [{ 'script': 'sub' }, { 'script': 'super' }], // 아래/위 첨자
-      [{ 'indent': '-1' }, { 'indent': '+1' }], // 들여쓰기 조절
-      [{ 'direction': 'rtl' }], // 텍스트 방향
-      [{ 'size': ['small', false, 'large', 'huge'] }], // 글자 크기
-      [{ 'header': [1, 2, 3, 4, 5, 6, false] }], // 헤더 레벨
-      [{ 'color': [] }, { 'background': [] }], // 글자색, 배경색
-      [{ 'font': [] }], // 폰트 종류
-      [{ 'align': [] }], // 정렬
-      ['clean'], // 서식 제거
-      ['link', 'image', 'video'] // 링크, 이미지, 비디오 삽입
-    ]
+      ['bold', 'italic', 'underline', 'strike'],
+      ['blockquote', 'code-block'],
+      [{ 'header': 1 }, { 'header': 2 }],
+      [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+      [{ 'script': 'sub' }, { 'script': 'super' }],
+      [{ 'indent': '-1' }, { 'indent': '+1' }],
+      [{ 'direction': 'rtl' }],
+      [{ 'size': ['small', false, 'large', 'huge'] }],
+      [{ 'header': [1, 2, 3, 4, 5, 6, false] }],
+      [{ 'color': [] }, { 'background': [] }],
+      [{ 'font': [] }],
+      [{ 'align': [] }],
+      ['clean'],
+      ['link', 'image', 'video'],
+    ],
+    resize: {
+      modules: ['Resize', 'DisplaySize', 'Toolbar'],
+      tools: [
+        'left',
+        'center',
+        'right',
+        {
+          text: '교체',
+          handler: (evt, button, activeEle) => {
+            const input = document.createElement('input');
+            input.setAttribute('type', 'file');
+            input.setAttribute('accept', 'image/*');
+            input.click();
+
+            input.onchange = () => {
+              const file = input.files[0];
+              if (file) {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  activeEle.setAttribute('src', e.target.result);
+                };
+                reader.readAsDataURL(file);
+              }
+            };
+          }
+        },
+        {
+          text: '삭제',
+          handler: (evt, button, activeEle) => {
+            if (activeEle) {
+              const blot = Quill.find(activeEle);
+              if (blot) {
+                blot.remove();
+              }
+            }
+          },
+        },
+      ],
+    },
   },
-  placeholder: props.placeholder, // 플레이스홀더 설정
+  placeholder: props.placeholder,
+};
+
+const onReady = (quill) => {
+  quillInstance.value = quill;
+  // 커스텀 이미지 핸들러를 여기에 할당합니다.
+  quill.getModule('toolbar').addHandler('image', imageHandler);
+  emit('ready', quill);
+};
+
+// 커스텀 이미지 핸들러
+function imageHandler() {
+  const input = document.createElement('input');
+  input.setAttribute('type', 'file');
+  input.setAttribute('accept', 'image/*');
+  input.setAttribute('multiple', true);
+  input.click();
+
+  input.onchange = () => {
+    const files = input.files;
+    if (files && quillInstance.value) {
+      const quill = quillInstance.value;
+      const range = quill.getSelection(true);
+      const readFilesAsBase64 = Array.from(files).map(file => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = err => reject(err);
+          reader.readAsDataURL(file);
+        });
+      });
+      Promise.all(readFilesAsBase64)
+        .then(images => {
+          images.forEach(base64Image => {
+            quill.insertEmbed(range.index, 'image', base64Image);
+            range.index += 1;
+          });
+          quill.insertText(range.index, '\n');
+          quill.setSelection(range.index + 1, 0);
+        })
+        .catch(error => console.error('Error reading files:', error));
+    }
+  };
 }
 
-// 컨텐츠 업데이트 이벤트 핸들러
-function onContentUpdate(content) {
-  emit('input', content)
-}
-
-// 에디터 블러(포커스 아웃) 이벤트 핸들러
-function onEditorBlur(quill) {
-  emit('blur', quill)
-}
-
-// 에디터 포커스 이벤트 핸들러
-function onEditorFocus(quill) {
-  emit('focus', quill)
-}
-
-// 에디터 준비 완료 이벤트 핸들러
-function onEditorReady(quill) {
-  emit('ready', quill)
-}
-
-// 에디터 내용 변경 이벤트 핸들러
+// 기존 이벤트 핸들러들
+function onContentUpdate(content) { emit('input', content); }
+function onEditorBlur(quill) { emit('blur', quill); }
+function onEditorFocus(quill) { emit('focus', quill); }
 function onEditorChange({ html, text, quill }) {
-  emit('input', html)
-  emit('change', { html, text, quill })
+  emit('input', html);
+  emit('change', { html, text, quill });
 }
 </script>
 

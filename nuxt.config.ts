@@ -1,5 +1,6 @@
 export default defineNuxtConfig({
   css: ['~/assets/css/main.css', '~/assets/css/quill-custom.css', '@/assets/css/calendar.css'],
+
   app: {
     head: {
       title: 'Dion',
@@ -19,23 +20,28 @@ export default defineNuxtConfig({
       ]
     },
   },
+
   plugins: [
     '~/plugins/v-html-img.js',
     '~/plugins/v-html-img-one.js'
   ],
+
   postcss: {
     plugins: {
       tailwindcss: {},
       autoprefixer: {},
     },
   },
+
   runtimeConfig: {
     public: {
       supabaseUrl: process.env.SUPABASE_URL,
       supabaseKey: process.env.SUPABASE_KEY
     }
   },
+
   compatibilityDate: '2024-08-04',
+
   vite: {
     optimizeDeps: {
       include: ['vue3-quill']
@@ -49,14 +55,17 @@ export default defineNuxtConfig({
       },
     }
   },
+
   build: {
     transpile: ['vue3-quill', '@iconify/vue', 'bcryptjs', 'jose'],
   },
+
   nitro: {
     externals: {
       inline: ['bcryptjs', 'jose']
     },
   },
+
   modules: [
     '@pinia/nuxt',
     '@nuxt/image',
@@ -66,6 +75,7 @@ export default defineNuxtConfig({
     'pinia-plugin-persistedstate',
     '@nuxtjs/color-mode',
   ],
+
   image: {
     inject: true,
     defaultLazy: true,
@@ -82,6 +92,7 @@ export default defineNuxtConfig({
       '2xl': 1536,
     },
   },
+
   colorMode: {
     preference: 'system', // 기본 설정
     fallback: 'light', // 시스템 설정을 사용할 수 없을 때의 폴백
@@ -92,6 +103,7 @@ export default defineNuxtConfig({
     classSuffix: '',
     storageKey: 'nuxt-color-mode'
   },
+
   routeRules: {
     // 정적으로 생성할 페이지들 - about, services, related-sites, contact, under-construction
     '/about': { prerender: true },
@@ -130,5 +142,11 @@ export default defineNuxtConfig({
 
     // 주기적으로 업데이트되는 페이지 (증분 정적 재생성)
     //'/frequently-updated/**': { isr: 60 } // 60초마다 재생성
+  },
+
+  devtools: {
+    timeline: {
+      enabled: true
+    }
   }
 })
