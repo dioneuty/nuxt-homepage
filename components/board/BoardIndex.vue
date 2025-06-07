@@ -166,12 +166,12 @@ function toggleSort(key) {
 const initialLoading = ref(true)
 
 //로그인한 유저이면서 role이 admin인 유저만 보도록 하기
-const auth = useAuth().auth.value
+const { user, isLoggedIn } = useAuth()
 
 const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async function() {
   try {
     let response
-    if (!props.isAdminBoard || (props.isAdminBoard && auth.isLoggedIn && auth.user.role === 'ADMIN')) {
+    if (!props.isAdminBoard || (props.isAdminBoard && isLoggedIn && user.role === 'ADMIN')) {
        response = await $fetch(props.apiEndpoint, {
       params: {
         page: currentPage.value,

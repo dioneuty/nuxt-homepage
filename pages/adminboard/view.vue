@@ -21,12 +21,12 @@ import { useAuth } from '~/composables/useAuth'
 import { useRouter } from 'vue-router'
 import { ref, onMounted } from 'vue'
 
-const { auth } = useAuth()
+const { isLoggedIn, user } = useAuth()
 const router = useRouter()
 const isAdmin = ref(false)
 
 onMounted(() => {
-  if (!auth.value.isLoggedIn || auth.value.user?.role !== 'ADMIN') {
+  if (!isLoggedIn || user?.role !== 'ADMIN') {
     router.push('/')
   } else {
     isAdmin.value = true

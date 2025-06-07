@@ -17,6 +17,7 @@ async function main() {
   await prisma.contact.deleteMany({})
   await prisma.adminBoard.deleteMany({})
   await prisma.qnA.deleteMany({})
+  await prisma.menu.deleteMany({})
   // 다른 모델들도 필요에 따라 추가
 
   // User 데이터 생성 (admin)
@@ -112,6 +113,84 @@ async function main() {
     ],
   })
   console.log('QnAs created.')
+
+  // Menu 데이터 생성
+  console.log('Creating menus...');
+  const menuData = [
+    { name: '홈', path: '/', order: 0 },
+    { name: '블로그', path: '/blog', order: 1 },
+    { 
+      name: '소개',
+      order: 2,
+      children: [
+        { name: '개인소개', path: '/about', order: 0 },
+        { name: '서비스', path: '/services', order: 1 }
+      ],
+    },
+    { 
+      name: '게시판',
+      order: 3,
+      children: [
+        { name: '자유게시판', path: '/board', order: 0 },
+        { name: '질문과답변', path: '/qna', order: 1 },
+        { name: '유머게시판', path: '/humor', order: 2 },
+        { name: '방명록', path: '/guestbook', order: 3 }
+      ],
+    },
+    { name: '문의', path: '/contact', order: 4 },
+    { name: '갤러리', path: '/gallery', order: 5 },
+    { name: '위키', path: '/wiki', order: 6 },
+    { name: '관련 사이트', path: '/related-sites', order: 7 },
+    { name: '종합 검색', path: '/search', order: 8 },
+    { name: '아웃라이너', path: '/outliner', order: 9 },
+    { 
+      name: '외국어 학습',
+      order: 10, 
+      children: [
+        { name: '영어', path: '/english', order: 0 },
+        { name: '일본어', path: '/japanese', order: 1 }
+      ],
+    },
+    { 
+      name: '관리자',
+      order: 11,
+      role: 'admin',
+      children: [
+        { name: '관리자용 문의 게시판', path: '/contactboard', order: 0, role: 'admin' },
+        { name: '관리자용 게시판', path: '/adminboard', order: 1, role: 'admin' },
+        { name: '관리자용 갤러리', path: '/admingallery', order: 2, role: 'admin' },
+        { name: '메뉴 관리', path: '/adminpage/menus', order: 3, role: 'admin' },
+      ],
+    },
+    { name: 'AI 채팅', path: '/ai-chat', order: 12 },
+    { name: '유튜브 갤러리', path: '/youtube-gallery', order: 13 }
+  ];
+
+  for (const menu of menuData) {
+    const parent = await prisma.menu.create({
+      data: {
+        name: menu.name,
+        path: menu.path,
+        order: menu.order,
+        role: menu.role || 'public',
+      }
+    });
+
+    if (menu.children) {
+      for (const childMenu of menu.children) {
+        await prisma.menu.create({
+          data: {
+            name: childMenu.name,
+            path: childMenu.path,
+            order: childMenu.order,
+            role: childMenu.role || 'public',
+            parentId: parent.id,
+          }
+        });
+      }
+    }
+  }
+  console.log('Menus created.');
 
   console.log('Seeding finished.')
 }

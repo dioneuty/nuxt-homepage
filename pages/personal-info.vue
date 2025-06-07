@@ -47,11 +47,8 @@
 </template>
 
 <script setup>
-import { ref, reactive } from 'vue'
-import { useAuth } from '~/composables/useAuth'
+import { ref, reactive, watch, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
-
-const { auth } = useAuth()
 
 const personalInfo = ref({})
 const editedInfo = ref({})

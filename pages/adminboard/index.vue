@@ -16,14 +16,12 @@ import { onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
 
+const { isAdmin } = useAuth()
 const router = useRouter()
-const { auth } = useAuth()
 
-onMounted(() => {
-  if (!auth.value.isLoggedIn || auth.value.user?.role !== 'ADMIN') {
-    router.push('/')
-  }
-})
+if (!isAdmin.value) {
+  router.push('/')
+}
 
 const tableHeaders = [
   { key: 'id', label: '번호', icon: 'mdi:pound', class: 'hidden sm:table-cell' },

@@ -52,7 +52,6 @@
 
 <script setup>
 import { Icon } from '@iconify/vue'
-import { ref, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 
 const props = defineProps({
@@ -64,33 +63,16 @@ const props = defineProps({
   apiEndpoint: { type: String, required: true }
 })
 
-const posts = ref([])
-const pending = ref(false)
-const error = ref(null)
-
 const router = useRouter()
+
+const { data: posts, pending, error } = useFetch(props.apiEndpoint, {
+  method: 'GET',
+  default: () => []
+})
 
 function navigateToPost(postId) {
   router.push(`${props.postLink}?id=${postId}`)
 }
-
-async function fetchPosts() {
-  pending.value = true
-  try {
-    const { data } = await useFetch(props.apiEndpoint, {
-      method: 'GET'
-    })
-    posts.value = data.value
-  } catch (e) {
-    error.value = e
-  } finally {
-    pending.value = false
-  }
-}
-
-onBeforeMount(fetchPosts)
-onMounted(fetchPosts)
-
 
 function formatDate(dateString) {
   return new Date(dateString).toLocaleDateString()

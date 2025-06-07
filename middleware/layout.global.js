@@ -6,6 +6,9 @@ export default defineNuxtRouteMiddleware((to) => {
     case to.path.startsWith('/ai-chat'):
       to.meta.layout = 'aichat-layout'
       break
+    case to.path.startsWith('/adminpage'):
+      to.meta.layout = 'admin'
+      break
     default:
       to.meta.layout = 'default'
   }

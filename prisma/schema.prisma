@@ -113,6 +113,7 @@ model User {
   password  String
   email     String   @unique
   role      String   @default("user")
+  isActive  Boolean  @default(true)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
   chats     Chat[]
@@ -198,4 +199,20 @@ model GuestbookComment {
   guestbookId Int
 
   @@map("guestbook_comments")
+}
+
+model Menu {
+  id        Int      @id @default(autoincrement())
+  name      String
+  path      String?
+  icon      String?
+  role      String?  @default("public") // public, user, admin
+  order     Int      @default(0)
+  
+  parentId  Int?
+  parent    Menu?    @relation("SubMenus", fields: [parentId], references: [id], onDelete: Cascade)
+  children  Menu[]   @relation("SubMenus")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
 }

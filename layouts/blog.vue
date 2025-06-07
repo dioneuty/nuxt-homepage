@@ -41,6 +41,7 @@ const route = useRoute()
 const categories = ref([])
 const isMenuOpen = ref(false)
 const navStore = useNavStore()
+const showMobileCategory = ref(true)
 
 
 async function fetchCategories() {

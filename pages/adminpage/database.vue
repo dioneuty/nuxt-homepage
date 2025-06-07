@@ -1,0 +1,286 @@
+<template>
+  <div class="flex h-screen bg-gray-100">
+    <!-- Sidebar -->
+    <div class="w-64 bg-white shadow-md flex flex-col">
+      <div class="p-4 font-bold border-b">DB Models</div>
+      <ul class="overflow-y-auto">
+        <li
+          v-for="model in models"
+          :key="model.name"
+          @click="selectModel(model.name)"
+          class="p-4 cursor-pointer hover:bg-gray-200"
+          :class="{ 'bg-blue-500 text-white': selectedModel === model.name }"
+        >
+          {{ model.name }}
+        </li>
+      </ul>
+    </div>
+
+    <!-- Main Content -->
+    <div class="flex-1 p-8 overflow-y-auto">
+      <div v-if="!selectedModel" class="text-gray-500 flex items-center justify-center h-full">
+        Select a model from the sidebar to view its data.
+      </div>
+
+      <div v-else>
+        <div class="flex justify-between items-center mb-4">
+          <h1 class="text-2xl font-bold">
+            {{ selectedModel }}
+          </h1>
+          <button @click="openAddModal" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+            Add New
+          </button>
+        </div>
+        
+        <div v-if="records.length > 0" class="bg-white shadow-md rounded overflow-x-auto">
+          <table class="min-w-full bg-white">
+            <thead>
+              <tr>
+                <th v-for="key in Object.keys(records[0])" :key="key" class="py-2 px-4 border-b">
+                  {{ key }}
+                </th>
+                <th class="py-2 px-4 border-b">Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="record in records" :key="record.id" class="border-b">
+                <td v-for="(value, key) in record" :key="key" class="py-2 px-4 whitespace-nowrap">
+                  {{ truncate(value) }}
+                </td>
+                <td class="py-2 px-4 flex gap-2">
+                  <button @click="editRecord(record)" class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600">Edit</button>
+                  <button @click="deleteRecord(record.id)" class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600">Delete</button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div v-else class="text-gray-500 mt-4">
+          No records found for this model.
+        </div>
+      </div>
+    </div>
+    
+    <!-- Add/Edit Modal -->
+    <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
+      <div class="bg-white p-8 rounded-lg shadow-xl w-1/3 max-h-full overflow-y-auto">
+        <h2 class="text-xl font-bold mb-4">{{ editingRecord ? 'Edit' : 'Add' }} Record</h2>
+        <div v-if="formFields" class="space-y-4">
+          <div v-for="field in formFields" :key="field.name">
+            <template v-if="field.kind !== 'object'">
+              <label :for="field.name" class="block text-sm font-medium text-gray-700">
+                {{ field.name }} 
+                <span class="text-xs text-gray-500">{{ field.type }}</span>
+                <span v-if="field.isRequired" class="text-red-500">*</span>
+              </label>
+              <input 
+                v-if="['String', 'Int', 'BigInt', 'Float', 'Decimal'].includes(field.type)"
+                :type="['Int', 'BigInt', 'Float', 'Decimal'].includes(field.type) ? 'number' : 'text'"
+                v-model="formData[field.name]" 
+                :disabled="field.isId && editingRecord"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+              <input
+                v-else-if="field.type === 'DateTime'"
+                type="datetime-local"
+                :value="formatDateTime(formData[field.name])"
+                @input="formData[field.name] = $event.target.value"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+              <input
+                v-else-if="field.type === 'Boolean'"
+                type="checkbox"
+                v-model="formData[field.name]"
+                class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+              >
+              <textarea
+                v-else-if="field.type === 'Json'"
+                v-model="formData[field.name]"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                rows="3"
+              ></textarea>
+            </template>
+          </div>
+        </div>
+        <div class="mt-6 flex justify-end gap-4">
+          <button @click="cancelEdit" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+          <button @click="saveRecord" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Save</button>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</template>
+
+<script setup lang="ts">
+import { ref, onMounted, computed } from 'vue';
+
+type ModelField = {
+  name: string;
+  type: string;
+  isId: boolean;
+  isRequired: boolean;
+  kind: string;
+};
+
+type Model = {
+  name: string;
+  fields: ModelField[];
+}
+
+definePageMeta({
+  layout: 'admin',
+});
+
+const models = ref<Model[]>([]);
+const selectedModel = ref<string | null>(null);
+const records = ref<any[]>([]);
+const showModal = ref(false);
+const editingRecord = ref<any | null>(null);
+const formData = ref<any>({});
+
+
+onMounted(async () => {
+  try {
+    const response = await $fetch<{ models: Model[] }>('/api/admin/db/models');
+    models.value = response.models;
+  } catch (error) {
+    console.error('Error fetching models:', error);
+  }
+});
+
+const formFields = computed<ModelField[] | null>(() => {
+  if (!selectedModel.value) return null;
+  const model = models.value.find(m => m.name === selectedModel.value);
+  return model ? model.fields : null;
+});
+
+const selectModel = async (model: string) => {
+  selectedModel.value = model;
+  editingRecord.value = null;
+  showModal.value = false;
+  await fetchRecords(model);
+};
+
+const fetchRecords = async (model: string) => {
+   try {
+    const response = await $fetch<any[]>(`/api/admin/db/${model}`);
+    records.value = response;
+  } catch (error) {
+    console.error(`Error fetching records for ${model}:`, error);
+    records.value = [];
+  }
+}
+
+const openAddModal = () => {
+  formData.value = {};
+  editingRecord.value = null;
+  showModal.value = true;
+}
+
+const editRecord = (record: any) => {
+  editingRecord.value = { ...record };
+  formData.value = { ...record };
+
+  // Handle JSON and DateTime for editing
+  if (formFields.value) {
+    formFields.value.forEach(field => {
+      if (field.type === 'Json' && typeof formData.value[field.name] === 'object' && formData.value[field.name] !== null) {
+        formData.value[field.name] = JSON.stringify(formData.value[field.name], null, 2);
+      }
+    });
+  }
+
+  showModal.value = true;
+};
+
+const deleteRecord = async (id: number) => {
+  if (!selectedModel.value) return;
+  if (!confirm('Are you sure you want to delete this record?')) return;
+
+  try {
+    await $fetch(`/api/admin/db/${selectedModel.value}/${id}`, {
+      method: 'DELETE',
+    });
+    await fetchRecords(selectedModel.value);
+  } catch (error) {
+    console.error('Error deleting record:', error);
+    alert('Failed to delete record.');
+  }
+};
+
+const cancelEdit = () => {
+  editingRecord.value = null;
+  showModal.value = false;
+  formData.value = {};
+};
+
+const saveRecord = async () => {
+  if (!selectedModel.value || !formFields.value) return;
+
+  const url = editingRecord.value
+    ? `/api/admin/db/${selectedModel.value}/${editingRecord.value.id}`
+    : `/api/admin/db/${selectedModel.value}`;
+  
+  const method = editingRecord.value ? 'PUT' : 'POST';
+
+  const dataToSave = { ...formData.value };
+
+  // Prepare data for saving
+  for (const field of formFields.value) {
+    const value = dataToSave[field.name];
+    if (value === '' || value === null || value === undefined) {
+      delete dataToSave[field.name];
+      continue;
+    }
+    if (['Int', 'Float', 'Decimal'].includes(field.type)) {
+      dataToSave[field.name] = Number(value);
+    } else if (field.type === 'BigInt') {
+      dataToSave[field.name] = BigInt(value).toString(); // Send as string to avoid JSON issues
+    } else if (field.type === 'DateTime') {
+      dataToSave[field.name] = new Date(value).toISOString();
+    } else if (field.type === 'Json') {
+      try {
+        dataToSave[field.name] = JSON.parse(value);
+      } catch (e) {
+        alert(`Invalid JSON in field: ${field.name}`);
+        return;
+      }
+    }
+  }
+
+
+  try {
+    await $fetch(url, {
+      method: method,
+      body: dataToSave,
+    });
+    await fetchRecords(selectedModel.value);
+    cancelEdit();
+  } catch (error) {
+    console.error('Error saving record:', error);
+    alert('Failed to save record.');
+  }
+};
+
+const truncate = (value: any) => {
+  if (typeof value === 'object' && value !== null) {
+    return JSON.stringify(value).substring(0, 50) + '...';
+  }
+  const str = String(value);
+  if (str.length > 50) {
+    return str.substring(0, 50) + '...';
+  }
+  return str;
+};
+
+const formatDateTime = (value: any) => {
+    if (!value) return '';
+    try {
+        const date = new Date(value);
+        return date.toISOString().slice(0, 16);
+    } catch (e) {
+        return '';
+    }
+}
+</script> 

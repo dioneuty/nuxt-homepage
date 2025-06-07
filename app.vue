@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="bg-white dark:bg-gray-900">
     <NuxtLayout>
       <NuxtPage />
     </NuxtLayout>
@@ -16,16 +16,19 @@ import ReplyModal from '~/components/common/ReplyModal.vue'
 import LoginModal from '~/components/common/LoginModal.vue'
 import RegisterModal from '~/components/common/RegisterModal.vue'
 import { useAuth } from '~/composables/useAuth'
+import { useMenuStore } from '~/stores/menu'
 
 const { checkAuth } = useAuth()
+const menuStore = useMenuStore()
 
-// 초기 컬러 모드 설정
-onMounted(() => {
-
-  // 인증 확인
+// 초기 앱 로드 시 실행
+onMounted(async () => {
+  // 인증 상태 확인
   checkAuth()
+  
+  // 메뉴 데이터 로드
+  await menuStore.fetchMenus()
 })
-
 </script>
 <style>
 html {

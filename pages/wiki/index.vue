@@ -6,7 +6,7 @@
     </h1>
     <div class="mb-6 flex justify-between items-center">
       <NuxtLink 
-        v-if="auth.isLoggedIn && auth.user" 
+        v-if="isLoggedIn && user" 
         to="/wiki/edit" 
         class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
       >
@@ -57,16 +57,15 @@ definePageMeta ({
   ]
 })
 
-const { auth } = useAuth()
+const { isLoggedIn, user } = useAuth()
 
 const wikiPages = ref([])
 const loading = ref(true)
 const error = ref(null)
-
 onMounted(async () => {
   try {
-    const { data } = await useFetch('/api/wiki')
-    wikiPages.value = data.value
+    const data = await $fetch('/api/wiki')
+    wikiPages.value = data
   } catch (e) {
     error.value = e
   } finally {

@@ -1,13 +1,14 @@
 import { useState } from '#app'
+import { computed } from 'vue'
 
 export function useAuth() {
-  const auth = useState('auth', () => ({
+  const authState = useState('auth', () => ({
     isLoggedIn: false,
-    user: null
+    user: null,
   }))
 
   function setAuth(isLoggedIn, user) {
-    auth.value = { isLoggedIn, user }
+    authState.value = { isLoggedIn, user }
   }
 
   async function checkAuth() {
@@ -26,8 +27,10 @@ export function useAuth() {
   }
 
   return {
-    auth,
+    isLoggedIn: computed(() => authState.value?.isLoggedIn),
+    user: computed(() => authState.value?.user),
+    isAdmin: computed(() => !!(authState.value.isLoggedIn && authState.value.user?.role?.toLowerCase() === 'admin')),
     setAuth,
-    checkAuth
+    checkAuth,
   }
 }

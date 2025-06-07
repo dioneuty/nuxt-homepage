@@ -205,12 +205,12 @@ watch(() => route.query.id, (newId) => {
 })
 
 // 인증 상태 가져오기
-const auth = useAuth().auth.value
+const { isLoggedIn, user } = useAuth()
 
 // 컴포넌트 마운트 시 초기화
 onMounted(async () => {
   // 관리자 갤러리인 경우 권한 체크
-  if (!props.isAdminGallery || (props.isAdminGallery && auth.isLoggedIn && auth.user.role === 'ADMIN')) {
+  if (!props.isAdminGallery || (props.isAdminGallery && isLoggedIn.value && user.value?.role === 'ADMIN')) {
     await fetchItems()
 
     if (route.query.id) {
