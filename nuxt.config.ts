@@ -142,11 +142,5 @@ export default defineNuxtConfig({
 
     // 주기적으로 업데이트되는 페이지 (증분 정적 재생성)
     //'/frequently-updated/**': { isr: 60 } // 60초마다 재생성
-  },
-
-  devtools: {
-    timeline: {
-      enabled: true
-    }
   }
 })
