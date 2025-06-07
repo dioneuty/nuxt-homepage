@@ -120,6 +120,7 @@
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useModal } from '~/composables/useModal'
+import { formatDate } from '~/utils/dateFormatter'
 
 const { openModal } = useModal()
 
@@ -158,10 +159,6 @@ const newCommentContent = ref('')
 const editingComment = ref(null)
 const comments = ref([])
 const showConfirmModal = ref(false)
-
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleString()
-}
 
 async function addComment() {
   const response = await $fetch(`${props.apiEndpoint}?action=comment`, {

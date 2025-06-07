@@ -252,6 +252,7 @@ import UserEditModal from '~/components/admin/UserEditModal.vue'
 import ResetPasswordModal from '~/components/admin/ResetPasswordModal.vue'
 import DeleteConfirmModal from '~/components/admin/DeleteConfirmModal.vue'
 import Toast from '~/components/common/Toast.vue'
+import { formatDate } from '~/utils/dateFormatter'
 
 definePageMeta({
   layout: 'admin',
@@ -357,16 +358,6 @@ const getStatusBadgeClass = (isActive) => {
   return isActive
     ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
     : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
-}
-
-const formatDate = (dateString) => {
-  return new Date(dateString).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: '2-digit',
-    day: '2-digit',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 
 // 모달 핸들러들

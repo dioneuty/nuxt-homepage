@@ -196,16 +196,21 @@
     />
 
     <!-- 댓글 삭제 모달 -->
-    <CommentDeleteModal
+    <GuestbookDeleteModal
       v-if="showCommentDelete"
       v-model="showCommentDelete"
-      :comment="selectedComment"
+      :post="selectedComment"
       @submit="handleCommentDelete"
     />
   </div>
 </template>
 
 <script setup>
+import { ref, watch, onMounted } from 'vue'
+import CommentEditModal from '~/components/CommentEditModal.vue'
+import GuestbookDeleteModal from '~/components/GuestbookDeleteModal.vue'
+import { formatDate } from '~/utils/dateFormatter'
+
 const posts = ref([])
 const totalPages = ref(1)
 const currentPage = ref(1)
@@ -345,17 +350,6 @@ const handleCommentDelete = async (password) => {
   } catch (error) {
     console.error('댓글 삭제 실패:', error)
   }
-}
-
-// 날짜 포맷
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric',
-    hour: '2-digit',
-    minute: '2-digit'
-  })
 }
 
 // 페이지 변경 감지

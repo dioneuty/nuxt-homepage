@@ -47,6 +47,7 @@ import { useRoute, useRouter } from 'vue-router'
 import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
 import { useAuth } from '~/composables/useAuth'
+import { formatDate } from '~/utils/dateFormatter'
 
 const { auth } = useAuth()
 
@@ -77,14 +78,6 @@ onMounted(async () => {
     pending.value = false
   }
 })
-
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
 
 async function deleteWiki() {
   if (confirm('정말로 이 위키 페이지를 삭제하시겠습니까?')) {

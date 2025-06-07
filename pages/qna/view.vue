@@ -122,6 +122,7 @@
 import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
+import { formatDate } from '~/utils/dateFormatter'
 
 const route = useRoute()
 const router = useRouter()
@@ -132,10 +133,6 @@ const isEditingQuestion = ref(false)
 const isEditingAnswer = ref(false)
 const editedQuestion = reactive({ title: '', content: '' })
 const editedAnswer = ref('')
-
-const formatDate = (date) => {
-  return date ? new Date(date).toLocaleDateString('ko-KR') : ''
-}
 
 const fetchQnA = async () => {
   try {

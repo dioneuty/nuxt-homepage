@@ -69,8 +69,9 @@
 import { Icon } from '@iconify/vue'
 import { useModal } from '~/composables/useModal'
 import { useRouter } from 'vue-router'
-import { ref, onMounted, watch } from 'vue'
+import { ref, onMounted, watch, onBeforeMount } from 'vue'
 import { useRoute } from 'vue-router'
+import { formatDate } from '~/utils/dateFormatter'
 
 const props = defineProps({
   editButtonText: { type: String, default: '수정하기' },
@@ -118,14 +119,6 @@ watch(() => props.id, (newId) => {
     fetchData()
   }
 })
-
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
 
 async function deletePost() {
   openModal('확인', '정말로 이 게시글을 삭제하시겠습니까?', async (confirmed) => {

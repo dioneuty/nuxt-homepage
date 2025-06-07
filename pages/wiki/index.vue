@@ -48,6 +48,7 @@
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useAuth } from '~/composables/useAuth'
+import { formatDate } from '~/utils/dateFormatter'
 
 definePageMeta ({
   title: '위키 - Dion',
@@ -72,12 +73,4 @@ onMounted(async () => {
     loading.value = false
   }
 })
-
-function formatDate(date) {
-  return new Date(date).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
-}
 </script>

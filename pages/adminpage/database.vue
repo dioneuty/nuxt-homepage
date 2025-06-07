@@ -114,6 +114,7 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
+import { formatDateTime } from '~/utils/dateFormatter';
 
 type ModelField = {
   name: string;
@@ -280,13 +281,5 @@ const truncate = (value: any) => {
   return str;
 };
 
-const formatDateTime = (value: any) => {
-    if (!value) return '';
-    try {
-        const date = new Date(value);
-        return date.toISOString().slice(0, 16);
-    } catch (e) {
-        return '';
-    }
-}
+
 </script> 

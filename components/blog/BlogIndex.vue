@@ -53,6 +53,7 @@
 <script setup>
 import { Icon } from '@iconify/vue'
 import { useRouter } from 'vue-router'
+import { formatDate } from '~/utils/dateFormatter'
 
 const props = defineProps({
   title: { type: String, default: '블로그' },
@@ -72,9 +73,5 @@ const { data: posts, pending, error } = useFetch(props.apiEndpoint, {
 
 function navigateToPost(postId) {
   router.push(`${props.postLink}?id=${postId}`)
-}
-
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString()
 }
 </script>

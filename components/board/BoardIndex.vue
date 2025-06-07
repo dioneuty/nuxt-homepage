@@ -94,6 +94,7 @@ import { Icon } from '@iconify/vue'
 import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 import { useAuth } from '~/composables/useAuth'
+import { formatDate } from '~/utils/dateFormatter'
 
 const props = defineProps({
   boardType: {
@@ -196,15 +197,17 @@ const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, as
   server: false
 })
 
-
-
 onMounted(function() {
   if (posts.value) {
     initialLoading.value = false
+
+    for (let i = 0; i < posts.value.length; i++) {
+      posts.value[i].createdAt = formatDate(posts.value[i].createdAt)
+    }
   }
 })
 
-async function handleSearch(params) {
+function handleSearch(params) {
   searchParams.value = params
   currentPage.value = 1
 }
@@ -216,14 +219,6 @@ async function handlePageChange(page) {
 async function handleItemsPerPageChange(newItemsPerPage) {
   itemsPerPage.value = newItemsPerPage
   currentPage.value = 1
-}
-
-function formatDate(dateString) {
-  return new Date(dateString).toLocaleDateString('ko-KR', {
-    year: 'numeric',
-    month: 'long',
-    day: 'numeric'
-  })
 }
 
 const router = useRouter()

@@ -130,6 +130,7 @@ import ruby from 'highlight.js/lib/languages/ruby';
 
 import 'highlight.js/styles/github-dark.css'
 import { v4 as uuidv4 } from 'uuid'
+import { formatDate } from '~/utils/dateFormatter'
 
 // 페이지 제목과 설명을 동적으로 설정
 definePageMeta ({
@@ -368,11 +369,6 @@ function copyCode(event) {
   }).catch(err => {
     console.error('Failed to copy text: ', err);
   });
-}
-
-
-function formatDate(timestamp) {
-  return new Date(timestamp * 1000).toLocaleString()
 }
 
 // 스크롤을 가장 아래로 이동시키는 함수

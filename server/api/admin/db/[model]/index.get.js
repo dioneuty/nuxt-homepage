@@ -3,7 +3,7 @@ import { PrismaClient, Prisma } from '@prisma/client';
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
-  const modelName = event.context.params?.model as string;
+  const modelName = event.context.params?.model;
 
   if (!modelName || !Prisma.dmmf.datamodel.models.find(m => m.name.toLowerCase() === modelName.toLowerCase())) {
     throw createError({
@@ -13,7 +13,7 @@ export default defineEventHandler(async (event) => {
   }
 
   try {
-    const records = await (prisma as any)[modelName].findMany();
+    const records = await prisma[modelName].findMany();
     return records;
   } catch (error) {
     console.error(error);

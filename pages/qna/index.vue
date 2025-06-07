@@ -68,6 +68,7 @@ import { useRoute, useRouter } from 'vue-router'
 import SearchBar from '~/components/board/SearchBar.vue'
 import Pagination from '~/components/board/Pagination.vue'
 import { Icon } from '@iconify/vue'
+import { formatDate } from '~/utils/dateFormatter'
 
 definePageMeta ({
   title: '질문과 답변 - Dion',
@@ -85,10 +86,6 @@ const totalItems = ref(0)
 const itemsPerPage = ref(10)
 const currentPage = ref(1)
 const searchParams = ref({ type: '', text: '' })
-
-const formatDate = (date) => {
-  return new Date(date).toLocaleDateString('ko-KR')
-}
 
 const fetchQnAs = async () => {
   try {

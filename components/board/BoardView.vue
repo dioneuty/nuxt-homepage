@@ -88,6 +88,7 @@
   import { useModal } from '~/composables/useModal'
   import { useReplyModal } from '~/composables/useReplyModal'
   import { Icon } from '@iconify/vue'
+  import { formatDate } from '~/utils/dateFormatter'
   
   const props = defineProps({
     boardType: {
@@ -157,14 +158,6 @@
   
   function checkMobile() {
     isMobile.value = window.innerWidth < 640
-  }
-  
-  function formatDate(dateString) {
-    return new Date(dateString).toLocaleDateString('ko-KR', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    })
   }
   
   async function deletePost() {

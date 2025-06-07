@@ -21,20 +21,14 @@
 </template>
 
 <script setup>
+import { formatDate } from '~/utils/dateFormatter'
+
 defineProps({
   title: String,
   posts: Array,
   type: String,
   headerColorClass: String
 })
-
-function formatDate(date) {
-  return new Date(date).toLocaleDateString('ko-KR', { 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
-  })
-}
 </script>
 
 <style scoped>
