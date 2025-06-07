@@ -3,7 +3,7 @@
   <div class="space-y-6">
     <!-- 헤더 -->
     <div class="flex justify-between items-center">
-      <h2 class="text-2xl font-semibold text-gray-800 dark:text-gray-200">
+      <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">
         사용자 관리
       </h2>
       <button
@@ -66,8 +66,8 @@
       
       <div v-else-if="error" class="p-8 text-center text-red-600">
         <Icon icon="mdi:alert-circle" class="w-8 h-8 mx-auto mb-2" />
-        <p>{{ error }}</p>
-        <button @click="loadUsers" class="mt-2 text-blue-600 hover:underline">
+        <p class="dark:text-red-400">{{ error }}</p>
+        <button @click="loadUsers" class="mt-2 text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
           다시 시도
         </button>
       </div>
@@ -182,17 +182,17 @@
             <button
               @click="changePage(pagination.page - 1)"
               :disabled="!pagination.hasPrev"
-              class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed dark:text-gray-200"
             >
               이전
             </button>
-            <span class="px-3 py-1 text-sm">
+            <span class="px-3 py-1 text-sm dark:text-gray-200">
               {{ pagination.page }} / {{ pagination.totalPages }}
             </span>
             <button
               @click="changePage(pagination.page + 1)"
               :disabled="!pagination.hasNext"
-              class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed dark:text-gray-200"
             >
               다음
             </button>
@@ -206,6 +206,7 @@
       v-if="showCreateModal"
       @close="showCreateModal = false"
       @created="onUserCreated"
+      :class="{'dark': $colorMode.preference === 'dark'}"
     />
 
     <UserEditModal
@@ -213,6 +214,7 @@
       :user="selectedUser"
       @close="showEditModal = false"
       @updated="onUserUpdated"
+      :class="{'dark': $colorMode.preference === 'dark'}"
     />
 
     <ResetPasswordModal
@@ -220,6 +222,7 @@
       :user="selectedUser"
       @close="showResetPasswordModal = false"
       @reset="onPasswordReset"
+      :class="{'dark': $colorMode.preference === 'dark'}"
     />
 
     <DeleteConfirmModal
@@ -227,6 +230,7 @@
       :user="selectedUser"
       @close="showDeleteModal = false"
       @deleted="onUserDeleted"
+      :class="{'dark': $colorMode.preference === 'dark'}"
     />
 
     <!-- 토스트 메시지 -->

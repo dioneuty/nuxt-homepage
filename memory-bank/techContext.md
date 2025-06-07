@@ -7,7 +7,7 @@
    - Tailwind CSS
    - @vueup/vue-quill
    - quill-resize-module
-   - sass
+   - @nuxtjs/color-mode
    - @iconify/vue
    - quill-markdown-shortcuts
 
@@ -71,8 +71,27 @@
    - @nuxt/devtools
    - @nuxtjs/tailwindcss
    - @nuxtjs/i18n
-   - @nuxtjs/color-mode 
+   - @nuxtjs/color-mode
 
 ## 데이터베이스 스키마
 프로젝트의 전체 데이터베이스 모델 및 관계는 다음 문서에서 확인할 수 있습니다.
-- [[dbModels.md]] 
+- [[dbModels.md]]
+
+## 주요 기술 결정
+1. 텍스트 에디터
+   - @vueup/vue-quill
+   - quill-resize-module
+   - quill-markdown-shortcuts
+
+2. 게시판 답변 기능 구현 방식
+   - 기본적인 텍스트 입력 및 편집 기능
+   - 이미지 첨부 기능
+   - 링크 첨부 기능
+   - 텍스트 형식 지정 기능 (글꼴, 색상, 서식 등)
+
+3. 다크 모드 구현
+   - 선택 기술: `@nuxtjs/color-mode` 모듈과 Tailwind CSS의 `darkMode: 'class'` 설정 사용.
+   - 구현 방식:
+     - `@nuxtjs/color-mode`를 통해 사용자의 시스템 색상 모드(라이트/다크)를 감지하고, `<html>` 태그에 `dark` 클래스를 자동으로 토글하도록 설정.
+     - Tailwind CSS는 `darkMode: 'class'` 설정 덕분에 `<html>` 태그에 `dark` 클래스가 존재할 때 `dark:` 프리픽스가 붙은 유틸리티 클래스(예: `dark:bg-gray-900`, `dark:text-white`)를 적용하여 UI의 색상을 변경.
+     - 관리자 페이지의 헤더에 수동으로 색상 모드를 전환할 수 있는 UI (라이트/다크/시스템 아이콘)를 추가하여 사용자 편의성 제공. 

@@ -1,15 +1,15 @@
 <template>
-  <div class="flex h-screen bg-gray-100">
+  <div class="flex h-screen bg-gray-100 dark:bg-gray-900">
     <!-- Sidebar -->
-    <div class="w-64 bg-white shadow-md flex flex-col">
-      <div class="p-4 font-bold border-b">DB Models</div>
+    <div class="w-64 bg-white shadow-md flex flex-col dark:bg-gray-800 dark:shadow-none dark:border-r dark:border-gray-700">
+      <div class="p-4 font-bold border-b dark:border-gray-700 dark:text-white">DB Models</div>
       <ul class="overflow-y-auto">
         <li
           v-for="model in models"
           :key="model.name"
           @click="selectModel(model.name)"
-          class="p-4 cursor-pointer hover:bg-gray-200"
-          :class="{ 'bg-blue-500 text-white': selectedModel === model.name }"
+          class="p-4 cursor-pointer hover:bg-gray-200 dark:text-gray-300 dark:hover:bg-gray-700"
+          :class="{ 'bg-blue-500 text-white dark:bg-blue-600': selectedModel === model.name }"
         >
           {{ model.name }}
         </li>
@@ -18,13 +18,13 @@
 
     <!-- Main Content -->
     <div class="flex-1 p-8 overflow-y-auto">
-      <div v-if="!selectedModel" class="text-gray-500 flex items-center justify-center h-full">
+      <div v-if="!selectedModel" class="text-gray-500 flex items-center justify-center h-full dark:text-gray-400">
         Select a model from the sidebar to view its data.
       </div>
 
       <div v-else>
         <div class="flex justify-between items-center mb-4">
-          <h1 class="text-2xl font-bold">
+          <h1 class="text-2xl font-bold dark:text-white">
             {{ selectedModel }}
           </h1>
           <button @click="openAddModal" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
@@ -32,19 +32,19 @@
           </button>
         </div>
         
-        <div v-if="records.length > 0" class="bg-white shadow-md rounded overflow-x-auto">
-          <table class="min-w-full bg-white">
+        <div v-if="records.length > 0" class="bg-white shadow-md rounded overflow-x-auto dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
+          <table class="min-w-full bg-white dark:bg-gray-800">
             <thead>
               <tr>
-                <th v-for="key in Object.keys(records[0])" :key="key" class="py-2 px-4 border-b">
+                <th v-for="key in Object.keys(records[0])" :key="key" class="py-2 px-4 border-b dark:border-gray-700 dark:text-gray-300">
                   {{ key }}
                 </th>
-                <th class="py-2 px-4 border-b">Actions</th>
+                <th class="py-2 px-4 border-b dark:border-gray-700 dark:text-gray-300">Actions</th>
               </tr>
             </thead>
             <tbody>
-              <tr v-for="record in records" :key="record.id" class="border-b">
-                <td v-for="(value, key) in record" :key="key" class="py-2 px-4 whitespace-nowrap">
+              <tr v-for="record in records" :key="record.id" class="border-b dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-gray-700">
+                <td v-for="(value, key) in record" :key="key" class="py-2 px-4 whitespace-nowrap dark:text-gray-200">
                   {{ truncate(value) }}
                 </td>
                 <td class="py-2 px-4 flex gap-2">
@@ -55,7 +55,7 @@
             </tbody>
           </table>
         </div>
-        <div v-else class="text-gray-500 mt-4">
+        <div v-else class="text-gray-500 mt-4 dark:text-gray-400">
           No records found for this model.
         </div>
       </div>
@@ -63,14 +63,14 @@
     
     <!-- Add/Edit Modal -->
     <div v-if="showModal" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center">
-      <div class="bg-white p-8 rounded-lg shadow-xl w-1/3 max-h-full overflow-y-auto">
-        <h2 class="text-xl font-bold mb-4">{{ editingRecord ? 'Edit' : 'Add' }} Record</h2>
+      <div class="bg-white p-8 rounded-lg shadow-xl w-1/3 max-h-full overflow-y-auto dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
+        <h2 class="text-xl font-bold mb-4 dark:text-white">{{ editingRecord ? 'Edit' : 'Add' }} Record</h2>
         <div v-if="formFields" class="space-y-4">
           <div v-for="field in formFields" :key="field.name">
             <template v-if="field.kind !== 'object'">
-              <label :for="field.name" class="block text-sm font-medium text-gray-700">
+              <label :for="field.name" class="block text-sm font-medium text-gray-700 dark:text-gray-300">
                 {{ field.name }} 
-                <span class="text-xs text-gray-500">{{ field.type }}</span>
+                <span class="text-xs text-gray-500 dark:text-gray-400">{{ field.type }}</span>
                 <span v-if="field.isRequired" class="text-red-500">*</span>
               </label>
               <input 
@@ -78,32 +78,32 @@
                 :type="['Int', 'BigInt', 'Float', 'Decimal'].includes(field.type) ? 'number' : 'text'"
                 v-model="formData[field.name]" 
                 :disabled="field.isId && editingRecord"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
               <input
                 v-else-if="field.type === 'DateTime'"
                 type="datetime-local"
                 :value="formatDateTime(formData[field.name])"
-                @input="formData[field.name] = $event.target.value"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                @input="(event) => handleDateTimeInput(field.name, event)"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
               >
               <input
                 v-else-if="field.type === 'Boolean'"
                 type="checkbox"
                 v-model="formData[field.name]"
-                class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded"
+                class="mt-1 h-4 w-4 text-indigo-600 focus:ring-indigo-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600"
               >
               <textarea
                 v-else-if="field.type === 'Json'"
                 v-model="formData[field.name]"
-                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+                class="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm dark:bg-gray-700 dark:border-gray-600 dark:text-white"
                 rows="3"
               ></textarea>
             </template>
           </div>
         </div>
         <div class="mt-6 flex justify-end gap-4">
-          <button @click="cancelEdit" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400">Cancel</button>
+          <button @click="cancelEdit" class="bg-gray-300 text-black px-4 py-2 rounded hover:bg-gray-400 dark:bg-gray-700 dark:text-gray-200 dark:hover:bg-gray-600">Cancel</button>
           <button @click="saveRecord" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Save</button>
         </div>
       </div>
@@ -260,6 +260,12 @@ const saveRecord = async () => {
   } catch (error) {
     console.error('Error saving record:', error);
     alert('Failed to save record.');
+  }
+};
+
+const handleDateTimeInput = (fieldName: string, event: Event) => {
+  if (event.target instanceof HTMLInputElement) {
+    formData.value[fieldName] = event.target.value;
   }
 };
 

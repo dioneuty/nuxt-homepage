@@ -32,23 +32,24 @@
         :animation="200"
       >
         <template #item="{ element }">
-          <!-- 아웃라이너 항목 -->
-          <OutlineItem
-            :item="element"
-            :depth="0"
-            :siblings="currentItems"
-            @toggle="toggleItem"
-            @zoom="zoomToItem"
-            @add="addItem"
-            @delete="deleteItem"
-            @move="moveItem"
-            @update="updateItem"
-            @indent="indentItem"
-            @outdent="outdentItem"
-            @reorder="handleReorder"
-          />
+          <div>
+            <OutlineItem
+              :item="element"
+              :depth="0"
+              :siblings="currentItems"
+              @toggle="toggleItem"
+              @zoom="zoomToItem"
+              @add="addItem"
+              @delete="deleteItem"
+              @move="moveItem"
+              @update="updateItem"
+              @indent="indentItem"
+              @outdent="outdentItem"
+              @reorder="handleReorder"
+            />
+          </div>
         </template>
-      </draggable>cu
+      </draggable>
     </div>
   </div>
 </template>

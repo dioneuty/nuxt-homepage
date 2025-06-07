@@ -28,6 +28,14 @@
 - **패턴 설명**: 자기 자신을 재귀적으로 호출하는 컴포넌트를 만들어 메뉴-하위 메뉴와 같은 계층 구조의 데이터를 효과적으로 렌더링합니다.
 - **구현**: `components/common/AppMenu.vue` 컴포넌트가 이 패턴을 사용하여 DB에 저장된 다단계 메뉴 구조를 표시합니다.
 
+### 5. 다크 모드 구현 패턴
+- **패턴 설명**: 사용자의 시스템 설정에 따라 애플리케이션의 UI 테마(라이트/다크)를 자동으로 전환하고, 수동 전환 기능도 제공합니다.
+- **구현**:
+  - `@nuxtjs/color-mode` 모듈을 사용하여 Nuxt.js 앱에서 시스템 색상 모드를 감지하고, `<html>` 태그에 `dark` 클래스를 자동으로 추가/제거합니다.
+  - Tailwind CSS의 `darkMode: 'class'` 설정을 통해 `dark:` 프리픽스가 붙은 유틸리티 클래스(예: `dark:bg-gray-900`, `dark:text-white`)를 사용하여 다크 모드 스타일을 적용합니다.
+  - `layouts/admin.vue`와 같은 전역 레이아웃 및 각 페이지/컴포넌트에서 이러한 `dark:` 클래스를 활용하여 일관된 테마를 유지합니다.
+  - 관리자 페이지 상단 헤더에 `useColorMode`를 활용한 토글 아이콘을 추가하여 사용자가 라이트/다크/시스템 모드를 수동으로 전환할 수 있도록 합니다.
+
 ## 데이터 모델링 패턴
 - **자기 참조 관계**: `BoardPost`(게시판)나 `Menu` 모델에서 `parentId` 필드를 사용하여 부모-자식 관계를 표현합니다. 이를 통해 답변글이나 하위 메뉴 같은 계층 구조를 구현합니다. `onDelete: Cascade` 옵션을 통해 부모 레코드 삭제 시 자식 레코드가 연쇄적으로 삭제되도록 하여 데이터 정합성을 유지합니다.
 - **상태 관리 필드**: `User` 모델의 `isActive` 필드처럼, 데이터의 상태를 명시적으로 관리하는 필드를 두어 비즈니스 로직을 단순화합니다.
@@ -140,7 +148,13 @@
 ## 컴포넌트 패턴
 - **모달 기반 CRUD**: `pages/adminpage/users.vue`와 같이 복잡한 CRUD(생성, 읽기, 수정, 삭제) 인터페이스를 구현할 때, 주 화면은 데이터 목록(테이블)을 표시하고 각 작업(생성, 수정, 삭제 확인 등)은 별도의 모달 컴포넌트(`components/admin/*.vue`)를 통해 처리합니다. 이 패턴은 UI를 깔끔하게 유지하고 각 기능의 관심사를 분리하는 데 효과적입니다.
 - **공용 피드백 컴포넌트**: `components/common/Toast.vue`와 같이 애플리케이션 전반에서 사용될 수 있는 피드백 컴포넌트를 만들어 사용자 경험의 일관성을 높입니다. 이벤트 발생 시 페이지 레벨에서 토스트의 상태를 관리하여 메시지를 표시합니다.
-- **명시적 컴포넌트 Import**: Nuxt의 컴포넌트 자동 임포트(`auto-import`) 기능이 예상대로 동작하지 않을 경우, `[Vue warn]: Failed to resolve component`와 같은 경고가 발생할 수 있습니다. 이 경우, 해당 컴포넌트를 사용하는 부모 컴포넌트의 `<script setup>` 블록 내에서 `import ComponentName from '~/components/path/to/ComponentName.vue'`와 같이 명시적으로 컴포넌트를 import하여 문제를 해결합니다. 
+- **명시적 컴포넌트 Import**: Nuxt의 컴포넌트 자동 임포트(`auto-import`) 기능이 예상대로 동작하지 않을 경우, `[Vue warn]: Failed to resolve component`와 같은 경고가 발생할 수 있습니다. 이 경우, 해당 컴포넌트를 사용하는 부모 컴포넌트의 `<script setup>` 블록 내에서 `import ComponentName from '~/components/path/to/ComponentName.vue'`와 같이 명시적으로 컴포넌트를 import하여 문제를 해결합니다.
+
+### 6. 아웃라이너 항목 구조 (vuedraggable)
+- **패턴 설명**: `vuedraggable` 컴포넌트 사용 시 `Item slot must have only one child` 오류를 방지하기 위해, 드래그 가능한 각 아이템의 슬롯(`template #item`) 내부가 항상 **단 하나의 최상위(root) HTML 요소**로 감싸여 있도록 명시적으로 구조화합니다.
+- **구현**:
+  - `pages/outliner.vue`의 메인 `draggable` 컴포넌트에서 `OutlineItem`을 `div`로 감쌌습니다.
+  - `components/OutlineItem.vue` 내부의 중첩된 `draggable` 컴포넌트에서도 `OutlineItem`을 `div`로 감싸는 재귀적인 방식으로 이 패턴을 적용합니다. 이는 `vuedraggable`이 재귀적 구조에서 각 슬롯 항목을 올바르게 인식하도록 보장합니다.
 
 ### 5. Quill 에디터 이미지 처리 커스터마이징
 - **패턴 설명**: 표준 이미지 업로드 기능을 사용하는 대신, 이미지를 Base64 문자열로 변환하여 에디터 콘텐츠에 직접 삽입하는 방식을 사용합니다. 또한, 클라이언트 사이드에서 이미지 크기 조절, 삭제, 교체 기능을 제공하여 사용자 경험을 향상시킵니다.

@@ -46,7 +46,12 @@
       <!-- 상단 헤더 -->
       <header class="bg-white dark:bg-gray-800 shadow-sm p-4 flex justify-between items-center">
         <h1 class="text-xl font-semibold text-gray-800 dark:text-gray-200">관리자 페이지</h1>
-        <NuxtLink to="/" class="text-sm text-blue-500 hover:underline">사이트로 돌아가기</NuxtLink>
+        <div class="flex items-center space-x-4">
+          <button @click="toggleColorMode" class="p-2 rounded-full bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 hover:bg-gray-300 dark:hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
+            <Icon :icon="colorModeIcon" class="w-5 h-5" />
+          </button>
+          <NuxtLink to="/" class="text-sm text-blue-500 hover:underline">사이트로 돌아가기</NuxtLink>
+        </div>
       </header>
       
       <!-- 페이지 콘텐츠가 렌더링될 부분 -->
@@ -59,6 +64,32 @@
 
 <script setup>
 import { Icon } from '@iconify/vue';
+// import { useColorMode } from '@nuxtjs/color-mode'; // 올바른 임포트 경로 -> 자동 임포트되므로 필요 없음
+import { computed } from 'vue';
+
+const colorMode = useColorMode();
+
+// 현재 색상 모드에 따라 아이콘을 동적으로 변경
+const colorModeIcon = computed(() => {
+  switch (colorMode.preference) {
+    case 'light':
+      return 'mdi:white-balance-sunny'; // 햇님 아이콘 (라이트 모드)
+    case 'dark':
+      return 'mdi:moon-waning-gibbous'; // 달 아이콘 (다크 모드)
+    case 'system':
+      return 'mdi:brightness-auto'; // 자동 아이콘 (시스템 모드)
+    default:
+      return 'mdi:white-balance-sunny';
+  }
+});
+
+// 모드를 전환하는 함수
+const toggleColorMode = () => {
+  const modes = ['light', 'dark', 'system'];
+  const currentIndex = modes.indexOf(colorMode.preference);
+  const nextIndex = (currentIndex + 1) % modes.length;
+  colorMode.preference = modes[nextIndex];
+};
 </script>
 
 <style scoped>

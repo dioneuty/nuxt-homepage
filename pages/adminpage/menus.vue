@@ -1,9 +1,9 @@
 <!-- pages/adminpage/menus.vue -->
 <template>
   <div>
-    <h2 class="text-2xl font-semibold mb-4">메뉴 관리</h2>
+    <h2 class="text-2xl font-semibold mb-4 dark:text-white">메뉴 관리</h2>
     
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6">
+    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 dark:shadow-none">
       <div class="mb-4">
         <button @click="openModal()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
           <Icon icon="mdi:plus" class="mr-2" />
@@ -17,13 +17,13 @@
           <li class="bg-gray-50 dark:bg-gray-700 p-3 rounded-lg" :data-id="menu.id">
             <div class="flex items-center justify-between">
               <div class="flex items-center">
-                <Icon :icon="menu.icon || 'mdi:menu'" class="w-6 h-6 mr-3 text-gray-500" />
-                <span class="font-semibold">{{ menu.name }}</span>
-                <span class="text-sm text-gray-500 ml-2">{{ menu.path }}</span>
+                <Icon :icon="menu.icon || 'mdi:menu'" class="w-6 h-6 mr-3 text-gray-500 dark:text-gray-300" />
+                <span class="font-semibold dark:text-white">{{ menu.name }}</span>
+                <span class="text-sm text-gray-500 ml-2 dark:text-gray-300">{{ menu.path }}</span>
               </div>
               <div class="space-x-2">
-                <button @click="openModal(menu)" class="text-blue-500 hover:text-blue-700"><Icon icon="mdi:pencil" /></button>
-                <button @click="deleteMenu(menu.id)" class="text-red-500 hover:text-red-700"><Icon icon="mdi:delete" /></button>
+                <button @click="openModal(menu)" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"><Icon icon="mdi:pencil" /></button>
+                <button @click="deleteMenu(menu.id)" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"><Icon icon="mdi:delete" /></button>
               </div>
             </div>
             <!-- 하위 메뉴 -->
@@ -32,13 +32,13 @@
                 <li class="bg-gray-100 dark:bg-gray-600 p-3 rounded-lg" :data-id="child.id">
                   <div class="flex items-center justify-between">
                     <div class="flex items-center">
-                      <Icon :icon="child.icon || 'mdi:menu'" class="w-5 h-5 mr-2 text-gray-500" />
-                      <span>{{ child.name }}</span>
-                       <span class="text-sm text-gray-400 ml-2">{{ child.path }}</span>
+                      <Icon :icon="child.icon || 'mdi:menu'" class="w-5 h-5 mr-2 text-gray-500 dark:text-gray-300" />
+                      <span class="dark:text-white">{{ child.name }}</span>
+                       <span class="text-sm text-gray-400 ml-2 dark:text-gray-300">{{ child.path }}</span>
                     </div>
                     <div class="space-x-2">
-                      <button @click="openModal(child, menu.id)" class="text-blue-500 hover:text-blue-700"><Icon icon="mdi:pencil" /></button>
-                      <button @click="deleteMenu(child.id)" class="text-red-500 hover:text-red-700"><Icon icon="mdi:delete" /></button>
+                      <button @click="openModal(child, menu.id)" class="text-blue-500 hover:text-blue-700 dark:text-blue-400 dark:hover:text-blue-300"><Icon icon="mdi:pencil" /></button>
+                      <button @click="deleteMenu(child.id)" class="text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300"><Icon icon="mdi:delete" /></button>
                     </div>
                   </div>
                 </li>
@@ -52,25 +52,25 @@
     <!-- 메뉴 추가/수정 모달 -->
     <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
       <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
-        <h3 class="text-xl font-bold mb-4">{{ editingMenu.id ? '메뉴 수정' : '새 메뉴 추가' }}</h3>
+        <h3 class="text-xl font-bold mb-4 dark:text-white">{{ editingMenu.id ? '메뉴 수정' : '새 메뉴 추가' }}</h3>
         <form @submit.prevent="saveMenu">
           <div class="space-y-4">
-            <input v-model="editingMenu.name" placeholder="메뉴 이름" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" required>
-            <input v-model="editingMenu.path" placeholder="경로 (예: /about)" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white">
-            <input v-model="editingMenu.icon" placeholder="아이콘 (예: mdi:home)" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white">
-            <select v-model="editingMenu.role" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white">
+            <input v-model="editingMenu.name" placeholder="메뉴 이름" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
+            <input v-model="editingMenu.path" placeholder="경로 (예: /about)" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
+            <input v-model="editingMenu.icon" placeholder="아이콘 (예: mdi:home)" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
+            <select v-model="editingMenu.role" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
               <option value="public">전체 공개</option>
               <option value="user">로그인한 사용자</option>
               <option value="admin">관리자</option>
             </select>
-            <select v-model="editingMenu.parentId" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white">
+            <select v-model="editingMenu.parentId" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
               <option :value="null">최상위 메뉴</option>
               <option v-for="menu in menus" :key="menu.id" :value="menu.id">{{ menu.name }}</option>
             </select>
           </div>
           <div class="flex justify-end mt-6 space-x-2">
-            <button type="button" @click="closeModal" class="bg-gray-300 dark:bg-gray-600 px-4 py-2 rounded">취소</button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">저장</button>
+            <button type="button" @click="closeModal" class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600">취소</button>
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">저장</button>
           </div>
         </form>
       </div>
