@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # 현재 작업 컨텍스트
 
 ## 현재 작업 초점
@@ -15,7 +20,18 @@
     - **DB 관리**: Prisma 스키마를 동적으로 분석하여 모든 DB 모델에 대한 CRUD UI를 제공하는 기능을 구현했습니다.
     - **사용자 관리**: 사용자 목록 조회(페이지네이션, 검색, 정렬 포함), 생성, 수정, 삭제, 비밀번호 재설정 등 전체 관리 시스템을 구현했습니다.
     - **동적 메뉴 관리**: 데이터베이스 기반으로 메뉴를 생성하고, 드래그앤드롭으로 순서를 변경하는 등 동적 메뉴 시스템을 완성했습니다.
-    - **게시판 관리 UI 구현**: `/adminpage/posts`에 게시판 목록 테이블, '새 게시판 추가' 버튼, 추가/수정 모달 UI를 구현하고 더미 데이터를 기반으로 CRUD 기능(추가, 수정, 삭제)을 포함했습니다.
+    - **게시글 관리 기능 확장**: `/adminpage/posts` 페이지를 확장하여 게시판 유형별(자유, 유머, Q&A) 게시글 목록 조회, 상세 조회, 생성, 수정, 삭제 기능을 구현했습니다.
+        - `server/api/admin/posts/index.get.js`: 게시판 유형별 게시글 목록을 페이지네이션, 검색, 정렬(최신순)과 함께 조회합니다.
+        - `server/api/admin/posts/[id].get.js`: 특정 게시글의 상세 정보를 조회합니다.
+        - `server/api/admin/posts/index.post.js`: 새 게시글을 생성합니다.
+        - `server/api/admin/posts/[id].put.js`: 기존 게시글을 수정합니다.
+        - `server/api/admin/posts/[id].delete.js`: 특정 게시글을 삭제합니다.
+        - `components/admin/AdminBoardIndex.vue`: `BoardIndex.vue`를 기반으로 관리자 게시글 목록에 특화된 컴포넌트를 생성하여 통합했습니다.
+        - `pages/adminpage/posts/view.vue`: 게시글 상세 페이지를 구현하여 수정 및 삭제 기능을 제공합니다.
+        - `pages/adminpage/posts/write.vue`: 게시글 작성 및 수정 페이지를 구현했습니다.
+        - `server/utils/boardTypeMapper.js`: 게시판 유형과 Prisma 모델 및 설정 정보를 매핑하는 유틸리티를 구현했습니다.
+        - 초기 `posts.get.js` 파일로 인한 라우팅 충돌 문제를 해결했습니다.
+
     - **다크 모드 스타일 적용**: `pages/adminpage/index.vue`, `pages/adminpage/database.vue`, `pages/adminpage/menus.vue`, `pages/adminpage/posts.vue` 등 주요 관리자 페이지에 다크 모드에 맞는 텍스트 및 UI 요소 색상 스타일을 적용했습니다.
 
 3.  **핵심 시스템 안정화 및 UI/UX 개선**

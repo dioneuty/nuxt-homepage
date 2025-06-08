@@ -1,0 +1,229 @@
+<template>
+  <div class="container mx-auto px-4 py-8">
+    <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white text-center flex items-center justify-center">
+      <Icon :icon="boardIcon" class="mr-2" />
+      {{ boardTitle }}
+    </h1>
+    <div class="bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg overflow-hidden overflow-x-auto">
+      <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
+        <thead :class="headerColorClass">
+          <draggable v-model="localHeaders" item-key="key" tag="tr" @end="onDragEnd">
+            <template #item="{ element: header }">
+              <th 
+                scope="col" 
+                class="px-6 py-3 text-left text-xs font-medium text-gray-700 uppercase tracking-wider dark:text-gray-200 cursor-move border-r border-gray-300 dark:border-gray-600 last:border-r-0" 
+                :class="header.class" 
+                @click="header.sortable !== false && toggleSort(header.key)"
+              >
+                <div class="flex items-center">
+                  <Icon :icon="header.icon" class="inline mr-1" />
+                  {{ header.label }}
+                  <Icon v-if="header.sortable !== false" :icon="header.sortIcon" class="ml-1" />
+                </div>
+              </th>
+            </template>
+          </draggable>
+        </thead>
+        <tbody class="bg-white divide-y divide-gray-200 dark:bg-gray-800 dark:text-white">
+          <template v-if="initialLoading">
+            <tr v-for="i in itemsPerPage" :key="i" class="h-16">
+              <td :colspan="localHeaders.length" class="px-6 py-4 text-center">
+                <div v-if="i === Math.ceil(itemsPerPage / 2)" class="flex justify-center items-center h-full">
+                  <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-white"></div>
+                  <span class="ml-2">로딩 중...</span>
+                </div>
+              </td>
+            </tr>
+          </template>
+          <template v-else-if="posts && posts.length">
+            <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" @click="goToPostDetail(post.id)">
+              <td v-for="header in localHeaders" :key="header.key" class="px-6 py-4 whitespace-nowrap border-r border-gray-200 dark:border-gray-700 last:border-r-0" :class="header.class">
+                <template v-if="header.key === 'title'">
+                  <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">
+                    <Icon icon="mdi:account" class="inline mr-1" />{{ post.author }} | 
+                    <Icon icon="mdi:calendar" class="inline mr-1" />{{ formatDate(post.createdAt) }}
+                  </span>
+                  <span class="truncate block max-w-xs sm:max-w-none" :class="{ 'pl-5': post.parentId }">
+                    <Icon v-if="post.parentId" icon="mdi:subdirectory-arrow-right" class="inline mr-1 text-gray-500" />
+                    <Icon v-else icon="mdi:text" class="inline mr-1" />
+                    {{ post.title || '(제목 없음)' }}
+                  </span>
+                </template>
+                <template v-else>
+                  {{ post[header.key] }}
+                </template>
+              </td>
+            </tr>
+          </template>
+          <template v-else>
+            <tr>
+              <td :colspan="localHeaders.length" class="px-6 py-4 text-center">
+                게시물이 없습니다.
+              </td>
+            </tr>
+          </template>
+        </tbody>
+      </table>
+    </div>
+    
+    <SearchBar @search="handleSearch" />
+    
+    <Pagination 
+      :total-items="totalItems" 
+      :items-per-page="itemsPerPage" 
+      :current-page="currentPage"
+      @page-change="handlePageChange"
+      @items-per-page-change="handleItemsPerPageChange"
+    />
+  </div>
+</template>
+
+<script setup>
+import { ref, watchEffect, computed, onMounted } from 'vue'
+import SearchBar from '~/components/board/SearchBar.vue'
+import Pagination from '~/components/board/Pagination.vue'
+import { Icon } from '@iconify/vue'
+import { useRouter } from 'vue-router'
+import draggable from 'vuedraggable'
+import { formatDate } from '~/utils/dateFormatter'
+
+const props = defineProps({
+  boardType: {
+    type: String,
+    required: true
+  },
+  adminBoardType: {
+    type: String, // 실제 게시판 유형 (freeboard, humor, qna)
+    required: true
+  },
+  boardTitle: {
+    type: String,
+    required: true
+  },
+  boardIcon: {
+    type: String,
+    required: true
+  },
+  apiEndpoint: {
+    type: String,
+    required: true
+  },
+  headerColorClass: {
+    type: String,
+    default: 'bg-green-100 dark:bg-green-800'
+  },
+  tableHeaders: {
+    type: Array,
+    required: true
+  }
+})
+
+const totalItems = ref(0)
+const itemsPerPage = ref(10)
+const currentPage = ref(1)
+const searchParams = ref({ type: 'title', text: '' })
+const sortColumn = ref('')
+const sortOrder = ref('asc')
+
+const localHeaders = ref([...props.tableHeaders])
+
+const sortedHeaders = computed(() => {
+  return localHeaders.value.map(header => ({
+    ...header,
+    sortable: header.sortable !== false,
+    sortIcon: getSortIcon(header.key)
+  }))
+})
+
+function getSortIcon(key) {
+  if (sortColumn.value !== key) return 'mdi:sort'
+  return sortOrder.value === 'asc' ? 'mdi:sort-ascending' : 'mdi:sort-descending'
+}
+
+function toggleSort(key) {
+  if (sortColumn.value === key) {
+    sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
+  } else {
+    sortColumn.value = key
+    sortOrder.value = 'asc'
+  }
+  currentPage.value = 1
+  refresh()
+}
+
+const initialLoading = ref(true)
+
+const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async function() {
+  try {
+    const response = await $fetch(props.apiEndpoint, {
+      params: {
+        page: currentPage.value,
+        itemsPerPage: itemsPerPage.value,
+        type: searchParams.value.type,
+        text: searchParams.value.text,
+        sortColumn: sortColumn.value,
+        sortOrder: sortOrder.value,
+        boardType: props.adminBoardType // 새롭게 추가된 prop
+      }
+    })
+    totalItems.value = response.total
+    return response.posts
+  } finally {
+    initialLoading.value = false
+  }
+}, {
+  watch: [currentPage, itemsPerPage, searchParams, sortColumn, sortOrder, () => props.adminBoardType],
+  server: false
+})
+
+onMounted(function() {
+  if (posts.value) {
+    initialLoading.value = false
+
+    for (let i = 0; i < posts.value.length; i++) {
+      posts.value[i].createdAt = formatDate(posts.value[i].createdAt)
+    }
+  }
+})
+
+function handleSearch(params) {
+  searchParams.value = params
+  currentPage.value = 1
+}
+
+async function handlePageChange(page) {
+  currentPage.value = page
+}
+
+async function handleItemsPerPageChange(newItemsPerPage) {
+  itemsPerPage.value = newItemsPerPage
+  currentPage.value = 1
+}
+
+const router = useRouter()
+
+function goToPostDetail(postId) {
+  // 관리자 페이지 경로에 맞게 수정
+  router.push(`/adminpage/posts/view?boardType=${props.adminBoardType}&id=${postId}`)
+}
+
+function onDragEnd() {
+  // 변경된 헤더 순서를 로컬 스토리지에 저장
+  localStorage.setItem(`${props.boardType}_headerOrder`, JSON.stringify(localHeaders.value.map(function(h) { return h.key })))
+  console.log('New header order:', localHeaders.value)
+}
+
+onMounted(function() {
+  // 저장된 헤더 순서 불러오기
+  const savedOrder = JSON.parse(localStorage.getItem(`${props.boardType}_headerOrder`))
+  if (savedOrder) {
+    localHeaders.value = savedOrder.map(function(key) { 
+      return props.tableHeaders.find(function(h) { return h.key === key }) 
+    }).filter(Boolean)
+  }
+})
+</script>
+
+<style scoped>
+/* 필요한 경우 추가 스타일 */
+</style> 

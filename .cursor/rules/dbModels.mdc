@@ -1,3 +1,8 @@
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # Database Models (Prisma Schema)
 
 이 문서는 프로젝트의 데이터베이스 스키마를 정의하는 `prisma/schema.prisma` 파일의 내용을 담고 있습니다.

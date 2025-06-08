@@ -112,33 +112,29 @@ export default defineNuxtConfig({
     '/contact': { prerender: true },
     '/under-construction': { prerender: true },
     
-    // 동적 콘텐츠 (서버 사이드 렌더링) 에 대한 설정 - 메인 페이지
-    
-    // 동적 라우트에 대한 설정 - blog, gallery, admin-gallery, wiki, ai-chat, board, adminboard, contactboard, qna
-    '/': { swr: true },
-    '/qna': { swr: true },
-    '/contactboard': { swr: true },
-    '/adminboard': { swr: true },
-    '/board': { swr: true },
-    '/blog/**': { swr: true }, // Stale-While-Revalidate 전략 사용
-    '/gallery/**': { swr: true },
-    '/admingallery/**': { swr: true },
-    '/wiki/**': { swr: true },
-    '/ai-chat/**': { swr: true },
-    '/search/**': { swr: true },
-    '/youtube-gallery/**': { swr: true },
+    // 동적 콘텐츠 (증분 정적 재생성 - 60초마다 갱신)
+    '/': { swr: 60 },
+    '/qna': { swr: 60 },
+    '/contactboard': { swr: 60 },
+    '/board': { swr: 60 },
+    '/blog/**': { swr: 60 },
+    '/gallery/**': { swr: 60 },
+    '/wiki/**': { swr: 60 },
+    '/ai-chat/**': { swr: 60 },
+    '/search/**': { swr: 60 },
+    '/youtube-gallery/**': { swr: 60 },
+    '/humor/**': { swr: 60 },
+    '/guestbook/**': { swr: 60 },
 
     // API 라우트
     '/api/**': { cors: true, headers: { 'access-control-allow-methods': 'GET, POST, PUT, DELETE' } },
 
-    // 클라이언트 사이드 렌더링 - outliner
+    // 클라이언트 사이드 렌더링 - outliner, personal-info, admin, adminboard, admingallery
     '/outliner/**': { ssr: false },
-
-    // 관리자 페이지 (클라이언트 사이드 렌더링)
-    //'/admin/**': { ssr: false },
-
-    // 동적 콘텐츠가 있는 페이지 (서버 사이드 렌더링)
-    //'/dynamic/**': { ssr: true },
+    '/personal-info/**': { ssr: false },
+    '/adminpage/**': { ssr: false },
+    '/adminboard/**': { ssr: false },
+    '/admingallery/**': { ssr: false },
 
     // 주기적으로 업데이트되는 페이지 (증분 정적 재생성)
     //'/frequently-updated/**': { isr: 60 } // 60초마다 재생성
