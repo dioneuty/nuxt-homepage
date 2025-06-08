@@ -76,6 +76,15 @@
     - `layouts/default.vue` 및 `layouts/blog.vue`에서 `document.body.style.backgroundColor`를 직접 제어하는 로직을 제거하고, `@nuxtjs/color-mode` 모듈이 `html` 태그에 `dark` 클래스를 올바르게 추가하여 Tailwind CSS 규칙에 따라 배경색이 적용되도록 최종 수정하여 시스템 색상 설정 시 배경색이 실시간으로 전환되지 않던 문제를 해결했습니다.
     - `layouts/default.vue` 및 `layouts/blog.vue`에서 테마 색상을 결정하는 computed 속성(`currentHeaderColor`, `currentFooterColor`, `currentBackgroundColor`)에 `colorMode.preference` 대신 `colorMode.value`를 사용하여 실제 적용된 색상 모드를 기준으로 색상을 선택하도록 수정하여 시스템 색상 설정 시 헤더바가 라이트 모드 기준으로 색상이 뜨던 문제를 해결했습니다.
 
+13. **AI 채팅 페이지 개선**
+    - `pages/ai-chat.vue`에 '기다리는 중...' 메시지 옆에 스피닝 바와 함께 응답 대기 시간을 `1.xx` 초 형식으로 표시하는 기능을 추가했습니다.
+    - `utils/dateFormatter.js`에 초 단위 유닉스 타임스탬프를 처리하는 `formatUnixTimestamp` 함수를 추가하고, `pages/ai-chat.vue`에서 이를 사용하여 날짜를 올바르게 포맷팅하도록 리팩터링했습니다.
+
+14. **외국어 학습 페이지 기능 분석 및 흐름 파악**
+    - `pages/english.vue` 및 `pages/japanese.vue` 파일을 분석하여 두 페이지 모두 텍스트 파일을 가져와 문장을 음성으로 재생하는 '읽기 연습' 기능을 제공함을 확인했습니다.
+    - 주요 기능은 텍스트 파일 업로드, 문장 목록 표시, 음성 재생(전체, 100문장, 체크된 항목, 개별 문장), 재생 제어(정지, 일시정지, 재개), 재생 설정(속도, 간격) 조절, 문장 리셋 등입니다.
+    - 브라우저의 `SpeechSynthesis` API를 활용하며, 각 언어에 맞는 `utterance.lang` (en-US, ja-JP)을 사용합니다.
+
 ## 다음 단계
 1.  **기능 안정성 검토 및 버그 수정**: 현재까지 구현된 모든 기능(특히 Quill 에디터, 관리자 페이지, 회원가입, 개인정보 수정)에 대한 종합적인 테스트를 수행하고 안정성을 확보합니다. 사용자 피드백을 수집하여 잠재적인 버그나 개선점을 수정합니다.
 2.  **콘텐츠 관리 고도화 (장기 목표)**:

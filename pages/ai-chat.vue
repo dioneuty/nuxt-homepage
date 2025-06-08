@@ -85,14 +85,14 @@
                 <div v-else class="text-gray-500 italic">빈 메시지</div>
             </div>
             <p v-if="message.model" class="text-xs text-gray-500">({{ message.model }})</p>
-            <p v-if="message.created" class="text-xs text-gray-500">({{ formatDate(message.created, 'HH:mm') }})</p>
+            <p v-if="message.created" class="text-xs text-gray-500">({{ formatUnixTimestamp(message.created) }})</p>
           </div>
           <div v-if="isWaiting && index === currentChat.length - 1" class="flex justify-center items-center dark:text-white">
             <svg class="animate-spin h-5 w-5 mr-3 text-blue-500" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
               <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
               <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v2a6 6 0 00-6 6H4z"></path>
             </svg>
-            기다리는 중...
+            기다리는 중... ({{ (elapsedTime / 1000).toFixed(2) }}초)
           </div>
         </div>
       </div>
@@ -109,7 +109,7 @@
 </template>
 
 <script setup>
-import { ref, onMounted, nextTick, watch } from 'vue'
+import { ref, onMounted, nextTick, watch, onUnmounted } from 'vue'
 import { marked } from 'marked'
 import hljs from 'highlight.js/lib/core';
 import javascript from 'highlight.js/lib/languages/javascript';
@@ -131,6 +131,7 @@ import ruby from 'highlight.js/lib/languages/ruby';
 import 'highlight.js/styles/github-dark.css'
 import { v4 as uuidv4 } from 'uuid'
 import { formatDate } from '~/utils/dateFormatter'
+import { formatUnixTimestamp } from '~/utils/dateFormatter'
 
 // 페이지 제목과 설명을 동적으로 설정
 definePageMeta ({
@@ -171,11 +172,31 @@ const isLoading = ref(false)
 const isSidebarOpen = ref(false)
 const isWaiting = ref(false)
 const chatContainer = ref(null)
+const elapsedTime = ref(0) // 경과 시간을 저장할 새로운 반응형 변수
+let timerInterval = null // 타이머 인터벌 ID를 저장할 변수
 
 onMounted(async () => {
   await loadChatHistory()
   startNewChat()
 })
+
+// isWaiting 값 변화를 감지하여 타이머 시작/정지
+watch(isWaiting, (newValue) => {
+  if (newValue) {
+    elapsedTime.value = 0; // 대기 시작 시 시간 초기화
+    timerInterval = setInterval(() => {
+      elapsedTime.value += 10; // 10ms씩 증가
+    }, 10); // 10ms마다 실행
+  } else {
+    clearInterval(timerInterval);
+    timerInterval = null;
+  }
+});
+
+// 컴포넌트 언마운트 시 타이머 정리
+onUnmounted(() => {
+  clearInterval(timerInterval);
+});
 
 function startNewChat() {
   currentChat.value = []
