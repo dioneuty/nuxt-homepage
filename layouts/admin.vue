@@ -27,9 +27,27 @@
             </NuxtLink>
           </li>
           <li>
-            <NuxtLink to="/adminpage/posts" class="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-              <Icon icon="mdi:post-outline" class="w-5 h-5 mr-3" />
-              게시글 관리
+            <NuxtLink
+              to="/adminpage/posts"
+              class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            >
+              <Icon
+                name="mdi:post"
+                class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+              />
+              <span class="flex-1 ms-3 whitespace-nowrap">게시글 관리</span>
+            </NuxtLink>
+          </li>
+          <li>
+            <NuxtLink
+              to="/adminpage/relatedsites"
+              class="flex items-center p-2 text-gray-900 rounded-lg dark:text-white hover:bg-gray-100 dark:hover:bg-gray-700 group"
+            >
+              <Icon
+                name="mdi:web"
+                class="flex-shrink-0 w-5 h-5 text-gray-500 transition duration-75 group-hover:text-gray-900 dark:text-gray-400 dark:group-hover:text-white"
+              />
+              <span class="flex-1 ms-3 whitespace-nowrap">관련 사이트 관리</span>
             </NuxtLink>
           </li>
           <li>

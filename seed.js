@@ -18,6 +18,7 @@ async function main() {
   await prisma.adminBoard.deleteMany({})
   await prisma.qnA.deleteMany({})
   await prisma.menu.deleteMany({})
+  await prisma.relatedSite.deleteMany({})
   // 다른 모델들도 필요에 따라 추가
 
   // User 데이터 생성 (admin)
@@ -191,6 +192,22 @@ async function main() {
     }
   }
   console.log('Menus created.');
+
+  // RelatedSite 데이터 생성
+  console.log('Creating related sites...');
+  await prisma.relatedSite.createMany({
+    data: [
+      { name: '블루드림', url: 'https://www.bluedream.co.kr', description: '블루드림 공식 웹사이트입니다. 다양한 정보와 서비스를 제공합니다.', order: 1 },
+      { name: '블루드릴 네이버 블로그', url: 'https://blog.naver.com/bluedrills', description: '블루드릴 네이버 블로그입니다. 합리적인 가격과 양질의 서비스를 제공합니다.', order: 2 },
+      { name: '플라워 써클 유튜브', url: 'https://www.youtube.com/@플라워써클', description: '플라워 써클 유튜브입니다. 매우 즐거운 동물 관련 유머 동영상을 보여줍니다.', order: 3 },
+      { name: '네이버 지도', url: 'https://map.naver.com', description: '네이버에서 제공하는 지도 서비스입니다. 길찾기, 주변 검색 등 다양한 기능을 제공합니다.', order: 4 },
+      { name: '깃허브', url: 'https://github.com', description: '개발자들을 위한 버전 관리 및 협업 플랫폼입니다.', order: 5 },
+      { name: 'Stack Overflow', url: 'https://stackoverflow.com', description: '프로그래머를 위한 질문답변 커뮤니티입니다.', order: 6 },
+      { name: 'MDN Web Docs', url: 'https://developer.mozilla.org/ko/', description: '웹 기술에 대한 포괄적인 문서를 제공하는 리소스입니다.', order: 7 },
+      { name: 'Vue.js', url: 'https://vuejs.org', description: '사용자 인터페이스를 구축하기 위한 진보적인 JavaScript 프레임워크입니다.', order: 8 }
+    ]
+  });
+  console.log('Related sites created.');
 
   console.log('Seeding finished.')
 }
