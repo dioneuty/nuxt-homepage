@@ -32,6 +32,8 @@ alwaysApply: true
         - `server/utils/boardTypeMapper.js`: 게시판 유형과 Prisma 모델 및 설정 정보를 매핑하는 유틸리티를 구현했습니다.
         - 초기 `posts.get.js` 파일로 인한 라우팅 충돌 문제를 해결했습니다.
 
+    - **갤러리 관리 기능 개선**: `components/admin/AdminGalleryWrite.vue`에 갤러리 분류 필드를 추가하고, 갤러리 항목 생성 및 수정 시 API 요청에 해당 분류 정보가 포함되도록 수정했습니다. 또한, 수정 API의 경로를 `/api/admin/gallery/[id]`에서 `/api/admin/gallery`로 변경하고 요청 본문에 `id`를 포함하도록 개선했습니다.
+
     - **다크 모드 스타일 적용**: `pages/adminpage/index.vue`, `pages/adminpage/database.vue`, `pages/adminpage/menus.vue`, `pages/adminpage/posts.vue` 등 주요 관리자 페이지에 다크 모드에 맞는 텍스트 및 UI 요소 색상 스타일을 적용했습니다.
 
 3.  **핵심 시스템 안정화 및 UI/UX 개선**
@@ -100,6 +102,15 @@ alwaysApply: true
     - `pages/english.vue` 및 `pages/japanese.vue` 파일을 분석하여 두 페이지 모두 텍스트 파일을 가져와 문장을 음성으로 재생하는 '읽기 연습' 기능을 제공함을 확인했습니다.
     - 주요 기능은 텍스트 파일 업로드, 문장 목록 표시, 음성 재생(전체, 100문장, 체크된 항목, 개별 문장), 재생 제어(정지, 일시정지, 재개), 재생 설정(속도, 간격) 조절, 문장 리셋 등입니다.
     - 브라우저의 `SpeechSynthesis` API를 활용하며, 각 언어에 맞는 `utterance.lang` (en-US, ja-JP)을 사용합니다.
+
+15. **갤러리 관리 페이지 및 API 개선**:
+    - `pages/adminpage/gallery.vue` 파일을 `pages/adminpage/gallery/index.vue`로 이름 변경 및 내용 복원하여 Nuxt.js 라우팅 규칙에 맞게 `/adminpage/gallery` 경로를 처리하도록 했습니다.
+    - `pages/adminpage/gallery/[id].vue` 파일을 `pages/adminpage/gallery/view.vue`로 이름 변경하여 상세 페이지 라우팅을 명확히 했습니다.
+    - `pages/adminpage/gallery/index.vue`에서 상세 페이지로 이동 시 `item.id`를 라우트 파라미터 대신 쿼리 파라미터로 전달하도록 `viewItemDetail` 함수를 수정했습니다.
+    - `pages/adminpage/gallery/view.vue`에서 갤러리 ID를 라우트 파라미터 대신 쿼리 파라미터에서 가져오도록 수정했습니다.
+    - 중복된 `pages/adminpage/gallery/[id].vue` 파일을 삭제하여 파일 시스템을 정리했습니다.
+    - `server/api/admin/gallery/[id].get.js` 파일의 내용을 `server/api/admin/gallery/get.js` 파일에 통합하고, `[id].get.js` 파일을 삭제했습니다. 이제 `server/api/admin/gallery/get.js`가 단일 항목 및 목록 조회를 모두 처리합니다.
+    - `pages/adminpage/gallery/index.vue` 파일에서 `TypeError: Cannot read properties of undefined (reading 'length')` 오류를 해결하기 위해 `item.tags?.join(', ')`와 같이 옵셔널 체이닝을 적용하여 `tags`가 `undefined`일 경우 발생할 수 있는 문제를 방지했습니다.
 
 ## 다음 단계
 1.  **기능 안정성 검토 및 버그 수정**: 현재까지 구현된 모든 기능(특히 Quill 에디터, 관리자 페이지, 회원가입, 개인정보 수정)에 대한 종합적인 테스트를 수행하고 안정성을 확보합니다. 사용자 피드백을 수집하여 잠재적인 버그나 개선점을 수정합니다.

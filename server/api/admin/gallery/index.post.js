@@ -12,27 +12,44 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event);
-    const { title, description, content, tags } = body;
+    const { title, description, content, tags, galleryType } = body;
 
-    if (!title || !description || !content) {
-      throw createError({ statusCode: 400, message: '제목, 설명, 콘텐츠는 필수 입력 사항입니다.' });
+    if (!title || !description || !content || !galleryType) {
+      throw createError({ statusCode: 400, message: '제목, 설명, 콘텐츠, 갤러리 분류는 필수 입력 사항입니다.' });
     }
 
     const tagArray = tags ? tags.split(',').map(tag => tag.trim()) : [];
 
-    const newGalleryItem = await prisma.adminGalleryItem.create({
-      data: {
-        title,
-        description,
-        content,
-        tags: tagArray,
-      },
-    });
+    if (galleryType === 'admin') {
+      const newAdminGalleryItem = await prisma.adminGalleryItem.create({
+        data: {
+          title,
+          description,
+          content,
+          tags: tagArray,
+        },
+      });
 
-    return {
-      success: true,
-      item: newGalleryItem,
-    };
+      return {
+        success: true,
+        item: newAdminGalleryItem,
+      };
+    } else if (galleryType === 'general') {
+      const newGalleryItem = await prisma.galleryItem.create({
+        data: {
+          title,
+          description,
+          content,
+          tags: tagArray,
+        },
+      });
+
+      return {
+        success: true,
+        item: newGalleryItem,
+      };
+    }
+
   } catch (error) {
     throw createError({
       statusCode: error.statusCode || 500,

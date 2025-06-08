@@ -5,6 +5,18 @@
         <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">{{ galleryItem ? '갤러리 항목 수정' : '새 갤러리 항목 추가' }}</h2>
         <form @submit.prevent="handleSubmit">
           <div class="mb-4">
+            <label for="galleryType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">갤러리 분류</label>
+            <select
+              id="galleryType"
+              v-model="form.galleryType"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              required
+            >
+              <option value="general">일반 갤러리</option>
+              <option value="admin">관리자 갤러리</option>
+            </select>
+          </div>
+          <div class="mb-4">
             <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목</label>
             <input
               type="text"
@@ -95,6 +107,7 @@ const form = reactive({
   description: '',
   content: '',
   tags: '',
+  galleryType: 'general',
 });
 
 const resetForm = () => {
@@ -103,6 +116,7 @@ const resetForm = () => {
   form.description = '';
   form.content = '';
   form.tags = '';
+  form.galleryType = 'general';
 };
 
 // galleryItem prop이 변경될 때마다 폼 데이터 업데이트
@@ -113,6 +127,7 @@ watch(() => props.galleryItem, (newItem) => {
     form.description = newItem.description;
     form.content = newItem.content;
     form.tags = newItem.tags; // 이미 문자열로 변환되어 넘어옴
+    form.galleryType = newItem.type || 'general'; // galleryType 추가 (type으로 넘어옴)
   } else {
     resetForm();
   }
@@ -129,13 +144,15 @@ const handleSubmit = async () => {
   try {
     if (form.id) {
       // 수정
-      await $fetch(`/api/admin/gallery/${form.id}`, {
+      await $fetch(`/api/admin/gallery`, {
         method: 'PUT',
         body: {
           title: form.title,
           description: form.description,
           content: form.content,
           tags: form.tags,
+          id: form.id,
+          galleryType: form.galleryType,
         },
       });
       showToast('갤러리 항목이 성공적으로 수정되었습니다.', 'success');
@@ -148,6 +165,7 @@ const handleSubmit = async () => {
           description: form.description,
           content: form.content,
           tags: form.tags,
+          galleryType: form.galleryType,
         },
       });
       showToast('새 갤러리 항목이 성공적으로 추가되었습니다.', 'success');
