@@ -140,9 +140,9 @@ model Wiki {
 }
 
 model OutlineItem {
-  id        BigInt    @id
+  id        String    @id @default(uuid())
   content   String
-  parentId  BigInt?
+  parentId  String?
   order     Int?
   parent    OutlineItem?  @relation("ChildItems", fields: [parentId], references: [id])
   children  OutlineItem[] @relation("ChildItems")

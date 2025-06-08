@@ -21,8 +21,8 @@
 3.  **핵심 시스템 안정화 및 UI/UX 개선**
     - **인증 시스템**: `useAuth` composable을 리팩터링하여 전역 인증 상태 관리 로직을 안정화하고 관련 버그를 해결했습니다. 관리자로 로그인 시 헤더 업데이트 및 관리자 페이지 접근 이슈 해결.
     - **다크 모드 구현**: `@nuxtjs/color-mode` 모듈과 Tailwind CSS `darkMode: 'class'`를 활용하여 관리자 페이지 포함 전반적인 애플리케이션의 다크/라이트/시스템 모드 연동 및 UI 스타일을 성공적으로 적용했습니다. 관리자 페이지 헤더에 모드 전환 아이콘을 추가했습니다.
-    - **아웃라이너 페이지 오류 수정**: `vuedraggable`의 `Item slot must have only one child` 오류 해결을 위해 `pages/outliner.vue` 및 `components/OutlineItem.vue`에서 드래그 가능한 항목 슬롯 내부에 단일 최상위 요소(`div`)를 명시적으로 감싸는 구조로 수정했습니다.
-    - **Nuxt/Vue 경고 메시지 해결**: `useFetch` 경고 (`BlogIndex.vue`), `showMobileCategory` 경고 (`blog.vue`), Vue Router `to="#"` 경고 (`AppMenu.vue`) 등 다양한 경고 메시지를 해결하여 시스템 안정성을 높였습니다.
+    - **아웃라이너 페이지 오류 수정**: `vuedraggable`의 `TypeError: Cannot read properties of null (reading 'id')` 오류 해결을 위해 `pages/outliner.vue`의 `handleDragStart` 함수에서 `id`를 `parseInt`로 변환하던 로직을 제거했습니다. 최상위 노드 드래그앤드롭 재정렬 문제를 해결하기 위해 `pages/outliner.vue`와 `components/OutlineItem.vue`의 `draggable` 컴포넌트 `group` 속성을 `{ name: 'outline-group', pull: true, put: true }`로 명시적 객체 형태로 변경했습니다. `pages/outliner.vue`의 최상위 `draggable` 컴포넌트 내 `template #item` 슬롯에서 `OutlineItem`을 감싸던 불필요한 `<div>` 태그를 제거했으며, 진단 목적으로 `pages/outliner.vue`의 최상위 `draggable` 컴포넌트에서 `handle=".drag-handle"` 속성을 임시 제거하고 `checkDragMove` 함수 내부의 유효성 검사 로직을 임시 주석 처리했습니다. 브레드크럼 경로가 올바르게 표시되지 않던 문제 해결을 위해 `pages/outliner.vue`에 `findPathToItem` 함수를 추가하고 `zoomToItem` 함수를 수정하여 선택된 아이템의 전체 경로를 정확하게 반영하도록 했습니다.
+    - **Nuxt/Vue 경고 메시지 해결**: `useFetch` 경고 (`BlogIndex.vue`), `showMobileCategory` 경고 (`blog.vue`), Vue Router `to="#"` 경고 (`AppMenu.vue`), 그리고 `OutlineItem.vue`의 `@copy`, `@paste`, `@change` 이벤트 바인딩 오류(직접 `emit` 함수를 호출하도록 수정) 등 다양한 경고 메시지를 해결하여 시스템 안정성을 높였습니다.
     - **UI 연동**: `components/Nav.vue`를 수정하여 관리자 계정 로그인 시 헤더에 관리자 페이지 이동 아이콘이 표시되도록 개선했습니다.
     - **게시판 UI**: `components/PostList.vue`에서 답변 글일 경우 제목 왼편에 답변 기호(↳)를 추가하여 시각적 구분을 명확히 했습니다.
     - **갤러리 모달**: `components/gallery/GalleryModal.vue`에서 화살표 아이콘이 이미지에 가려지지 않도록 `z-index`를 조정하고, 반투명 처리 및 스크롤 고정을 통해 사용자 경험을 개선했습니다.

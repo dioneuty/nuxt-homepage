@@ -1,226 +1,385 @@
 <template>
-  <div class="mb-1.5" :style="{ marginLeft: `${depth * 20}px` }">
-    <div class="flex items-center bg-white dark:bg-gray-800 p-1.5 rounded shadow-sm">
-      <div class="drag-handle text-gray-500 dark:text-gray-400 cursor-move">
-        <Icon icon="mdi:drag-horizontal-variant" />
-      </div>
-      <button v-if="hasChildren" @click="toggleItem" class="text-gray-600 dark:text-gray-300">
-        <Icon :icon="item.expanded ? 'mdi:chevron-down' : 'mdi:chevron-right'" />
-      </button>
-      <input
-        v-if="isEditing"
-        v-model="editedContent"
-        @blur="finishEditing"
-        @keyup.enter="handleEnter"
-        @keydown.tab.prevent="handleTab"
-        @keydown.shift.tab.prevent="handleShiftTab"
-        ref="editInput"
-        :disabled="isLocked"
-        class="flex-grow mx-2.5 px-1.5 py-0.5 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100"
-      />
-      <span v-else @click="startEditing" class="flex-grow mx-2.5 cursor-text text-gray-900 dark:text-gray-100">{{ item.content }}</span>
-      <div class="flex gap-1.5">
-        <button @click="toggleContent" title="내용 보기/숨기기" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon :icon="showContent ? 'mdi:eye-off' : 'mdi:eye'" />
-        </button>
-        <button @click="saveContent" title="내용 저장" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon icon="mdi:content-save" />
-        </button>
-        <button @click="toggleLock" title="잠금/해제" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon :icon="isLocked ? 'mdi:lock' : 'mdi:lock-open'" />
-        </button>
-        <button @click="$emit('zoom', item)" title="확대" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon icon="mdi:magnify-plus-outline" />
-        </button>
-        <button @click="$emit('add', item.id)" title="추가" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon icon="mdi:plus" />
-        </button>
-        <button @click="$emit('delete', item.id)" title="삭제" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon icon="mdi:delete" />
-        </button>
-        <button @click="$emit('move', item.id, 'up')" title="위로" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon icon="mdi:arrow-up" />
-        </button>
-        <button @click="$emit('move', item.id, 'down')" title="아래로" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded">
-          <Icon icon="mdi:arrow-down" />
-        </button>
-        <button @click="handleTab" title="들여쓰기" :disabled="!canIndent" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded disabled:opacity-50 disabled:cursor-not-allowed">
-          <Icon icon="mdi:format-indent-increase" />
-        </button>
-        <button @click="handleShiftTab" title="내어쓰기" :disabled="!canOutdent" class="text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-700 p-0.5 rounded disabled:opacity-50 disabled:cursor-not-allowed">
-          <Icon icon="mdi:format-indent-decrease" />
-        </button>
-      </div>
-    </div>
-    <div v-if="showContent" class="mt-2">
-      <CommonQuillEditor
-        :value="itemContent"
-        @input="updateItemContent"
-        placeholder="내용을 입력하세요..."
-        :readonly="isLocked"
-      />
-    </div>
-    <draggable
-      v-if="item.expanded"
-      v-model="item.children"
-      item-key="id"
-      handle=".drag-handle"
-      @change="emitChange"
-      class="mt-1.5"
+  <div
+    :class="[
+      'outline-item-container flex items-start group',
+      {'dark:text-white': true},
+      {'bg-blue-100 dark:bg-blue-800': isSelected},
+      {'ml-5': depth > 0},
+    ]"
+    :data-item-id="item.id"
+  >
+    <!-- 드래그 핸들 -->
+    <div
+      class="drag-handle flex-shrink-0 cursor-grab px-2 py-1 -ml-2 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"
     >
-      <template #item="{ element }">
-        <OutlineItem
-          :item="element"
-          :depth="depth + 1"
-          :siblings="item.children"
-          @toggle="$emit('toggle', $event)"
-          @zoom="$emit('zoom', $event)"
-          @add="$emit('add', $event)"
-          @delete="$emit('delete', $event)"
-          @move="$emit('move', $event)"
-          @update="$emit('update', $event)"
-          @indent="$emit('indent', $event)"
-          @outdent="$emit('outdent', $event)"
-          @change="$emit('change', $event)"
+      <Icon icon="mdi:drag-vertical" />
+    </div>
+
+    <!-- 토글 및 내용 -->
+    <div class="flex-grow flex flex-col">
+      <div class="flex items-center space-x-2 py-1">
+        <!-- 토글 버튼 -->
+        <button
+          v-if="item.children && item.children.length > 0"
+          @click.stop="toggleExpand"
+          class="focus:outline-none focus:ring-0"
+        >
+          <Icon
+            :icon="item.expanded ? 'mdi:menu-down' : 'mdi:menu-right'"
+            class="text-xl text-gray-600 dark:text-gray-300"
+          />
+        </button>
+        <button
+          v-else
+          class="focus:outline-none focus:ring-0 cursor-default"
+        >
+          <Icon icon="mdi:circle-small" class="text-xl text-gray-400" />
+        </button>
+
+        <!-- 아이템 내용 -->
+        <input
+          v-if="isEditing"
+          type="text"
+          v-model="mutableContent"
+          @blur="saveContent"
+          @keyup.enter="saveContent"
+          class="flex-grow p-1 border rounded shadow-sm focus:ring-2 focus:ring-blue-500 dark:bg-gray-600 dark:text-white dark:border-gray-500"
         />
-      </template>
-    </draggable>
+        <span
+          v-else
+          @click="selectItem"
+          @dblclick="startEditing"
+          class="flex-grow p-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-200"
+          :class="{'font-bold': item.children && item.children.length > 0}"
+        >
+          {{ item.content }}
+        </span>
+
+        <!-- 자식 추가 버튼 -->
+        <button
+          @click.stop="emitAdd(item.id)"
+          class="flex-shrink-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0"
+        >
+          <Icon icon="mdi:plus" class="text-lg text-gray-600 dark:text-gray-300" />
+        </button>
+
+        <!-- 상세 보기 아이콘 (모바일 전용) -->
+        <button
+          v-if="isMobile"
+          @click.stop="emit('showDetail', item)"
+          class="flex-shrink-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0"
+        >
+          <Icon icon="mdi:text-box-search-outline" class="text-lg text-gray-600 dark:text-gray-300" />
+        </button>
+
+        <!-- 노드 옵션 드롭다운 -->
+        <div class="relative ml-auto">
+          <button @click.stop="toggleDropdown" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0">
+            <Icon icon="mdi:dots-horizontal" class="text-lg text-gray-600 dark:text-gray-300" />
+          </button>
+          <DropdownMenu
+            v-if="showDropdown"
+            :options="menuOptions"
+            @select="handleMenuItemSelect"
+            @close="showDropdown = false"
+            class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg z-10"
+          />
+        </div>
+
+        <!-- 확대/축소 버튼 -->
+        <button
+          @click.stop="zoomToItem"
+          v-if="item.children && item.children.length > 0"
+          class="flex-shrink-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0"
+        >
+          <Icon icon="mdi:magnify-plus-outline" class="text-lg text-gray-600 dark:text-gray-300" />
+        </button>
+      </div>
+
+      <!-- 자식 항목들 -->
+      <div v-if="item.expanded && item.children" class="outline-children">
+        <draggable
+          v-model="item.children"
+          item-key="id"
+          @change="(e) => emit('change', e)"
+          handle=".drag-handle"
+          ghost-class="ghost"
+          :animation="200"
+          :group="{ name: 'outline-group', pull: true, put: true }"
+          :move="(evt) => checkDragMove(evt, depth + 1)"
+          @start="handleDragStart"
+          @end="handleDragEnd"
+        >
+          <template #item="{ element }">
+            <OutlineItem
+              :item="element"
+              :depth="depth + 1"
+              :siblings="item.children"
+              @toggle="emitToggle"
+              @zoom="emitZoom"
+              @add="emitAdd"
+              @delete="emitDelete"
+              @update="emitUpdate"
+              @indent="emitIndent"
+              @outdent="emitOutdent"
+              @reorder="(e) => emit('reorder', e)"
+              @itemSelected="emitItemSelected"
+              @addAbove="emitAddAbove"
+              @addBelow="emitAddBelow"
+              @rename="emitUpdate"
+              @duplicate="emitDuplicate"
+              @cut="emitCut"
+              @copy="(e) => emit('copy', e)"
+              @paste="(e) => emit('paste', e)"
+              @showDetail="emitShowDetail"
+              :checkDragMove="checkDragMove"
+              :draggingItem="draggingItem"
+              :handleDragStart="handleDragStart"
+              :handleDragEnd="handleDragEnd"
+              :isClipboardNotEmpty="isClipboardNotEmpty"
+              :potentialHierarchyChange="potentialHierarchyChange"
+              :isMobile="isMobile"
+            />
+          </template>
+        </draggable>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup>
-import { ref, nextTick, computed, watch, onMounted } from 'vue'
+import { ref, watch, computed } from 'vue'
 import { Icon } from '@iconify/vue'
 import draggable from 'vuedraggable'
-import CommonQuillEditor from './CommonQuillEditor.vue'
+import DropdownMenu from '~/components/common/DropdownMenu.vue'
 
-const props = defineProps(['item', 'depth', 'siblings', 'newItemId'])
-const emit = defineEmits(['toggle', 'zoom', 'add', 'delete', 'move', 'update', 'indent', 'outdent', 'reorder'])
-
-const isEditing = ref(false)
-const editedContent = ref(props.item.content)
-const editInput = ref(null)
-const showContent = ref(false)
-const itemContent = ref('')
-const isLocked = ref(false)
-
-onMounted(async () => {
-  if (props.item.id) {
-    await fetchItemContent()
+const props = defineProps({
+  item: {
+    type: Object,
+    required: true,
+  },
+  depth: {
+    type: Number,
+    default: 0,
+  },
+  siblings: {
+    type: Array,
+    default: () => [],
+  },
+  checkDragMove: { // Prop for the drag move validation function
+    type: Function,
+    required: true
+  },
+  draggingItem: { // Prop for the currently dragged item
+    type: Object,
+    default: null
+  },
+  handleDragStart: {
+    type: Function,
+    required: true
+  },
+  handleDragEnd: {
+    type: Function,
+    required: true
+  },
+  isClipboardNotEmpty: {
+    type: Boolean,
+    default: false
+  },
+  potentialHierarchyChange: { // New prop for potential hierarchy change
+    type: Object,
+    default: () => ({ type: null, targetItemId: null })
+  },
+  isMobile: {
+    type: Boolean,
+    default: false,
   }
 })
 
-async function fetchItemContent() {
-  try {
-    const response = await fetch(`/api/outline-item/${props.item.id.toString()}`)
-    if (response.ok) {
-      const data = await response.json()
-      itemContent.value = data.content || ''
-    } else {
-      console.error('Error fetching item content:', response.statusText)
-    }
-  } catch (error) {
-    console.error('Error fetching item content:', error)
+const emit = defineEmits([
+  'toggle',
+  'zoom',
+  'add',
+  'delete',
+  'update',
+  'indent',
+  'outdent',
+  'reorder',
+  'itemSelected',
+  'addAbove',
+  'addBelow',
+  'rename',
+  'duplicate',
+  'cut',
+  'copy',
+  'paste',
+  'showDetail',
+  'change',
+])
+
+const isEditing = ref(false)
+const mutableContent = ref(props.item.content)
+const showDropdown = ref(false)
+
+// 드롭다운 메뉴 옵션
+const menuOptions = computed(() => {
+  const options = [
+    { label: '이름 변경', action: 'rename' },
+    { label: '삭제', action: 'delete' },
+    { label: '복제', action: 'duplicate' },
+    { label: '복사', action: 'copy' },
+    { label: '잘라내기', action: 'cut' },
+    { label: '------------', action: 'separator', disabled: true }, // 구분선
+    { label: '위에 추가', action: 'addAbove' },
+    { label: '아래에 추가', action: 'addBelow' },
+  ];
+  if (props.isClipboardNotEmpty) {
+    options.push({ label: '붙여넣기', action: 'paste' });
   }
+  return options;
+});
+
+const isSelected = computed(() => {
+  // Assume a global selected item state or pass down from parent
+  // For now, let's just make a simple check (you'd replace this with actual logic)
+  return false; // This needs to be hooked up to the actual selected item in pages/outliner.vue
+});
+
+watch(() => props.item.content, (newContent) => {
+  mutableContent.value = newContent;
+});
+
+function toggleExpand() {
+  // console.log('Toggle expand called for item:', props.item.id, 'Current expanded:', props.item.expanded);
+  props.item.expanded = !props.item.expanded;
+  // console.log('New expanded state:', props.item.expanded);
+  emit('toggle', props.item);
+  // console.log('Emitted toggle event with new item state.');
+}
+
+function zoomToItem() {
+  emit('zoom', props.item);
 }
 
 function startEditing() {
-  if (!isLocked.value) {
-    isEditing.value = true
-    editedContent.value = props.item.content
-    nextTick(() => {
-      editInput.value.focus()
-    })
+  isEditing.value = true;
+}
+
+function saveContent() {
+  isEditing.value = false;
+  if (mutableContent.value !== props.item.content) {
+    emit('update', { id: props.item.id, content: mutableContent.value });
   }
 }
 
-function finishEditing() {
-  isEditing.value = false
-  if (editedContent.value !== props.item.content) {
-    emit('update', { id: props.item.id, content: editedContent.value })
+function emitToggle(item) {
+  emit('toggle', item);
+}
+
+function emitZoom(item) {
+  emit('zoom', item);
+}
+
+function emitAdd(parentId) {
+  emit('add', parentId);
+}
+
+function emitDelete(id) {
+  emit('delete', id);
+}
+
+function emitUpdate(updatedItem) {
+  emit('update', updatedItem);
+}
+
+function emitIndent(id) {
+  emit('indent', id);
+}
+
+function emitOutdent(id) {
+  emit('outdent', id);
+}
+
+function selectItem() {
+  emit('itemSelected', props.item);
+}
+
+function emitItemSelected(item) {
+  emit('itemSelected', item);
+}
+
+function emitAddAbove(id) {
+  emit('addAbove', id);
+}
+
+function emitAddBelow(id) {
+  emit('addBelow', id);
+}
+
+function toggleDropdown() {
+  showDropdown.value = !showDropdown.value;
+}
+
+function handleMenuItemSelect(option) {
+  showDropdown.value = false; // 메뉴 선택 시 드롭다운 닫기
+  switch (option.action) {
+    case 'rename':
+      startEditing();
+      break;
+    case 'delete':
+      emit('delete', props.item.id);
+      break;
+    case 'duplicate':
+      emit('duplicate', props.item.id);
+      break;
+    case 'cut':
+      emit('cut', props.item.id);
+      break;
+    case 'copy':
+      emit('copy', props.item.id);
+      break;
+    case 'paste':
+      emit('paste', props.item.id);
+      break;
+    case 'addAbove':
+      emit('addAbove', props.item.id);
+      break;
+    case 'addBelow':
+      emit('addBelow', props.item.id);
+      break;
+    default:
+      break;
   }
 }
 
-const canIndent = computed(() => {
-  if (!props.siblings || props.siblings.length < 2) return false
-  const currentIndex = props.siblings.findIndex(sibling => sibling.id === props.item.id)
-  return currentIndex > 0 // 첫 번째 항목이 아니면 들여쓰기 가능
-})
-
-const canOutdent = computed(() => {
-  return props.depth > 0 // 최상위 항목이 아니면 내어쓰기 가능
-})
-
-function handleTab(event) {
-  event.preventDefault()
-  if (canIndent.value) {
-    emit('indent', props.item.id)
-  }
+function emitShowDetail(item) {
+  emit('showDetail', item);
 }
-
-function handleShiftTab(event) {
-  event.preventDefault()
-  if (canOutdent.value) {
-    emit('outdent', props.item.id)
-  }
-}
-
-function emitChange() {
-  emit('reorder')
-}
-
-function toggleItem() {
-  if (props.item.children && props.item.children.length > 0) {
-    emit('toggle', props.item)
-  }
-}
-
-function toggleContent() {
-  showContent.value = !showContent.value
-}
-
-async function saveContent() {
-  try {
-    await fetch(`/api/outline-item/${props.item.id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ content: itemContent.value })
-    })
-    // 저장 성공 메시지 표시
-    alert('내용이 저장되었습니다.')
-  } catch (error) {
-    console.error('Error saving item content:', error)
-    alert('내용 저장에 실패했습니다.')
-  }
-}
-
-function toggleLock() {
-  isLocked.value = !isLocked.value
-  if (isLocked.value && isEditing.value) {
-    finishEditing()
-  }
-}
-
-async function updateItemContent(content) {
-  if (!isLocked.value) {
-    itemContent.value = content
-    try {
-      await fetch(`/api/outline-item/${props.item.id.toString()}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ content })
-      })
-    } catch (error) {
-      console.error('Error updating item content:', error)
-    }
-  }
-}
-
-const hasChildren = computed(() => {
-  return props.item.children && props.item.children.length > 0
-})
 </script>
 
 <style scoped>
-/* Tailwind 클래스로 대체되어 스타일 제거 */
+/* Add styling for drag-and-drop */
+.ghost {
+  opacity: 0.5;
+  background: #c8ebfb;
+}
+
+.ghost::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 2px;
+  background-color: #2196F3;
+}
+
+/* Optional: style for when a drag is over a potential indent/outdent zone */
+.potential-indent {
+  border-left: 2px solid blue; /* Example visual cue */
+}
+
+.potential-outdent {
+  border-right: 2px solid orange; /* Example visual cue */
+}
 </style>

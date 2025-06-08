@@ -31,14 +31,14 @@ const bigIntToString = (data) => {
 
 export default defineEventHandler(async (event) => {
   const method = event.req.method
-  // URL 파라미터에서 항목 ID를 추출합니다. Prisma의 BigInt와 호환되도록 문자열로 유지합니다.
+  // URL 파라미터에서 항목 ID를 추출합니다.
   const { id } = event.context.params
 
   // GET 요청 처리: 특정 아웃라인 항목을 ID로 조회합니다.
   if (method === 'GET') {
-    // Prisma를 사용하여 ID에 해당하는 아웃라인 항목을 조회합니다. ID는 BigInt로 변환됩니다.
+    // Prisma를 사용하여 ID에 해당하는 아웃라인 항목을 조회합니다. ID는 문자열로 유지합니다.
     const item = await prisma.outlineItem.findUnique({
-      where: { id: BigInt(id) }
+      where: { id: id }
     })
     // 항목을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
     if (!item) {
@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
     
     // 기존 항목 조회 (upsert의 create 부분에서 사용될 수 있는 order 및 parentId를 가져오기 위함)
     const existingItem = await prisma.outlineItem.findUnique({
-      where: { id: BigInt(id) }
+      where: { id: id }
     })
 
     // Prisma의 upsert 기능을 사용하여 항목을 업데이트하거나 생성합니다.
@@ -65,10 +65,10 @@ export default defineEventHandler(async (event) => {
     // update: 항목이 발견되면 'content'를 업데이트합니다.
     // create: 항목이 발견되지 않으면 새로운 항목을 생성합니다. 이때 기존 항목의 order 및 parentId를 사용하거나 기본값 0/null을 설정합니다.
     const result = await prisma.outlineItem.upsert({
-      where: { id: BigInt(id) },
+      where: { id: id },
       update: { content },
       create: {
-        id: BigInt(id),
+        id: id,
         content,
         order: existingItem ? existingItem.order : 0,
         parentId: existingItem ? existingItem.parentId : null

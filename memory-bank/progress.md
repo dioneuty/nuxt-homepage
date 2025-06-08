@@ -26,6 +26,9 @@
     - `pages/personal-info.vue`에서 "이름" 입력 필드를 `disabled` 처리하여 수정 불가능하도록 하고, 시각적으로(어두운 배경색 및 `cursor-not-allowed`) 비활성화 상태를 명확히 했습니다.
   - **다크 모드 구현**: `@nuxtjs/color-mode` 모듈과 Tailwind CSS `darkMode: 'class'`를 활용하여 관리자 페이지 포함 전반적인 애플리케이션의 다크/라이트/시스템 모드 연동 및 UI 스타일 적용 완료. 관리자 페이지 헤더에 모드 전환 아이콘 추가.
   - **아웃라이너 페이지 오류 수정**: `vuedraggable`의 `Item slot must have only one child` 오류 해결을 위해 `pages/outliner.vue` 및 `components/OutlineItem.vue`에서 드래그 가능한 항목 슬롯 내부에 단일 최상위 요소(`div`)를 명시적으로 감싸는 구조로 수정 완료.
+  - **아웃라이너 페이지 기능 개선**: `TypeError: Cannot read properties of null (reading 'id')` 오류 해결을 위해 `pages/outliner.vue`의 `handleDragStart` 함수에서 `id`를 `parseInt`로 변환하던 로직을 제거했습니다. 최상위 노드 드래그앤드롭 재정렬 문제를 해결하기 위해 `pages/outliner.vue`와 `components/OutlineItem.vue`의 `draggable` 컴포넌트 `group` 속성을 `{ name: 'outline-group', pull: true, put: true }`로 명시적 객체 형태로 변경했습니다. `pages/outliner.vue`의 최상위 `draggable` 컴포넌트 내 `template #item` 슬롯에서 `OutlineItem`을 감싸던 불필요한 `<div>` 태그를 제거했으며, 진단 목적으로 `pages/outliner.vue`의 최상위 `draggable` 컴포넌트에서 `handle=".drag-handle"` 속성을 임시 제거하고 `checkDragMove` 함수 내부의 유효성 검사 로직을 임시 주석 처리했습니다.
+  - **브레드크럼 표시 오류 해결**: 중첩된 아이템의 브레드크럼 경로가 올바르게 표시되지 않던 문제를 해결하기 위해 `pages/outliner.vue`에 `findPathToItem` 함수를 추가하고 `zoomToItem` 함수를 수정하여 선택된 아이템의 전체 경로를 정확하게 반영하도록 했습니다.
+  - **Nuxt/Vue 경고 메시지 해결**: `useFetch` 경고 (`BlogIndex.vue`), `showMobileCategory` 경고 (`blog.vue`), Vue Router `to="#"` 경고 (`AppMenu.vue`) 등 다양한 경고 메시지를 해결 완료. 또한 `OutlineItem.vue`의 `@copy`, `@paste`, `@change` 이벤트 바인딩 오류(직접 `emit` 함수를 호출하도록 수정)를 해결하여 시스템 안정성을 높였습니다.
   - **관리자 페이지 UI 개선**: `/adminpage/posts`에 게시판 관리 페이지 UI(목록 테이블, '새 게시판 추가' 버튼, 추가/수정 모달) 구현 및 더미 데이터 기반 CRUD 기능(추가, 수정, 삭제) 포함 완료.
   - **관리자 페이지 다크 모드 스타일 적용**: `pages/adminpage/index.vue`, `pages/adminpage/database.vue`, `pages/adminpage/menus.vue`, `pages/adminpage/posts.vue` 등 주요 관리자 페이지에 다크 모드에 맞는 텍스트 및 UI 요소 색상 스타일 적용 완료.
 - **API 파일 TypeScript -> JavaScript 변환**:
