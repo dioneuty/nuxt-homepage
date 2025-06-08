@@ -121,6 +121,28 @@ async function handleRegister(event) {
     })
   }
 
+  // 사용자 이름 중복 확인
+  const existingUserByUsername = await prisma.user.findUnique({
+    where: { username: username },
+  })
+  if (existingUserByUsername) {
+    return createError({
+      statusCode: 409,
+      statusMessage: '이미 사용 중인 사용자 이름입니다.',
+    })
+  }
+
+  // 이메일 중복 확인
+  const existingUserByEmail = await prisma.user.findUnique({
+    where: { email: email },
+  })
+  if (existingUserByEmail) {
+    return createError({
+      statusCode: 409,
+      statusMessage: '이미 사용 중인 이메일입니다.',
+    })
+  }
+
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await prisma.user.create({
@@ -170,17 +192,20 @@ async function handleUpdate(event) {
     const { payload } = await jose.jwtVerify(token, secret)
     
     const body = await readBody(event)
-    const { username, email, password } = body
+    const { email, password } = body //username은 수정 불가능
 
-    const hashedPassword = await bcrypt.hash(password, 10)
+    const dataToUpdate = {
+      email,
+    };
+
+    if (password) {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      dataToUpdate.password = hashedPassword;
+    }
 
     const updatedUser = await prisma.user.update({
       where: { id: payload.userId },
-      data: {
-        username,
-        email,
-        password: hashedPassword
-      },
+      data: dataToUpdate,
       select: { id: true, username: true, email: true, role: true }
     })
 

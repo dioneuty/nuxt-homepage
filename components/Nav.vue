@@ -41,7 +41,7 @@
                   <Icon icon="mdi:account-circle" class="h-6 w-6" />
                   <span>{{ user.username }}</span>
                 </NuxtLink>
-                <NuxtLink v-if="user.role.toLowerCase() === 'admin'" to="/adminpage" class="text-white hover:text-blue-200 p-2 rounded-full">
+                <NuxtLink v-if="user.role.toLowerCase() === 'admin'" @click="onClickAdminPage" class="text-white hover:text-blue-200 p-2 rounded-full">
                   <Icon icon="mdi:shield-crown-outline" class="h-6 w-6" />
                 </NuxtLink>
                 <button @click="logout" class="text-white hover:text-blue-200 p-2 rounded-full">
@@ -82,7 +82,7 @@
                 <Icon icon="mdi:account-circle" class="h-6 w-6" />
                 <span>{{ user.username }}</span>
               </NuxtLink>
-              <NuxtLink v-if="user.role.toLowerCase() === 'admin'" to="/adminpage" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
+              <NuxtLink v-if="user.role.toLowerCase() === 'admin'" @click="onClickAdminPage" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
                 <Icon icon="mdi:shield-crown-outline" class="h-6 w-6" />
               </NuxtLink>
               <button @click="logout" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
@@ -215,6 +215,12 @@ const isMenuOpen = ref(false)
 function openMenu() {
   isMenuOpen.value = true
   document.body.style.overflow = 'hidden'
+}
+
+// 관리자 페이지 진입 시 헤더 고정 해제
+function onClickAdminPage() {
+  navStore.setIsAlwaysOnTop(false)
+  router.push('/adminpage')
 }
 
 function closeMenu() {

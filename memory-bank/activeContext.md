@@ -8,6 +8,8 @@
     - **다중 이미지 업로드 및 Base64 임베딩**: 사용자가 여러 이미지를 선택하면, 파일들을 Base64 문자열로 변환하여 에디터 콘텐츠에 직접 삽입하는 기능을 구현했습니다. 이로써 별도의 서버 사이드 업로드 로직 없이 이미지를 콘텐츠의 일부로 관리할 수 있게 되었습니다.
     - **이미지 편집 기능 추가**: `quill-resize-module` 라이브러리를 도입하여, 에디터 내에서 사용자가 직접 이미지 크기를 조절하고, 이미지를 삭제하거나 다른 이미지로 교체할 수 있는 기능을 추가했습니다.
     - **SSR 호환성 확보**: 클라이언트 사이드에서만 동작하는 라이브러리로 인해 발생하던 서버 사이드 렌더링(SSR) 오류를 `onMounted` 훅과 동적 `import()`를 사용하여 해결했습니다.
+    - `components/PostList.vue`에서 답변 글일 경우 제목 왼편에 답변 기호(↳)를 추가하여 시각적 구분을 명확히 했습니다.
+    - `components/gallery/GalleryModal.vue`에서 화살표 아이콘이 이미지에 가려지지 않도록 `z-index`를 조정하고, 반투명 처리 및 스크롤 고정을 통해 사용자 경험을 개선했습니다.
 
 2.  **관리자 페이지 기능 및 UI 개선**
     - **DB 관리**: Prisma 스키마를 동적으로 분석하여 모든 DB 모델에 대한 CRUD UI를 제공하는 기능을 구현했습니다.
@@ -25,30 +27,48 @@
     - **게시판 UI**: `components/PostList.vue`에서 답변 글일 경우 제목 왼편에 답변 기호(↳)를 추가하여 시각적 구분을 명확히 했습니다.
     - **갤러리 모달**: `components/gallery/GalleryModal.vue`에서 화살표 아이콘이 이미지에 가려지지 않도록 `z-index`를 조정하고, 반투명 처리 및 스크롤 고정을 통해 사용자 경험을 개선했습니다.
 
-4.  **API 파일 TypeScript -> JavaScript 변환**
+4.  **회원가입 기능 개선 및 강화**
+    - `components/common/RegisterModal.vue` 파일의 주석 처리된 회원가입 폼을 활성화하여 사용자 입력이 가능하도록 했습니다.
+    - 회원가입 성공 시 `useToast`를 사용하여 "회원가입이 완료되었습니다."라는 토스트 알림을 표시하도록 했습니다.
+    - `server/api/user.js`의 `handleRegister` 함수에 사용자 이름과 이메일의 중복 확인 로직을 추가하여 중복 시 `409 Conflict` 에러를 반환하도록 했습니다.
+    - 사용자 이름 중복 확인을 위한 새로운 API 엔드포인트 `server/api/user/check-username.get.js`를 생성하여 실시간 중복 확인 기능을 구현했습니다.
+    - `components/common/RegisterModal.vue`에서 사용자 이름 입력 필드의 글자 색깔을 중복 확인 결과(사용 가능: 녹색, 중복: 빨간색)에 따라 동적으로 변경하도록 했습니다.
+    - 이메일 및 비밀번호 입력 필드에 실시간 유효성 검사(이메일 형식, 비밀번호 길이 및 문자/숫자 포함)를 추가하고, 조건 만족 여부에 따라 글자 색상과 메시지(빨간색/녹색)를 표시하도록 했습니다.
+    - 회원가입 모달을 닫았을 때, 모든 입력 필드(`username`, `email`, `password`) 및 관련 유효성 검사 상태를 초기화하도록 `components/common/RegisterModal.vue`에 `watch(isOpen, ...)` 로직을 추가했습니다.
+    - "회원가입" 버튼이 사용자 이름 중복 확인 및 모든 필드의 유효성 검사를 통과해야만 활성화되도록 조건을 강화했습니다.
+
+5.  **개인정보 수정 기능 개선**
+    - `pages/personal-info.vue` 파일에서 "이름" 입력 필드를 `disabled` 처리하여 사용자가 수정할 수 없도록 했습니다.
+    - `pages/personal-info.vue`의 비활성화된 "이름" 입력 필드에 `disabled:bg-gray-200 disabled:dark:bg-gray-900 cursor-not-allowed` Tailwind CSS 클래스를 추가하여 시각적으로 편집 불가능함을 명확히 했습니다.
+    - `server/api/user.js`의 `handleUpdate` 함수에서 클라이언트로부터 전달되는 `username` 필드를 무시하고, `email`과 `password`만 업데이트되도록 API 로직을 수정하여 이름 변경을 서버 단에서도 방지했습니다.
+
+6.  **관리자 페이지 헤더 고정 해제 기능 추가**
+    - 관리자 페이지 링크 아이콘 클릭 시 헤더 고정을 즉시 해제하도록 소스를 수정했습니다.
+
+7. **API 파일 TypeScript -> JavaScript 변환**
     - `server/api/admin/db/` 경로의 모든 `.ts` API 파일들이 `.js`로 변환되었습니다. 이 과정에서 발생한 TypeScript 관련 린터 오류를 수정하고 원본 `.ts` 파일은 삭제되었습니다.
 
-5.  **테마 설정 기능 구현**
+8.  **테마 설정 기능 구현**
     - 일반 사용자 페이지의 헤더, 푸터, 배경 색상을 라이트/다크 모드에 따라 팔레트에서 선택하고 데이터베이스에 저장하는 기능을 구현했습니다.
     - `prisma/schema.prisma`에 `SiteConfig` 모델을 추가하여 `lightHeaderColor`, `darkHeaderColor`, `lightFooterColor`, `darkFooterColor`, `lightBackgroundColor`, `darkBackgroundColor` 필드를 정의하고 관련 데이터베이스 마이그레이션을 완료했습니다.
     - 관리자용 테마 설정 조회/업데이트 API (`server/api/admin/theme-settings.get.js`, `server/api/admin/theme-settings.put.js`)와 일반 사용자용 테마 설정 조회 API (`server/api/theme-settings.get.js`)를 구현하고 새로운 색상 필드를 처리하도록 업데이트했습니다.
     - 관리자 페이지의 테마 설정 UI를 `pages/adminpage/theme.vue` 경로로 분리하고, `layouts/admin.vue`의 사이드바에 해당 페이지로 이동하는 링크를 추가했습니다. 기존 `pages/adminpage/index.vue`에서는 테마 설정 UI를 제거했습니다.
     - `components/Nav.vue`와 `components/Footer.vue`가 색상 prop을 받도록 수정하고, `layouts/default.vue`에서 API를 통해 색상 설정을 불러와 현재 테마 모드에 따라 적절한 색상을 컴포넌트에 전달하도록 로직을 변경했습니다.
 
-6.  **토스트 알림 시스템 구현**
+9.  **토스트 알림 시스템 구현**
     - 전역적으로 사용할 수 있는 토스트 알림 시스템을 `composables/useToast.js` 컴포저블과 `components/common/Toast.vue` 컴포넌트를 사용하여 구축했습니다.
     - `app.vue`에 `Toast.vue` 컴포넌트를 추가하여 `useToast` 컴포저블과 연결함으로써 전역적으로 토스트 알림을 사용할 수 있도록 설정했습니다.
     - 토스트 알림이 가로로 표시되도록 UI 위치를 조정했습니다.
     - 테마 설정 저장 시 (`pages/adminpage/theme.vue`) 및 메뉴 관리 페이지 (`pages/adminpage/menus.vue`)의 메뉴 이동, 추가/수정, 삭제 시 `alert` 창 대신 토스트 알림을 사용하도록 변경했습니다.
 
-7.  **관리자 페이지 UI 개선**
+10. **관리자 페이지 UI 개선**
     - `layouts/admin.vue` 파일의 메인 헤더바 왼쪽에 사람 상반신 아이콘(`mdi:account`)을 추가하여 시각적인 구분을 명확히 했습니다.
 
-8.  **토스트 알림 시스템 개선**
+11. **토스트 알림 시스템 개선**
     - `composables/useToast.js`를 수정하여 새로운 알림이 열리면 이전 알림이 자동으로 닫히도록 중복 방지 로직을 추가했습니다.
     - `components/common/Toast.vue`에 Vue `<Transition>` 컴포넌트와 개선된 CSS 트랜지션 (`all 0.7s cubic-bezier(0.68, -0.55, 0.265, 1.55)`)을 적용하여 토스트 알림의 나타남/사라짐 애니메이션을 더 부드럽게 개선했습니다.
 
-9.  **테마 색상 적용 안정화 및 초기 로딩 배경색 문제 해결**
+12. **테마 색상 적용 안정화 및 초기 로딩 배경색 문제 해결**
     - `layouts/default.vue` 및 `layouts/blog.vue`에서 `onMounted` 훅 내부의 `fetchThemeSettings` 호출을 `await useFetch`로 변경하여 서버 사이드 렌더링(SSR) 시에도 테마 설정 데이터가 미리 로드되도록 수정했습니다.
     - `layouts/default.vue`의 최상위 `div`에서 불필요한 배경색 클래스를 제거하고, `document.body.style.backgroundColor`에 `currentBackgroundColor`를 `watch`하여 동적으로 적용하도록 로직을 변경했습니다.
     - `layouts/blog.vue`에도 `layouts/default.vue`와 동일하게 테마 설정 로직을 적용하여 헤더, 푸터, 배경색이 동적으로 반영되도록 했습니다.
@@ -57,13 +77,13 @@
     - `layouts/default.vue` 및 `layouts/blog.vue`에서 테마 색상을 결정하는 computed 속성(`currentHeaderColor`, `currentFooterColor`, `currentBackgroundColor`)에 `colorMode.preference` 대신 `colorMode.value`를 사용하여 실제 적용된 색상 모드를 기준으로 색상을 선택하도록 수정하여 시스템 색상 설정 시 헤더바가 라이트 모드 기준으로 색상이 뜨던 문제를 해결했습니다.
 
 ## 다음 단계
-1.  **기능 안정성 검토 및 버그 수정**: 현재까지 구현된 모든 기능(특히 Quill 에디터, 관리자 페이지)에 대한 종합적인 테스트를 수행하고 안정성을 확보합니다. 사용자 피드백을 수집하여 잠재적인 버그나 개선점을 수정합니다.
+1.  **기능 안정성 검토 및 버그 수정**: 현재까지 구현된 모든 기능(특히 Quill 에디터, 관리자 페이지, 회원가입, 개인정보 수정)에 대한 종합적인 테스트를 수행하고 안정성을 확보합니다. 사용자 피드백을 수집하여 잠재적인 버그나 개선점을 수정합니다.
 2.  **콘텐츠 관리 고도화 (장기 목표)**:
     - 이미지 Base64 저장 방식의 단점(데이터 크기)을 보완하기 위한 서버 업로드 또는 압축 기능 도입을 검토합니다.
     - 비디오 등 다양한 미디어 타입을 지원하는 방안을 모색합니다.
     - 자동 저장 기능을 구현하여 사용자 편의성을 높입니다.
 3.  **테스트 및 최적화**: 핵심 기능에 대한 단위/통합 테스트 코드 작성, 데이터베이스 쿼리 성능 최적화 및 인덱싱 전략 검토, 프론트엔드 성능(로딩 속도, 렌더링) 최적화를 진행합니다.
-4.  **사용자 정보 관리**: 사용자 정보 수정 기능의 상세 로직 구현을 완료합니다.
+4.  **사용자 정보 관리**: 이메일 변경 시 추가적인 확인 절차(예: 이메일 인증) 도입을 고려합니다.
 
 ## 현재 고려사항
 - **성능**: Base64 이미지 사용 증가에 따른 DB 성능 및 네트워크 부하를 지속적으로 모니터링하고 최적화 방안을 모색해야 합니다.

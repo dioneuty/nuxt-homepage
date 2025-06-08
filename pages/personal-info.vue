@@ -16,7 +16,8 @@
         <div>
           <label for="username" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">이름:</label>
           <input v-model="editedInfo.username" id="username" type="text" required 
-                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                 class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white disabled:bg-gray-200 disabled:dark:bg-gray-900 cursor-not-allowed"
+                 disabled>
         </div>
         <div>
           <label for="email" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">이메일:</label>
