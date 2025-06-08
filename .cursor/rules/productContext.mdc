@@ -33,6 +33,12 @@ alwaysApply: true
    - 게시글 상세 정보를 신속하게 확인
    - 게시글 생성, 수정, 삭제 작업을 용이하게 수행
 
+5. 갤러리 관리
+   - `pages/adminpage/gallery/index.vue`에서 갤러리 목록 표시 및 검색, 필터링, 페이지네이션 기능 제공
+   - `server/api/admin/gallery/get.js` API 엔드포인트를 통해 갤러리 목록 및 상세 데이터 조회 (ID를 쿼리 파라미터로 전달)
+   - `pages/adminpage/gallery/view.vue`에서 갤러리 상세 정보 표시 및 수정/삭제 기능 제공
+   - `server/api/admin/gallery` (POST/PUT/DELETE) API 엔드포인트를 통해 갤러리 항목 생성, 수정, 삭제
+
 ## 작동 방식
 1. 텍스트 에디터
    - Quill Editor 기반 구현

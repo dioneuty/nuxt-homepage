@@ -99,4 +99,9 @@ alwaysApply: true
    - 구현 방식:
      - `@nuxtjs/color-mode`를 통해 사용자의 시스템 색상 모드(라이트/다크)를 감지하고, `<html>` 태그에 `dark` 클래스를 자동으로 토글하도록 설정.
      - Tailwind CSS는 `darkMode: 'class'` 설정 덕분에 `<html>` 태그에 `dark` 클래스가 존재할 때 `dark:` 프리픽스가 붙은 유틸리티 클래스(예: `dark:bg-gray-900`, `dark:text-white`)를 적용하여 UI의 색상을 변경.
-     - 관리자 페이지의 헤더에 수동으로 색상 모드를 전환할 수 있는 UI (라이트/다크/시스템 아이콘)를 추가하여 사용자 편의성 제공. 
+     - 관리자 페이지의 헤더에 수동으로 색상 모드를 전환할 수 있는 UI (라이트/다크/시스템 아이콘)를 추가하여 사용자 편의성 제공.
+
+4. 갤러리 관리 기능 구현 방식
+   - **프론트엔드 라우팅**: Nuxt.js의 페이지 기반 라우팅을 사용하여 `/adminpage/gallery` 경로를 `pages/adminpage/gallery/index.vue`가 처리하도록 변경하고, 상세 페이지는 `pages/adminpage/gallery/view.vue`로 분리하여 `id`를 쿼리 파라미터로 전달하는 방식을 채택.
+   - **API 엔드포인트 통합**: 갤러리 항목 조회 API (`server/api/admin/gallery/[id].get.js`)를 `server/api/admin/gallery/get.js` 파일로 통합하여 단일 조회와 목록 조회를 하나의 엔드포인트에서 처리하도록 효율성을 높임.
+   - **데이터 안정성**: `item.tags`가 `undefined`일 때 발생할 수 있는 `TypeError`를 방지하기 위해 프론트엔드에서 옵셔널 체이닝(`?.join()`)을 적용하여 데이터 렌더링의 안정성을 확보. 

@@ -75,7 +75,7 @@ async function handleLogin(event) {
 
   // JWT Secret 가져오기 및 토큰 생성
   const secret = new TextEncoder().encode(process.env.JWT_SECRET)
-  const token = await new jose.SignJWT({ userId: user.id, role: user.role })
+  const token = await new jose.SignJWT({ userId: user.id, role: user.role, username: user.username })
     .setProtectedHeader({ alg: 'HS256' })
     .setExpirationTime('1h') // 토큰 유효 기간 1시간
     .sign(secret)
@@ -203,7 +203,7 @@ async function handleRegister(event) {
 
     // JWT Secret 가져오기 및 토큰 생성
     const secret = new TextEncoder().encode(process.env.JWT_SECRET)
-    const token = await new jose.SignJWT({ userId: user.id, role: user.role })
+    const token = await new jose.SignJWT({ userId: user.id, role: user.role, username: user.username })
       .setProtectedHeader({ alg: 'HS256' })
       .setExpirationTime('1h')
       .sign(secret)

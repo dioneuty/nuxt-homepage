@@ -1,14 +1,23 @@
 import { useRequestHeaders } from 'nuxt/app'
 import * as jose from 'jose'
+import { useAuth } from '~/composables/useAuth';
+import { navigateTo } from '#app';
 
 export default defineNuxtRouteMiddleware(async (to, from) => {
+  const auth = useAuth();
+
+  // 클라이언트 측에서 사용자 정보가 로드되지 않았다면 checkAuth 호출하여 기다림
+  if (process.client && !auth.user.value) {
+    await auth.checkAuth();
+  }
+
+  // 서버 측 로직 (기존 로직 유지)
   if (process.server) {
     const headers = useRequestHeaders(['cookie'])
     const token = headers.cookie?.split(';').find(c => c.trim().startsWith('auth_token='))?.split('=')[1]
 
     if (!token) {
-      // 토큰이 없으면 권한 없음 페이지로 리다이렉트
-      return navigateTo('/error-unauthorized?reason=no-token')
+      return navigateTo('/error-unauthorized?reason=no-token', { redirectCode: 302 })
     }
 
     try {
@@ -19,18 +28,20 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       const secretKey = new TextEncoder().encode(jwtSecret)
       const { payload } = await jose.jwtVerify(token, secretKey)
 
-      // 역할(role)을 소문자로 변환하여 'admin'과 비교
       if (payload.role?.toLowerCase() !== 'admin') {
-        return navigateTo('/error-unauthorized?reason=not-admin')
+        return navigateTo('/error-unauthorized?reason=not-admin', { redirectCode: 302 })
       }
-      
-      // 관리자일 경우, 요청에 사용자 정보를 추가하여 페이지에서 활용할 수 있도록 함
-      to.meta.user = payload
+
+      auth.setAuth(true, { id: payload.userId, username: payload.username, role: payload.role });
 
     } catch (error) {
-      console.error('Admin auth error:', error)
-      // 토큰이 유효하지 않은 경우도 권한 없음 페이지로 리다이렉트
-      return navigateTo('/error-unauthorized?reason=invalid-token')
+      console.error('[AuthMiddleware] Server-side: Admin auth error:', error);
+      return navigateTo('/error-unauthorized?reason=invalid-token', { redirectCode: 302 })
     }
+  }
+
+  // 최종적으로 isAdmin 값을 확인하여 리다이렉트
+  if (!auth.isAdmin.value) {
+    return navigateTo('/error-unauthorized?reason=not-admin-middleware', { redirectCode: 302 });
   }
 }) 
