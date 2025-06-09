@@ -11,6 +11,17 @@
         </button>
       </div>
 
+      <div class="mb-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg text-blue-800 dark:text-gray-300 border-l-4 border-blue-500 dark:border-gray-500">
+        <h4 class="font-semibold mb-2">메뉴 관리 사용 방법:</h4>
+        <ul class="list-disc list-inside text-sm space-y-1">
+          <li><Icon icon="mdi:plus" class="inline-block w-4 h-4 mr-1" /> <b>새 메뉴 추가:</b> 버튼을 클릭하여 새로운 메뉴를 생성합니다.</li>
+          <li><Icon icon="mdi:pencil" class="inline-block w-4 h-4 mr-1" /> <b>메뉴 수정:</b> 각 메뉴 옆의 연필 아이콘을 클릭하여 메뉴 이름, 경로, 아이콘, 역할을 수정합니다.</li>
+          <li><Icon icon="mdi:delete" class="inline-block w-4 h-4 mr-1" /> <b>메뉴 삭제:</b> 각 메뉴 옆의 휴지통 아이콘을 클릭하여 메뉴를 삭제합니다. (하위 메뉴도 함께 삭제됩니다)</li>
+          <li><b>메뉴 순서 변경:</b> 메뉴 항목을 드래그앤드롭하여 순서를 변경하거나, 하위 메뉴로 이동할 수 있습니다.</li>
+          <li><b>최상위 메뉴/하위 메뉴:</b> 메뉴 추가/수정 시 '최상위 메뉴' 또는 특정 부모 메뉴를 선택하여 계층 구조를 설정할 수 있습니다.</li>
+        </ul>
+      </div>
+
       <!-- 메뉴 목록 -->
       <draggable v-model="menus" item-key="id" tag="ul" class="space-y-2" @end="onDragEnd" :data-id="'root'">
         <template #item="{ element: menu }">

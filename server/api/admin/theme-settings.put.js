@@ -10,13 +10,13 @@ const prisma = new PrismaClient();
 export default defineEventHandler(async (event) => {
   const body = await readBody(event);
   // 요청 본문에서 다양한 색상 설정 값을 추출합니다.
-  const { lightHeaderColor, darkHeaderColor, lightFooterColor, darkFooterColor, lightBackgroundColor, darkBackgroundColor } = body;
+  const { lightHeaderColor, darkHeaderColor, lightFooterColor, darkFooterColor, lightBackgroundColor, darkBackgroundColor, siteTitle, siteLogoUrl, siteLogoIcon, showSiteTitle, showSiteLogoUrl, showSiteLogoIcon } = body;
 
   // 제공된 색상 데이터가 하나도 없는 경우 400 Bad Request 오류를 반환합니다.
-  if (!lightHeaderColor && !darkHeaderColor && !lightFooterColor && !darkFooterColor && !lightBackgroundColor && !darkBackgroundColor) {
+  if (!lightHeaderColor && !darkHeaderColor && !lightFooterColor && !darkFooterColor && !lightBackgroundColor && !darkBackgroundColor && !siteTitle && !siteLogoUrl && !siteLogoIcon && !showSiteTitle && !showSiteLogoUrl && !showSiteLogoIcon) {
     throw createError({
       statusCode: 400,
-      statusMessage: 'No color data provided',
+      statusMessage: 'No data provided for update',
     });
   }
 
@@ -34,6 +34,12 @@ export default defineEventHandler(async (event) => {
           darkFooterColor: darkFooterColor || '#1A202C',
           lightBackgroundColor: lightBackgroundColor || '#FFFFFF',
           darkBackgroundColor: darkBackgroundColor || '#1A202C',
+          siteTitle: siteTitle || 'My Website',
+          siteLogoUrl: siteLogoUrl || '/images/logo.png',
+          siteLogoIcon: siteLogoIcon || null,
+          showSiteTitle: showSiteTitle === undefined ? true : showSiteTitle,
+          showSiteLogoUrl: showSiteLogoUrl === undefined ? true : showSiteLogoUrl,
+          showSiteLogoIcon: showSiteLogoIcon === undefined ? true : showSiteLogoIcon,
         },
       });
     } else {
@@ -48,6 +54,12 @@ export default defineEventHandler(async (event) => {
           darkFooterColor: darkFooterColor || config.darkFooterColor,
           lightBackgroundColor: lightBackgroundColor || config.lightBackgroundColor,
           darkBackgroundColor: darkBackgroundColor || config.darkBackgroundColor,
+          siteTitle: siteTitle || config.siteTitle,
+          siteLogoUrl: siteLogoUrl || config.siteLogoUrl,
+          siteLogoIcon: siteLogoIcon === undefined ? config.siteLogoIcon : siteLogoIcon,
+          showSiteTitle: showSiteTitle === undefined ? config.showSiteTitle : showSiteTitle,
+          showSiteLogoUrl: showSiteLogoUrl === undefined ? config.showSiteLogoUrl : showSiteLogoUrl,
+          showSiteLogoIcon: showSiteLogoIcon === undefined ? config.showSiteLogoIcon : showSiteLogoIcon,
         },
       });
     }

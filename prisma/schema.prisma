@@ -218,15 +218,21 @@ model Menu {
 }
 
 model SiteConfig {
-  id              Int      @id @default(autoincrement())
-  lightHeaderColor String   @default("#FFFFFF")
-  darkHeaderColor String   @default("#1A202C") // Tailwind dark gray-900 equivalent
-  lightFooterColor String   @default("#F7FAFC") // Tailwind gray-100 equivalent
-  darkFooterColor String   @default("#1A202C") // Tailwind dark gray-900 equivalent
+  id                   Int      @id @default(autoincrement())
+  siteTitle            String   @default("My Website")
+  siteLogoUrl          String?  @default("/images/logo.png")
+  siteLogoIcon         String? // Heroicons 이름을 저장할 새 필드 추가 (예: 'heroicons-outline:home')
+  lightHeaderColor     String   @default("#FFFFFF")
+  darkHeaderColor      String   @default("#1A202C") // Tailwind dark gray-900 equivalent
+  lightFooterColor     String   @default("#F7FAFC") // Tailwind gray-100 equivalent
+  darkFooterColor      String   @default("#1A202C") // Tailwind dark gray-900 equivalent
   lightBackgroundColor String @default("#FFFFFF")
-  darkBackgroundColor String @default("#1A202C")
-  createdAt       DateTime @default(now())
-  updatedAt       DateTime @updatedAt
+  darkBackgroundColor  String @default("#1A202C")
+  showSiteTitle        Boolean @default(true)
+  showSiteLogoUrl      Boolean @default(true)
+  showSiteLogoIcon     Boolean @default(true)
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
 }
 
 model RelatedSite {

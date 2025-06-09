@@ -1,6 +1,6 @@
 <template>
   <div class="flex flex-col min-h-screen">
-    <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" :headerColor="currentHeaderColor" />
+    <Nav :isMenuOpen="isMenuOpen" @toggleMenu="toggleMenu" @closeMenu="closeMenu" />
     <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': navStore.isAlwaysOnTop }">
       <aside class="w-full md:w-1/4 pr-0 md:pr-8 mb-8 md:mb-0 hidden md:block">
         <BlogSidebar :categories="categories" />
@@ -14,7 +14,7 @@
         <slot />
       </main>
     </div>
-    <Footer :footerColor="currentFooterColor" />
+    <Footer />
     <ScrollToTop />
     <!-- 배경 오버레이 -->
     <Transition name="fade">
@@ -28,7 +28,7 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import BlogSidebar from '~/components/blog/BlogSidebar.vue'
@@ -76,6 +76,14 @@ const currentBackgroundColor = computed(() => {
   return colorMode.value === 'dark' ? fetchedThemeSettings.value.darkBackgroundColor : fetchedThemeSettings.value.lightBackgroundColor;
 });
 
+// CSS 변수를 동적으로 업데이트하는 함수
+function updateCssVariables() {
+  if (process.client) { // 클라이언트 사이드에서만 실행
+    document.documentElement.style.setProperty('--header-bg-color', currentHeaderColor.value);
+    document.documentElement.style.setProperty('--footer-bg-color', currentFooterColor.value);
+  }
+}
+
 async function fetchCategories() {
   try {
     const response = await fetch('/api/categories?include=uncategorized_all')
@@ -99,7 +107,13 @@ function closeMenu() {
 // 초기 카테고리 로드 및 색상 모드 감지
 onMounted(() => {
   fetchCategories();
+  updateCssVariables();
 });
+
+// 테마 색상 또는 모드가 변경될 때 CSS 변수 업데이트
+watch([currentHeaderColor, currentFooterColor, currentBackgroundColor, colorMode], () => {
+  updateCssVariables();
+}, { immediate: true });
 
 // 카테고리 갱신 함수를 제공
 provide('refreshCategories', fetchCategories)

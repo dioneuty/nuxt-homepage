@@ -32,6 +32,18 @@
           </button>
         </div>
         
+        <div class="mb-6 p-4 bg-blue-50 dark:bg-gray-700 rounded-lg text-blue-800 dark:text-gray-300 border-l-4 border-blue-500 dark:border-gray-500">
+          <h4 class="font-semibold mb-2">데이터베이스 관리 사용 방법:</h4>
+          <ul class="list-disc list-inside text-sm space-y-1">
+            <li><b>모델 선택:</b> 왼쪽 사이드바에서 조회하고자 하는 데이터베이스 모델(예: `User`, `BlogPost`)을 클릭합니다.</li>
+            <li><b>데이터 조회:</b> 선택된 모델의 모든 레코드가 테이블 형태로 표시됩니다.</li>
+            <li><b>새 레코드 추가:</b> 상단의 "Add New" 버튼을 클릭하여 새 레코드를 생성할 수 있습니다. 각 필드의 타입에 맞춰 값을 입력하세요.</li>
+            <li><b>레코드 수정:</b> 각 레코드 옆의 "Edit" 버튼을 클릭하여 선택된 레코드의 내용을 수정할 수 있습니다.</li>
+            <li><b>레코드 삭제:</b> 각 레코드 옆의 "Delete" 버튼을 클릭하여 선택된 레코드를 삭제할 수 있습니다. (주의: 삭제된 데이터는 복구할 수 없습니다.)</li>
+            <li><b>데이터 타입:</b> `String`, `Int`, `Boolean`, `DateTime`, `Json` 등 다양한 데이터 타입이 지원됩니다. `Json` 타입은 JSON 형식으로 입력해야 합니다.</li>
+          </ul>
+        </div>
+        
         <div v-if="records.length > 0" class="bg-white shadow-md rounded overflow-x-auto dark:bg-gray-800 dark:shadow-none dark:border dark:border-gray-700">
           <table class="min-w-full bg-white dark:bg-gray-800">
             <thead>

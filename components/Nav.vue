@@ -11,16 +11,26 @@
         <div :class="[
           'relative overflow-hidden dark:bg-gray-800',
           navStore.isAlwaysOnTop ? 'h-16' : 'h-16'
-        ]" :style="{ backgroundColor: headerColor }">
+        ]" :style="{ backgroundColor: 'var(--header-bg-color)' }">
           <NuxtLink to="/" class="absolute inset-0 flex items-center justify-center">
             <div class="text-white text-3xl font-bold flex items-center">
-              <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
-              <span class="text-shadow-sm">{{ appName }}</span>
+              <ClientOnly>
+                <template v-if="fetchedThemeSettings.showSiteLogoIcon && fetchedThemeSettings.siteLogoIcon">
+                  <Icon :icon="fetchedThemeSettings.siteLogoIcon" class="h-10 w-10 mr-2" />
+                </template>
+                <template v-else-if="fetchedThemeSettings.showSiteLogoUrl && fetchedThemeSettings.siteLogoUrl">
+                  <img :src="fetchedThemeSettings.siteLogoUrl" :alt="fetchedThemeSettings.siteTitle" class="h-10 mr-2" />
+                </template>
+                <template v-else-if="fetchedThemeSettings.showSiteLogoIcon || fetchedThemeSettings.showSiteLogoUrl">
+                  <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
+                </template>
+                <span v-if="fetchedThemeSettings.showSiteTitle" class="text-shadow-sm">{{ fetchedThemeSettings.siteTitle }}</span>
+              </ClientOnly>
             </div>
           </NuxtLink>
         </div>
         <!-- 네비게이션 바 -->
-        <div class="dark:bg-gray-800 text-white p-2 shadow-lg" :style="{ backgroundColor: headerColor }">
+        <div class="dark:bg-gray-800 text-white p-2 shadow-lg" :style="{ backgroundColor: 'var(--header-bg-color)' }">
           <div class="container mx-auto flex justify-between items-center">
             <div class="space-x-4">
               <AppMenu />
@@ -62,14 +72,24 @@
       </div>
 
       <!-- 모바일 네비게이션 헤더 -->
-      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 dark:bg-gray-800 text-white px-4 py-2" :style="{ backgroundColor: headerColor }">
+      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 dark:bg-gray-800 text-white px-4 py-2" :style="{ backgroundColor: 'var(--header-bg-color)' }">
         <div class="flex items-center justify-between" :class="{ 'pointer-events-auto': isMenuOpen }">
           <button @click="openMenu" class="text-white" :class="{ 'pointer-events-none': isMenuOpen }">
             <Bars3Icon class="h-6 w-6" />
           </button>
           <NuxtLink to="/" class="text-xl font-bold text-white flex items-center" :class="{ 'pointer-events-none': isMenuOpen }">
-            <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
-            <span>{{ appName }}</span>
+            <ClientOnly>
+              <template v-if="fetchedThemeSettings.showSiteLogoIcon && fetchedThemeSettings.siteLogoIcon">
+                <Icon :icon="fetchedThemeSettings.siteLogoIcon" class="h-8 w-8 mr-2" />
+              </template>
+              <template v-else-if="fetchedThemeSettings.showSiteLogoUrl && fetchedThemeSettings.siteLogoUrl">
+                <img :src="fetchedThemeSettings.siteLogoUrl" :alt="fetchedThemeSettings.siteTitle" class="h-8 w-8 mr-2" />
+              </template>
+              <template v-else-if="fetchedThemeSettings.showSiteLogoIcon || fetchedThemeSettings.showSiteLogoUrl">
+                <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
+              </template>
+              <span v-if="fetchedThemeSettings.showSiteTitle">{{ fetchedThemeSettings.siteTitle }}</span>
+            </ClientOnly>
           </NuxtLink>
           <div class="flex items-center space-x-2">
             <button @click="toggleColorMode" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
@@ -111,8 +131,18 @@
         <div class="flex flex-col h-full">
           <div class="bg-blue-800 dark:bg-gray-700 p-4 flex justify-between items-center">
             <NuxtLink to="/" class="text-2xl font-bold flex items-center" @click="closeMenu">
-              <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
-              <span>{{ appName }}</span>
+              <ClientOnly>
+                <template v-if="fetchedThemeSettings.showSiteLogoIcon && fetchedThemeSettings.siteLogoIcon">
+                  <Icon :icon="fetchedThemeSettings.siteLogoIcon" class="h-8 w-8 mr-2" />
+                </template>
+                <template v-else-if="fetchedThemeSettings.showSiteLogoUrl && fetchedThemeSettings.siteLogoUrl">
+                  <img :src="fetchedThemeSettings.siteLogoUrl" :alt="fetchedThemeSettings.siteTitle" class="h-8 w-8 mr-2" />
+                </template>
+                <template v-else-if="fetchedThemeSettings.showSiteLogoIcon || fetchedThemeSettings.showSiteLogoUrl">
+                  <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
+                </template>
+                <span v-if="fetchedThemeSettings.showSiteTitle">{{ fetchedThemeSettings.siteTitle }}</span>
+              </ClientOnly>
             </NuxtLink>
             <button @click="closeMenu" class="text-white hover:text-blue-200">
               <XMarkIcon class="h-6 w-6" />
@@ -184,14 +214,41 @@ onUnmounted(() => {
 const { isLoggedIn, user, setAuth } = useAuth()
 const navStore = useNavStore()
 const colorMode = useColorMode()
-const appName = 'Dion'
+
+// useFetch를 사용하여 서버 및 클라이언트에서 테마 설정 데이터를 미리 가져옵니다.
+const { data: fetchedThemeSettings } = await useFetch('/api/theme-settings', {
+  default: () => ({
+    lightHeaderColor: '#FFFFFF',
+    darkHeaderColor: '#1A202C',
+    lightFooterColor: '#F7FAFC',
+    darkFooterColor: '#1A202C',
+    lightBackgroundColor: '#FFFFFF',
+    darkBackgroundColor: '#1A202C',
+    siteTitle: 'My Website',
+    siteLogoUrl: '/images/logo.png',
+    siteLogoIcon: null,
+    showSiteTitle: true,
+    showSiteLogoUrl: true,
+    showSiteLogoIcon: true,
+  }),
+  transform: (data) => ({
+    lightHeaderColor: data?.lightHeaderColor || '#FFFFFF',
+    darkHeaderColor: data?.darkHeaderColor || '#1A202C',
+    lightFooterColor: data?.lightFooterColor || '#F7FAFC',
+    darkFooterColor: data?.darkFooterColor || '#1A202C',
+    lightBackgroundColor: data?.lightBackgroundColor || '#FFFFFF',
+    darkBackgroundColor: data?.darkBackgroundColor || '#1A202C',
+    siteTitle: data?.siteTitle || 'My Website',
+    siteLogoUrl: data?.siteLogoUrl || '/images/logo.png',
+    siteLogoIcon: data?.siteLogoIcon || null,
+    showSiteTitle: data?.showSiteTitle ?? true,
+    showSiteLogoUrl: data?.showSiteLogoUrl ?? true,
+    showSiteLogoIcon: data?.showSiteLogoIcon ?? true,
+  }),
+});
 
 const props = defineProps({
-  isMenuOpen: Boolean,
-  headerColor: {
-    type: String,
-    default: '#FFFFFF' // Default white if not provided
-  }
+  isMenuOpen: Boolean
 })
 
 const emit = defineEmits(['openMenu', 'closeMenu', 'updateNavFixedState'])

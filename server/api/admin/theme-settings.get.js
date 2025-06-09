@@ -22,6 +22,12 @@ export default defineEventHandler(async () => {
           darkFooterColor: '#1A202C', // 기본 다크 모드 푸터 색상 (짙은 회색-900)
           lightBackgroundColor: '#FFFFFF', // 기본 라이트 모드 배경 색상 (흰색)
           darkBackgroundColor: '#1A202C', // 기본 다크 모드 배경 색상 (짙은 회색-900)
+          siteTitle: 'My Website',
+          siteLogoUrl: '/images/logo.png',
+          siteLogoIcon: null, // 새 필드 기본값
+          showSiteTitle: true,
+          showSiteLogoUrl: true,
+          showSiteLogoIcon: true,
         },
       });
     }

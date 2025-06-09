@@ -1,10 +1,10 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-8">방명록</h1>
+    <h1 class="text-3xl font-bold mb-8 dark:text-white">방명록</h1>
 
     <!-- 방명록 작성 폼 -->
     <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md p-6 mb-8">
-      <h2 class="text-xl font-semibold mb-4">새 글 작성</h2>
+      <h2 class="text-xl font-semibold mb-4 dark:text-white">새 글 작성</h2>
       <form @submit.prevent="handleSubmit" class="space-y-4">
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
           <div>
@@ -13,7 +13,7 @@
               id="author"
               v-model="form.author"
               type="text"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400"
               placeholder="익명"
             />
           </div>
@@ -23,7 +23,7 @@
               id="password"
               v-model="form.password"
               type="password"
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400"
               placeholder="수정/삭제시 필요"
             />
           </div>
@@ -35,7 +35,7 @@
             v-model="form.title"
             type="text"
             required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400"
           />
         </div>
         <div>
@@ -45,7 +45,7 @@
             v-model="form.content"
             rows="4"
             required
-            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-900 dark:border-gray-800 dark:text-gray-400"
           ></textarea>
         </div>
         <div class="flex justify-end">

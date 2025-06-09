@@ -19,6 +19,12 @@ export default defineEventHandler(async () => {
       darkHeaderColor: '#1A202C',
       lightFooterColor: '#F7FAFC',
       darkFooterColor: '#1A202C',
+      siteTitle: 'My Website',
+      siteLogoUrl: '/images/logo.png',
+      siteLogoIcon: null,
+      showSiteTitle: true,
+      showSiteLogoUrl: true,
+      showSiteLogoIcon: true,
     };
   } catch (error) {
     // 데이터 조회 중 오류 발생 시 서버 콘솔에 오류를 로깅하고 500 Internal Server Error를 반환합니다.

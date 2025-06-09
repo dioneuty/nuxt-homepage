@@ -1,0 +1,179 @@
+<template>
+  <Transition name="modal">
+    <div v-if="isOpen" class="modal-mask">
+      <div class="modal-container dark:bg-gray-800">
+        <div class="modal-header">
+          <h3 class="text-xl font-semibold dark:text-white">Heroicons 선택</h3>
+          <button @click="closeModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+            <Icon icon="heroicons-outline:x-mark" class="h-6 w-6" />
+          </button>
+        </div>
+        <div class="modal-body">
+          <input
+            type="text"
+            v-model="searchTerm"
+            placeholder="아이콘 검색..."
+            class="w-full p-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+          />
+          <div class="icon-grid">
+            <div
+              v-for="icon in filteredIcons"
+              :key="icon.icon"
+              @click="selectIcon(icon.icon)"
+              class="icon-item bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md p-2 cursor-pointer transition-colors duration-200 text-center"
+            >
+              <Icon :icon="icon.icon" class="h-8 w-8 mx-auto mb-1 text-gray-800 dark:text-gray-200" />
+              <span class="text-xs text-gray-600 dark:text-gray-400">{{ icon.name }}</span>
+            </div>
+          </div>
+          <div v-if="filteredIcons.length === 0" class="text-center text-gray-500 dark:text-gray-400 mt-4">검색 결과가 없습니다.</div>
+        </div>
+      </div>
+    </div>
+  </Transition>
+</template>
+
+<script setup>
+import { ref, computed, watch, onMounted } from 'vue';
+import { Icon } from '@iconify/vue';
+
+const props = defineProps({
+  isOpen: {
+    type: Boolean,
+    required: true,
+  },
+});
+
+const emit = defineEmits(['update:isOpen', 'selectIcon']);
+
+const searchTerm = ref('');
+const allIcons = ref([]);
+
+const filteredIcons = computed(() => {
+  if (!searchTerm.value) {
+    return allIcons.value;
+  }
+  const lowerCaseSearchTerm = searchTerm.value.toLowerCase();
+  return allIcons.value.filter(
+    (icon) => icon.name.toLowerCase().includes(lowerCaseSearchTerm)
+  );
+});
+
+const fetchIcons = async () => {
+  try {
+    const response = await fetch('/data/heroicons.json');
+    const data = await response.json();
+    allIcons.value = data;
+  } catch (error) {
+    console.error('Error fetching heroicons:', error);
+  }
+};
+
+const closeModal = () => {
+  emit('update:isOpen', false);
+  searchTerm.value = ''; // 모달 닫을 때 검색어 초기화
+};
+
+const selectIcon = (iconName) => {
+  emit('selectIcon', iconName);
+  closeModal();
+};
+
+watch(() => props.isOpen, (newVal) => {
+  if (newVal) {
+    fetchIcons();
+  }
+});
+</script>
+
+<style scoped>
+.modal-mask {
+  position: fixed;
+  z-index: 9998;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  transition: opacity 0.3s ease;
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-container {
+  width: 90%;
+  max-width: 600px;
+  margin: auto;
+  padding: 20px 30px;
+  border-radius: 8px;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  max-height: 90vh; /* 모달의 최대 높이 설정 */
+}
+
+.modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+.modal-body {
+  flex-grow: 1;
+  overflow-y: auto; /* 내용이 넘칠 경우 스크롤바 표시 */
+  padding-right: 10px; /* 스크롤바 때문에 내용이 가려지지 않도록 패딩 추가 */
+}
+
+/* 스크롤바 스타일링 (선택 사항) */
+.modal-body::-webkit-scrollbar {
+  width: 8px;
+}
+
+.modal-body::-webkit-scrollbar-thumb {
+  background-color: #cbd5e0; /* gray-300 */
+  border-radius: 4px;
+}
+
+.modal-body::-webkit-scrollbar-track {
+  background-color: #edf2f7; /* gray-200 */
+}
+
+.dark .modal-body::-webkit-scrollbar-thumb {
+  background-color: #4a5568; /* gray-700 */
+}
+
+.dark .modal-body::-webkit-scrollbar-track {
+  background-color: #2d3748; /* gray-800 */
+}
+
+.icon-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr)); /* 썸네일 크기 조정 */
+  gap: 10px;
+}
+
+.icon-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+}
+
+/* 모달 트랜지션 스타일 */
+.modal-enter-from {
+  opacity: 0;
+}
+
+.modal-leave-to {
+  opacity: 0;
+}
+
+.modal-enter-from .modal-container,
+.modal-leave-to .modal-container {
+  -webkit-transform: scale(1.1);
+  transform: scale(1.1);
+}
+</style> 
