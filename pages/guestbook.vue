@@ -97,13 +97,13 @@
                 v-model="commentForm.author"
                 type="text"
                 placeholder="작성자 (선택)"
-                class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-300"
               />
               <input
                 v-model="commentForm.password"
                 type="password"
                 placeholder="비밀번호 (선택)"
-                class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                class="rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-300"
               />
             </div>
             <div class="flex gap-2">
@@ -112,7 +112,7 @@
                 rows="2"
                 required
                 placeholder="댓글을 입력하세요..."
-                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+                class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-700 dark:text-gray-300"
               ></textarea>
               <button
                 type="submit"
@@ -127,25 +127,25 @@
           <div class="space-y-4">
             <div v-for="comment in post.comments" :key="comment.id" class="bg-gray-50 dark:bg-gray-700 rounded-lg p-4">
               <div class="flex justify-between items-start mb-2">
-                <p class="text-sm text-gray-500 dark:text-gray-400">
+                <p class="text-sm text-gray-500 dark:text-gray-300">
                   {{ comment.author || '익명' }} • {{ formatDate(comment.createdAt) }}
                 </p>
                 <div class="space-x-2">
                   <button
                     @click="showCommentEditModal(comment)"
-                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 text-sm"
+                    class="text-blue-600 hover:text-blue-800 dark:text-blue-300 dark:hover:text-blue-200 text-sm"
                   >
                     수정
                   </button>
                   <button
                     @click="showCommentDeleteModal(comment)"
-                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 text-sm"
+                    class="text-red-600 hover:text-red-800 dark:text-red-300 dark:hover:text-red-200 text-sm"
                   >
                     삭제
                   </button>
                 </div>
               </div>
-              <p class="text-gray-700 dark:text-gray-300">{{ comment.content }}</p>
+              <p class="text-gray-700 dark:text-gray-200">{{ comment.content }}</p>
             </div>
           </div>
         </div>
@@ -236,8 +236,10 @@ const selectedComment = ref(null)
 
 // 방명록 목록 조회
 const fetchPosts = async () => {
+  console.log('fetchPosts 함수 호출됨. API 요청 시작...');
   try {
     const response = await $fetch(`/api/guestbook?page=${currentPage.value}`)
+    console.log('API 응답 수신:', response);
     posts.value = response.posts
     totalPages.value = response.totalPages
   } catch (error) {
@@ -247,11 +249,13 @@ const fetchPosts = async () => {
 
 // 방명록 작성
 const handleSubmit = async () => {
+  console.log('방명록 작성 폼 제출됨. 데이터:', form.value);
   try {
     await $fetch('/api/guestbook', {
       method: 'POST',
       body: form.value
     })
+    console.log('방명록 작성 성공!');
     form.value = { title: '', content: '', author: '', password: '' }
     await fetchPosts()
   } catch (error) {
