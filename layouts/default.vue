@@ -2,22 +2,32 @@
   <div 
     class="min-h-screen flex flex-col"
   >
-    <Nav 
-      :isMenuOpen="isMenuOpen" 
-      @openMenu="openMenu" 
-      @closeMenu="closeMenu"
+    <VerticalSidebar 
+      :siteTitle="fetchedThemeSettings.siteTitle"
+      :siteLogoIcon="fetchedThemeSettings.siteLogoIcon"
+      v-if="layoutStore.isSidebarOpen"
     />
-    <div class="flex-grow">
-      <slot />
+    <div 
+      class="flex-grow transition-all duration-300 ease-in-out"
+      :class="{ 'md:ml-64': layoutStore.isSidebarOpen }"
+    >
+      <Nav 
+        :isMenuOpen="isMenuOpen" 
+        @openMenu="openMenu" 
+        @closeMenu="closeMenu"
+      />
+      <div class="flex-grow pb-12">
+        <slot />
+      </div>
+      <Footer />
+      <ScrollToTop />
+      <!-- 배경 오버레이 -->
+      <div
+        v-if="isMenuOpen"
+        class="fixed inset-0 bg-black bg-opacity-50 z-40"
+        @click.self="closeMenu"
+      ></div>
     </div>
-    <Footer />
-    <ScrollToTop />
-    <!-- 배경 오버레이 -->
-    <div
-      v-if="isMenuOpen"
-      class="fixed inset-0 bg-black bg-opacity-50 z-40"
-      @click.self="closeMenu"
-    ></div>
   </div>
 </template>
 
@@ -26,6 +36,10 @@ import { ref, computed, onMounted, watch } from 'vue'
 import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
+import VerticalSidebar from '~/components/common/VerticalSidebar.vue'
+import { useLayoutStore } from '~/stores/layout';
+
+const layoutStore = useLayoutStore();
 
 const isMenuOpen = ref(false)
 
@@ -80,6 +94,7 @@ function updateCssVariables() {
 // 컴포넌트 마운트 시 CSS 변수 초기 설정
 onMounted(() => {
   updateCssVariables();
+  layoutStore.initializeSidebarState(); // 사이드바 상태 초기화
 });
 
 // 테마 색상 또는 모드가 변경될 때 CSS 변수 업데이트

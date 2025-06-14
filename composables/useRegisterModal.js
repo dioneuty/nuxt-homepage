@@ -4,11 +4,11 @@ const isRegisterModalOpen = ref(false)
 
 export function useRegisterModal() {
   function openModal() {
-    isRegisterModalOpen.value = true
+    isRegisterModalOpen.value = true;
   }
 
   function closeModal() {
-    isRegisterModalOpen.value = false
+    isRegisterModalOpen.value = false;
   }
 
   return {

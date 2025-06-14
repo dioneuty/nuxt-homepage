@@ -6,7 +6,7 @@
       navStore.isAlwaysOnTop ? 'fixed top-0 left-0 right-0 z-50' : 'relative'
     ]">
       <!-- 데스크톱 네비게이션 -->
-      <div class="hidden lg:block">
+      <div class="hidden lg:block" v-if="!layoutStore.isSidebarOpen">
         <!-- 로고 영역 -->
         <div :class="[
           'relative overflow-hidden dark:bg-gray-800',
@@ -33,7 +33,7 @@
         <div class="dark:bg-gray-800 text-white p-2 shadow-lg" :style="{ backgroundColor: 'var(--header-bg-color)' }">
           <div class="container mx-auto flex justify-between items-center">
             <div class="space-x-4">
-              <AppMenu />
+              <AppMenu :isVertical="false" />
             </div>
             <div class="flex items-center space-x-4">
               <!-- 상단 고정 토글 버튼 -->
@@ -44,6 +44,10 @@
                 <SunIcon v-if="colorMode.preference === 'light'" class="h-6 w-6" />
                 <MoonIcon v-if="colorMode.preference === 'dark'" class="h-6 w-6" />
                 <ComputerDesktopIcon v-if="colorMode.preference === 'system'" class="h-6 w-6" />
+              </button>
+              <!-- 레이아웃 전환 버튼 -->
+              <button @click="layoutStore.toggleSidebar()" class="text-white hover:text-blue-200 p-2 rounded-full hidden md:block">
+                <Icon :icon="layoutStore.isSidebarOpen ? 'mdi:chevron-right-box' : 'mdi:chevron-left-box'" class="h-6 w-6" />
               </button>
 
               <div v-if="isLoggedIn && user" class="flex items-center space-x-2">
@@ -149,7 +153,7 @@
             </button>
           </div>
           <div class="flex-grow p-2 overflow-y-auto">
-            <AppMenu />
+            <AppMenu :isVertical="true" />
             <!-- 화면 모드 토글 버튼 다시 추가 -->
             <button @click="toggleColorMode" class="w-full text-left py-2 px-4 rounded-lg hover:bg-blue-500 dark:hover:bg-gray-600 transition duration-200 ease-in-out flex items-center mt-4">
               <SunIcon v-if="colorMode.preference === 'light'" class="h-6 w-6 mr-2" />
@@ -185,9 +189,12 @@ import { useNavStore } from '~/stores/navStore'
 import AppMenu from '~/components/common/AppMenu.vue'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+import { useLayoutStore } from '~/stores/layout'
 
 const router = useRouter()
 const navKey = ref(0)
+
+const layoutStore = useLayoutStore()
 
 // NProgress 설정 및 라우터 네비게이션 진행률 표시 관련 함수
 function startProgress() {

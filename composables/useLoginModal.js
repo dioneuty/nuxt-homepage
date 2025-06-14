@@ -4,11 +4,11 @@ const isLoginModalOpen = ref(false)
 
 export function useLoginModal() {
   function openModal() {
-    isLoginModalOpen.value = true
+    isLoginModalOpen.value = true;
   }
 
   function closeModal() {
-    isLoginModalOpen.value = false
+    isLoginModalOpen.value = false;
   }
 
   return {

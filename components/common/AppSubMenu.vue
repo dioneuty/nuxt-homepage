@@ -6,16 +6,14 @@
           @click.stop="toggleMenu(menu)"
           :class="[
             'flex justify-between items-center px-4 py-2 text-sm cursor-pointer rounded-md transition-colors duration-150 ease-in-out',
-            'hover:bg-blue-500 hover:text-white', // 모바일 호버 효과
-            'lg:hover:bg-gray-100', // 데스크톱 호버 효과
-            'dark:hover:bg-gray-600 lg:dark:hover:bg-gray-700', // 다크 모드 호버 효과
+            'hover:bg-blue-700', // 통합된 호버 배경색
             
             // 조건부 클래스: 활성/비활성 상태에 따라 다른 스타일을 적용합니다.
             isActive(menu)
-              // 활성 상태: 모바일과 데스크톱에 다른 텍스트 및 배경색을 적용합니다.
-              ? 'bg-blue-700 text-white lg:bg-gray-200 lg:text-blue-600 dark:bg-gray-700 dark:text-white lg:dark:bg-gray-600 lg:dark:text-blue-300 font-semibold'
-              // 비활성 상태: 모바일과 데스크톱에 다른 텍스트 색상을 적용합니다.
-              : 'text-blue-200 lg:text-gray-700 dark:text-gray-300 lg:dark:text-gray-200'
+              // 활성 상태: 일관된 배경 및 텍스트 색상
+              ? 'bg-blue-800 text-blue-100 font-semibold' // 활성 시 더 밝은 텍스트
+              // 비활성 상태: 일관된 텍스트 색상
+              : 'text-blue-100' // 비활성 시에도 잘 보이는 텍스트
           ]"
         >
         <NuxtLink :to="menu.path || '#'" @click.stop="handleLinkClick(menu)" class="flex-grow">
@@ -32,7 +30,8 @@
       <!-- 하위 메뉴 -->
       <div v-if="menu.children && menu.children.length"
            :class="[
-             'lg:absolute lg:left-full lg:top-0 lg:mt-0 w-full lg:w-48 lg:bg-white lg:dark:bg-gray-800 rounded-md lg:shadow-lg',
+             'lg:absolute lg:left-full lg:top-0 lg:mt-0 w-full lg:w-48 rounded-md lg:shadow-lg',
+             'bg-blue-800 dark:bg-blue-900', // 새로운 배경색
              'lg:hidden lg:group-hover:block z-10',
              { 'block': menu.isOpen, 'hidden': !menu.isOpen }
            ]">

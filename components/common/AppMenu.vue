@@ -1,14 +1,17 @@
 <template>
   <nav>
     <!-- 모바일에서는 세로, 데스크톱에서는 가로 메뉴 -->
-    <ul class="flex flex-col lg:flex-row lg:space-x-1">
+    <ul :class="[
+      'flex flex-col',
+      isVertical ? '' : 'lg:flex-row lg:space-x-1' // isVertical prop에 따라 데스크톱 레이아웃 변경
+    ]">
       <li v-for="menu in accessibleMenus" :key="menu.id" class="relative group">
         <div 
           @click="toggleMenu(menu)"
           :class="[
             'flex justify-between items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer',
-            'text-white lg:hover:bg-blue-700 dark:text-gray-200 lg:dark:hover:bg-gray-700',
-            isActive(menu) ? 'bg-blue-700 dark:bg-gray-700' : ''
+            'text-blue-100 hover:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-700',
+            isActive(menu) ? 'bg-blue-800 dark:bg-blue-800' : ''
           ]"
         >
           <NuxtLink v-if="menu.path" :to="menu.path" class="flex-grow flex items-center" @click.stop>
@@ -27,8 +30,9 @@
         <!-- 하위 메뉴 -->
         <div v-if="menu.children && menu.children.length" 
              :class="[
-               'lg:absolute lg:left-0 w-full lg:w-48 lg:bg-white lg:dark:bg-gray-800 rounded-md lg:shadow-lg',
-               'lg:hidden lg:group-hover:block z-10', // 데스크톱: hover로 표시
+               'lg:absolute lg:left-0 w-full lg:w-48 lg:bg-blue-800 lg:dark:bg-blue-900 rounded-md lg:shadow-lg',
+               isVertical ? '' : 'lg:hidden lg:group-hover:block', // isVertical prop에 따라 hover 동작 변경
+               'z-10', // z-index 유지
                { 'block': menu.isOpen, 'hidden': !menu.isOpen } // 모바일: isOpen 상태로 표시
              ]">
           <AppSubMenu :menus="menu.children" @close-parent="closeAllMenus" />
@@ -49,6 +53,13 @@ import AppSubMenu from './AppSubMenu.vue';
 const menuStore = useMenuStore();
 const { user, isAdmin } = useAuth();
 const route = useRoute();
+
+const props = defineProps({
+  isVertical: {
+    type: Boolean,
+    default: false,
+  },
+});
 
 const userRole = computed(() => {
   if (isAdmin && isAdmin.value) return 'admin';
@@ -80,8 +91,8 @@ watch(() => [menuStore.getAccessibleMenus(userRole.value), route.path], ([newMen
 
 
 function toggleMenu(clickedMenu) {
-  // 모바일 뷰(아코디언)에서만 작동
-  if (window.innerWidth < 1024) {
+  // isVertical이 true이거나 모바일 뷰(아코디언)에서만 작동
+  if (props.isVertical || window.innerWidth < 1024) {
     if (clickedMenu.children && clickedMenu.children.length > 0) {
       const wasOpen = clickedMenu.isOpen;
       
