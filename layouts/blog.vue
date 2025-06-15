@@ -3,6 +3,7 @@
     <VerticalSidebar 
       :siteTitle="fetchedThemeSettings.siteTitle"
       :siteLogoIcon="fetchedThemeSettings.siteLogoIcon"
+      :backgroundColor="currentHeaderColor"
       v-if="layoutStore.isSidebarOpen"
     />
     <div 

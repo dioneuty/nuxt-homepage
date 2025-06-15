@@ -85,6 +85,7 @@ alwaysApply: true
 - **Heroicons 로고 설정 기능 추가**: `prisma/schema.prisma`의 `SiteConfig` 모델에 `siteLogoIcon` 필드를 추가하고, `server/api/admin/theme-settings.get.js`, `server/api/admin/theme-settings.put.js`를 수정하여 이 새 필드를 조회하고 업데이트할 수 있도록 로직을 확장했습니다. `pages/adminpage/theme.vue`에 `siteLogoIcon` 입력 필드를 추가하여 Heroicons 이름을 설정할 수 있도록 했으며, `components/Nav.vue`를 수정하여 `siteLogoIcon` 값이 존재하면 `@iconify/vue`의 `Icon` 컴포넌트를 사용하여 해당 아이콘을 로고로 렌더링하도록 로직을 업데이트했습니다.
 - **Heroicons 로고 표시 문제 해결**: `components/Nav.vue` 파일의 `useFetch` `default` 및 `transform` 옵션에 `siteLogoIcon` 필드를 추가하여 메인 상단 헤더에 Heroicons 로고 아이콘이 올바르게 표시되도록 수정 완료.
 - **Heroicons 모달 다크 모드 대응**: `components/common/HeroiconPickerModal.vue` 파일에서 `modal-container`의 하드코딩된 배경색과 그림자 스타일을 제거하여 Tailwind CSS의 다크 모드 클래스가 올바르게 적용되도록 수정 완료.
+- **가로형 사이드바/세로형 헤더바 전환 기능 추가**: 메인 페이지(`pages/index.vue`)에서 방향 전환 아이콘 클릭 시 전체 페이지 레이아웃이 가로형 사이드바와 세로형 헤더바 모드 사이를 토글 형식으로 전환하도록 구현 완료. 이 기능은 주로 레이아웃 파일 및 핵심 UI 컴포넌트(`components/Nav.vue`, `components/Sidebar.vue` 등)에 구현되었습니다.
 
 ## 남은 작업
 - **관리자 기능 - 콘텐츠 관리**:

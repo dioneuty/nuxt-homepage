@@ -6,6 +6,7 @@
       'bg-blue-900 dark:bg-blue-950 shadow-md flex-shrink-0': true,
       'hidden md:block': true, // 모바일에서 숨김, 데스크톱에서 보임
     }"
+    :style="{ backgroundColor: backgroundColor }"
   >
     <div class="p-4 text-2xl font-bold text-blue-100 flex items-center">
       <Icon v-if="siteLogoIcon" :icon="siteLogoIcon" class="w-7 h-7 mr-2" />
@@ -16,7 +17,7 @@
     </nav>
 
     <!-- 테마 모드 전환, 레이아웃 전환, 사용자 관련 버튼 -->
-    <div class="absolute bottom-0 left-0 w-full p-4 border-t border-blue-800 dark:border-blue-900">
+    <div class="absolute bottom-0 left-0 w-full p-4 border-t" :style="{ borderColor: backgroundColor }">
       <div class="flex items-center justify-between">
         <!-- 상단 고정 토글 버튼 -->
         <button @click="navStore.toggleAlwaysOnTop" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
@@ -88,6 +89,10 @@ const props = defineProps({
   siteLogoIcon: {
     type: String,
     default: 'mdi:account',
+  },
+  backgroundColor: {
+    type: String,
+    default: '#1E293B',
   },
 });
 
