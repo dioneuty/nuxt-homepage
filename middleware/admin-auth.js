@@ -3,6 +3,14 @@ import * as jose from 'jose'
 import { useAuth } from '~/composables/useAuth';
 import { navigateTo } from '#app';
 
+/**
+ * 관리자 인증을 처리하는 Nuxt.js 미들웨어입니다.
+ * 서버 및 클라이언트 측에서 사용자 인증 상태를 확인하고,
+ * 사용자가 관리자가 아닐 경우 접근을 제한하며 특정 페이지로 리다이렉트합니다.
+ * @param {object} to - 대상 라우트 객체
+ * @param {object} from - 출발 라우트 객체
+ * @returns {Promise<void|string>} 리다이렉트할 경로 또는 아무것도 반환하지 않음
+ */
 export default defineNuxtRouteMiddleware(async (to, from) => {
   const auth = useAuth();
 
