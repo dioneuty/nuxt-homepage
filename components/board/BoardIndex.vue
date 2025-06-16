@@ -148,11 +148,24 @@ const sortedHeaders = computed(() => {
   }))
 })
 
+/**
+ * 주어진 키(key)에 해당하는 정렬 아이콘을 반환합니다.
+ * 현재 정렬 컬럼과 일치하지 않으면 일반 정렬 아이콘을, 일치하면 오름차순 또는 내림차순 아이콘을 반환합니다.
+ * @param {string} key - 헤더의 키.
+ * @returns {string} Iconify 아이콘 문자열.
+ */
 function getSortIcon(key) {
   if (sortColumn.value !== key) return 'mdi:sort'
   return sortOrder.value === 'asc' ? 'mdi:sort-ascending' : 'mdi:sort-descending'
 }
 
+/**
+ * 테이블 헤더의 정렬 상태를 토글합니다.
+ * 현재 정렬 컬럼과 일치하면 정렬 순서(오름차순/내림차순)를 변경하고,
+ * 일치하지 않으면 해당 컬럼을 새로운 정렬 컬럼으로 설정하고 오름차순으로 초기화합니다.
+ * 정렬 후 현재 페이지를 1로 초기화하고 데이터를 새로고침합니다.
+ * @param {string} key - 정렬할 컬럼의 키.
+ */
 function toggleSort(key) {
   if (sortColumn.value === key) {
     sortOrder.value = sortOrder.value === 'asc' ? 'desc' : 'asc'
@@ -207,15 +220,30 @@ onMounted(function() {
   }
 })
 
+/**
+ * 검색 파라미터가 변경될 때 호출되는 핸들러 함수입니다.
+ * 검색 파라미터를 업데이트하고 현재 페이지를 1로 초기화합니다.
+ * @param {object} params - 새로운 검색 파라미터 (type, text 포함).
+ */
 function handleSearch(params) {
   searchParams.value = params
   currentPage.value = 1
 }
 
+/**
+ * 페이지 변경 시 호출되는 핸들러 함수입니다.
+ * 현재 페이지를 업데이트합니다.
+ * @param {number} page - 새로 변경된 페이지 번호.
+ */
 async function handlePageChange(page) {
   currentPage.value = page
 }
 
+/**
+ * 페이지당 항목 수 변경 시 호출되는 핸들러 함수입니다.
+ * 페이지당 항목 수를 업데이트하고 현재 페이지를 1로 초기화합니다.
+ * @param {number} newItemsPerPage - 새로 변경된 페이지당 항목 수.
+ */
 async function handleItemsPerPageChange(newItemsPerPage) {
   itemsPerPage.value = newItemsPerPage
   currentPage.value = 1
@@ -223,10 +251,18 @@ async function handleItemsPerPageChange(newItemsPerPage) {
 
 const router = useRouter()
 
+/**
+ * 게시글 상세 페이지로 이동하는 함수입니다.
+ * @param {number} postId - 이동할 게시글의 ID.
+ */
 function goToPostDetail(postId) {
   router.push(`/${props.boardType}/view?id=${postId}`)
 }
 
+/**
+ * 드래그 앤 드롭으로 테이블 헤더 순서 변경이 완료되었을 때 호출되는 핸들러 함수입니다.
+ * 변경된 헤더 순서를 로컬 스토리지에 저장합니다.
+ */
 function onDragEnd() {
   // 변경된 헤더 순서를 로컬 스토리지에 저장
   localStorage.setItem(`${props.boardType}_headerOrder`, JSON.stringify(localHeaders.value.map(function(h) { return h.key })))

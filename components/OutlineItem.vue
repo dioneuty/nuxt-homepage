@@ -249,6 +249,10 @@ watch(() => props.item.content, (newContent) => {
   mutableContent.value = newContent;
 });
 
+/**
+ * 항목의 확장 상태를 토글하는 함수입니다.
+ * @returns {void}
+ */
 function toggleExpand() {
   // console.log('Toggle expand called for item:', props.item.id, 'Current expanded:', props.item.expanded);
   props.item.expanded = !props.item.expanded;
@@ -257,19 +261,39 @@ function toggleExpand() {
   // console.log('Emitted toggle event with new item state.');
 }
 
-function zoomToItem() {
-  emit('zoom', props.item);
-}
-
-function startEditing() {
-  isEditing.value = true;
-}
-
+/**
+ * 편집 중인 항목의 내용을 저장하는 함수입니다.
+ * `mutableContent`가 변경되었을 경우에만 `update` 이벤트를 발생시킵니다.
+ * 편집 모드를 비활성화합니다.
+ * @returns {void}
+ */
 function saveContent() {
   isEditing.value = false;
   if (mutableContent.value !== props.item.content) {
     emit('update', { id: props.item.id, content: mutableContent.value });
   }
+}
+
+/**
+ * 항목을 선택하는 함수입니다.
+ * `itemSelected` 이벤트를 발생시켜 현재 항목을 전달하고, 상세 보기 모달을 엽니다.
+ * @returns {void}
+ */
+function selectItem() {
+  emit('itemSelected', props.item);
+  emit('showDetail', props.item);
+}
+
+/**
+ * 항목의 편집 모드를 활성화하는 함수입니다.
+ * @returns {void}
+ */
+function startEditing() {
+  isEditing.value = true;
+}
+
+function zoomToItem() {
+  emit('zoom', props.item);
 }
 
 function emitToggle(item) {
@@ -280,6 +304,11 @@ function emitZoom(item) {
   emit('zoom', item);
 }
 
+/**
+ * 새로운 자식 항목을 추가하기 위해 `add` 이벤트를 발생시키는 함수입니다.
+ * @param {number} parentId - 새로운 항목이 추가될 부모 항목의 ID.
+ * @returns {void}
+ */
 function emitAdd(parentId) {
   emit('add', parentId);
 }
@@ -300,10 +329,6 @@ function emitOutdent(id) {
   emit('outdent', id);
 }
 
-function selectItem() {
-  emit('itemSelected', props.item);
-}
-
 function emitItemSelected(item) {
   emit('itemSelected', item);
 }
@@ -316,10 +341,20 @@ function emitAddBelow(id) {
   emit('addBelow', id);
 }
 
+/**
+ * 드롭다운 메뉴의 가시성을 토글하는 함수입니다.
+ * @returns {void}
+ */
 function toggleDropdown() {
   showDropdown.value = !showDropdown.value;
 }
 
+/**
+ * 드롭다운 메뉴에서 항목이 선택되었을 때 호출되는 핸들러 함수입니다.
+ * 선택된 작업에 따라 적절한 이벤트를 발생시킵니다.
+ * @param {object} option - 선택된 메뉴 옵션 객체 (label, action).
+ * @returns {void}
+ */
 function handleMenuItemSelect(option) {
   showDropdown.value = false; // 메뉴 선택 시 드롭다운 닫기
   switch (option.action) {

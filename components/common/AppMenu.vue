@@ -89,7 +89,13 @@ watch(() => [menuStore.getAccessibleMenus(userRole.value), route.path], ([newMen
   }));
 }, { immediate: true, deep: true });
 
-
+/**
+ * 메뉴 항목을 토글하는 함수입니다.
+ * 모바일 뷰(폭 1024px 미만) 또는 `isVertical` prop이 true일 때만 작동합니다.
+ * 클릭된 메뉴가 자식 메뉴를 가지고 있다면 해당 메뉴의 `isOpen` 상태를 토글하고,
+ * 다른 모든 최상위 메뉴는 닫습니다.
+ * @param {object} clickedMenu - 클릭된 메뉴 객체.
+ */
 function toggleMenu(clickedMenu) {
   // isVertical이 true이거나 모바일 뷰(아코디언)에서만 작동
   if (props.isVertical || window.innerWidth < 1024) {
@@ -109,11 +115,19 @@ function toggleMenu(clickedMenu) {
   }
 }
 
+/**
+ * 주어진 메뉴 또는 그 자식 메뉴 중 현재 활성화된 라우트와 일치하는 것이 있는지 확인합니다.
+ * @param {object} menu - 확인할 메뉴 객체.
+ * @returns {boolean} 메뉴 또는 자식 메뉴가 활성 상태이면 true, 그렇지 않으면 false.
+ */
 function isActive(menu) {
   // 현재 메뉴 또는 자식 메뉴가 활성 상태인지 확인
   return isMenuActive(menu);
 }
 
+/**
+ * 모든 최상위 메뉴의 `isOpen` 상태를 `false`로 설정하여 메뉴를 닫습니다.
+ */
 function closeAllMenus() {
   accessibleMenus.value.forEach(menu => {
     menu.isOpen = false;

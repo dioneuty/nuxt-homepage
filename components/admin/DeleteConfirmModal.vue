@@ -92,6 +92,12 @@ const loading = ref(false)
 const error = ref('')
 const confirmDelete = ref(false)
 
+/**
+ * 사용자 삭제를 처리하는 함수입니다.
+ * `confirmDelete` 체크박스가 선택되지 않았다면 에러 메시지를 표시합니다.
+ * 삭제 확인 후, API를 호출하여 사용자를 삭제하고,
+ * 성공 시 `deleted` 이벤트를 발생시키고, 실패 시 에러 메시지를 표시합니다.
+ */
 const handleDelete = async () => {
   if (!confirmDelete.value) {
     error.value = '삭제를 확인해주세요.'

@@ -38,15 +38,32 @@
   const player = ref(null)
   const currentTime = ref(0)
   
+  /**
+   * YouTube 비디오 임베드 URL을 생성하는 함수입니다.
+   * 쇼츠(shorts) 비디오인 경우 루프 및 재생 목록 옵션을 추가합니다.
+   * @param {object} video - 비디오 정보를 담고 있는 객체.
+   * @returns {string} YouTube 임베드 URL.
+   */
   function getEmbedUrl(video) {
     const baseUrl = `https://www.youtube.com/embed/${video.id}`
     return video.isShort ? `${baseUrl}?loop=1&playlist=${video.id}` : baseUrl
   }
   
+  /**
+   * 비디오의 가로세로 비율에 따른 Tailwind CSS 클래스를 반환하는 함수입니다.
+   * 쇼츠 비디오는 9:16, 일반 비디오는 16:9 비율을 적용합니다.
+   * @param {object} video - 비디오 정보를 담고 있는 객체.
+   * @returns {string} Tailwind CSS 가로세로 비율 클래스.
+   */
   function getAspectRatioClass(video) {
     return video.isShort ? 'aspect-w-9 aspect-h-16' : 'aspect-w-16 aspect-h-9'
   }
   
+  /**
+   * 시간을 '분:초' 형식으로 포맷하는 함수입니다.
+   * @param {number} time - 초 단위의 시간.
+   * @returns {string} 포맷된 시간 문자열 (예: '0:30').
+   */
   function formatTime(time) {
     const minutes = Math.floor(time / 60)
     const seconds = Math.floor(time % 60)
@@ -73,10 +90,20 @@
     }
   })
   
+  /**
+   * YouTube 플레이어가 준비되었을 때 호출되는 함수입니다.
+   * 비디오를 자동으로 재생합니다.
+   * @param {object} event - YT.Player 이벤트 객체.
+   */
   function onPlayerReady(event) {
     event.target.playVideo()
   }
   
+  /**
+   * YouTube 플레이어 상태가 변경될 때 호출되는 함수입니다.
+   * 비디오 재생 중일 때 현재 재생 시간을 1초마다 업데이트합니다.
+   * @param {object} event - YT.Player 이벤트 객체.
+   */
   function onPlayerStateChange(event) {
     if (event.data == YT.PlayerState.PLAYING) {
       setInterval(() => {

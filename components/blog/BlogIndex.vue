@@ -71,6 +71,11 @@ const { data: posts, pending, error } = useFetch(props.apiEndpoint, {
   default: () => []
 })
 
+/**
+ * 게시글 상세 페이지로 이동하는 함수입니다.
+ * `postLink` prop을 기반으로 URL을 구성하여 해당 게시글로 라우팅합니다.
+ * @param {number} postId - 이동할 게시글의 ID.
+ */
 function navigateToPost(postId) {
   router.push(`${props.postLink}?id=${postId}`)
 }

@@ -99,6 +99,10 @@ const loading = ref(false)
 const error = ref('')
 const confirmDelete = ref(false)
 
+/**
+ * `isOpen` prop의 변경을 감지하고 모달이 열릴 때 상태를 초기화합니다.
+ * @param {boolean} newVal - `isOpen` prop의 새 값.
+ */
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     // 모달이 열릴 때마다 상태 초기화
@@ -108,6 +112,11 @@ watch(() => props.isOpen, (newVal) => {
   }
 });
 
+/**
+ * 삭제 확인 버튼 클릭을 처리하는 함수입니다.
+ * `confirmDelete` 체크박스가 선택되지 않았다면 에러 메시지를 표시합니다.
+ * 확인되었다면 로딩 상태를 설정하고 `confirm` 이벤트를 발생시킵니다.
+ */
 const handleConfirm = () => {
   if (!confirmDelete.value) {
     error.value = '삭제를 확인해주세요.';
@@ -118,6 +127,10 @@ const handleConfirm = () => {
   emit('confirm');
 }
 
+/**
+ * 취소 버튼 클릭을 처리하는 함수입니다.
+ * 부모 컴포넌트에 'cancel' 이벤트를 발생시킵니다.
+ */
 const cancel = () => {
   emit('cancel');
 }

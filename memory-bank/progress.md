@@ -86,6 +86,30 @@ alwaysApply: true
 - **Heroicons 로고 표시 문제 해결**: `components/Nav.vue` 파일의 `useFetch` `default` 및 `transform` 옵션에 `siteLogoIcon` 필드를 추가하여 메인 상단 헤더에 Heroicons 로고 아이콘이 올바르게 표시되도록 수정 완료.
 - **Heroicons 모달 다크 모드 대응**: `components/common/HeroiconPickerModal.vue` 파일에서 `modal-container`의 하드코딩된 배경색과 그림자 스타일을 제거하여 Tailwind CSS의 다크 모드 클래스가 올바르게 적용되도록 수정 완료.
 - **가로형 사이드바/세로형 헤더바 전환 기능 추가**: 메인 페이지(`pages/index.vue`)에서 방향 전환 아이콘 클릭 시 전체 페이지 레이아웃이 가로형 사이드바와 세로형 헤더바 모드 사이를 토글 형식으로 전환하도록 구현 완료. 이 기능은 주로 레이아웃 파일 및 핵심 UI 컴포넌트(`components/Nav.vue`, `components/Sidebar.vue` 등)에 구현되었습니다.
+- **AI 채팅 페이지 개선**:
+  - `pages/ai-chat.vue`에 '기다리는 중...' 메시지 옆에 스피닝 바와 함께 응답 대기 시간을 `1.xx` 초 형식으로 표시하는 기능을 추가 완료.
+  - `utils/dateFormatter.js`에 초 단위 유닉스 타임스탬프를 처리하는 `formatUnixTimestamp` 함수를 추가하고, `pages/ai-chat.vue`에서 이를 사용하여 날짜를 올바르게 포맷팅하도록 리팩터링 완료. 
+
+- **갤러리 관리 페이지 및 API 개선**:
+  - `pages/adminpage/gallery.vue` 파일을 `pages/adminpage/gallery/index.vue`로 이름 변경 및 내용 복원하여 Nuxt.js 라우팅 규칙에 맞게 `/adminpage/gallery` 경로를 처리하도록 했습니다.
+  - `pages/adminpage/gallery/[id].vue` 파일을 `pages/adminpage/gallery/view.vue`로 이름 변경하여 상세 페이지 라우팅을 명확히 했습니다.
+  - `pages/adminpage/gallery/index.vue`에서 상세 페이지로 이동 시 `item.id`를 라우트 파라미터 대신 쿼리 파라미터로 전달하도록 `viewItemDetail` 함수를 수정했습니다.
+  - `pages/adminpage/gallery/view.vue`에서 갤러리 ID를 라우트 파라미터 대신 쿼리 파라미터에서 가져오도록 수정했습니다.
+  - 중복된 `pages/adminpage/gallery/[id].vue` 파일을 삭제하여 파일 시스템을 정리했습니다.
+  - `server/api/admin/gallery/[id].get.js` 파일의 내용을 `server/api/admin/gallery/get.js` 파일에 통합하고, `[id].get.js` 파일을 삭제했습니다. 이제 `server/api/admin/gallery/get.js`가 단일 항목 및 목록 조회를 모두 처리합니다.
+  - `pages/adminpage/gallery/index.vue` 파일에서 `TypeError: Cannot read properties of undefined (reading 'length')` 오류를 해결하기 위해 `item.tags?.join(', ')`와 같이 옵셔널 체이닝을 적용하여 `tags`가 `undefined`일 경우 발생할 수 있는 문제를 방지했습니다.
+
+- **메모리 뱅크 구조 변경 및 파일 이동**:
+  - `.cursor/rules` 폴더의 모든 `.mdc` 파일을 `memory-bank` 폴더로 이동하고, 확장자를 `.md`로 변경 완료.
+  - `.cursor/rules/api-docs` 폴더를 `memory-bank`로 이동하고, 해당 폴더 내의 모든 `.mdc` 파일들의 확장자를 `.md`로 변경 완료.
+
+- **Playwright를 통한 웹사이트 탐색 및 기능 테스트**:
+  - `localhost:3000`으로 웹 브라우저를 실행하고 페이지 제목이 "Dion"임을 확인 완료.
+  - 상단 헤더의 '홈', '블로그', '문의', '갤러리', '위키', '관련 사이트', '종합 검색', '아웃라이너', 'AI 채팅', '유튜브 갤러리' 등 모든 메뉴 링크를 클릭하여 페이지 이동 및 에러 발생 여부 확인 완료. 모든 링크에서 정상적으로 페이지가 로드되고 에러가 없음을 확인 완료.
+  - 사이드바 토글 아이콘 (라이트/다크 모드 전환 버튼) 클릭을 시도했으나 요소가 뷰포트 밖에 있어 `TimeoutError`가 발생했으며, 브라우저 창 크기를 1280x800으로 조절하여 사이드바 요소가 보이도록 조치 완료.
+  - 게시판 메뉴의 '자유게시판' 링크를 클릭하여 목록 페이지로 이동 완료.
+  - 목록 페이지에서 특정 게시글("wqdqw" 제목)을 클릭하여 보기 페이지로 이동 완료.
+  - 보기 페이지에서 '새 글 작성' 버튼 클릭 시 `TimeoutError`가 발생하여, '목록으로' 링크를 통해 목록 페이지로 돌아왔으며, 다시 '새 글 작성' 버튼을 클릭하여 작성 페이지로 이동하고 '테스트 게시글 제목'을 입력 완료.
 
 ## 남은 작업
 - **관리자 기능 - 콘텐츠 관리**:
@@ -202,12 +226,3 @@ alwaysApply: true
 ## Blockers
 
 - 현재 개발을 막는 특별한 블로커는 없습니다. 
-
-- **AI 채팅 페이지 개선**:
-  - `pages/ai-chat.vue`에 '기다리는 중...' 메시지 옆에 스피닝 바와 함께 응답 대기 시간을 `1.xx` 초 형식으로 표시하는 기능을 추가 완료.
-  - `utils/dateFormatter.js`에 초 단위 유닉스 타임스탬프를 처리하는 `formatUnixTimestamp` 함수를 추가하고, `pages/ai-chat.vue`에서 이를 사용하여 날짜를 올바르게 포맷팅하도록 리팩터링 완료. 
-
-- **갤러리 관리 페이지 및 API 개선**:
-  - `pages/adminpage/gallery.vue` 파일을 `pages/adminpage/gallery/index.vue`로 이름 변경 및 내용 복원하여 Nuxt.js 라우팅 규칙에 맞게 `/adminpage/gallery` 경로를 처리하도록 했습니다.
-  - `pages/adminpage/gallery/[id].vue` 파일을 `pages/adminpage/gallery/view.vue`로 이름 변경하여 상세 페이지 라우팅을 명확히 했습니다.
-  - `pages/adminpage/gallery/index.vue`에서 상세 페이지로 이동 시 `

@@ -122,6 +122,10 @@
   const prevPost = ref(null)
   const nextPost = ref(null)
   
+  /**
+   * 게시글 데이터와 이전/다음 글 정보를 비동기적으로 가져옵니다.
+   * API 호출 중 로딩 상태를 'pending'으로, 에러 발생 시 'error' 상태를 업데이트합니다.
+   */
   async function fetchData() {
     pending.value = true
     error.value = null
@@ -148,6 +152,10 @@
     }
   }
 
+  /**
+   * 컴포넌트 초기화 함수.
+   * 모바일 여부를 확인하고, 윈도우 리사이즈 이벤트 리스너를 추가하며, 데이터를 가져옵니다.
+   */
   function init() {
     checkMobile()
     window.addEventListener('resize', checkMobile)
@@ -156,10 +164,18 @@
   
   onMounted(init)
   
+  /**
+   * 현재 뷰포트 너비를 기준으로 모바일 환경인지 여부를 확인하여 `isMobile` 상태를 업데이트합니다.
+   */
   function checkMobile() {
     isMobile.value = window.innerWidth < 640
   }
   
+  /**
+   * 게시글 삭제를 처리하는 함수입니다.
+   * 사용자에게 삭제 확인 모달을 띄우고, 확인 시 API를 통해 게시글을 삭제한 후
+   * 성공 또는 실패 메시지를 표시하고 게시판 목록으로 이동합니다.
+   */
   async function deletePost() {
     openModal('확인', '정말로 이 게시글을 삭제하시겠습니까?', async (confirmed) => {
       if (confirmed) {
@@ -179,6 +195,10 @@
     }, true)
   }
   
+  /**
+   * 답변 작성 모달을 엽니다.
+   * 모달에서 입력된 답변 내용과 작성자 정보를 받아 `submitReply` 함수를 호출합니다.
+   */
   function openReply() {
     openReplyModal('답변 작성', 
       async (data) => {
@@ -191,6 +211,11 @@
     )
   }
 
+  /**
+   * 답변을 서버에 제출하는 함수입니다.
+   * 성공 시 성공 모달을 띄우고 게시글 데이터를 다시 불러옵니다. 실패 시 오류 모달을 띄웁니다.
+   * @param {object} replyData - 제출할 답변 데이터 (content, author 포함).
+   */
   async function submitReply(replyData) {
     try {
       await $fetch(props.apiEndpoint, {

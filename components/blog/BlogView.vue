@@ -93,6 +93,10 @@ const error = ref(null)
 const prevPost = ref(null)
 const nextPost = ref(null)
 
+/**
+ * 블로그 게시글 데이터와 이전/다음 글 정보를 비동기적으로 가져옵니다.
+ * API 호출 중 로딩 상태를 'pending'으로, 에러 발생 시 'error' 상태를 업데이트합니다.
+ */
 async function fetchData() {
   pending.value = true
   try {
@@ -113,13 +117,22 @@ async function fetchData() {
 onBeforeMount(fetchData)
 onMounted(fetchData)
 
-// props.id가 변경될 때마다 fetchData 함수를 호출합니다.
+/**
+ * `props.id`가 변경될 때마다 `fetchData` 함수를 호출합니다.
+ * 이는 URL 쿼리 파라미터로 게시글 ID가 변경될 때 새로운 게시글을 불러오기 위함입니다.
+ * @param {string} newId - 새로 변경된 게시글 ID.
+ */
 watch(() => props.id, (newId) => {
   if (newId) {
     fetchData()
   }
 })
 
+/**
+ * 게시글 삭제를 처리하는 함수입니다.
+ * 사용자에게 삭제 확인 모달을 띄우고, 확인 시 API를 통해 게시글을 삭제합니다.
+ * 성공 시 성공 모달을 띄우고 목록 페이지로 이동하며, 실패 시 오류 모달을 띄웁니다.
+ */
 async function deletePost() {
   openModal('확인', '정말로 이 게시글을 삭제하시겠습니까?', async (confirmed) => {
     if (confirmed) {

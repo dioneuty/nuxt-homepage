@@ -63,6 +63,11 @@ const emit = defineEmits(['update:modelValue', 'submit'])
 
 const password = ref('')
 
+/**
+ * 폼 제출을 처리하는 함수입니다.
+ * `submit` 이벤트를 발생시켜 입력된 비밀번호를 부모 컴포넌트로 전달하고,
+ * 모달을 닫습니다.
+ */
 const handleSubmit = () => {
   emit('submit', password.value)
   emit('update:modelValue', false)

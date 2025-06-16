@@ -72,7 +72,10 @@
   const isPasswordValid = ref(false)
   const passwordValidationMessage = ref('')
   
-  // 모달이 닫힐 때 필드 값 초기화
+  /**
+   * `isOpen` prop의 변경을 감지하여 모달이 닫힐 때 모든 폼 필드와 관련 상태를 초기화합니다.
+   * @param {boolean} newVal - `isOpen` prop의 새 값.
+   */
   watch(isOpen, (newVal) => {
     if (!newVal) {
       username.value = '';
@@ -88,14 +91,19 @@
     }
   });
   
-  // 사용자 이름 변경 시 중복 확인 상태 초기화
+  /**
+   * `username` 값이 변경될 때 사용자 이름 중복 확인 관련 상태를 초기화합니다.
+   */
   watch(username, () => {
     usernameChecked.value = false
     isUsernameAvailable.value = false
     usernameCheckMessage.value = ''
   })
   
-  // 이메일 유효성 검사
+  /**
+   * `email` 값의 유효성을 검사하고, 유효성 검사 메시지를 업데이트합니다.
+   * @param {string} newValue - `email`의 새 값.
+   */
   watch(email, (newValue) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
     if (newValue.length === 0) {
@@ -110,7 +118,11 @@
     }
   })
   
-  // 비밀번호 유효성 검사
+  /**
+   * `password` 값의 유효성을 검사하고, 유효성 검사 메시지를 업데이트합니다.
+   * 비밀번호는 최소 6자 이상이어야 하며, 문자 및 숫자를 포함해야 합니다.
+   * @param {string} newValue - `password`의 새 값.
+   */
   watch(password, (newValue) => {
     // 최소 6자, 하나 이상의 문자, 하나 이상의 숫자
     const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)[A-Za-z\d]{6,}$/
@@ -126,6 +138,11 @@
     }
   })
   
+  /**
+   * 사용자 이름 중복 확인을 비동기적으로 수행하는 함수입니다.
+   * 사용자 이름이 비어있으면 메시지를 표시하고, 그렇지 않으면 API를 호출하여 중복 여부를 확인합니다.
+   * 확인 결과에 따라 `isUsernameAvailable` 및 `usernameCheckMessage`를 업데이트합니다.
+   */
   async function checkUsernameDuplication() {
     if (!username.value) {
       usernameCheckMessage.value = '사용자 이름을 입력해주세요.'
@@ -155,6 +172,13 @@
     }
   }
   
+  /**
+   * 회원가입 폼 제출을 처리하는 비동기 함수입니다.
+   * 사용자 이름 중복 확인, 이메일, 비밀번호 유효성을 최종적으로 검사합니다.
+   * 모든 유효성 검사를 통과하면 API를 통해 사용자 등록을 시도하고,
+   * 성공 시 사용자 인증 상태를 설정하고 모달을 닫으며 성공 토스트 메시지를 표시합니다.
+   * 실패 시 오류 토스트 메시지를 표시합니다.
+   */
   async function handleRegister() {
     // 최종 유효성 검사
     if (!usernameChecked.value || !isUsernameAvailable.value) {

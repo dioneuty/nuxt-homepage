@@ -105,7 +105,10 @@ const onReady = (quill) => {
   emit('ready', quill);
 };
 
-// 커스텀 이미지 핸들러
+/**
+ * Quill 에디터의 커스텀 이미지 핸들러입니다.
+ * 파일 선택 창을 열고, 선택된 이미지를 base64로 읽어 에디터에 삽입합니다.
+ */
 function imageHandler() {
   const input = document.createElement('input');
   input.setAttribute('type', 'file');
@@ -140,10 +143,32 @@ function imageHandler() {
   };
 }
 
-// 기존 이벤트 핸들러들
+/**
+ * 에디터 내용이 업데이트될 때 호출되는 함수입니다.
+ * 'input' 이벤트를 발생시켜 업데이트된 HTML 콘텐츠를 부모 컴포넌트로 전달합니다.
+ * @param {string} content - 업데이트된 HTML 콘텐츠.
+ */
 function onContentUpdate(content) { emit('input', content); }
+
+/**
+ * 에디터가 블러(focus out)될 때 호출되는 함수입니다.
+ * 'blur' 이벤트를 발생시켜 Quill 인스턴스를 부모 컴포넌트로 전달합니다.
+ * @param {object} quill - Quill 에디터 인스턴스.
+ */
 function onEditorBlur(quill) { emit('blur', quill); }
+
+/**
+ * 에디터가 포커스(focus in)될 때 호출되는 함수입니다.
+ * 'focus' 이벤트를 발생시켜 Quill 인스턴스를 부모 컴포넌트로 전달합니다.
+ * @param {object} quill - Quill 에디터 인스턴스.
+ */
 function onEditorFocus(quill) { emit('focus', quill); }
+
+/**
+ * 에디터 내용이 변경될 때 호출되는 함수입니다.
+ * 'input' 및 'change' 이벤트를 발생시켜 업데이트된 HTML, 텍스트 콘텐츠 및 Quill 인스턴스를 부모 컴포넌트로 전달합니다.
+ * @param {object} payload - 변경된 내용과 Quill 인스턴스를 포함하는 객체 ({ html, text, quill }).
+ */
 function onEditorChange({ html, text, quill }) {
   emit('input', html);
   emit('change', { html, text, quill });

@@ -27,12 +27,21 @@ const props = defineProps({
 
 const emit = defineEmits(['select', 'close']);
 
+/**
+ * 드롭다운 옵션을 선택했을 때 호출되는 함수입니다.
+ * 'select' 이벤트를 발생시켜 선택된 옵션을 전달하고, 드롭다운을 닫기 위해 'close' 이벤트를 발생시킵니다.
+ * @param {object} option - 선택된 드롭다운 옵션 객체.
+ */
 function selectOption(option) {
   emit('select', option);
   emit('close'); // 옵션 선택 후 드롭다운 닫기
 }
 
-// 외부 클릭 시 드롭다운 닫기 로직
+/**
+ * 드롭다운 외부 클릭 시 드롭다운을 닫는 로직을 처리하는 함수입니다.
+ * 이벤트 타겟이 드롭다운 외부일 경우 'close' 이벤트를 발생시킵니다.
+ * @param {Event} event - 클릭 이벤트 객체.
+ */
 function handleClickOutside(event) {
   if (!event.target.closest('.outline-item-container .relative')) { // Adjust selector to be more specific
     emit('close');

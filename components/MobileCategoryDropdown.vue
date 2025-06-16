@@ -45,7 +45,11 @@ const router = useRouter()
 // 현재 선택된 카테고리 (URL 쿼리에서 가져오거나 기본값 '0' 사용)
 const selectedCategory = ref(route.query.category || '0')
   
-// 카테고리 변경 시 URL 쿼리 파라미터 업데이트
+/**
+ * 카테고리 변경 시 URL 쿼리 파라미터를 업데이트하는 함수입니다.
+ * '전체 카테고리' 선택 시 `category` 쿼리 파라미터를 제거하고,
+ * 특정 카테고리 선택 시 해당 카테고리 ID로 쿼리 파라미터를 설정합니다.
+ */
 function onCategoryChange() {
   if (selectedCategory.value === '0') {
     // 전체 카테고리 선택 시 category 쿼리 파라미터 제거
@@ -56,12 +60,19 @@ function onCategoryChange() {
   }
 }
   
-// URL의 카테고리 쿼리 파라미터 변경 감지
+/**
+ * URL의 카테고리 쿼리 파라미터 변경을 감지하여 `selectedCategory`를 업데이트하는 watch 훅입니다.
+ * @param {string|undefined} newCategory - `route.query.category`의 새 값.
+ */
 watch(() => route.query.category, (newCategory) => {
   selectedCategory.value = newCategory || '0'
 })
 
-// 현재 카테고리가 선택되었는지 확인하는 함수
+/**
+ * 주어진 카테고리 ID가 현재 선택된 카테고리인지 확인하는 함수입니다.
+ * @param {string} categoryId - 확인할 카테고리 ID.
+ * @returns {boolean} 선택된 카테고리이면 true, 아니면 false.
+ */
 function isSelected(categoryId) {
   return selectedCategory.value === categoryId.toString()
 }

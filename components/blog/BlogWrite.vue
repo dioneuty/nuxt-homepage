@@ -84,6 +84,11 @@
   const error = ref(null)
   const categories = ref([])
 
+  /**
+   * 컴포넌트 마운트 시 카테고리 목록을 불러오고,
+   * URL 쿼리에 `id`가 있다면 기존 블로그 게시글 데이터를 불러와 수정 모드로 설정합니다.
+   * API 호출 중 로딩 및 에러 상태를 처리하고, 모달을 통해 사용자에게 피드백을 제공합니다.
+   */
   onMounted(async () => {
     try {
       const { data: categoriesData } = await useFetch('/api/categories')
@@ -112,21 +117,44 @@
     }
   })
   
+  /**
+   * 폼 필드의 값을 업데이트하는 함수입니다.
+   * Quill 에디터와 같은 커스텀 컴포넌트의 입력 이벤트를 처리할 수 있도록 일반화되었습니다.
+   * @param {string} fieldName - 업데이트할 필드의 이름.
+   * @param {Event|string} event - 입력 이벤트 객체 또는 직접적인 값.
+   */
   function updateField(fieldName, event) {
     post.value[fieldName] = event.target ? event.target.value : event
     //console.log(`Field ${fieldName} updated:`, post.value[fieldName])
   }
   
+  /**
+   * 블로그 게시글을 제출(생성 또는 수정)하는 함수입니다.
+   * 필수 필드가 비어있는지 확인하고, 유효성 검사 실패 시 경고 모달을 표시합니다.
+   * API를 호출하여 게시글을 저장하고,
+   * 성공 시 성공 모달을 띄우고 게시글 상세 또는 목록 페이지로 이동하며,
+   * 실패 시 오류 모달을 띄웁니다.
+   */
   async function submitPost() {
+    const requiredFields = props.fields.filter(field => field.required).map(field => field.name)
+    const missingFields = requiredFields.filter(field => !post.value[field])
+
+    if (missingFields.length > 0) {
+      openModal('경고', `다음 필드를 입력해주세요: ${missingFields.join(', ')}`)
+      return
+    }
+
+    //console.log('Submitting post:', post.value)
+
     const url = isEditing.value ? `${props.apiEndpoint}?id=${route.query.id}` : props.apiEndpoint
     const method = isEditing.value ? 'PUT' : 'POST'
-  
+
     try {
       const response = await $fetch(url, {
         method,
         body: post.value
       })
-  
+
       openModal('성공', `블로그 글이 성공적으로 ${isEditing.value ? '수정' : '작성'}되었습니다.`, () => {
         router.push(isEditing.value ? `${props.listPath}/view?id=${route.query.id}` : props.listPath)
       })
@@ -136,6 +164,9 @@
     }
   }
   
+  /**
+   * 블로그 글 수정을 취소하고 게시글 상세 페이지로 돌아가는 함수입니다.
+   */
   function cancelEdit() {
     router.push(`${props.listPath}/view?id=${route.query.id}`)
   }

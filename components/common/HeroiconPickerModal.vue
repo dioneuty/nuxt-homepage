@@ -59,6 +59,10 @@ const filteredIcons = computed(() => {
   );
 });
 
+/**
+ * Heroicons 데이터를 `heroicons.json` 파일에서 비동기적으로 가져와 `allIcons` 배열에 저장합니다.
+ * 데이터를 불러오는 동안 발생할 수 있는 오류를 콘솔에 기록합니다.
+ */
 const fetchIcons = async () => {
   try {
     const response = await fetch('/data/heroicons.json');
@@ -69,16 +73,29 @@ const fetchIcons = async () => {
   }
 };
 
+/**
+ * 모달을 닫는 함수입니다.
+ * `update:isOpen` 이벤트를 발생시켜 모달 상태를 변경하고, 검색어를 초기화합니다.
+ */
 const closeModal = () => {
   emit('update:isOpen', false);
   searchTerm.value = ''; // 모달 닫을 때 검색어 초기화
 };
 
+/**
+ * 아이콘을 선택했을 때 호출되는 함수입니다.
+ * 선택된 아이콘 이름과 함께 `selectIcon` 이벤트를 발생시키고, 모달을 닫습니다.
+ * @param {string} iconName - 선택된 아이콘의 이름.
+ */
 const selectIcon = (iconName) => {
   emit('selectIcon', iconName);
   closeModal();
 };
 
+/**
+ * `isOpen` prop의 변경을 감지하여 모달이 열릴 때 아이콘 데이터를 가져옵니다.
+ * @param {boolean} newVal - `isOpen` prop의 새 값.
+ */
 watch(() => props.isOpen, (newVal) => {
   if (newVal) {
     fetchIcons();

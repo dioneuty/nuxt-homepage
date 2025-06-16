@@ -119,7 +119,11 @@ const resetForm = () => {
   form.galleryType = 'general';
 };
 
-// galleryItem prop이 변경될 때마다 폼 데이터 업데이트
+/**
+ * `galleryItem` prop이 변경될 때마다 폼 데이터를 업데이트합니다.
+ * 새 항목인 경우 폼을 초기화하고, 기존 항목인 경우 해당 항목의 데이터로 폼을 채웁니다.
+ * @param {object|null} newItem - 새로 전달된 갤러리 항목 객체 또는 null.
+ */
 watch(() => props.galleryItem, (newItem) => {
   if (newItem) {
     form.id = newItem.id;
@@ -133,13 +137,22 @@ watch(() => props.galleryItem, (newItem) => {
   }
 }, { immediate: true });
 
-// isOpen prop이 false가 될 때 폼 데이터 초기화
+/**
+ * `isOpen` prop이 `false`가 될 때 폼 데이터를 초기화합니다.
+ * 모달이 닫힐 때 폼의 잔여 데이터를 제거하기 위함입니다.
+ * @param {boolean} newVal - `isOpen` prop의 새 값.
+ */
 watch(() => props.isOpen, (newVal) => {
   if (!newVal) {
     resetForm();
   }
 });
 
+/**
+ * 폼 제출을 처리하는 함수입니다. 새 갤러리 항목을 추가하거나 기존 항목을 수정합니다.
+ * 성공 시 토스트 메시지를 표시하고, 모달을 닫고, 부모 컴포넌트에 새로고침 이벤트를 알립니다.
+ * 실패 시 오류 토스트 메시지를 표시합니다.
+ */
 const handleSubmit = async () => {
   try {
     if (form.id) {
@@ -177,6 +190,9 @@ const handleSubmit = async () => {
   }
 };
 
+/**
+ * 모달을 닫는 함수입니다. 부모 컴포넌트에 'close' 이벤트를 발생시킵니다.
+ */
 const handleClose = () => {
   emit('close');
 };

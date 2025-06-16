@@ -132,6 +132,11 @@ const form = reactive({
   isActive: true
 })
 
+/**
+ * 새 사용자 생성 폼 제출을 처리하는 함수입니다.
+ * 로딩 상태를 설정하고, API를 호출하여 사용자를 생성합니다.
+ * 성공 시 `created` 이벤트를 발생시키고, 실패 시 에러 메시지를 표시합니다.
+ */
 const handleSubmit = async () => {
   loading.value = true
   error.value = ''

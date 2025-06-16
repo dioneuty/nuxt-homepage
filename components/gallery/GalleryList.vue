@@ -167,7 +167,11 @@ const selectedItemIndex = computed(() => {
 const isFirstItem = computed(() => selectedItemIndex.value === 0)
 const isLastItem = computed(() => selectedItemIndex.value === filteredItems.value.length - 1)
 
-// 갤러리 아이템 데이터 가져오기
+/**
+ * 갤러리 아이템 데이터를 비동기적으로 가져오는 함수입니다.
+ * API 호출 중 로딩 상태를 설정하고, 에러 발생 시 `error` 상태를 업데이트합니다.
+ * @returns {boolean} 데이터 가져오기 성공 여부.
+ */
 async function fetchItems() {
   loading.value = true
   error.value = null
@@ -185,7 +189,11 @@ async function fetchItems() {
 
 const route = useRoute()
 
-// ID로 모달 열기
+/**
+ * 주어진 ID를 가진 갤러리 아이템의 모달을 여는 함수입니다.
+ * 아이템 목록이 비어있다면 먼저 데이터를 가져온 후 해당 아이템을 찾아 모달을 엽니다.
+ * @param {string} id - 열고자 하는 갤러리 아이템의 ID.
+ */
 async function openModalById(id) {
   if (items.value.length === 0) {
     const success = await fetchItems()
@@ -221,26 +229,49 @@ onMounted(async () => {
   }
 })
 
-// 모달 관련 함수들
+/**
+ * 모달을 여는 함수입니다.
+ * 선택된 아이템을 설정합니다.
+ * @param {object} item - 선택된 갤러리 아이템 객체.
+ */
 function openModal(item) {
   selectedItem.value = item
 }
 
+/**
+ * 모달을 닫는 함수입니다.
+ * 선택된 아이템을 초기화합니다.
+ */
 function closeModal() {
   selectedItem.value = null
 }
 
+/**
+ * 갤러리 항목 편집 모달을 여는 함수입니다.
+ * 새 항목을 추가하는 경우 기본값으로 초기화된 객체를, 기존 항목을 수정하는 경우 해당 항목을 `editingItem`으로 설정합니다.
+ * @param {object|null} item - 편집할 갤러리 아이템 객체 (선택 사항).
+ */
 function openEditModal(item = null) {
   editingItem.value = item || { title: '', description: '', imageUrl: '', tags: [] }
   showEditModal.value = true
 }
 
+/**
+ * 갤러리 항목 편집 모달을 닫는 함수입니다.
+ * `editingItem`과 `showEditModal` 상태를 초기화합니다.
+ */
 function closeEditModal() {
   editingItem.value = null
   showEditModal.value = false
 }
 
-// 아이템 업데이트 함수
+/**
+ * 갤러리 아이템이 업데이트되었을 때 호출되는 함수입니다.
+ * 기존 아이템을 찾아 업데이트하거나, 새 아이템인 경우 목록의 맨 앞에 추가합니다.
+ * 선택된 아이템이 업데이트된 아이템과 동일하면 `selectedItem`도 업데이트합니다.
+ * 편집 모달을 닫습니다.
+ * @param {object} updatedItem - 업데이트된 갤러리 아이템 객체.
+ */
 async function updateItem(updatedItem) {
   const index = items.value.findIndex(function(item) { return item.id === updatedItem.id })
   if (index !== -1) {
@@ -254,19 +285,30 @@ async function updateItem(updatedItem) {
   closeEditModal()
 }
 
-// 아이템 삭제 함수
+/**
+ * 갤러리 아이템이 삭제되었을 때 호출되는 함수입니다.
+ * `deletedItemId`와 일치하는 아이템을 목록에서 제거하고, `selectedItem`을 초기화합니다.
+ * @param {number} deletedItemId - 삭제된 갤러리 아이템의 ID.
+ */
 function deleteItem(deletedItemId) {
   items.value = items.value.filter(function(item) { return item.id !== deletedItemId })
   selectedItem.value = null
 }
 
-// 이전/다음 아이템 표시 함수
+/**
+ * 이전 갤러리 아이템을 표시하는 함수입니다.
+ * 현재 선택된 아이템이 첫 번째가 아니라면 `filteredItems` 목록에서 이전 아이템을 찾아 `selectedItem`으로 설정합니다.
+ */
 function showPreviousItem() {
   if (!isFirstItem.value) {
     selectedItem.value = filteredItems.value[selectedItemIndex.value - 1]
   }
 }
 
+/**
+ * 다음 갤러리 아이템을 표시하는 함수입니다.
+ * 현재 선택된 아이템이 마지막이 아니라면 `filteredItems` 목록에서 다음 아이템을 찾아 `selectedItem`으로 설정합니다.
+ */
 function showNextItem() {
   if (!isLastItem.value) {
     selectedItem.value = filteredItems.value[selectedItemIndex.value + 1]

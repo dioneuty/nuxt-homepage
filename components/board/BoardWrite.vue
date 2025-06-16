@@ -90,11 +90,24 @@ onMounted(async () => {
   }
 })
   
+/**
+ * 폼 필드의 값을 업데이트하는 함수입니다.
+ * Quill 에디터와 같은 커스텀 컴포넌트의 입력 이벤트를 처리할 수 있도록 일반화되었습니다.
+ * @param {string} fieldName - 업데이트할 필드의 이름.
+ * @param {Event|string} event - 입력 이벤트 객체 또는 직접적인 값.
+ */
 function updateField(fieldName, event) {
   post.value[fieldName] = event.target ? event.target.value : event
   //console.log(`Field ${fieldName} updated:`, post.value[fieldName])
 }
 
+/**
+ * 게시글을 제출(생성 또는 수정)하는 함수입니다.
+ * 필수 필드가 비어있는지 확인하고, 유효성 검사 실패 시 경고 모달을 표시합니다.
+ * API를 호출하여 게시글을 저장하고,
+ * 성공 시 성공 모달을 띄우고 게시글 상세 또는 목록 페이지로 이동하며,
+ * 실패 시 오류 모달을 띄웁니다.
+ */
 async function submitPost() {
   const requiredFields = props.fields.filter(field => field.required).map(field => field.name)
   const missingFields = requiredFields.filter(field => !post.value[field])
@@ -124,10 +137,13 @@ async function submitPost() {
     })
   } catch (error) {
     console.error('Error submitting post:', error)
-    openModal('오류', `게시글 ${isEditing.value ? '수정' : '작성'}에 실패했습니다.`)
+    openModal('오류', `게시글 ${isEditing.value ? '수정' : '작성'}에 실패했습니다.`) 
   }
 }
   
+/**
+ * 게시글 수정을 취소하고 게시글 상세 페이지로 돌아가는 함수입니다.
+ */
 function cancelEdit() {
   router.push(`${props.listPath}/view?id=${route.query.id}`)
 }

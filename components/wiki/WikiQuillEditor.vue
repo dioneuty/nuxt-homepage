@@ -67,26 +67,80 @@ onMounted(async () => {
   }
 })
 
-function onContentUpdate(content) {
-  emit('input', content)
+const onReady = (quill) => {
+  quillInstance.value = quill;
+  // 커스텀 이미지 핸들러를 여기에 할당합니다.
+  quill.getModule('toolbar').addHandler('image', imageHandler);
+  emit('ready', quill);
+};
+
+/**
+ * Quill 에디터의 커스텀 이미지 핸들러입니다.
+ * 파일 선택 창을 열고, 선택된 이미지를 base64로 읽어 에디터에 삽입합니다.
+ */
+function imageHandler() {
+  const input = document.createElement('input');
+  input.setAttribute('type', 'file');
+  input.setAttribute('accept', 'image/*');
+  input.setAttribute('multiple', true);
+  input.click();
+
+  input.onchange = () => {
+    const files = input.files;
+    if (files && quillInstance.value) {
+      const quill = quillInstance.value;
+      const range = quill.getSelection(true);
+      const readFilesAsBase64 = Array.from(files).map(file => {
+        return new Promise((resolve, reject) => {
+          const reader = new FileReader();
+          reader.onload = e => resolve(e.target.result);
+          reader.onerror = err => reject(err);
+          reader.readAsDataURL(file);
+        });
+      });
+      Promise.all(readFilesAsBase64)
+        .then(images => {
+          images.forEach(base64Image => {
+            quill.insertEmbed(range.index, 'image', base64Image);
+            range.index += 1;
+          });
+          quill.insertText(range.index, '\n');
+          quill.setSelection(range.index + 1, 0);
+        })
+        .catch(error => console.error('Error reading files:', error));
+    }
+  };
 }
 
-function onEditorBlur(quill) {
-  emit('blur', quill)
-}
+/**
+ * 에디터 내용이 업데이트될 때 호출되는 함수입니다.
+ * 'input' 이벤트를 발생시켜 업데이트된 HTML 콘텐츠를 부모 컴포넌트로 전달합니다.
+ * @param {string} content - 업데이트된 HTML 콘텐츠.
+ */
+function onContentUpdate(content) { emit('input', content); }
 
-function onEditorFocus(quill) {
-  emit('focus', quill)
-}
+/**
+ * 에디터가 블러(focus out)될 때 호출되는 함수입니다.
+ * 'blur' 이벤트를 발생시켜 Quill 인스턴스를 부모 컴포넌트로 전달합니다.
+ * @param {object} quill - Quill 에디터 인스턴스.
+ */
+function onEditorBlur(quill) { emit('blur', quill); }
 
-function onEditorReady(quill) {
-  quillInstance.value = quill
-  emit('ready', quill)
-}
+/**
+ * 에디터가 포커스(focus in)될 때 호출되는 함수입니다.
+ * 'focus' 이벤트를 발생시켜 Quill 인스턴스를 부모 컴포넌트로 전달합니다.
+ * @param {object} quill - Quill 에디터 인스턴스.
+ */
+function onEditorFocus(quill) { emit('focus', quill); }
 
+/**
+ * 에디터 내용이 변경될 때 호출되는 함수입니다.
+ * 'input' 및 'change' 이벤트를 발생시켜 업데이트된 HTML, 텍스트 콘텐츠 및 Quill 인스턴스를 부모 컴포넌트로 전달합니다.
+ * @param {object} payload - 변경된 내용과 Quill 인스턴스를 포함하는 객체 ({ html, text, quill }).
+ */
 function onEditorChange({ html, text, quill }) {
-  emit('input', html)
-  emit('change', { html, text, quill })
+  emit('input', html);
+  emit('change', { html, text, quill });
 }
 </script>
 

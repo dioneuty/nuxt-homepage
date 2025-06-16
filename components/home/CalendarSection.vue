@@ -63,7 +63,10 @@ const calendarOptions = ref({
   datesSet: handleDatesSet
 })
 
-// 이벤트 추가 함수
+/**
+ * 새로운 이벤트를 달력에 추가하는 함수입니다.
+ * 현재 날짜를 기준으로 '새 이벤트'를 생성하여 `calendarOptions.events` 배열에 추가합니다.
+ */
 function addEvent() {
   const newEvent = {
     title: '새 이벤트',
@@ -72,14 +75,23 @@ function addEvent() {
   calendarOptions.value.events.push(newEvent)
 }
 
-// 마지막 이벤트 삭제 함수
+/**
+ * 달력에서 마지막 이벤트를 삭제하는 함수입니다.
+ * `calendarOptions.events` 배열에 이벤트가 존재할 경우 마지막 이벤트를 제거합니다.
+ */
 function removeLastEvent() {
   if (calendarOptions.value.events.length > 0) {
     calendarOptions.value.events.pop()
   }
 }
 
-// DB에서 공휴일 정보를 가져오는 함수
+/**
+ * 특정 연도와 월의 공휴일 정보를 DB(예시 API)에서 비동기적으로 가져오는 함수입니다.
+ * 가져온 공휴일 데이터를 FullCalendar 이벤트 형식에 맞게 변환하여 반환합니다.
+ * @param {number} year - 조회할 연도.
+ * @param {number} month - 조회할 월 (1-12).
+ * @returns {Promise<Array<object>>} 공휴일 이벤트 객체 배열.
+ */
 async function fetchHolidays(year, month) {
   try {
     // 실제 API 호출 (예시)
@@ -118,6 +130,11 @@ async function fetchHolidays(year, month) {
   }
 }
 
+/**
+ * 달력의 날짜 범위가 변경될 때 호출되는 핸들러 함수입니다.
+ * 현재 표시되는 달의 공휴일 정보를 비동기적으로 가져와 기존 이벤트에 추가합니다.
+ * @param {object} dateInfo - FullCalendar의 datesSet 콜백에서 제공하는 날짜 정보 객체.
+ */
 async function handleDatesSet(dateInfo) {
   const year = dateInfo.view.currentStart.getFullYear()
   const month = dateInfo.view.currentStart.getMonth() + 1 // getMonth()는 0부터 시작하므로 1을 더합니다

@@ -111,6 +111,10 @@ const colorModeIcon = computed(() => {
   }
 });
 
+/**
+ * 색상 모드를 전환하는 함수입니다.
+ * 'system', 'light', 'dark' 순서로 순환하며 변경합니다.
+ */
 const toggleColorMode = () => {
   const modes = ['light', 'dark', 'system'];
   const currentIndex = modes.indexOf(colorMode.preference);
@@ -118,15 +122,25 @@ const toggleColorMode = () => {
   colorMode.preference = modes[nextIndex];
 };
 
+/**
+ * 관리자 페이지로 이동하는 함수입니다.
+ * 사이드바를 닫고 지정된 경로로 라우팅합니다.
+ */
 const onClickAdminPage = () => {
   layoutStore.toggleSidebar(false);
   router.push('/adminpage');
 };
 
+/**
+ * 로그인 모달을 여는 함수입니다.
+ */
 const handleLoginClick = () => {
   openLoginModal();
 };
 
+/**
+ * 회원가입 모달을 여는 함수입니다.
+ */
 const handleRegisterClick = () => {
   openRegisterModal();
 };

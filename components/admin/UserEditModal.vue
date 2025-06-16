@@ -141,7 +141,11 @@ const form = reactive({
   isActive: true
 })
 
-// props가 변경될 때 form 업데이트
+/**
+ * `props.user`의 변경을 감지하여 폼 데이터를 업데이트합니다.
+ * 사용자가 변경될 때마다 폼 필드를 해당 사용자 정보로 채웁니다.
+ * @param {object} newUser - 새로 업데이트된 사용자 객체.
+ */
 watch(() => props.user, (newUser) => {
   if (newUser) {
     form.username = newUser.username
@@ -152,6 +156,11 @@ watch(() => props.user, (newUser) => {
   }
 }, { immediate: true })
 
+/**
+ * 사용자 정보 수정 폼 제출을 처리하는 함수입니다.
+ * 로딩 상태를 설정하고, API를 호출하여 사용자 정보를 업데이트합니다.
+ * 성공 시 `updated` 이벤트를 발생시키고, 실패 시 에러 메시지를 표시합니다.
+ */
 const handleSubmit = async () => {
   loading.value = true
   error.value = ''

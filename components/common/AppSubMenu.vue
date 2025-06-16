@@ -65,6 +65,11 @@ const route = useRoute();
 // props.menus를 반응형으로 만들기 위해 ref와 watch 사용
 const reactiveMenus = ref([]);
 
+/**
+ * 주어진 메뉴 또는 그 자식 메뉴 중 현재 활성화된 라우트와 일치하는 것이 있는지 확인합니다.
+ * @param {object} menu - 확인할 메뉴 객체.
+ * @returns {boolean} 메뉴 또는 자식 메뉴가 활성 상태이면 true, 그렇지 않으면 false.
+ */
 function isActive(menu) {
   if (menu.path && (route.path === menu.path || route.path.startsWith(menu.path + '/'))) {
     return true;
@@ -75,10 +80,22 @@ function isActive(menu) {
   return false;
 }
 
+/**
+ * `props.menus`와 `route.path`의 변경을 감지하여 `reactiveMenus`를 업데이트합니다.
+ * 각 메뉴에 `isOpen` 상태를 추가하며, 초기에는 활성 상태인 메뉴를 열린 상태로 설정합니다.
+ * @param {Array<object>} newMenus - 새로 업데이트된 메뉴 배열.
+ * @param {string} currentPath - 현재 라우트 경로.
+ */
 watch(() => [props.menus, route.path], ([newMenus, currentPath]) => {
   reactiveMenus.value = newMenus.map(menu => ({ ...menu, isOpen: isActive(menu) }));
 }, { immediate: true, deep: true });
 
+/**
+ * 하위 메뉴 항목을 토글하는 함수입니다.
+ * 클릭된 메뉴가 자식 메뉴를 가지고 있다면 해당 메뉴의 `isOpen` 상태를 토글합니다.
+ * (현재 구현에서는 형제 메뉴를 닫는 로직은 주석 처리되어 있습니다.)
+ * @param {object} clickedMenu - 클릭된 메뉴 객체.
+ */
 function toggleMenu(clickedMenu) {
    if (clickedMenu.children && clickedMenu.children.length > 0) {
       const wasOpen = clickedMenu.isOpen;
@@ -90,6 +107,11 @@ function toggleMenu(clickedMenu) {
    }
 }
 
+/**
+ * 링크 클릭을 처리하는 함수입니다.
+ * 자식 메뉴가 없는 링크를 클릭했을 때만 `close-parent` 이벤트를 발생시켜 상위 메뉴를 닫도록 합니다.
+ * @param {object} menu - 클릭된 메뉴 객체.
+ */
 function handleLinkClick(menu) {
   // 자식 메뉴가 없는 링크를 클릭했을 때만 상위 메뉴를 닫습니다.
   if (!menu.children || menu.children.length === 0) {

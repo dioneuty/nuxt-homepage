@@ -197,10 +197,16 @@ const navKey = ref(0)
 const layoutStore = useLayoutStore()
 
 // NProgress 설정 및 라우터 네비게이션 진행률 표시 관련 함수
+/**
+ * NProgress 진행률 표시줄을 시작합니다.
+ */
 function startProgress() {
   NProgress.start()
 }
 
+/**
+ * NProgress 진행률 표시줄을 완료합니다.
+ */
 function endProgress() {
   NProgress.done()
 }
@@ -263,7 +269,10 @@ const emit = defineEmits(['openMenu', 'closeMenu', 'updateNavFixedState'])
 const { openModal: openLoginModal } = useLoginModal()
 const { openModal: openRegisterModal } = useRegisterModal()
 
-// 화면 모드 토글 함수
+/**
+ * 화면 모드(라이트/다크/시스템)를 토글합니다.
+ * 현재 설정에 따라 다음 모드로 순환합니다.
+ */
 const toggleColorMode = () => {
   if (colorMode.preference === 'system') {
     colorMode.preference = 'light'
@@ -276,17 +285,28 @@ const toggleColorMode = () => {
 
 const isMenuOpen = ref(false)
 
+/**
+ * 모바일 메뉴를 엽니다.
+ * 메뉴가 열리면 스크롤을 방지하기 위해 body의 overflow를 hidden으로 설정합니다.
+ */
 function openMenu() {
   isMenuOpen.value = true
   document.body.style.overflow = 'hidden'
 }
 
-// 관리자 페이지 진입 시 헤더 고정 해제
+/**
+ * 관리자 페이지로 이동하기 전에 네비게이션 바의 상단 고정 상태를 해제하고,
+ * `/adminpage` 경로로 라우팅합니다.
+ */
 function onClickAdminPage() {
   navStore.setIsAlwaysOnTop(false)
   router.push('/adminpage')
 }
 
+/**
+ * 모바일 메뉴를 닫습니다.
+ * 메뉴가 닫히면 body의 overflow를 초기화하여 스크롤을 허용합니다.
+ */
 function closeMenu() {
   isMenuOpen.value = false
   document.body.style.overflow = ''
@@ -302,10 +322,20 @@ watch(isMenuOpen, (newValue) => {
 
 const route = useRouter().currentRoute
 
+/**
+ * 주어진 경로가 현재 라우트의 경로와 일치하는지 확인합니다.
+ * @param {string} path - 확인할 경로.
+ * @returns {boolean} 경로가 현재 라우트와 일치하면 true, 그렇지 않으면 false.
+ */
 function isActive(path) {
   return route.value.path === path
 }
 
+/**
+ * 메뉴 아이템 또는 그 자식 아이템 중 활성화된 경로가 있는지 확인합니다.
+ * @param {object} item - 확인할 메뉴 아이템 객체 (path 및 children 속성 포함).
+ * @returns {boolean} 아이템 또는 자식 아이템 중 활성화된 것이 있으면 true, 그렇지 않으면 false.
+ */
 function isActiveOrHasActiveChild(item) {
   if (isActive(item.path)) {
     return true
@@ -316,7 +346,10 @@ function isActiveOrHasActiveChild(item) {
   return false
 }
 
-// 로그아웃 처리 함수
+/**
+ * 사용자 로그아웃을 처리합니다.
+ * 서버에 로그아웃 요청을 보내고, 성공 시 인증 상태를 업데이트하고 메인 페이지로 리다이렉트합니다.
+ */
 async function logout() {
   try {
     const response = await fetch('/api/user?type=logout', {
@@ -334,6 +367,10 @@ async function logout() {
   }
 }
 
+/**
+ * 네비게이션 바의 상단 고정 상태를 토글하고,
+ * body의 패딩을 업데이트하여 레이아웃이 밀리지 않도록 조정합니다.
+ */
 function toggleAlwaysOnTop() {
   updateBodyPadding()
   
@@ -343,7 +380,10 @@ function toggleAlwaysOnTop() {
 
 const navHeight = ref(120)
 
-// 네비게이션 고정 상태에 따른 body padding 조정
+/**
+ * 네비게이션 바의 고정 상태에 따라 body의 상단 패딩을 조정합니다.
+ * 네비게이션 바가 고정되면 해당 높이만큼 패딩을 추가하고, 그렇지 않으면 0으로 설정합니다.
+ */
 function updateBodyPadding() {
   // navStore의 값 사용
   if (navStore.isAlwaysOnTop) {

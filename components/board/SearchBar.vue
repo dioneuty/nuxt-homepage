@@ -35,6 +35,10 @@
   
   const emit = defineEmits(['search'])
   
+  /**
+   * 검색 버튼 클릭 시 호출되는 함수입니다.
+   * 현재 `searchType`과 `searchText` 값을 포함하는 객체를 `search` 이벤트와 함께 부모 컴포넌트로 전달합니다.
+   */
   function search() {
     emit('search', { type: searchType.value, text: searchText.value })
   }

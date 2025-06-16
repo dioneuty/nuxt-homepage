@@ -112,11 +112,22 @@ const form = reactive({
   confirmPassword: ''
 })
 
+/**
+ * 새 비밀번호와 확인 비밀번호의 유효성을 검사하는 computed 속성입니다.
+ * 비밀번호가 4자 이상이고, 새 비밀번호와 확인 비밀번호가 일치하면 `true`를 반환합니다.
+ * @returns {boolean} 비밀번호 유효성 여부.
+ */
 const isPasswordValid = computed(() => {
   return form.newPassword.length >= 4 && 
          form.newPassword === form.confirmPassword
 })
 
+/**
+ * 비밀번호 재설정 폼 제출을 처리하는 함수입니다.
+ * 비밀번호 유효성을 검사하고, 유효하지 않으면 에러 메시지를 표시합니다.
+ * 유효하다면 API를 호출하여 비밀번호를 재설정하고,
+ * 성공 시 `reset` 이벤트를 발생시키고, 실패 시 에러 메시지를 표시합니다.
+ */
 const handleSubmit = async () => {
   if (!isPasswordValid.value) {
     error.value = '비밀번호는 4자 이상이어야 하며, 확인 비밀번호와 일치해야 합니다.'

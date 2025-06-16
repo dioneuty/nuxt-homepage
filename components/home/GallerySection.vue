@@ -26,6 +26,11 @@ import { useGalleryStore } from '@/stores/galleryStore' // Pinia 스토어 impor
 const { data: galleryItems } = await useFetch('/api/gallery')
 const galleryStore = useGalleryStore()
 
+/**
+ * 갤러리 모달을 여는 함수입니다.
+ * Pinia 스토어를 사용하여 선택된 갤러리 항목을 설정합니다.
+ * @param {object} item - 열고자 하는 갤러리 항목 객체.
+ */
 const openGalleryModal = (item) => {
   galleryStore.setSelectedItem(item)
 }

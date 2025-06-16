@@ -84,6 +84,10 @@ const deletedCategories = ref([])
 const pending = ref(false)
 const error = ref(null)
 
+/**
+ * 컴포넌트 마운트 시 카테고리 데이터를 비동기적으로 가져옵니다.
+ * 로딩 상태를 설정하고, API 호출 중 에러 발생 시 `error` 상태를 업데이트합니다.
+ */
 onMounted(async () => {
   pending.value = true
   try {
@@ -96,6 +100,10 @@ onMounted(async () => {
   }
 })
 
+/**
+ * 새 카테고리를 추가하는 함수입니다.
+ * 입력된 카테고리 이름이 비어있지 않으면, `categories` 배열에 새 카테고리를 추가하고 입력 필드를 초기화합니다.
+ */
 function addCategory() {
   if (newCategory.value.trim()) {
     categories.value.push({ 
@@ -107,6 +115,11 @@ function addCategory() {
   }
 }
 
+/**
+ * 지정된 인덱스의 카테고리를 제거하는 함수입니다.
+ * 제거된 카테고리에 `id`가 있다면 `deletedCategories` 배열에 추가하여 삭제 요청 시 사용될 수 있도록 합니다.
+ * @param {number} index - 제거할 카테고리의 인덱스.
+ */
 function removeCategory(index) {
   const removedCategory = categories.value.splice(index, 1)[0]
   if (removedCategory.id) {
@@ -114,6 +127,11 @@ function removeCategory(index) {
   }
 }
 
+/**
+ * 변경된 카테고리 목록을 서버에 저장하는 함수입니다.
+ * API를 호출하여 카테고리 목록과 삭제된 카테고리 ID를 전송합니다.
+ * 성공 시 성공 모달을 띄우고 블로그 페이지로 이동하며, 실패 시 오류 모달을 띄웁니다.
+ */
 async function saveCategories() {
   try {
     await $fetch(props.apiEndpoint, {
@@ -129,6 +147,9 @@ async function saveCategories() {
   }
 }
 
+/**
+ * 카테고리 편집을 취소하고 이전 페이지로 돌아가는 함수입니다.
+ */
 function cancelEdit() {
   router.back() // 이전 페이지로 돌아가기
 }

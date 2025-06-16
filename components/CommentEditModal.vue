@@ -72,6 +72,11 @@ const form = ref({
   password: ''
 })
 
+/**
+ * 댓글 수정 폼 제출을 처리하는 함수입니다.
+ * `submit` 이벤트를 발생시켜 폼 데이터를 부모 컴포넌트로 전달하고,
+ * 모달을 닫습니다.
+ */
 const handleSubmit = () => {
   emit('submit', form.value)
   emit('update:modelValue', false)
