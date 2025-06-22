@@ -4,7 +4,7 @@
     <div :class="outlinerSectionClasses">
       <h1 class="text-3xl text-gray-800 dark:text-gray-200 mb-5 text-center">아웃라이너</h1>
       <!-- 버튼 -->
-      <div class="flex justify-between mb-5">
+      <div class="flex justify-between mb-5" ref="headerButtonsRef">
         <button @click="addItem(null)" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors duration-300 transform active:scale-98">
           <Icon icon="mdi:plus" /> 최상위 항목 추가
         </button>
@@ -24,6 +24,10 @@
           <Icon icon="mdi:arrow-split-vertical" />
           {{ currentLayoutRatio }}
         </button>
+        <!-- 스크롤 잠금 토글 버튼 -->
+        <button v-if="!isMobile" @click="toggleScrollLock" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors duration-300 transform active:scale-98 ml-2">
+          <Icon :icon="isScrollLocked ? 'mdi:lock' : 'mdi:lock-open'" />
+        </button>
       </div>
       <!-- 확대 경로 -->
       <div class="mb-2.5 text-sm" v-if="zoomPath.length > 0">
@@ -36,7 +40,7 @@
         </span>
       </div>
       <!-- 아웃라이너 -->
-      <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-5 shadow-sm">
+      <div class="bg-gray-100 dark:bg-gray-700 rounded-lg p-5 shadow-sm" :style="outlinerContainerStyle">
         <!-- 드래그 가능한 아웃라이너 항목 -->
         <draggable
           v-model="currentItems"
@@ -86,7 +90,7 @@
 
     <!-- 데스크톱 상세 화면 섹션 -->
     <div v-if="selectedItem && !isMobile" :class="detailSectionClasses">
-      <div class="bg-gray-100 dark:bg-gray-700 rounded-lg px-5 pb-5 pt-0 shadow-sm">
+      <div class="bg-gray-100 dark:bg-gray-700 rounded-lg px-5 pb-5 pt-0 shadow-sm" :style="detailContainerStyle">
         <h2 class="text-2xl text-gray-800 dark:text-gray-200 mb-3 text-center mt-0" v-if="selectedItem">{{ selectedItem.content }}</h2>
         <div class="flex justify-center items-center mb-3">
           <button @click="toggleEditMode" v-if="selectedItem" class="px-2 py-1 mr-2 bg-blue-500 hover:bg-blue-600 text-white rounded transition-colors duration-300 transform active:scale-98 focus:outline-none focus:ring-0">
@@ -334,6 +338,78 @@ const detailSectionClasses = computed(() => {
   }
 });
 // --- END: Layout Ratio Feature Logic ---
+
+// --- START: Scroll Lock Feature Logic ---
+const isScrollLocked = ref(false); // Default to not locked
+const headerButtonsRef = ref(null); // Reference to the header buttons div
+const headerHeight = ref(0); // Height of the header buttons div
+
+onMounted(() => {
+  // Load scroll lock preference from localStorage
+  const storedScrollLockPreference = localStorage.getItem('outlinerScrollLock');
+  if (storedScrollLockPreference !== null) {
+    isScrollLocked.value = JSON.parse(storedScrollLockPreference);
+  }
+
+  // Measure header height after DOM is rendered
+  nextTick(() => {
+    if (headerButtonsRef.value) {
+      headerHeight.value = headerButtonsRef.value.offsetHeight;
+    }
+  });
+
+  // Re-measure on window resize (debounced for performance if needed, but not strictly required for this simple case)
+  const resizeObserver = new ResizeObserver(entries => {
+    for (let entry of entries) {
+      if (entry.target === headerButtonsRef.value) {
+        headerHeight.value = entry.contentRect.height;
+      }
+    }
+  });
+  if (headerButtonsRef.value) {
+    resizeObserver.observe(headerButtonsRef.value);
+  }
+
+  onBeforeUnmount(() => {
+    if (headerButtonsRef.value) {
+      resizeObserver.unobserve(headerButtonsRef.value);
+    }
+  });
+});
+
+watch(isScrollLocked, (newValue) => {
+  localStorage.setItem('outlinerScrollLock', JSON.stringify(newValue));
+});
+
+const toggleScrollLock = () => {
+  isScrollLocked.value = !isScrollLocked.value;
+};
+
+const scrollableContentHeight = computed(() => {
+  if (!isScrollLocked.value) {
+    return 'auto'; // Not locked, let content flow naturally
+  }
+  // Calculate height considering header and padding/margin of main container
+  // Example: screen height - (main container top/bottom padding + header height + other fixed elements)
+  // For simplicity, let's assume `p-5` (20px top/bottom) on mainContainerClasses
+  const availableHeight = window.innerHeight - headerHeight.value - (20 * 2); // 20px for p-5 top and bottom
+  return `${availableHeight}px`;
+});
+
+const outlinerContainerStyle = computed(() => {
+  if (isScrollLocked.value && !isMobile.value) {
+    return { maxHeight: scrollableContentHeight.value, overflowY: 'auto' };
+  }
+  return {};
+});
+
+const detailContainerStyle = computed(() => {
+  if (isScrollLocked.value && !isMobile.value) {
+    return { maxHeight: scrollableContentHeight.value, overflowY: 'auto' };
+  }
+  return {};
+});
+// --- END: Scroll Lock Feature Logic ---
 
 // 샘플 데이터
 const sampleData = [
