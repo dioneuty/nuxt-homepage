@@ -1,5 +1,5 @@
 <template>
-  <div class="max-w-6xl mx-auto p-5 font-sans dark:bg-gray-800 md:flex md:space-x-5">
+  <div :class="mainContainerClasses">
     <!-- 아웃라이너 섹션 -->
     <div :class="{'w-full md:w-1/2': true, 'hidden md:block': selectedItem && !isMobile}">
       <h1 class="text-3xl text-gray-800 dark:text-gray-200 mb-5 text-center">아웃라이너</h1>
@@ -13,6 +13,11 @@
         </button>
         <button @click="saveAllItems" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors duration-300 transform active:scale-98">
           <Icon icon="mdi:content-save-all-outline" /> 모두 저장
+        </button>
+        <!-- 너비 전환 버튼 -->
+        <button v-if="!isMobile" @click="toggleWidth" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors duration-300 transform active:scale-98">
+          <Icon :icon="isFullWidth ? 'mdi:arrow-collapse-horizontal' : 'mdi:arrow-expand-horizontal'" />
+          {{ isFullWidth ? '컨테이너 너비' : '전체 너비' }}
         </button>
       </div>
       <!-- 확대 경로 -->
@@ -183,6 +188,42 @@ const isMobile = ref(false);
 const checkMobile = () => {
   isMobile.value = window.innerWidth < 768; // Tailwind의 md breakpoint 기준
 };
+
+// --- START: New Width Feature Logic ---
+const isFullWidth = ref(false); // Default to container width
+
+onMounted(() => {
+  // Load width preference from localStorage
+  const storedWidthPreference = localStorage.getItem('outlinerWidthPreference');
+  if (storedWidthPreference !== null) {
+    isFullWidth.value = JSON.parse(storedWidthPreference);
+  }
+  checkMobile(); // Initial check for mobile status
+  window.addEventListener('resize', checkMobile); // Listen for resize to update mobile status
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener('resize', checkMobile); // Clean up resize listener
+});
+
+watch(isFullWidth, (newValue) => {
+  localStorage.setItem('outlinerWidthPreference', JSON.stringify(newValue));
+});
+
+const toggleWidth = () => {
+  isFullWidth.value = !isFullWidth.value;
+};
+
+const mainContainerClasses = computed(() => {
+  const baseClasses = "p-5 font-sans dark:bg-gray-800 md:flex md:space-x-5";
+  if (!isMobile.value && isFullWidth.value) {
+    return `w-full ${baseClasses}`;
+  } else {
+    // Default or container width on desktop, and always container width on mobile
+    return `max-w-6xl mx-auto ${baseClasses}`;
+  }
+});
+// --- END: New Width Feature Logic ---
 
 // 샘플 데이터
 const sampleData = [
