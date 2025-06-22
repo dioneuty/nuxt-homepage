@@ -113,6 +113,16 @@ alwaysApply: true
 
 - **Vue 컴포넌트 함수 주석 추가**: `components` 디렉토리 하위의 모든 `.vue` 파일과 `pages/board/view.vue`, `pages/board/index.vue` (관련 `BoardView.vue`, `BoardIndex.vue` 포함) 파일 내의 함수들에 JSDoc 스타일 주석을 성공적으로 추가 완료. 이 작업은 컴포넌트의 가독성과 유지보수성을 향상시켰습니다.
 
+- **글래스모피즘 디자인 적용 및 개선**:
+  - `pages/index.vue`의 메인 컨테이너와 "섹션 선택" 영역에 `glass-container` 및 `glass-section` 클래스를 추가하여 글래스모피즘 디자인을 적용했습니다.
+  - Nuxt.js 레이아웃의 배경색 문제로 인해 `layouts/default.vue`에 `bg-gray-900` 클래스를 추가하여 어두운 배경을 적용했습니다. (이후 사용자 요청으로 제거됨)
+  - 사용자 요청에 따라 `layouts/default.vue`에서 `bg-gray-900` 클래스를 제거하여 배경색을 원래대로 복원했습니다.
+  - 메인 페이지의 뒷배경 유리 효과 제거 요청에 따라 `pages/index.vue`에서 `glass-container`, `glass-section` 클래스 및 관련 CSS를 제거했습니다.
+  - 갤러리 페이지의 글래스모피즘 효과가 잘 보이도록 `layouts/default.vue`에 다시 `bg-gray-900` 배경색을 적용했습니다.
+  - 라이트 모드일 때 글래스모피즘이 "어두운 유리"로 나타나도록 `pages/index.vue`의 `.glass-section`과 `components/PostList.vue`의 `.glass-list-effect`에 `rgba(0, 0, 0, 0.15)` 기반의 어두운 유리 스타일을 적용했습니다.
+  - 라이트 모드에서 "어두운 유리" 느낌을 유지하되 `ghostwhite` 톤을 반영하기 위해 `pages/index.vue`의 `.glass-section`과 `components/PostList.vue`의 `.glass-list-effect`에 라이트 모드용 배경색을 `rgba(70, 75, 80, 0.15)`로, 테두리를 `rgba(70, 75, 80, 0.3)`로 변경했습니다. 최종적으로 이 어두운 유리 효과에 그라데이션을 추가하기 위해 `background-color`를 `linear-gradient(135deg, rgba(70, 75, 80, 0.15), rgba(50, 55, 60, 0.15))`로 변경했습니다.
+  - 새로운 "Digital Agency" 홈페이지 디자인을 `public/publs/agency.html` 파일로 생성하여 기존 디자인을 유지한 채 해당 구조를 구현했습니다.
+
 ## 남은 작업
 - **관리자 기능 - 콘텐츠 관리**:
   - 각 게시판 유형(공지, 유머, Q&A 등)에 대한 통합 게시글 관리 기능 구현.
@@ -228,3 +238,11 @@ alwaysApply: true
 ## Blockers
 
 - 현재 개발을 막는 특별한 블로커는 없습니다. 
+
+- **유튜브 갤러리 크게 보기 화면 TODO 생성**: 사용자의 요청에 따라 `pages/youtube-gallery.vue` 파일에 유튜브 크게 보기 화면 구현을 위한 TODO 목록을 주석 형태로 성공적으로 추가 완료.
+
+- **아웃라이너 (`outliner.vue`) 기능 및 디자인 개선**:
+  - **엔터 키로 형제 노드 생성 및 백스페이스로 빈 노드 삭제 구현**: `components/OutlineItem.vue`와 `pages/outliner.vue`를 수정하여 엔터 키로 새 형제 노드를 생성하고, 내용이 비어 있을 때 백스페이스 키로 노드를 삭제하며, 포커스를 적절히 이동시키는 기능을 성공적으로 구현 완료. 자식 노드가 있는 경우 삭제를 방지하고 경고 메시지를 표시하는 로직도 구현 완료.
+  - **미리보기 창 리사이즈 기능 구현**: `pages/outliner.vue` 파일에 리사이즈 핸들러 UI와 관련 로직(`startResize`, `doResize`, `stopResize` 함수)을 추가하여 아웃라이너 섹션과 상세 화면 섹션의 너비를 동적으로 조절하고 `localStorage`에 저장/로드하는 기능을 성공적으로 구현 완료.
+  - **글래스모피즘 디자인 적용**: `pages/outliner.vue`에 `glass-outline-section` 클래스를 추가하고 관련 CSS 스타일을 적용하여 아웃라이너 섹션에 글래스모피즘 디자인을 성공적으로 적용 완료.
+  - **경고창 팝업 모달로 변경**: `useModal` 컴포저블을 활용하도록 `pages/outliner.vue`를 수정하여 기존 경고창을 딤 처리된 팝업 모달로 성공적으로 변경 완료. 

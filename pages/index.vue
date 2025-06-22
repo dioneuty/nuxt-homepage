@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <div class="mb-8">
+    <div class="glass-section mb-8 p-6 rounded-lg">
       <h2 class="text-2xl font-bold mb-4 dark:text-gray-200">섹션 선택</h2>
       <div class="flex flex-wrap gap-4">
         <label v-for="section in sections" :key="section.id" class="inline-flex items-center cursor-pointer">
@@ -130,5 +130,21 @@ input:focus + div {
 /* 호버 효과 */
 label:hover div {
   @apply border-indigo-500 dark:border-indigo-400;
+}
+
+.glass-section {
+  /* Light mode styles - Dark Ghostwhite toned Glass with Gradient */
+  background: linear-gradient(135deg, rgba(70, 75, 80, 0.15), rgba(50, 55, 60, 0.15));
+  backdrop-filter: blur(5px);
+  border-radius: 15px;
+  border: 1px solid rgba(70, 75, 80, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.dark .glass-section {
+  /* Dark mode styles - Existing Dark Glass */
+  background-color: rgba(255, 255, 255, 0.15);
+  border: 1px solid rgba(255, 255, 255, 0.3);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
 }
 </style>

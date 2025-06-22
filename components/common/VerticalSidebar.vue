@@ -12,6 +12,10 @@
       <Icon v-if="siteLogoIcon" :icon="siteLogoIcon" class="w-7 h-7 mr-2" />
       {{ siteTitle }}
     </div>
+    <!-- 현재 시간 표시 -->
+    <div class="px-4 text-xl font-semibold text-blue-200 mt-2">
+      {{ currentTime }}
+    </div>
     <nav class="mt-4">
       <AppMenu :isVertical="true" />
     </nav>
@@ -73,6 +77,7 @@ import { useLayoutStore } from '~/stores/layout';
 import { useNavStore } from '~/stores/navStore';
 import { useLoginModal } from '~/composables/useLoginModal';
 import { useRegisterModal } from '~/composables/useRegisterModal';
+import { useCurrentTime } from '~/composables/useCurrentTime';
 
 const router = useRouter();
 const { isAdmin, isLoggedIn, user, logout } = useAuth();
@@ -80,6 +85,7 @@ const layoutStore = useLayoutStore();
 const navStore = useNavStore();
 const { openModal: openLoginModal } = useLoginModal();
 const { openModal: openRegisterModal } = useRegisterModal();
+const { currentTime } = useCurrentTime();
 
 const props = defineProps({
   siteTitle: {

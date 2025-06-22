@@ -45,9 +45,17 @@
                   </span>
                   <span class="truncate block max-w-xs sm:max-w-none" :class="{ 'pl-5': post.parentId }">
                     <Icon v-if="post.parentId" icon="mdi:subdirectory-arrow-right" class="inline mr-1 text-gray-500" />
+                    <!-- TODO: JGM 글 썸네일 표시 기능 추가
+                    - post 객체에 썸네일 이미지 URL 필드가 있다고 가정
+                    - 해당 URL을 사용하여 <img> 태그 또는 배경 이미지 스타일로 썸네일 표시
+                    - 썸네일이 없을 경우 기본 이미지 또는 아이콘 표시 고려
+                    -->
                     <Icon v-else icon="mdi:text" class="inline mr-1" />
                     {{ post.title || '(제목 없음)' }}
                   </span>
+                </template>
+                <template v-else-if="header.key === 'createdAt'">
+                  {{ formatDate(post.createdAt) }}
                 </template>
                 <template v-else>
                   {{ post[header.key] }}
@@ -77,17 +85,33 @@
     <SearchBar @search="handleSearch" />
     
     <Pagination 
+      v-if="!isMobile"
       :total-items="totalItems" 
       :items-per-page="itemsPerPage" 
       :current-page="currentPage"
       @page-change="handlePageChange"
       @items-per-page-change="handleItemsPerPageChange"
     />
+    
+    <!-- Mobile Infinite Scroll Loading Indicator and Sentinel -->
+    <div v-if="isMobile && hasMorePosts && !initialLoading" class="text-center py-4">
+      <button @click="loadMorePosts" :disabled="loadingMore" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+        <span v-if="loadingMore">
+          <Icon icon="mdi:loading" class="animate-spin mr-2" /> 로딩 중...
+        </span>
+        <span v-else>더보기</span>
+      </button>
+    </div>
+    <div v-if="isMobile && !hasMorePosts && !initialLoading && loadedPosts.length > 0" class="text-center py-4 text-gray-500 dark:text-gray-400">
+      모든 게시물을 불러왔습니다.
+    </div>
+    <div v-if="isMobile" class="infinite-scroll-sentinel h-1" ref="infiniteScrollSentinel"></div>
+
   </div>
 </template>
 
 <script setup>
-import { ref, watchEffect, computed, onMounted } from 'vue'
+import { ref, watchEffect, computed, onMounted, onUnmounted } from 'vue'
 import SearchBar from '~/components/board/SearchBar.vue'
 import Pagination from '~/components/board/Pagination.vue'
 import { Icon } from '@iconify/vue'
@@ -95,6 +119,7 @@ import { useRouter } from 'vue-router'
 import draggable from 'vuedraggable'
 import { useAuth } from '~/composables/useAuth'
 import { formatDate } from '~/utils/dateFormatter'
+import { useIsMobile } from '~/composables/useIsMobile' // NEW IMPORT
 
 const props = defineProps({
   boardType: {
@@ -174,49 +199,89 @@ function toggleSort(key) {
     sortOrder.value = 'asc'
   }
   currentPage.value = 1
-  refresh()
+  if (isMobile.value) { // Reset loaded posts on sort change for mobile infinite scroll
+    loadedPosts.value = []
+    hasMorePosts.value = true
+  }
+  // fetchPosts() will be triggered by watchEffect
 }
 
 const initialLoading = ref(true)
+const loadingMore = ref(false) // NEW: For infinite scroll loading state
+const hasMorePosts = ref(true) // NEW: To track if there are more pages to load
 
 //로그인한 유저이면서 role이 admin인 유저만 보도록 하기
 const { user, isLoggedIn } = useAuth()
+const { isMobile } = useIsMobile() // NEW: Mobile detection
 
-const { data: posts, error, refresh } = await useAsyncData(props.apiEndpoint, async function() {
-  try {
-    let response
-    if (!props.isAdminBoard || (props.isAdminBoard && isLoggedIn && user.role === 'ADMIN')) {
-       response = await $fetch(props.apiEndpoint, {
-      params: {
-        page: currentPage.value,
-        itemsPerPage: itemsPerPage.value,
-        type: searchParams.value.type,
-        text: searchParams.value.text,
-        sortColumn: sortColumn.value,
-        sortOrder: sortOrder.value
-      }
-      })
-    }else{
-      router.push('/')
-    }
+const loadedPosts = ref([]) // NEW: This will accumulate all posts for infinite scroll
 
-    totalItems.value = response.total
-    return response.posts
-  } finally {
-    initialLoading.value = false
+/**
+ * 게시물 데이터를 비동기적으로 가져오는 함수입니다.
+ * API 호출 중 로딩 상태를 설정하고, 에러 발생 시 `error` 상태를 업데이트합니다.
+ * @param {boolean} append - 기존 게시물에 새 게시물을 추가할지 여부. (무한 스크롤 시 true)
+ */
+async function fetchPosts(append = false) {
+  if (!append) { // If not appending, reset for new search/sort/page
+    initialLoading.value = true
+    loadedPosts.value = []
+    currentPage.value = 1
+    hasMorePosts.value = true
+  } else {
+    loadingMore.value = true
   }
-}, {
-  watch: [currentPage, itemsPerPage, searchParams, sortColumn, sortOrder],
-  server: false
-})
 
-onMounted(function() {
-  if (posts.value) {
-    initialLoading.value = false
+  if (!props.isAdminBoard || (props.isAdminBoard && isLoggedIn.value && user.value?.role === 'ADMIN')) {
+    try {
+      const response = await $fetch(props.apiEndpoint, {
+        params: {
+          page: currentPage.value,
+          itemsPerPage: itemsPerPage.value,
+          type: searchParams.value.type,
+          text: searchParams.value.text,
+          sortColumn: sortColumn.value,
+          sortOrder: sortOrder.value
+        }
+      })
 
-    for (let i = 0; i < posts.value.length; i++) {
-      posts.value[i].createdAt = formatDate(posts.value[i].createdAt)
+      totalItems.value = response.total
+      const newPosts = response.posts.map(post => ({
+        ...post,
+        // createdAt: formatDate(post.createdAt)
+      }))
+
+      if (append) {
+        loadedPosts.value = [...loadedPosts.value, ...newPosts]
+      } else {
+        loadedPosts.value = newPosts
+      }
+
+      if (loadedPosts.value.length >= totalItems.value) {
+        hasMorePosts.value = false
+      } else {
+        hasMorePosts.value = true
+      }
+
+    } catch (err) {
+      console.error('Failed to fetch posts:', err)
+      // TODO: 사용자에게 에러 메시지 표시
+    } finally {
+      initialLoading.value = false
+      loadingMore.value = false
     }
+  } else {
+    router.push('/')
+    initialLoading.value = false
+    loadingMore.value = false
+  }
+}
+
+// Watch dependencies and refetch posts
+watchEffect(() => {
+  // Only trigger fetchPosts if not in an appending state for mobile infinite scroll
+  // or if it's not mobile (pagination will trigger full refetch)
+  if (!isMobile.value || (isMobile.value && !loadingMore.value && currentPage.value === 1)) {
+    fetchPosts()
   }
 })
 
@@ -227,7 +292,7 @@ onMounted(function() {
  */
 function handleSearch(params) {
   searchParams.value = params
-  currentPage.value = 1
+  // watchEffect will trigger fetchPosts due to searchParams change
 }
 
 /**
@@ -236,7 +301,10 @@ function handleSearch(params) {
  * @param {number} page - 새로 변경된 페이지 번호.
  */
 async function handlePageChange(page) {
-  currentPage.value = page
+  if (!isMobile.value) { // Only for pagination (non-mobile)
+    currentPage.value = page
+    // watchEffect will trigger fetchPosts due to currentPage change
+  }
 }
 
 /**
@@ -245,9 +313,51 @@ async function handlePageChange(page) {
  * @param {number} newItemsPerPage - 새로 변경된 페이지당 항목 수.
  */
 async function handleItemsPerPageChange(newItemsPerPage) {
-  itemsPerPage.value = newItemsPerPage
-  currentPage.value = 1
+  if (!isMobile.value) { // Only for pagination (non-mobile)
+    itemsPerPage.value = newItemsPerPage
+    currentPage.value = 1
+    // watchEffect will trigger fetchPosts due to itemsPerPage change
+  }
 }
+
+/**
+ * 무한 스크롤 시 다음 페이지의 게시물을 로드하는 함수입니다.
+ */
+async function loadMorePosts() {
+  if (loadingMore.value || !hasMorePosts.value) return
+
+  currentPage.value++ // Increment page for next fetch
+  await fetchPosts(true) // Fetch and append to loadedPosts
+}
+
+// Expose loadedPosts to template
+const posts = computed(() => loadedPosts.value)
+
+const infiniteScrollSentinel = ref(null)
+let observer
+
+onMounted(() => {
+  if (isMobile.value) {
+    observer = new IntersectionObserver((entries) => {
+      if (entries[0].isIntersecting && hasMorePosts.value && !loadingMore.value) {
+        loadMorePosts()
+      }
+    }, {
+      rootMargin: '0px',
+      threshold: 0.1
+    })
+
+    if (infiniteScrollSentinel.value) {
+      observer.observe(infiniteScrollSentinel.value)
+    }
+  }
+})
+
+onUnmounted(() => {
+  if (observer) {
+    observer.disconnect()
+  }
+})
 
 const router = useRouter()
 

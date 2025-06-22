@@ -46,7 +46,7 @@
     <div v-else class="masonry-layout">
       <!-- 각 갤러리 아이템 -->
       <div v-for="item in filteredItems" :key="item.id" class="masonry-item mb-4 break-inside-avoid">
-        <div @click="openModal(item)" class="bg-white dark:bg-gray-800 rounded-lg overflow-hidden shadow-lg relative cursor-pointer">
+        <div @click="openModal(item)" class="glass-card-effect rounded-lg overflow-hidden relative cursor-pointer">
           <!-- 이미지 영역 -->
           <div class="w-full h-48 overflow-hidden">
             <ClientOnly>
@@ -246,6 +246,12 @@ function closeModal() {
   selectedItem.value = null
 }
 
+// TODO: JGM 전체 사진 보기(슬라이드 쇼) 기능을 위한 로직 추가
+// - 현재 선택된 이미지 외에 모든 이미지를 볼 수 있는 UI/UX 구현
+// - 이미지 전환 (이전/다음) 기능 구현
+// - 키보드 탐색 (좌우 화살표 키) 지원 고려
+// - 모달 내에서 이미지 확대/축소 기능 고려
+
 /**
  * 갤러리 항목 편집 모달을 여는 함수입니다.
  * 새 항목을 추가하는 경우 기본값으로 초기화된 객체를, 기존 항목을 수정하는 경우 해당 항목을 `editingItem`으로 설정합니다.
@@ -320,6 +326,39 @@ defineExpose({ fetchItems })
 </script>
 
 <style scoped>
+.text-shadow {
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+}
+
+.aspect-square {
+  aspect-ratio: 1 / 1;
+}
+
+/* 체크박스 커스텀 스타일 */
+input:checked + div {
+  @apply bg-indigo-600 dark:bg-indigo-500 border-indigo-600 dark:border-indigo-500;
+}
+
+input:checked + div svg {
+  @apply opacity-100;
+}
+
+input:focus + div {
+  @apply ring-2 ring-offset-2 ring-indigo-500 dark:ring-indigo-400 dark:ring-offset-gray-800;
+}
+
+/* 호버 효과 */
+label:hover div {
+  @apply border-indigo-500 dark:border-indigo-400;
+}
+
+.glass-card-effect {
+  background-color: rgba(255, 255, 255, 0.2);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.6);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
 /* 반응형 Masonry 레이아웃 스타일 */
 .masonry-layout {
   column-count: 1;

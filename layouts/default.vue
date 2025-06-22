@@ -1,6 +1,6 @@
 <template>
   <div 
-    class="min-h-screen flex flex-col"
+    class="min-h-screen flex flex-col bg-white dark:bg-gray-900"
   >
     <VerticalSidebar 
       :siteTitle="fetchedThemeSettings.siteTitle"

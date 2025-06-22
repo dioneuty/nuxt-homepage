@@ -36,6 +36,10 @@
               <AppMenu :isVertical="false" />
             </div>
             <div class="flex items-center space-x-4">
+              <!-- 현재 시간 표시 -->
+              <div class="text-white text-sm font-medium">
+                {{ currentTime }}
+              </div>
               <!-- 상단 고정 토글 버튼 -->
               <button @click="toggleAlwaysOnTop" class="text-white hover:text-blue-200 p-2 rounded-full">
                 <Icon :icon="navStore.isAlwaysOnTop ? 'mdi:pin-off' : 'mdi:pin'" class="h-6 w-6" />
@@ -96,6 +100,10 @@
             </ClientOnly>
           </NuxtLink>
           <div class="flex items-center space-x-2">
+            <!-- 현재 시간 표시 -->
+            <div class="text-white text-sm font-medium">
+              {{ currentTime }}
+            </div>
             <button @click="toggleColorMode" class="text-white p-2 rounded-full" :class="{ 'pointer-events-none': isMenuOpen }">
               <SunIcon v-if="colorMode.preference === 'light'" class="h-6 w-6" />
               <MoonIcon v-if="colorMode.preference === 'dark'" class="h-6 w-6" />
@@ -190,11 +198,14 @@ import AppMenu from '~/components/common/AppMenu.vue'
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { useLayoutStore } from '~/stores/layout'
+import { useCurrentTime } from '~/composables/useCurrentTime'
 
 const router = useRouter()
 const navKey = ref(0)
 
 const layoutStore = useLayoutStore()
+
+const { currentTime } = useCurrentTime()
 
 // NProgress 설정 및 라우터 네비게이션 진행률 표시 관련 함수
 /**

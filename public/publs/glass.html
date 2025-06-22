@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Glassmorphism Finance Dashboard</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #FF6B6B, #4ECDC4);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            overflow: hidden;
+            position: relative; /* For floating circles */
+        }
+        .glass-card {
+            background-color: rgba(255, 255, 255, 0.3);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
+            box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+            padding: 24px;
+            margin: 16px;
+            display: flex;
+            flex-direction: column;
+            color: #333;
+            position: relative;
+            overflow: hidden;
+        }
+        .glass-circle {
+            background-color: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(8px);
+            border-radius: 50%;
+            position: absolute;
+            box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
+        }
+    </style>
+</head>
+<body class="bg-gradient-to-br from-blue-300 via-purple-300 to-pink-300 relative overflow-hidden">
+
+    <!-- Floating Glass Circles -->
+    <div class="glass-circle w-24 h-24 top-1/4 left-1/4"></div>
+    <div class="glass-circle w-16 h-16 top-1/2 right-1/4"></div>
+    <div class="glass-circle w-32 h-32 bottom-1/4 left-1/2"></div>
+    <div class="glass-circle w-20 h-20 top-1/3 right-1/3"></div>
+
+    <div class="relative z-10 w-full max-w-4xl mx-auto p-4 flex flex-col items-center justify-center min-h-screen">
+
+        <!-- Top Icons and Main Balance Card -->
+        <div class="w-full flex justify-between items-start mb-8">
+            <div class="glass-circle w-16 h-16 flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.286 3.963a1 1 0 00.95.69h4.152c.969 0 1.371 1.24.588 1.81L17.7 11.236a1 1 0 00-.363 1.118l1.287 3.963c.3.921-.755 1.688-1.542 1.118L12 15.656a1 1 0 00-1.118 0l-3.23 2.378c-.787.57-1.841-.197-1.542-1.118l1.287-3.963a1 1 0 00-.363-1.118L2.09 9.39c-.787-.57-.385-1.81.588-1.81h4.152a1 1 0 00.95-.69l1.286-3.963z" />
+                </svg>
+            </div>
+            
+            <div class="glass-card w-full max-w-md mx-4 py-6 px-8 flex flex-col items-center">
+                <p class="text-4xl font-bold text-blue-700">$92,363.36</p>
+                <p class="text-sm text-gray-600 mb-4">Account balance</p>
+                <div class="w-full flex justify-center space-x-2 mb-6">
+                    <button class="bg-white/70 backdrop-blur-sm rounded-lg px-4 py-2 text-sm font-semibold text-gray-900 shadow-md">Cards</button>
+                    <button class="px-4 py-2 text-sm font-semibold text-gray-600">Accounts</button>
+                    <button class="px-4 py-2 text-sm font-semibold text-gray-600">Crypto</button>
+                </div>
+                <!-- Placeholder for graph -->
+                <div class="w-full h-20 bg-blue-100 rounded-lg"></div>
+            </div>
+
+            <div class="relative glass-circle w-16 h-16 flex items-center justify-center shadow-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17l-3 3m0 0l-3-3m3 3V5" />
+                </svg>
+                <span class="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded-full">!</span>
+            </div>
+        </div>
+
+        <!-- Middle Payment Notification Card -->
+        <div class="glass-card absolute top-24 left-1/4 transform -translate-x-1/2 w-56 flex items-center p-3 z-20">
+            <img src="https://via.placeholder.com/40" alt="Profile" class="rounded-full w-10 h-10 mr-3">
+            <div>
+                <p class="text-sm font-semibold text-gray-800">New payment</p>
+                <p class="text-md font-bold text-green-600">+$90</p>
+            </div>
+        </div>
+
+        <!-- Left Card: Expires -->
+        <div class="glass-card w-64 p-5 text-center absolute left-0 bottom-48">
+            <p class="text-sm text-gray-600 mb-3">Expires on 12.12.2020</p>
+            <button class="bg-white/70 backdrop-blur-sm rounded-lg px-6 py-3 text-lg font-semibold text-blue-700 shadow-md w-full">RENEW</button>
+        </div>
+
+        <!-- Bank Cards Section -->
+        <div class="w-full flex justify-center space-x-6 mt-16">
+            <div class="glass-card w-80 h-48">
+                <p class="text-sm text-gray-500 flex items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3h4m-4 0a2 2 0 11-4 0v12.722A4.5 4.000000000000001 0 007.25 21h9.5A4.5 4.5 0 0021 16.722V8.5m-19 0h18a2 2 0 002-2v-3a2 2 0 00-2-2H3a2 2 0 00-2 2v3a2 2 0 002 2z" />
+                    </svg>
+                    Decentralized Bank
+                </p>
+                <p class="text-2xl font-bold text-gray-700 mb-4">Main</p>
+                <p class="text-xl font-mono text-gray-800">1234 5678 9101 1213</p>
+                <p class="text-xs text-gray-600 mt-2">MICHAL MALEWICZ <span class="float-right">01/00</span></p>
+            </div>
+
+            <div class="glass-card w-80 h-48">
+                <p class="text-sm text-gray-500 flex items-center mb-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3.055 11H5a2 2 0 012 2v1a2 2 0 002 2 2 2 0 012 2v2.945M8 3h4m-4 0a2 2 0 11-4 0v12.722A4.5 4.000000000000001 0 007.25 21h9.5A4.5 4.5 0 0021 16.722V8.5m-19 0h18a2 2 0 002-2v-3a2 2 0 00-2-2H3a2 2 0 00-2 2v3a2 2 0 002 2z" />
+                    </svg>
+                    Decentralized Bank
+                </p>
+                <p class="text-2xl font-bold text-gray-700 mb-4">Shopping</p>
+                <p class="text-xl font-mono text-gray-800">1234 5678 9101 1213</p>
+                <p class="text-xs text-gray-600 mt-2">MICHAL MALEWICZ <span class="float-right">01/00</span></p>
+            </div>
+
+            <div class="relative glass-circle w-16 h-16 flex items-center justify-center shadow-lg absolute right-0 bottom-48">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-2.293 2.293c-.63.63-.184 1.769.742 1.769H19a2 2 0 002-2v-1a2 2 0 00-2-2H7.414M17 17H7m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2z" />
+                </svg>
+                <span class="absolute top-1 right-1 bg-red-500 text-white text-xs px-1 rounded-full">4</span>
+            </div>
+        </div>
+
+        <!-- View Full History Bar -->
+        <div class="glass-card w-full max-w-xs mx-auto mt-16 p-3 flex items-center justify-center rounded-full">
+            <button class="text-blue-700 font-semibold">VIEW FULL HISTORY</button>
+        </div>
+
+    </div>
+
+</body>
+</html> 
