@@ -1,7 +1,7 @@
 <template>
   <div :class="mainContainerClasses">
     <!-- 아웃라이너 섹션 -->
-    <div :class="{'w-full md:w-1/2': true, 'hidden md:block': selectedItem && !isMobile}">
+    <div :class="outlinerSectionClasses">
       <h1 class="text-3xl text-gray-800 dark:text-gray-200 mb-5 text-center">아웃라이너</h1>
       <!-- 버튼 -->
       <div class="flex justify-between mb-5">
@@ -14,10 +14,15 @@
         <button @click="saveAllItems" class="px-4 py-2 bg-purple-600 hover:bg-purple-700 text-white rounded transition-colors duration-300 transform active:scale-98">
           <Icon icon="mdi:content-save-all-outline" /> 모두 저장
         </button>
-        <!-- 너비 전환 버튼 -->
+        <!-- 너비 전환 버튼 (전체 너비/컨테이너 너비) -->
         <button v-if="!isMobile" @click="toggleWidth" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors duration-300 transform active:scale-98">
           <Icon :icon="isFullWidth ? 'mdi:arrow-collapse-horizontal' : 'mdi:arrow-expand-horizontal'" />
           {{ isFullWidth ? '컨테이너 너비' : '전체 너비' }}
+        </button>
+        <!-- 비율 조절 버튼 (아웃라이너:상세) -->
+        <button v-if="!isMobile && selectedItem" @click="toggleLayoutRatio" class="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded transition-colors duration-300 transform active:scale-98 ml-2">
+          <Icon icon="mdi:arrow-split-vertical" />
+          {{ currentLayoutRatio }}
         </button>
       </div>
       <!-- 확대 경로 -->
@@ -80,7 +85,7 @@
     </div>
 
     <!-- 데스크톱 상세 화면 섹션 -->
-    <div v-if="selectedItem && !isMobile" :class="{'w-full md:w-1/2': true, 'block': selectedItem, 'hidden': !selectedItem}">
+    <div v-if="selectedItem && !isMobile" :class="detailSectionClasses">
       <div class="bg-gray-100 dark:bg-gray-700 rounded-lg px-5 pb-5 pt-0 shadow-sm">
         <h2 class="text-2xl text-gray-800 dark:text-gray-200 mb-3 text-center mt-0" v-if="selectedItem">{{ selectedItem.content }}</h2>
         <div class="flex justify-center items-center mb-3">
@@ -258,6 +263,77 @@ const mainContainerClasses = computed(() => {
   }
 });
 // --- END: New Width Feature Logic ---
+
+// --- START: Layout Ratio Feature Logic ---
+const currentLayoutRatio = ref('1:1'); // Default to 1:1 ratio
+
+onMounted(() => {
+  // Load ratio preference from localStorage
+  const storedRatioPreference = localStorage.getItem('outlinerLayoutRatio');
+  if (storedRatioPreference !== null) {
+    currentLayoutRatio.value = storedRatioPreference;
+  }
+});
+
+watch(currentLayoutRatio, (newValue) => {
+  localStorage.setItem('outlinerLayoutRatio', newValue);
+});
+
+const toggleLayoutRatio = () => {
+  switch (currentLayoutRatio.value) {
+    case '1:1':
+      currentLayoutRatio.value = '1:2';
+      break;
+    case '1:2':
+      currentLayoutRatio.value = '2:1';
+      break;
+    case '2:1':
+      currentLayoutRatio.value = '1:1';
+      break;
+    default:
+      currentLayoutRatio.value = '1:1';
+  }
+};
+
+const outlinerSectionClasses = computed(() => {
+  const baseClasses = 'w-full'; // Mobile always full width or hidden
+  if (isMobile.value) {
+    return selectedItem.value ? 'hidden md:block' : baseClasses; // Hide outliner on mobile if detail selected, otherwise full width
+  }
+
+  // Desktop logic
+  switch (currentLayoutRatio.value) {
+    case '1:1':
+      return `${baseClasses} md:w-1/2`;
+    case '1:2':
+      return `${baseClasses} md:w-1/3`;
+    case '2:1':
+      return `${baseClasses} md:w-2/3`;
+    default:
+      return `${baseClasses} md:w-1/2`;
+  }
+});
+
+const detailSectionClasses = computed(() => {
+  const baseClasses = 'w-full'; // Mobile always full width or hidden
+  if (isMobile.value) {
+    return selectedItem.value ? baseClasses : 'hidden'; // Show detail on mobile if selected, otherwise hidden
+  }
+
+  // Desktop logic
+  const visibilityClass = selectedItem.value ? 'block' : 'hidden';
+  switch (currentLayoutRatio.value) {
+    case '1:1':
+      return `${baseClasses} md:w-1/2 ${visibilityClass}`;
+    case '1:2':
+      return `${baseClasses} md:w-2/3 ${visibilityClass}`;
+    case '2:1':
+      return `${baseClasses} md:w-1/3 ${visibilityClass}`;
+    default:
+      return `${baseClasses} md:w-1/2 ${visibilityClass}`;
+  }
+});
+// --- END: Layout Ratio Feature Logic ---
 
 // 샘플 데이터
 const sampleData = [
