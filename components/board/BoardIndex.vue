@@ -133,49 +133,53 @@ function resetPaginationAndLoadingState() {
 }
 
 const props = defineProps({
-  boardType: {
+  boardType: { // 게시판 타입
     type: String,
     required: true
   },
-  boardTitle: {
+  boardTitle: { // 게시판 제목
     type: String,
     required: true
   },
-  boardIcon: {
+  boardIcon: { // 게시판 아이콘
     type: String,
     required: true
   },
-  apiEndpoint: {
+  apiEndpoint: { // 게시판 데이터 엔드포인트
     type: String,
     required: true
   },
-  headerColorClass: {
+  headerColorClass: { // 헤더 색상 클래스
     type: String,
     default: 'bg-green-100 dark:bg-green-800'
   },
-  tableHeaders: {
+  tableHeaders: { // 테이블 헤더 목록
     type: Array,
     required: true
   },
-  showWriteButton: {
+  showWriteButton: { // 글쓰기 버튼 표시 여부
     type: Boolean,
     default: true
   },
-  isAdminBoard: {
+  isAdminBoard: { // 관리자 게시판 여부
     type: Boolean,
     default: false
   }
 })
 
-const totalItems = ref(0)
-const itemsPerPage = ref(10)
-const currentPage = ref(1)
-const searchParams = ref({ type: 'title', text: '' })
-const sortColumn = ref('')
-const sortOrder = ref('asc')
+const totalItems = ref(0) // 총 게시물 수
+const itemsPerPage = ref(10) // 페이지당 게시물 수
+const currentPage = ref(1) // 현재 페이지
+const searchParams = ref({ type: 'title', text: '' }) // 검색 파라미터
+const sortColumn = ref('') // 정렬 컬럼
+const sortOrder = ref('asc') // 정렬 순서
 
-const localHeaders = ref([...props.tableHeaders])
+const localHeaders = ref([...props.tableHeaders]) // 로컬 헤더 목록
 
+/**
+ * 정렬 가능한 헤더 목록을 계산합니다.
+ * @returns {Array} 정렬 가능한 헤더 목록
+ */
 const sortedHeaders = computed(() => {
   return localHeaders.value.map(header => ({
     ...header,

@@ -26,7 +26,8 @@ export function usePosts() {
   }
 
   return {
-    getBlogPosts,
-    getBoardPosts
+    // 1. 게시글 관련 함수
+    getBlogPosts, // 블로그 게시글 목록을 반환하는 함수
+    getBoardPosts, // 게시판 게시글 목록을 반환하는 함수
   }
 }

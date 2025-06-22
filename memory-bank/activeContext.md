@@ -168,6 +168,16 @@ alwaysApply: true
     - **글래스모피즘 디자인 적용**: `pages/outliner.vue`의 아웃라이너 섹션과 상세 화면 섹션 `div`에 `glass-outline-section` 클래스를 적용하고, 해당 클래스에 `backdrop-filter`, `background-color`, `border`, `box-shadow` 등의 글래스모피즘 CSS 스타일을 추가했습니다.
     - **경고창 팝업 모달로 변경**: `components/common/Modal.vue` 컴포넌트가 `useModal` 컴포저블을 통해 전역적으로 상태를 관리함을 확인 후, `pages/outliner.vue`에서 기존 `Modal` 컴포넌트 직접 사용 및 관련 `ref`를 제거하고, `useModal` 컴포저블을 임포트하여 `deleteItem` 함수 내에서 `useModal`의 `openModal` 함수를 호출하도록 수정했습니다. 모달이 뜨지 않던 문제를 재확인하고 `deleteItem` 함수에서 `openModal`을 올바르게 호출하도록 다시 수정했습니다.
 
+27. **코드 최적화 및 헬퍼 함수(Composables) 분리**:
+    - `pages/youtube-gallery.vue`의 헬퍼 함수들(`getEmbedUrl`, `getThumbnailUrl`, `loadVideo`, `unloadVideo`, `getAspectRatioClass`)을 `composables/useYoutubeGallery.js`로 분리하여 코드 재사용성 및 관리 용이성을 개선했습니다.
+    - `pages/outliner.vue`에서 `normalizeItemChildren` 함수를 `composables/useOutlineItems.js`로 분리하고, 유튜브 모달 관련 함수(`handleOpenYoutubeModal`, `handleCloseYoutubeModal`) 또한 `composables/useYoutubeGallery.js`로 이동했습니다. 아웃라이너의 핵심 데이터 상태와 항목 관리 로직(`outlineItems`, `currentOutlineItem`, `zoomHistory`, `rootItems`, `addItem`, `deleteItem`, `updateItem`, `moveItem`, `resetOutlineData`, `loadOutlineData`, `saveOutlineData`, `findPathToItem`)을 `composables/useOutlineData.js`로 분리하여 컴포저블 패턴을 적용했습니다.
+    - `components/board/Pagination.vue`에서 `visiblePages` 계산 로직을 `composables/usePagination.js`로 분리하여 재사용성을 높였습니다.
+    - `components/blog/BlogView.vue`에서 게시글 상세 데이터 로딩 로직을 `composables/useBlogPosts.js`로 분리하고, 게시글 삭제 로직에 `composables/useConfirmDelete.js`를 적용했습니다.
+    - `composables/useBlogSubmit.js`를 더 범용적인 `composables/useFormSubmit.js`로 이름을 변경하고 폼 제출 및 유효성 검사 기능을 일반화했습니다. 이를 `components/blog/BlogWrite.vue`에 적용하여 게시글 작성/수정 로직을 리팩토링했습니다.
+    - `components/board/BoardIndex.vue`의 게시물 목록 가져오기, 페이지네이션, 정렬, 검색, 무한 스크롤 관련 복잡한 로직을 `composables/useBoardPosts.js` 컴포저블로 통합하여 관리하도록 리팩토링했습니다.
+    - `components/board/BoardView.vue`에서 게시글 상세 데이터 로딩 로직을 `composables/useBoardPostDetail.js`로 분리하고, 게시글 삭제 로직에 `useConfirmDelete.js`를 적용했습니다.
+    - `components/board/BoardWrite.vue`의 폼 제출 로직을 `composables/useFormSubmit.js`를 사용하도록 리팩토링했습니다.
+
 ## 다음 단계
 1.  **기능 안정성 검토 및 버그 수정**: 현재까지 구현된 모든 기능(특히 Quill 에디터, 관리자 페이지, 회원가입, 개인정보 수정)에 대한 종합적인 테스트를 수행하고 안정성을 확보합니다. 사용자 피드백을 수집하여 잠재적인 버그나 개선점을 수정합니다.
 2.  **콘텐츠 관리 고도화 (장기 목표)**:

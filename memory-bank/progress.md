@@ -123,6 +123,24 @@ alwaysApply: true
   - 라이트 모드에서 "어두운 유리" 느낌을 유지하되 `ghostwhite` 톤을 반영하기 위해 `pages/index.vue`의 `.glass-section`과 `components/PostList.vue`의 `.glass-list-effect`에 라이트 모드용 배경색을 `rgba(70, 75, 80, 0.15)`로, 테두리를 `rgba(70, 75, 80, 0.3)`로 변경했습니다. 최종적으로 이 어두운 유리 효과에 그라데이션을 추가하기 위해 `background-color`를 `linear-gradient(135deg, rgba(70, 75, 80, 0.15), rgba(50, 55, 60, 0.15))`로 변경했습니다.
   - 새로운 "Digital Agency" 홈페이지 디자인을 `public/publs/agency.html` 파일로 생성하여 기존 디자인을 유지한 채 해당 구조를 구현했습니다.
 
+- **경고창 팝업 모달로 변경**: `useModal` 컴포저블을 활용하도록 `pages/outliner.vue`를 수정하여 기존 경고창을 딤 처리된 팝업 모달로 성공적으로 변경 완료. 
+
+- **아웃라이너 기능 확장**:
+  - **화면 너비 조절 기능**: `pages/outliner.vue`에 아웃라이너 화면의 전체 너비 또는 컨테이너 너비를 토글하는 기능을 추가하고, `localStorage`에 상태를 유지하도록 구현 완료.
+  - **상세 화면 유튜브 크게 보기 기능**: `components/OutlineDetailViewer.vue`에서 YouTube `<iframe>`을 감지하여 "크게 보기" 버튼을 동적으로 추가하고, `pages/outliner.vue`에서 `components/youtubeGallery/PlayModal.vue`를 사용하여 크게 보기 모달을 렌더링하도록 구현 완료. 모달은 배경 딤 처리(`bg-black/75`)와 함께 외부 클릭 시 닫히는 기능을 포함합니다.
+  - **노드/상세 화면 비율 조절 기능**: `pages/outliner.vue`에 아웃라이너 노드 화면과 상세 화면의 너비 비율을 1:1, 1:2, 2:1로 토글하는 기능을 추가하고, `localStorage`에 상태를 유지하도록 구현 완료.
+  - **노드 화면 고정 및 상세 화면 스크롤 토글 기능**: `pages/outliner.vue`에 아웃라이너 노드 화면을 고정하고 상세 화면만 스크롤되도록 하는 토글 기능을 추가하고, 헤더 높이를 동적으로 측정하여 스크롤 가능한 영역의 높이를 조절하며 `localStorage`에 상태를 유지하도록 구현 완료.
+
+- **코드 최적화 및 헬퍼 함수(Composables) 분리**: 
+  - `pages/youtube-gallery.vue`의 헬퍼 함수들(`getEmbedUrl`, `getThumbnailUrl`, `loadVideo`, `unloadVideo`, `getAspectRatioClass`)을 `composables/useYoutubeGallery.js`로 분리하여 코드 재사용성 및 관리 용이성을 개선했습니다.
+  - `pages/outliner.vue`에서 `normalizeItemChildren` 함수를 `composables/useOutlineItems.js`로 분리하고, 유튜브 모달 관련 함수(`handleOpenYoutubeModal`, `handleCloseYoutubeModal`) 또한 `composables/useYoutubeGallery.js`로 이동했습니다. 아웃라이너의 핵심 데이터 상태와 항목 관리 로직(`outlineItems`, `currentOutlineItem`, `zoomHistory`, `rootItems`, `addItem`, `deleteItem`, `updateItem`, `moveItem`, `resetOutlineData`, `loadOutlineData`, `saveOutlineData`, `findPathToItem`)을 `composables/useOutlineData.js`로 분리하여 컴포저블 패턴을 적용했습니다.
+  - `components/board/Pagination.vue`에서 `visiblePages` 계산 로직을 `composables/usePagination.js`로 분리하여 재사용성을 높였습니다.
+  - `components/blog/BlogView.vue`에서 게시글 상세 데이터 로딩 로직을 `composables/useBlogPosts.js`로 분리하고, 게시글 삭제 로직에 `composables/useConfirmDelete.js`를 적용했습니다.
+  - `composables/useBlogSubmit.js`를 더 범용적인 `composables/useFormSubmit.js`로 이름을 변경하고 폼 제출 및 유효성 검사 기능을 일반화했습니다. 이를 `components/blog/BlogWrite.vue`에 적용하여 게시글 작성/수정 로직을 리팩토링했습니다.
+  - `components/board/BoardIndex.vue`의 게시물 목록 가져오기, 페이지네이션, 정렬, 검색, 무한 스크롤 관련 복잡한 로직을 `composables/useBoardPosts.js` 컴포저블로 통합하여 관리하도록 리팩토링했습니다.
+  - `components/board/BoardView.vue`에서 게시글 상세 데이터 로딩 로직을 `composables/useBoardPostDetail.js`로 분리하고, 게시글 삭제 로직에 `useConfirmDelete.js`를 적용했습니다.
+  - `components/board/BoardWrite.vue`의 폼 제출 로직을 `composables/useFormSubmit.js`를 사용하도록 리팩토링했습니다.
+
 ## 남은 작업
 - **관리자 기능 - 콘텐츠 관리**:
   - 각 게시판 유형(공지, 유머, Q&A 등)에 대한 통합 게시글 관리 기능 구현.

@@ -26,8 +26,11 @@ export function useRegisterModal() {
   }
 
   return {
-    isOpen: isRegisterModalOpen,
-    openModal,
-    closeModal
+    // 1. 회원가입 모달 관련 상태
+    isOpen: isRegisterModalOpen, // 회원가입 모달의 열림/닫힘 상태
+
+    // 2. 회원가입 모달 관련 함수
+    openModal, // 회원가입 모달을 여는 함수
+    closeModal, // 회원가입 모달을 닫는 함수
   }
 }

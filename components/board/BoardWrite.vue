@@ -46,64 +46,64 @@
 </template>
   
 <script setup>
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
 import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
-
-/**
- * 필수 필드의 유효성을 검사하고, 누락된 필드가 있을 경우 경고 모달을 표시합니다.
- * @param {object} postData - 현재 게시물 데이터.
- * @param {Array} fields - 필드 정의 배열 (required 속성 포함).
- * @param {function} openModalFn - useModal의 openModal 함수.
- * @returns {boolean} 모든 필수 필드가 채워졌으면 true, 아니면 false.
- */
-function validateRequiredFields(postData, fields, openModalFn) {
-  const requiredFields = fields.filter(field => field.required).map(field => field.name);
-  const missingFields = requiredFields.filter(field => !postData[field]);
-
-  if (missingFields.length > 0) {
-    openModalFn('경고', `다음 필드를 입력해주세요: ${missingFields.join(', ')}`);
-    return false;
-  }
-  return true;
-}
+import { useFormSubmit } from '~/composables/useFormSubmit'
 
 const props = defineProps({
-  apiEndpoint: {
+  apiEndpoint: { // 게시글 데이터 엔드포인트
     type: String,
     required: true
   },
-  fields: {
+  fields: { // 게시글 필드 목록
     type: Array,
     required: true
   },
-  listPath: {
+  listPath: { // 게시글 목록 경로
     type: String,
     required: true
   }
 })
   
-const route = useRoute()
-const router = useRouter()
-const { openModal } = useModal()
+const route = useRoute() // 현재 라우트 정보
+const router = useRouter() // 라우터 인스턴스
+const { openModal } = useModal() // 모달 관련 함수
   
-const isEditing = ref(false)
-const post = ref({})
+const isEditing = ref(false) // 게시글 수정 여부
+const post = ref({}) // 게시글 데이터
   
+const { submitForm } = useFormSubmit(
+  post,
+  props.apiEndpoint,
+  props.listPath,
+  isEditing,
+  computed(() => route.query.id),
+  props.fields,
+  '게시글이 성공적으로 작성되었습니다.',
+  '게시글이 성공적으로 수정되었습니다.',
+  '게시글 작성에 실패했습니다.',
+  '게시글 수정에 실패했습니다.'
+)
+
 onMounted(async () => {
+  // 게시글 필드 초기화
   props.fields.forEach(field => {
     post.value[field.name] = ''
   })
   
+  // 게시글 수정 여부 확인
   if (route.query.id) {
     isEditing.value = true
     const { data, error } = await useFetch(`${props.apiEndpoint}?id=${route.query.id}`)
+    // 게시글 데이터 가져오기
     if (error.value) {
       openModal('오류', '게시글을 불러오는데 실패했습니다.')
       return
     }
+    // 게시글 데이터 설정
     post.value = data.value
   }
 })
@@ -115,46 +115,11 @@ onMounted(async () => {
  * @param {Event|string} event - 입력 이벤트 객체 또는 직접적인 값.
  */
 function updateField(fieldName, event) {
+  // 폼 필드의 값을 업데이트
   post.value[fieldName] = event.target ? event.target.value : event
   //console.log(`Field ${fieldName} updated:`, post.value[fieldName])
 }
 
-/**
- * 게시글을 제출(생성 또는 수정)하는 함수입니다.
- * 필수 필드가 비어있는지 확인하고, 유효성 검사 실패 시 경고 모달을 표시합니다.
- * API를 호출하여 게시글을 저장하고,
- * 성공 시 성공 모달을 띄우고 게시글 상세 또는 목록 페이지로 이동하며,
- * 실패 시 오류 모달을 띄웁니다.
- */
-async function submitPost() {
-  if (!validateRequiredFields(post.value, props.fields, openModal)) {
-    return;
-  }
-
-  //console.log('Submitting post:', post.value)
-
-  const url = isEditing.value ? `${props.apiEndpoint}?id=${route.query.id}` : props.apiEndpoint
-  const method = isEditing.value ? 'PUT' : 'POST'
-
-  try {
-    const response = await $fetch(url, {
-      method,
-      body: post.value
-    })
-
-    openModal('성공', `게시글이 성공적으로 ${isEditing.value ? '수정' : '작성'}되었습니다.`, () => {
-      if (isEditing.value) {
-        router.push(`${props.listPath}/view?id=${route.query.id}`)
-      } else {
-        router.push(props.listPath)
-      }
-    })
-  } catch (error) {
-    console.error('Error submitting post:', error)
-    openModal('오류', `게시글 ${isEditing.value ? '수정' : '작성'}에 실패했습니다.`) 
-  }
-}
-  
 /**
  * 게시글 수정을 취소하고 게시글 상세 페이지로 돌아가는 함수입니다.
  */

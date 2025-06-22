@@ -64,11 +64,14 @@ export function useReplyModal() {
   }
 
   return {
-    isReplyModalOpen,
-    replyModalTitle,
-    openReplyModal,
-    closeReplyModal,
-    confirmReplyModal,
-    cancelReplyModal
+    // 1. 답글 모달 관련 상태
+    isReplyModalOpen, // 답글 모달의 열림/닫힘 상태
+    replyModalTitle, // 현재 답글 모달의 제목
+
+    // 2. 답글 모달 관련 함수
+    openReplyModal, // 답글 모달을 열고 제목 및 콜백 함수를 설정하는 함수
+    closeReplyModal, // 답글 모달을 닫고 상태를 초기화하는 함수
+    confirmReplyModal, // 답글 모달에서 '확인' 버튼을 클릭했을 때 호출되며, 데이터를 콜백 함수에 전달하는 함수
+    cancelReplyModal, // 답글 모달에서 '취소' 버튼을 클릭했을 때 호출되며, 모달을 닫는 함수
   }
 }

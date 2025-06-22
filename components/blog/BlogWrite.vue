@@ -57,11 +57,12 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useModal } from '~/composables/useModal'
   import { Icon } from '@iconify/vue'
   import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
+  import { useBlogSubmit } from '~/composables/useBlogSubmit'
   
   const props = defineProps({
     apiEndpoint: {
@@ -71,6 +72,14 @@
     listPath: {
       type: String,
       required: true
+    },
+    fields: {
+      type: Array,
+      default: () => [
+        { name: 'title', required: true },
+        { name: 'categoryId', required: true },
+        { name: 'content', required: true },
+      ]
     }
   })
   
@@ -83,6 +92,15 @@
   const pending = ref(false)
   const error = ref(null)
   const categories = ref([])
+
+  const { submitPost } = useBlogSubmit(
+    post,
+    props.apiEndpoint,
+    props.listPath,
+    isEditing,
+    computed(() => route.query.id),
+    props.fields
+  )
 
   /**
    * 컴포넌트 마운트 시 카테고리 목록을 불러오고,
@@ -126,42 +144,6 @@
   function updateField(fieldName, event) {
     post.value[fieldName] = event.target ? event.target.value : event
     //console.log(`Field ${fieldName} updated:`, post.value[fieldName])
-  }
-  
-  /**
-   * 블로그 게시글을 제출(생성 또는 수정)하는 함수입니다.
-   * 필수 필드가 비어있는지 확인하고, 유효성 검사 실패 시 경고 모달을 표시합니다.
-   * API를 호출하여 게시글을 저장하고,
-   * 성공 시 성공 모달을 띄우고 게시글 상세 또는 목록 페이지로 이동하며,
-   * 실패 시 오류 모달을 띄웁니다.
-   */
-  async function submitPost() {
-    const requiredFields = props.fields.filter(field => field.required).map(field => field.name)
-    const missingFields = requiredFields.filter(field => !post.value[field])
-
-    if (missingFields.length > 0) {
-      openModal('경고', `다음 필드를 입력해주세요: ${missingFields.join(', ')}`)
-      return
-    }
-
-    //console.log('Submitting post:', post.value)
-
-    const url = isEditing.value ? `${props.apiEndpoint}?id=${route.query.id}` : props.apiEndpoint
-    const method = isEditing.value ? 'PUT' : 'POST'
-
-    try {
-      const response = await $fetch(url, {
-        method,
-        body: post.value
-      })
-
-      openModal('성공', `블로그 글이 성공적으로 ${isEditing.value ? '수정' : '작성'}되었습니다.`, () => {
-        router.push(isEditing.value ? `${props.listPath}/view?id=${route.query.id}` : props.listPath)
-      })
-    } catch (error) {
-      console.error('Error submitting post:', error)
-      openModal('오류', `블로그 글 ${isEditing.value ? '수정' : '작성'}에 실패했습니다.`)
-    }
   }
   
   /**

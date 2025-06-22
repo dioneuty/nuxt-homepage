@@ -19,7 +19,6 @@
                   :class="{ 'w-full min-h-[225px] h-auto aspect-[16/9]': !video.isShort, 'w-full h-auto aspect-[9/16]': video.isShort }"
                   :src="getEmbedUrl(video)"
                   frameborder="0" 
-                  :autoplay="video.loaded"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                   allowfullscreen
                 ></iframe>
@@ -46,13 +45,14 @@
         </div>
       </div>
     </div>
-    <PlayModal :video="selectedVideo" :isOpen="isModalOpen" @close="closeModal" @timeUpdate="updateTime" />
+    <PlayModal :youtubeVideoId="selectedVideo ? selectedVideo.id : null" :isVisible="isModalOpen" @close="closeModal" />
   </template>
   
   <script setup>
   import { ref, onMounted } from 'vue'
   import { Icon } from '@iconify/vue'
   import PlayModal from '@/components/youtubeGallery/PlayModal.vue'
+  import useYoutubeGallery from '@/composables/useYoutubeGallery'
 
   const selectedVideo = ref(null)
   const isModalOpen = ref(false)
@@ -92,23 +92,10 @@
     
   ])
 
-  function getThumbnailUrl(videoId) {
-  return `https://img.youtube.com/vi/${videoId}/0.jpg`
-}
+  const { getEmbedUrl, loadVideo, unloadVideo } = useYoutubeGallery(videos)
   
   const videoRefs = ref({})
   
-  function loadVideo(video) {
-    video.loaded = true
-
-    // 다른 곳의 video.loaded를 false로 만들기
-    videos.value.forEach(v => {
-      if (v.id !== video.id) {
-        v.loaded = false
-      }
-    })
-  }
-
   function openModal(video) {
     selectedVideo.value = video
     isModalOpen.value = true
@@ -140,21 +127,6 @@
   //    - 크게 보기 화면의 UI/UX를 개선하기 위한 CSS 스타일을 추가하거나 Tailwind CSS 클래스를 활용합니다. 특히 반응형 디자인을 고려하여 다양한 화면 크기에서 잘 보이도록 합니다.
   // 5. API 연동 (필요시):
   //    - 만약 유튜브 비디오 정보를 서버에서 가져오거나 특정 비디오 시청 기록 등을 저장해야 한다면, 관련 API를 개발하거나 기존 API를 수정합니다. 현재 파일 구조상 `server/api/gallery` 또는 유사한 경로에 추가될 수 있습니다.
-
-  function unloadVideo(video) {
-    video.loaded = false
-  }
-  
-  function getEmbedUrl(video) {
-    if (video.isShort) {
-      return `https://www.youtube.com/embed/${video.id}?autoplay=1`
-    }
-    return `https://www.youtube.com/embed/${video.id}?autoplay=1`
-  }
-  
-  function getAspectRatioClass(video) {
-    return video.isShort ? 'aspect-w-9 aspect-h-16' : 'aspect-w-16 aspect-h-9'
-  }
   
   onMounted(() => {
     if (process.client) {
@@ -162,9 +134,9 @@
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
             const video = videos.value.find(v => videoRefs.value[v.id] === entry.target)
-            // if (video) {
-            //   loadVideo(video)
-            // }
+            if (video) {
+              // loadVideo(video) // Removed this line to prevent auto-loading
+            }
             observer.unobserve(entry.target)
           }
         })

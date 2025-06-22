@@ -1,10 +1,10 @@
 import { ref } from 'vue'
 
-const isModalOpen = ref(false)
-const modalTitle = ref('')
-const modalContent = ref('')
-const isConfirm = ref(false)
-const modalCallback = ref(null)
+const isModalOpen = ref(false) // 모달의 열림/닫힘 상태
+const modalTitle = ref('') // 현재 모달의 제목
+const modalContent = ref('') // 현재 모달의 내용
+const isConfirm = ref(false) // 현재 모달이 확인 모달인지 여부
+const modalCallback = ref(null) // 모달 확인 시 실행할 함수 (선택 사항)
 
 /**
  * 모달 컴포넌트의 상태와 동작을 관리하는 컴포저블 함수입니다.
@@ -76,14 +76,16 @@ export function useModal() {
   }
 
   return {
-    isModalOpen,
-    modalTitle,
-    modalContent,
-    isConfirm,
-    
-    openModal,
-    closeModal,
-    confirmModal,
-    cancelModal
+    // 1. 모달 관련 상태
+    isModalOpen, // 모달의 열림/닫힘 상태
+    modalTitle, // 현재 모달의 제목
+    modalContent, // 현재 모달의 내용
+    isConfirm, // 현재 모달이 확인 모달인지 여부
+
+    // 2. 모달 관련 함수
+    openModal, // 모달을 여는 함수
+    closeModal, // 모달을 닫는 함수
+    confirmModal, // 확인 모달에서 '확인' 버튼을 클릭했을 때 호출되는 함수
+    cancelModal, // 확인 모달에서 '취소' 버튼을 클릭했을 때 호출되는 함수
   }
 }

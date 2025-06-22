@@ -3,8 +3,10 @@ import { ref } from 'vue'
 import { carouselImages } from '~/server/data/images'
 
 /**
- * 이미지 데이터를 가져오는 컴포저블
- * @returns {Object} - 이미지 데이터
+ * @function useImages
+ * @description 이미지 데이터를 가져오는 컴포저블 함수입니다.
+ * @returns {Object} 이미지 데이터 관련 함수와 상태
+ * @property {function(): Ref<Array<Object>>} getCarouselImages - 캐러셀에 사용될 이미지 목록을 반환하는 함수
  */
 export function useImages() {
   /**
@@ -16,6 +18,7 @@ export function useImages() {
   }
 
   return {
-    getCarouselImages
+    // 1. 이미지 데이터 관련 함수
+    getCarouselImages, // 캐러셀에 사용될 이미지 목록을 반환하는 함수
   }
 }

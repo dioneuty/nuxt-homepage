@@ -30,10 +30,10 @@
   <script setup>
   import { ref } from 'vue'
   
-  const searchType = ref('title')
-  const searchText = ref('')
+  const searchType = ref('title') // 검색 타입
+  const searchText = ref('') // 검색어
   
-  const emit = defineEmits(['search'])
+  const emit = defineEmits(['search']) // 검색 이벤트 발생 시 호출되는 함수
   
   /**
    * 검색 버튼 클릭 시 호출되는 함수입니다.

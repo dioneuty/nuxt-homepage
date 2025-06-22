@@ -1,6 +1,6 @@
 import { ref } from 'vue'
 
-const isLoginModalOpen = ref(false)
+const isLoginModalOpen = ref(false) // 로그인 모달의 열림/닫힘 상태
 
 /**
  * 로그인 모달의 상태를 관리하는 컴포저블 함수입니다.
@@ -26,9 +26,11 @@ export function useLoginModal() {
   }
 
   return {
-    isOpen: isLoginModalOpen,
-    
-    openModal,
-    closeModal
+    // 1. 로그인 모달 관련 상태
+    isOpen: isLoginModalOpen, // 로그인 모달의 열림/닫힘 상태
+
+    // 2. 로그인 모달 관련 함수
+    openModal, // 로그인 모달을 여는 함수
+    closeModal, // 로그인 모달을 닫는 함수
   }
 }
