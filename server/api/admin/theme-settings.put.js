@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
@@ -14,10 +15,7 @@ export default defineEventHandler(async (event) => {
 
   // 제공된 색상 데이터가 하나도 없는 경우 400 Bad Request 오류를 반환합니다.
   if (!lightHeaderColor && !darkHeaderColor && !lightFooterColor && !darkFooterColor && !lightBackgroundColor && !darkBackgroundColor && !siteTitle && !siteLogoUrl && !siteLogoIcon && !showSiteTitle && !showSiteLogoUrl && !showSiteLogoIcon) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'No data provided for update',
-    });
+    handleApiError(null, 'No data provided for update', 400);
   }
 
   try {
@@ -67,10 +65,6 @@ export default defineEventHandler(async (event) => {
     return config;
   } catch (error) {
     // 설정 업데이트 중 오류 발생 시 로깅하고 500 Internal Server Error를 반환합니다.
-    console.error('Error updating site config:', error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to update site configuration',
-    });
+    handleApiError(error, 'Failed to update site configuration', 500);
   }
 }); 

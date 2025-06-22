@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
@@ -10,10 +11,7 @@ export default defineEventHandler(async (event) => {
   const modelInfo = Prisma.dmmf.datamodel.models.find(m => m.name.toLowerCase() === modelName.toLowerCase());
 
   if (!modelName || !modelInfo) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid model name',
-    });
+    return handleApiError(event, 400, 'Invalid model name');
   }
 
   // Convert BigInt fields from string to BigInt
@@ -22,24 +20,25 @@ export default defineEventHandler(async (event) => {
       try {
         body[field.name] = BigInt(body[field.name]);
       } catch (e) {
-        throw createError({ statusCode: 400, statusMessage: `Invalid BigInt value for field ${field.name}` });
+        return handleApiError(event, 400, `Invalid BigInt value for field ${field.name}`, e);
       }
     }
   }
 
   const idField = modelInfo.fields.find(f => f.isId);
   if (!idField) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Model ${modelName} does not have a primary key.`,
-    });
+    return handleApiError(event, 500, `Model ${modelName} does not have a primary key.`);
   }
   
   let parsedId = id;
   if (idField.type === 'Int') {
     parsedId = parseInt(id, 10);
   } else if (idField.type === 'BigInt') {
-    parsedId = BigInt(id);
+    try {
+      parsedId = BigInt(id);
+    } catch (e) {
+      return handleApiError(event, 400, `Invalid ID value for field ${idField.name}`, e);
+    }
   }
 
   try {
@@ -51,10 +50,6 @@ export default defineEventHandler(async (event) => {
     });
     return updatedRecord;
   } catch (error) {
-    console.error(error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message || 'Error updating record',
-    });
+    handleApiError(event, 500, error.message || 'Error updating record', error);
   }
 }); 

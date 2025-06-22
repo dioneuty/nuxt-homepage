@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 연락처 (문의) 관리 API
@@ -19,10 +20,7 @@ export default defineEventHandler(async (event) => {
         where: { id: parseInt(id) }
       })
       // 문의를 찾을 수 없으면 404 Not Found 오류를 반환합니다.
-      return contact || createError({
-        statusCode: 404,
-        statusMessage: '연락처를 찾을 수 없습니다'
-      })
+      return contact || handleApiError(null, '연락처를 찾을 수 없습니다', 404);
     } else {
       // ID가 없는 경우 문의 목록을 페이지네이션 및 검색/정렬하여 조회합니다.
       const skip = (page - 1) * itemsPerPage
@@ -83,10 +81,7 @@ export default defineEventHandler(async (event) => {
         })
 
         if (!originalPost) {
-          throw createError({
-            statusCode: 404,
-            statusMessage: '원본 문의를 찾을 수 없습니다'
-          })
+          handleApiError(null, '원본 문의를 찾을 수 없습니다', 404);
         }
 
         // 로그인한 사용자 정보 가져오기 (관리자 답변 등)
@@ -113,11 +108,7 @@ export default defineEventHandler(async (event) => {
       }
     } catch (error) {
       // 문의 생성 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('연락처 생성 중 오류:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: '연락처 생성 실패'
-      })
+      handleApiError(error, '연락처 생성 실패', 500);
     }
   }
 
@@ -132,19 +123,12 @@ export default defineEventHandler(async (event) => {
       return { success: true } // 성공 응답
     } catch (error) {
       // 문의 삭제 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('연락처 삭제 중 오류:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: '연락처 삭제 실패'
-      })
+      handleApiError(error, '연락처 삭제 실패', 500);
     }
   }
 
   // 지원하지 않는 HTTP 메소드에 대한 처리: 405 Method Not Allowed 반환
-  throw createError({
-    statusCode: 405,
-    statusMessage: 'Method Not Allowed'
-  })
+  throw handleApiError(405, 'Method Not Allowed');
 })
 
 /**

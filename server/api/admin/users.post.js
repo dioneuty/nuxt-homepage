@@ -1,6 +1,7 @@
 import prisma from '~/server/utils/prisma'
 import bcrypt from 'bcrypt'
 import * as jose from 'jose'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 관리자 사용자 생성 API
@@ -11,10 +12,7 @@ export default defineEventHandler(async (event) => {
   // 1. 인증 확인: 쿠키에서 JWT 토큰을 가져옵니다.
   const token = getCookie(event, 'auth_token')
   if (!token) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: '인증이 필요합니다.'
-    })
+    return handleApiError(event, 401, '인증이 필요합니다.')
   }
 
   try {
@@ -25,18 +23,11 @@ export default defineEventHandler(async (event) => {
     // 3. 권한 확인: 추출된 사용자 페이로드에서 역할(role)이 'ADMIN'인지 확인합니다.
     // 관리자가 아닌 경우 403 Forbidden 오류를 반환합니다.
     if (payload.role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: '관리자 권한이 필요합니다.'
-      })
+      return handleApiError(event, 403, '관리자 권한이 필요합니다.')
     }
   } catch (error) {
     // 토큰 검증 실패 시 (만료, 변조 등) 401 Unauthorized 오류를 반환합니다.
-    console.error('Token verification error in admin users.post.js:', error); // 오류 로깅
-    throw createError({
-      statusCode: 401,
-      statusMessage: '유효하지 않은 토큰입니다.'
-    })
+    return handleApiError(event, 401, '유효하지 않은 토큰입니다.', error)
   }
 
   // 4. 요청 본문 파싱: 사용자 생성에 필요한 데이터를 추출합니다.
@@ -45,18 +36,12 @@ export default defineEventHandler(async (event) => {
 
   // 5. 필수 필드 검증
   if (!username || !email || !password) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '사용자명, 이메일, 비밀번호는 필수입니다.'
-    })
+    return handleApiError(event, 400, '사용자명, 이메일, 비밀번호는 필수입니다.')
   }
 
   // 6. 역할 유효성 검증: 제공된 역할이 유효한 값('USER' 또는 'ADMIN')인지 확인합니다.
   if (role && !['USER', 'ADMIN'].includes(role)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '유효하지 않은 역할입니다.'
-    })
+    return handleApiError(event, 400, '유효하지 않은 역할입니다.')
   }
 
   try {
@@ -72,10 +57,7 @@ export default defineEventHandler(async (event) => {
 
     if (existingUser) {
       // 중복되는 경우 409 Conflict 오류를 반환합니다.
-      throw createError({
-        statusCode: 409,
-        statusMessage: '이미 존재하는 사용자명 또는 이메일입니다.'
-      })
+      return handleApiError(event, 409, '이미 존재하는 사용자명 또는 이메일입니다.')
     }
 
     // 8. 비밀번호 해싱: 보안을 위해 비밀번호를 해싱합니다.
@@ -109,16 +91,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     // Prisma 오류 또는 기타 서버 오류 처리
-    // 이미 HTTP 상태 코드가 포함된 오류라면 해당 오류를 다시 던집니다.
-    if (error.statusCode) {
-      throw error
-    }
-    
-    // 그 외의 오류는 로깅하고 500 Internal Server Error를 반환합니다.
-    console.error('사용자 생성 오류:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: '사용자 생성 중 오류가 발생했습니다.'
-    })
+    handleApiError(event, 500, '사용자 생성 중 오류가 발생했습니다.', error)
   }
 }) 

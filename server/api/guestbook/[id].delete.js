@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 // 방명록 삭제 (DELETE 요청)
 export default defineEventHandler(async (event) => {
@@ -12,17 +13,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!post) {
-      throw createError({
-        statusCode: 404,
-        message: '방명록을 찾을 수 없습니다.'
-      })
+      handleApiError(null, '방명록을 찾을 수 없습니다.', 404);
     }
 
     if (post.password && post.password !== password) {
-      throw createError({
-        statusCode: 401,
-        message: '비밀번호가 일치하지 않습니다.'
-      })
+      handleApiError(null, '비밀번호가 일치하지 않습니다.', 401);
     }
 
     await prisma.guestbook.delete({
@@ -31,10 +26,6 @@ export default defineEventHandler(async (event) => {
 
     return { success: true }
   } catch (error) {
-    console.error('방명록 삭제 중 오류:', error)
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || '방명록 삭제에 실패했습니다.'
-    })
+    handleApiError(error, error.message || '방명록 삭제에 실패했습니다.', error.statusCode || 500);
   }
 })

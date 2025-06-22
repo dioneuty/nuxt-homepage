@@ -1,4 +1,5 @@
 import { getBoardModel } from '~/server/utils/boardTypeMapper.js'
+import { handleApiError } from '~/server/utils/apiErrorHandlers.js'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
@@ -11,10 +12,7 @@ export default defineEventHandler(async (event) => {
   const sortOrder = query.sortOrder || 'desc' // 최신순 기본값
 
   if (!boardType) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Board type is required',
-    })
+    handleApiError(null, 'Board type is required', 400);
   }
 
   try {
@@ -56,10 +54,6 @@ export default defineEventHandler(async (event) => {
       total,
     }
   } catch (error) {
-    console.error(`Failed to fetch posts for board type ${boardType}:`, error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Failed to fetch posts for board type ${boardType}`,
-    })
+    handleApiError(error, `Failed to fetch posts for board type ${boardType}`, 500);
   }
 }) 

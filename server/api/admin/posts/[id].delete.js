@@ -1,4 +1,5 @@
 import { getBoardModel } from '~/server/utils/boardTypeMapper.js'
+import { handleApiError } from '~/server/utils/apiErrorHandlers.js'
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(event.context.params.id)
@@ -6,17 +7,11 @@ export default defineEventHandler(async (event) => {
   const boardType = query.boardType
 
   if (isNaN(id)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid post ID',
-    })
+    handleApiError(null, 'Invalid post ID', 400);
   }
 
   if (!boardType) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Board type is required',
-    })
+    handleApiError(null, 'Board type is required', 400);
   }
 
   try {
@@ -26,18 +21,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!deleteResult) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Post not found or could not be deleted',
-      })
+      handleApiError(null, 'Post not found or could not be deleted', 404);
     }
 
     return { message: 'Post deleted successfully' }
   } catch (error) {
-    console.error(`Failed to delete post ${id} for board type ${boardType}:`, error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Failed to delete post for board type ${boardType}`,
-    })
+    handleApiError(error, `Failed to delete post for board type ${boardType}`, 500);
   }
 }) 

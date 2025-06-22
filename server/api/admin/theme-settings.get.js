@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
@@ -35,10 +36,6 @@ export default defineEventHandler(async () => {
     return config;
   } catch (error) {
     // 설정 조회 중 오류 발생 시 서버 콘솔에 오류를 로깅하고 500 Internal Server Error를 반환합니다.
-    console.error('Error fetching site config:', error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Failed to fetch site configuration',
-    });
+    handleApiError(error, 'Failed to fetch site configuration', 500);
   }
 }); 

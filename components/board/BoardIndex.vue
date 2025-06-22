@@ -121,6 +121,17 @@ import { useAuth } from '~/composables/useAuth'
 import { formatDate } from '~/utils/dateFormatter'
 import { useIsMobile } from '~/composables/useIsMobile' // NEW IMPORT
 
+/**
+ * 게시물 목록 및 페이지네이션 관련 상태를 초기화합니다.
+ * 주로 새로운 검색, 정렬 또는 전체 페이지 새로고침 시 사용됩니다.
+ */
+function resetPaginationAndLoadingState() {
+  initialLoading.value = true;
+  loadedPosts.value = [];
+  currentPage.value = 1;
+  hasMorePosts.value = true;
+}
+
 const props = defineProps({
   boardType: {
     type: String,
@@ -200,8 +211,7 @@ function toggleSort(key) {
   }
   currentPage.value = 1
   if (isMobile.value) { // Reset loaded posts on sort change for mobile infinite scroll
-    loadedPosts.value = []
-    hasMorePosts.value = true
+    resetPaginationAndLoadingState();
   }
   // fetchPosts() will be triggered by watchEffect
 }
@@ -223,10 +233,7 @@ const loadedPosts = ref([]) // NEW: This will accumulate all posts for infinite 
  */
 async function fetchPosts(append = false) {
   if (!append) { // If not appending, reset for new search/sort/page
-    initialLoading.value = true
-    loadedPosts.value = []
-    currentPage.value = 1
-    hasMorePosts.value = true
+    resetPaginationAndLoadingState();
   } else {
     loadingMore.value = true
   }

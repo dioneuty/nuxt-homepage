@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { verifyAuthToken } from '~/server/utils/auth';
+import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
@@ -9,7 +10,7 @@ export default defineEventHandler(async (event) => {
     await verifyAuthToken(event);
     const userId = event.context.user.id;
     if (!userId || event.context.user.role !== 'ADMIN') {
-        throw createError({ statusCode: 403, message: '접근 권한이 없습니다.' });
+        handleApiError(null, '접근 권한이 없습니다.', 403);
     }
 
     const query = getQuery(event);
@@ -37,7 +38,7 @@ export default defineEventHandler(async (event) => {
       if (galleryItem) {
         return { ...galleryItem, galleryType: 'general' };
       }
-      throw createError({ statusCode: 404, message: '갤러리 아이템을 찾을 수 없습니다.' });
+      handleApiError(null, '갤러리 아이템을 찾을 수 없습니다.', 404);
     } else {
       // 통합 목록 조회 로직
       let adminWhere = {};
@@ -119,9 +120,6 @@ export default defineEventHandler(async (event) => {
       };
     }
   } catch (error) {
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || '갤러리 아이템을 불러오는 데 실패했습니다.',
-    });
+    handleApiError(error, error.message || '갤러리 아이템을 불러오는 데 실패했습니다.', error.statusCode || 500);
   }
 }); 

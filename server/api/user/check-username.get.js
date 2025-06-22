@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 사용자 이름 중복 확인 API
@@ -11,10 +12,7 @@ export default defineEventHandler(async (event) => {
 
   // 2. 'username'이 제공되지 않은 경우 400 Bad Request 오류를 반환합니다.
   if (!username) {
-    return createError({
-      statusCode: 400,
-      statusMessage: '사용자 이름을 입력해주세요.',
-    })
+    return handleApiError(event, 400, '사용자 이름을 입력해주세요.')
   }
 
   try {
@@ -39,10 +37,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     // 5. 데이터베이스 조회 중 오류 발생 시 로깅하고 500 Internal Server Error를 반환합니다.
-    console.error('Error checking username duplication:', error)
-    return createError({
-      statusCode: 500,
-      statusMessage: '사용자 이름 중복 확인 중 서버 오류가 발생했습니다.',
-    })
+    handleApiError(event, 500, '사용자 이름 중복 확인 중 서버 오류가 발생했습니다.', error)
   }
 }) 

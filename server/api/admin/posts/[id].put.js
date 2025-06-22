@@ -1,4 +1,5 @@
 import { getBoardModel } from '~/server/utils/boardTypeMapper.js'
+import { handleApiError } from '~/server/utils/apiErrorHandlers.js'
 
 export default defineEventHandler(async (event) => {
   const id = parseInt(event.context.params.id)
@@ -7,17 +8,11 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (isNaN(id)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid post ID',
-    })
+    handleApiError(null, 'Invalid post ID', 400);
   }
 
   if (!boardType) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Board type is required',
-    })
+    handleApiError(null, 'Board type is required', 400);
   }
 
   try {
@@ -47,10 +42,6 @@ export default defineEventHandler(async (event) => {
 
     return updatedPost
   } catch (error) {
-    console.error(`Failed to update post ${id} for board type ${boardType}:`, error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Failed to update post for board type ${boardType}`,
-    })
+    handleApiError(error, `Failed to update post for board type ${boardType}`, 500);
   }
 }) 

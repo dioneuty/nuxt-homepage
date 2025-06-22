@@ -1,5 +1,6 @@
 import { defineEventHandler, readBody } from 'h3'
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 통합 검색 API
@@ -10,11 +11,15 @@ export default defineEventHandler(async (event) => {
   // 요청 본문에서 검색 쿼리(query)를 읽어옵니다.
   const { query } = await readBody(event)
 
-  // 모든 콘텐츠 유형에 걸쳐 검색을 수행합니다.
-  const results = await searchAllContent(query)
+  try {
+    // 모든 콘텐츠 유형에 걸쳐 검색을 수행합니다.
+    const results = await searchAllContent(query)
 
-  // 검색 결과를 반환합니다.
-  return results
+    // 검색 결과를 반환합니다.
+    return results
+  } catch (error) {
+    handleApiError(error, '통합 검색 중 오류가 발생했습니다.', 500);
+  }
 })
 
 /**

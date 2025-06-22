@@ -1,5 +1,6 @@
 import { PrismaClient } from '@prisma/client';
 import { verifyAuthToken } from '~/server/utils/auth';
+import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
@@ -8,18 +9,18 @@ export default defineEventHandler(async (event) => {
     await verifyAuthToken(event);
     const userId = event.context.user.id;
     if (!userId || event.context.user.role !== 'ADMIN') {
-      throw createError({ statusCode: 403, message: '접근 권한이 없습니다.' });
+      handleApiError(null, '접근 권한이 없습니다.', 403);
     }
 
     const body = await readBody(event);
     const { title, description, content, tags, galleryType, id } = body;
 
     if (!id || isNaN(id)) {
-      throw createError({ statusCode: 400, message: '유효하지 않은 갤러리 아이템 ID입니다.' });
+      handleApiError(null, '유효하지 않은 갤러리 아이템 ID입니다.', 400);
     }
 
     if (!title || !description || !content || !galleryType) {
-      throw createError({ statusCode: 400, message: '제목, 설명, 콘텐츠, 갤러리 분류는 필수 입력 사항입니다.' });
+      handleApiError(null, '제목, 설명, 콘텐츠, 갤러리 분류는 필수 입력 사항입니다.', 400);
     }
 
     const tagArray = tags ? tags.split(',').map(tag => tag.trim()) : [];
@@ -62,9 +63,6 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error) {
-    throw createError({
-      statusCode: error.statusCode || 500,
-      message: error.message || '갤러리 아이템 수정에 실패했습니다.',
-    });
+    handleApiError(error, error.message || '갤러리 아이템 수정에 실패했습니다.', error.statusCode || 500);
   }
 }); 

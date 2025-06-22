@@ -1,15 +1,13 @@
 import prisma from '~/server/utils/prisma'
 import bcrypt from 'bcrypt'
 import * as jose from 'jose'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 export default defineEventHandler(async (event) => {
   // 인증 확인
   const token = getCookie(event, 'auth_token')
   if (!token) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: '인증이 필요합니다.'
-    })
+    return handleApiError(event, 401, '인증이 필요합니다.')
   }
 
   try {
@@ -17,24 +15,15 @@ export default defineEventHandler(async (event) => {
     const { payload } = await jose.jwtVerify(token, secret)
     
     if (payload.role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: '관리자 권한이 필요합니다.'
-      })
+      return handleApiError(event, 403, '관리자 권한이 필요합니다.')
     }
   } catch (error) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: '유효하지 않은 토큰입니다.'
-    })
+    return handleApiError(event, 401, '유효하지 않은 토큰입니다.', error)
   }
 
   const userId = parseInt(getRouterParam(event, 'id'))
-  if (!userId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '유효하지 않은 사용자 ID입니다.'
-    })
+  if (isNaN(userId)) {
+    return handleApiError(event, 400, '유효하지 않은 사용자 ID입니다.')
   }
 
   const body = await readBody(event)
@@ -42,18 +31,12 @@ export default defineEventHandler(async (event) => {
 
   // 필수 필드 검증
   if (!username || !email) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '사용자명과 이메일은 필수입니다.'
-    })
+    return handleApiError(event, 400, '사용자명과 이메일은 필수입니다.')
   }
 
   // 역할 검증
   if (role && !['USER', 'ADMIN'].includes(role)) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '유효하지 않은 역할입니다.'
-    })
+    return handleApiError(event, 400, '유효하지 않은 역할입니다.')
   }
 
   try {
@@ -63,10 +46,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!existingUser) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: '사용자를 찾을 수 없습니다.'
-      })
+      return handleApiError(event, 404, '사용자를 찾을 수 없습니다.')
     }
 
     // 중복 사용자명/이메일 확인 (자신 제외)
@@ -85,10 +65,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (duplicateUser) {
-      throw createError({
-        statusCode: 409,
-        statusMessage: '이미 존재하는 사용자명 또는 이메일입니다.'
-      })
+      return handleApiError(event, 409, '이미 존재하는 사용자명 또는 이메일입니다.')
     }
 
     // 업데이트할 데이터 준비
@@ -125,14 +102,6 @@ export default defineEventHandler(async (event) => {
       user: updatedUser
     }
   } catch (error) {
-    if (error.statusCode) {
-      throw error
-    }
-    
-    console.error('사용자 업데이트 오류:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: '사용자 정보 업데이트 중 오류가 발생했습니다.'
-    })
+    handleApiError(event, 500, '사용자 정보 업데이트 중 오류가 발생했습니다.', error)
   }
 }) 

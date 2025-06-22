@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 블로그 게시물 API
@@ -15,7 +16,7 @@ export default defineEventHandler(async (event) => {
     if (type === 'navigation') {
       // 게시물 ID가 제공되지 않으면 400 Bad Request 오류를 반환합니다.
       if (!id) {
-        throw createError({ statusCode: 400, statusMessage: 'ID가 필요합니다' })
+        handleApiError(400, 'ID가 필요합니다');
       }
 
       // 현재 게시물의 ID와 카테고리 ID를 데이터베이스에서 조회합니다.
@@ -26,7 +27,7 @@ export default defineEventHandler(async (event) => {
 
       // 현재 게시물을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
       if (!currentPost) {
-        throw createError({ statusCode: 404, statusMessage: '블로그 포스트를 찾을 수 없습니다' })
+        handleApiError(404, '블로그 포스트를 찾을 수 없습니다');
       }
 
       // 이전 게시물과 다음 게시물을 비동기적으로 병렬 조회합니다.
@@ -62,7 +63,7 @@ export default defineEventHandler(async (event) => {
         include: { category: true } // 게시물과 연결된 카테고리 정보도 함께 포함하여 조회합니다.
       })
       // 게시물을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
-      return post || createError({ statusCode: 404, statusMessage: '블로그 포스트를 찾을 수 없습니다' })
+      return post || handleApiError(404, '블로그 포스트를 찾을 수 없습니다');
     } else {
       // 'id' 쿼리 파라미터가 없는 경우, 블로그 게시물 목록을 조회합니다.
       // 'category' 쿼리 파라미터가 있는 경우 해당 카테고리로 필터링합니다.
@@ -99,8 +100,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, post: result }
     } catch (error) {
       // 게시물 생성 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      console.error('블로그 포스트 생성 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '블로그 포스트 생성 실패' })
+      handleApiError(500, '블로그 포스트 생성 실패');
     }
   }
 
@@ -120,8 +120,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, post: updatedPost }
     } catch (error) {
       // 게시물 업데이트 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      console.error('블로그 포스트 업데이트 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '블로그 포스트 업데이트 실패' })
+      handleApiError(error, '블로그 포스트 업데이트 실패', 500);
     }
   }
 
@@ -136,11 +135,10 @@ export default defineEventHandler(async (event) => {
       return { success: true } // 성공적으로 삭제되었음을 반환합니다.
     } catch (error) {
       // 게시물 삭제 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      console.error('블로그 포스트 삭제 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '블로그 포스트 삭제 실패' })
+      handleApiError(error, '블로그 포스트 삭제 실패', 500);
     }
   }
 
   // 지원하지 않는 HTTP 메소드에 대한 처리: 405 Method Not Allowed 오류를 반환합니다.
-  throw createError({ statusCode: 405, statusMessage: 'Method Not Allowed' })
+  throw handleApiError(405, 'Method Not Allowed');
 })

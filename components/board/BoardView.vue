@@ -123,6 +123,24 @@
   const nextPost = ref(null)
   
   /**
+   * 사용자에게 확인 모달을 표시하고, 사용자의 응답에 따라 콜백 함수를 실행합니다.
+   * @param {string} title 모달 제목
+   * @param {string} message 모달 메시지
+   * @param {function} onConfirm 사용자가 확인을 눌렀을 때 실행될 콜백 함수
+   * @param {function} onCancel 사용자가 취소를 눌렀을 때 실행될 콜백 함수 (선택 사항)
+   */
+  function showConfirmation(title, message, onConfirm, onCancel = () => {})
+  {
+    openModal(title, message, (confirmed) => {
+      if (confirmed) {
+        onConfirm();
+      } else {
+        onCancel();
+      }
+    }, true);
+  }
+  
+  /**
    * 게시글 데이터와 이전/다음 글 정보를 비동기적으로 가져옵니다.
    * API 호출 중 로딩 상태를 'pending'으로, 에러 발생 시 'error' 상태를 업데이트합니다.
    */
@@ -177,22 +195,20 @@
    * 성공 또는 실패 메시지를 표시하고 게시판 목록으로 이동합니다.
    */
   async function deletePost() {
-    openModal('확인', '정말로 이 게시글을 삭제하시겠습니까?', async (confirmed) => {
-      if (confirmed) {
-        try {
-          await $fetch(props.apiEndpoint, {
-            method: 'DELETE',
-            body: { id: props.id }
-          })
+    showConfirmation('확인', '정말로 이 게시글을 삭제하시겠습니까?', async () => {
+      try {
+        await $fetch(props.apiEndpoint, {
+          method: 'DELETE',
+          body: { id: props.id }
+        })
 
-          openModal('성공', '게시글이 성공적으로 삭제되었습니다.', () => {
-            router.push(`/${props.boardType}`)
-          })
-        } catch (error) {
-          openModal('오류', '서버 오류가 발생했습니다.')
-        }
+        showConfirmation('성공', '게시글이 성공적으로 삭제되었습니다.', () => {
+          router.push(`/${props.boardType}`)
+        })
+      } catch (error) {
+        showConfirmation('오류', '서버 오류가 발생했습니다.')
       }
-    }, true)
+    })
   }
   
   /**
@@ -205,7 +221,7 @@
         if (data && data.content && data.author) {
           await submitReply(data)
         } else if (data && data.content && !data.author) {
-          openModal('오류', '작성자를 입력해주세요.')
+          showConfirmation('오류', '작성자를 입력해주세요.')
         }
       }
     )
@@ -227,11 +243,11 @@
         }
       })
 
-      openModal('성공', '답변이 성공적으로 등록되었습니다.', () => {
+      showConfirmation('성공', '답변이 성공적으로 등록되었습니다.', () => {
         fetchData()
       })
     } catch (error) {
-      openModal('오류', '서버 오류가 발생했습니다.')
+      showConfirmation('오류', '서버 오류가 발생했습니다.')
     }
   }
   

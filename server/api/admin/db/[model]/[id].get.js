@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
@@ -9,27 +10,24 @@ export default defineEventHandler(async (event) => {
   const modelInfo = Prisma.dmmf.datamodel.models.find(m => m.name.toLowerCase() === modelName.toLowerCase());
 
   if (!modelName || !modelInfo) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid model name',
-    });
+    return handleApiError(event, 400, 'Invalid model name');
   }
 
   const idField = modelInfo.fields.find(f => f.isId);
   if (!idField) {
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Model ${modelName} does not have a primary key.`,
-    });
+    return handleApiError(event, 500, `Model ${modelName} does not have a primary key.`);
   }
   
   let parsedId = id;
   if (idField.type === 'Int') {
     parsedId = parseInt(id, 10);
   } else if (idField.type === 'BigInt') {
-    parsedId = BigInt(id);
+    try {
+      parsedId = BigInt(id);
+    } catch (e) {
+      return handleApiError(event, 400, `Invalid ID value for field ${idField.name}`, e);
+    }
   }
-
 
   try {
     const record = await prisma[modelName].findUnique({
@@ -39,18 +37,11 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!record) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: 'Record not found',
-      });
+      return handleApiError(event, 404, 'Record not found');
     }
 
     return record;
   } catch (error) {
-    console.error(error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: 'Error fetching record',
-    });
+    handleApiError(event, 500, 'Error fetching record', error);
   }
 }); 

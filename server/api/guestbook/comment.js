@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * 방명록 댓글을 작성합니다.
@@ -24,12 +25,7 @@ export const POST = defineEventHandler(async (event) => {
     return comment
   } catch (error) {
     // 댓글 작성 중 오류가 발생하면 콘솔에 로그를 기록합니다.
-    console.error('댓글 작성 중 오류:', error)
-    // 클라이언트에게 오류 응답을 반환합니다.
-    throw createError({
-      statusCode: 500, // HTTP 상태 코드 500 (Internal Server Error)
-      message: '댓글 작성에 실패했습니다.' // 사용자에게 표시될 오류 메시지
-    })
+    handleApiError(error, '댓글 작성에 실패했습니다.', 500);
   }
 })
 
@@ -52,18 +48,12 @@ export const PUT = defineEventHandler(async (event) => {
 
     // 댓글이 존재하지 않는 경우 오류를 반환합니다.
     if (!comment) {
-      throw createError({
-        statusCode: 404, // HTTP 상태 코드 404 (Not Found)
-        message: '댓글을 찾을 수 없습니다.'
-      })
+      handleApiError(null, '댓글을 찾을 수 없습니다.', 404);
     }
 
     // 댓글에 비밀번호가 설정되어 있고, 제공된 비밀번호와 일치하지 않는 경우 오류를 반환합니다.
     if (comment.password && comment.password !== password) {
-      throw createError({
-        statusCode: 401, // HTTP 상태 코드 401 (Unauthorized)
-        message: '비밀번호가 일치하지 않습니다.'
-      })
+      handleApiError(null, '비밀번호가 일치하지 않습니다.', 401);
     }
 
     // 비밀번호 확인이 완료되면 Prisma를 사용하여 댓글을 업데이트합니다.
@@ -75,13 +65,8 @@ export const PUT = defineEventHandler(async (event) => {
     // 업데이트된 댓글 객체를 반환합니다.
     return updatedComment
   } catch (error) {
-    // 댓글 수정 중 오류가 발생하면 콘솔에 로그를 기록합니다.
-    console.error('댓글 수정 중 오류:', error)
-    // 클라이언트에게 오류 응답을 반환합니다.
-    throw createError({
-      statusCode: error.statusCode || 500, // 기존 오류 상태 코드가 있으면 사용, 없으면 500
-      message: error.message || '댓글 수정에 실패했습니다.' // 기존 오류 메시지가 있으면 사용, 없으면 기본 메시지
-    })
+    // 댓글 수정 중 오류가 발생하면 콘솔에 로그를 기록합니다。
+    handleApiError(error, error.message || '댓글 수정에 실패했습니다.', error.statusCode || 500);
   }
 })
 
@@ -103,18 +88,12 @@ export const DELETE = defineEventHandler(async (event) => {
 
     // 댓글이 존재하지 않는 경우 오류를 반환합니다.
     if (!comment) {
-      throw createError({
-        statusCode: 404, // HTTP 상태 코드 404 (Not Found)
-        message: '댓글을 찾을 수 없습니다.'
-      })
+      handleApiError(null, '댓글을 찾을 수 없습니다.', 404);
     }
 
     // 댓글에 비밀번호가 설정되어 있고, 제공된 비밀번호와 일치하지 않는 경우 오류를 반환합니다.
     if (comment.password && comment.password !== password) {
-      throw createError({
-        statusCode: 401, // HTTP 상태 코드 401 (Unauthorized)
-        message: '비밀번호가 일치하지 않습니다.'
-      })
+      handleApiError(null, '비밀번호가 일치하지 않습니다.', 401);
     }
 
     // 비밀번호 확인이 완료되면 Prisma를 사용하여 댓글을 삭제합니다.
@@ -126,11 +105,6 @@ export const DELETE = defineEventHandler(async (event) => {
     return { success: true }
   } catch (error) {
     // 댓글 삭제 중 오류가 발생하면 콘솔에 로그를 기록합니다.
-    console.error('댓글 삭제 중 오류:', error)
-    // 클라이언트에게 오류 응답을 반환합니다.
-    throw createError({
-      statusCode: error.statusCode || 500, // 기존 오류 상태 코드가 있으면 사용, 없으면 500
-      message: error.message || '댓글 삭제에 실패했습니다.' // 기존 오류 메시지가 있으면 사용, 없으면 기본 메시지
-    })
+    handleApiError(error, error.message || '댓글 삭제에 실패했습니다.', error.statusCode || 500);
   }
 }) 

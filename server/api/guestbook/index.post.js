@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * 새로운 방명록 게시물을 작성하는 핸들러입니다.
@@ -33,11 +34,6 @@ export default defineEventHandler(async (event) => {
     return post
   } catch (error) {
     // 방명록 작성 중 오류가 발생하면 콘솔에 로그를 기록합니다.
-    console.error('백엔드: 방명록 작성 중 오류:', error)
-    // 클라이언트에게 오류 응답을 반환합니다.
-    throw createError({
-      statusCode: 500, // HTTP 상태 코드 500 (Internal Server Error)
-      message: '방명록 작성에 실패했습니다.' // 사용자에게 표시될 오류 메시지
-    })
+    handleApiError(error, '방명록 작성에 실패했습니다.', 500);
   }
 })

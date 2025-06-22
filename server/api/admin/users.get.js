@@ -1,5 +1,6 @@
 import prisma from '~/server/utils/prisma'
 import * as jose from 'jose'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 관리자 사용자 목록 조회 API
@@ -11,10 +12,7 @@ export default defineEventHandler(async (event) => {
   // 1. 인증 확인: 쿠키에서 JWT 토큰을 가져옵니다.
   const token = getCookie(event, 'auth_token')
   if (!token) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: '인증이 필요합니다.'
-    })
+    return handleApiError(event, 401, '인증이 필요합니다.')
   }
 
   try {
@@ -25,18 +23,11 @@ export default defineEventHandler(async (event) => {
     // 3. 권한 확인: 추출된 사용자 페이로드에서 역할(role)이 'ADMIN'인지 확인합니다.
     // 관리자가 아닌 경우 403 Forbidden 오류를 반환합니다.
     if (payload.role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: '관리자 권한이 필요합니다.'
-      })
+      return handleApiError(event, 403, '관리자 권한이 필요합니다.')
     }
   } catch (error) {
     // 토큰 검증 실패 시 (만료, 변조 등) 401 Unauthorized 오류를 반환합니다.
-    console.error('Token verification error in admin users.get.js:', error); // 오류 로깅
-    throw createError({
-      statusCode: 401,
-      statusMessage: '유효하지 않은 토큰입니다.'
-    })
+    return handleApiError(event, 401, '유효하지 않은 토큰입니다.', error)
   }
 
   // 4. 쿼리 파라미터 파싱: 페이지네이션, 검색, 필터링, 정렬을 위한 쿼리 파라미터를 파싱합니다.
@@ -112,10 +103,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     // 데이터베이스 조회 중 오류 발생 시 로깅하고 500 Internal Server Error를 반환합니다.
-    console.error('사용자 목록 조회 오류:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: '사용자 목록을 불러오는 중 오류가 발생했습니다.'
-    })
+    handleApiError(event, 500, '사용자 목록을 불러오는 중 오류가 발생했습니다.', error)
   }
 }) 

@@ -1,8 +1,6 @@
 import prisma from '~/server/utils/prisma'
 import { createClient } from '@supabase/supabase-js'
-
-// Supabase 클라이언트 초기화: 환경 변수에서 Supabase URL과 API 키를 가져옵니다.
-const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_KEY)
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 갤러리 API
@@ -15,54 +13,70 @@ export default defineEventHandler(async (event) => {
 
   // GET 요청 처리: 갤러리 목록, 특정 갤러리 항목 또는 댓글 목록을 조회합니다.
   if (method === 'GET') {
-    // 'id' 쿼리 파라미터가 제공된 경우 (특정 갤러리 항목 조회 요청)
-    if (query.id) {
-      // 'action' 쿼리 파라미터가 'comments'인 경우, 특정 갤러리 항목의 댓글 목록을 조회합니다.
-      if (query.action === 'comments') {
-        console.log('comments') // 디버깅을 위한 로그 출력
-        return await getGalleryItemComments(parseInt(query.id)) // 댓글 조회 함수 호출
+    try {
+      // 'id' 쿼리 파라미터가 제공된 경우 (특정 갤러리 항목 조회 요청)
+      if (query.id) {
+        // 'action' 쿼리 파라미터가 'comments'인 경우, 특정 갤러리 항목의 댓글 목록을 조회합니다.
+        if (query.action === 'comments') {
+          console.log('comments') // 디버깅을 위한 로그 출력
+          return await getGalleryItemComments(parseInt(query.id)) // 댓글 조회 함수 호출
+        } else {
+          // 'action'이 없거나 'comments'가 아닌 경우, 특정 갤러리 항목의 상세 정보를 조회합니다.
+          return await getGalleryItem(parseInt(query.id)) // 갤러리 항목 상세 조회 함수 호출
+        }
       } else {
-        // 'action'이 없거나 'comments'가 아닌 경우, 특정 갤러리 항목의 상세 정보를 조회합니다.
-        return await getGalleryItem(parseInt(query.id)) // 갤러리 항목 상세 조회 함수 호출
+        // 'id' 쿼리 파라미터가 없는 경우, 모든 갤러리 항목 목록을 조회합니다.
+        return await getGalleryList() // 갤러리 목록 조회 함수 호출
       }
-    } else {
-      // 'id' 쿼리 파라미터가 없는 경우, 모든 갤러리 항목 목록을 조회합니다.
-      return await getGalleryList() // 갤러리 목록 조회 함수 호출
+    } catch (error) {
+      handleApiError(error, '갤러리 조회 중 오류', 500);
     }
   }
 
   // POST 요청 처리: 새로운 갤러리 항목을 생성하거나 기존 갤러리 항목에 댓글을 추가합니다.
   if (method === 'POST') {
-    const body = await readBody(event) // 요청 본문 데이터를 읽어옵니다.
-    // 'action' 쿼리 파라미터가 'comment'인 경우, 댓글을 추가합니다.
-    if (query.action === 'comment') {
-      return await addComment(body) // 댓글 추가 함수 호출
-    } else {
-      // 'action'이 없거나 'comment'가 아닌 경우, 새로운 갤러리 항목을 생성합니다.
-      return await createGalleryItem(body) // 갤러리 항목 생성 함수 호출
+    try {
+      const body = await readBody(event) // 요청 본문 데이터를 읽어옵니다.
+      // 'action' 쿼리 파라미터가 'comment'인 경우, 댓글을 추가합니다.
+      if (query.action === 'comment') {
+        return await addComment(body) // 댓글 추가 함수 호출
+      } else {
+        // 'action'이 없거나 'comment'가 아닌 경우, 새로운 갤러리 항목을 생성합니다.
+        return await createGalleryItem(body) // 갤러리 항목 생성 함수 호출
+      }
+    } catch (error) {
+      handleApiError(error, '갤러리 생성/댓글 추가 중 오류', 500);
     }
   }
 
   // PUT 요청 처리: 갤러리 항목 또는 댓글을 수정합니다.
   if (method === 'PUT') {
-    const body = await readBody(event) // 요청 본문 데이터를 읽어옵니다.
-    // 'action' 쿼리 파라미터가 'comment'인 경우, 댓글을 수정합니다.
-    if (query.action === 'comment') {
-      return await updateComment(body) // 댓글 수정 함수 호출
-    } else {
-      // 'action'이 없거나 'comment'가 아닌 경우, 갤러리 항목을 수정합니다.
-      return await updateGalleryItem(body) // 갤러리 항목 수정 함수 호출
+    try {
+      const body = await readBody(event) // 요청 본문 데이터를 읽어옵니다.
+      // 'action' 쿼리 파라미터가 'comment'인 경우, 댓글을 수정합니다.
+      if (query.action === 'comment') {
+        return await updateComment(body) // 댓글 수정 함수 호출
+      } else {
+        // 'action'이 없거나 'comment'가 아닌 경우, 갤러리 항목을 수정합니다.
+        return await updateGalleryItem(body) // 갤러리 항목 수정 함수 호출
+      }
+    } catch (error) {
+      handleApiError(error, '갤러리 수정/댓글 수정 중 오류', 500);
     }
   }
 
   // DELETE 요청 처리: 갤러리 항목 또는 댓글을 삭제합니다.
   if (method === 'DELETE') {
-    // 'action' 쿼리 파라미터가 'comment'인 경우, 댓글을 삭제합니다.
-    if (query.action === 'comment') {
-      return await deleteComment(parseInt(query.id)) // 댓글 삭제 함수 호출
-    } else {
-      // 'action'이 없거나 'comment'가 아닌 경우, 갤러리 항목을 삭제합니다.
-      return await deleteGalleryItem(parseInt(query.id)) // 갤러리 항목 삭제 함수 호출
+    try {
+      // 'action' 쿼리 파라미터가 'comment'인 경우, 댓글을 삭제합니다.
+      if (query.action === 'comment') {
+        return await deleteComment(parseInt(query.id)) // 댓글 삭제 함수 호출
+      } else {
+        // 'action'이 없거나 'comment'가 아닌 경우, 갤러리 항목을 삭제합니다.
+        return await deleteGalleryItem(parseInt(query.id)) // 갤러리 항목 삭제 함수 호출
+      }
+    } catch (error) {
+      handleApiError(error, '갤러리 삭제/댓글 삭제 중 오류', 500);
     }
   }
 

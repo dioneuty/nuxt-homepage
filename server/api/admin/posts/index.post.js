@@ -1,4 +1,5 @@
 import { getBoardModel } from '~/server/utils/boardTypeMapper.js'
+import { handleApiError } from '~/server/utils/apiErrorHandlers.js'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
@@ -6,10 +7,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!boardType) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Board type is required',
-    })
+    handleApiError(null, 'Board type is required', 400);
   }
 
   try {
@@ -36,10 +34,6 @@ export default defineEventHandler(async (event) => {
 
     return newPost
   } catch (error) {
-    console.error(`Failed to create post for board type ${boardType}:`, error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: `Failed to create post for board type ${boardType}`,
-    })
+    handleApiError(error, `Failed to create post for board type ${boardType}`, 500);
   }
 }) 

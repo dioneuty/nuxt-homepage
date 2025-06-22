@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 관리자 게시판 API
@@ -13,55 +14,59 @@ export default defineEventHandler(async (event) => {
     // 쿼리 파라미터에서 ID, 페이지, 페이지당 항목 수, 검색 유형, 검색 텍스트, 정렬 컬럼 및 정렬 순서를 추출합니다.
     const { id, page = 1, limit = 10, searchType, searchText, sortColumn, sortOrder } = getQuery(event)
     
-    // ID가 제공되고 유효한 경우 (id가 '-1'이 아닌 경우) 특정 관리자 게시물을 조회합니다.
-    if (id && id !== '-1') {
-      const post = await prisma.adminBoard.findUnique({
-        where: { id: parseInt(id) }
-      })
-      // 게시물을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
-      return post || createError({ statusCode: 404, statusMessage: '관리자 게시글을 찾을 수 없습니다' })
-    } else {
-      // ID가 없는 경우 관리자 게시물 목록을 페이지네이션 및 검색/정렬하여 조회합니다.
-      const skip = (page - 1) * limit
-      let whereClause = {}
+    try {
+      // ID가 제공되고 유효한 경우 (id가 '-1'이 아닌 경우) 특정 관리자 게시물을 조회합니다.
+      if (id && id !== '-1') {
+        const post = await prisma.adminBoard.findUnique({
+          where: { id: parseInt(id) }
+        })
+        // 게시물을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
+        return post || handleApiError(event, 404, '관리자 게시글을 찾을 수 없습니다')
+      } else {
+        // ID가 없는 경우 관리자 게시물 목록을 페이지네이션 및 검색/정렬하여 조회합니다.
+        const skip = (page - 1) * limit
+        let whereClause = {}
 
-      // 검색 텍스트가 있는 경우 검색 유형(저자, 제목, 내용)에 따라 WHERE 절을 구성합니다.
-      if (searchText) {
-        if (searchType === 'author') {
-          whereClause.author = { contains: searchText, mode: 'insensitive' }
-        } else if (searchType === 'title') {
-          whereClause.title = { contains: searchText, mode: 'insensitive' }
-        } else if (searchType === 'content') {
-          whereClause.content = { contains: searchText, mode: 'insensitive' }
+        // 검색 텍스트가 있는 경우 검색 유형(저자, 제목, 내용)에 따라 WHERE 절을 구성합니다.
+        if (searchText) {
+          if (searchType === 'author') {
+            whereClause.author = { contains: searchText, mode: 'insensitive' }
+          } else if (searchType === 'title') {
+            whereClause.title = { contains: searchText, mode: 'insensitive' }
+          } else if (searchType === 'content') {
+            whereClause.content = { contains: searchText, mode: 'insensitive' }
+          }
+        }
+
+        // 정렬 컬럼과 순서가 제공된 경우 ORDER BY 절을 구성합니다. 기본 정렬은 ID 내림차순입니다.
+        let orderBy = {}
+        if (sortColumn && sortOrder) {
+          orderBy[sortColumn] = sortOrder.toLowerCase()
+        } else {
+          orderBy = { id: 'desc' } // 기본 정렬: 최신 게시물이 먼저 오도록 ID 내림차순 정렬
+        }
+
+        // 관리자 게시물 목록과 총 개수를 병렬로 조회합니다.
+        const [posts, totalCount] = await Promise.all([
+          prisma.adminBoard.findMany({
+            where: whereClause,
+            orderBy: orderBy,
+            take: parseInt(limit),
+            skip: skip
+          }),
+          prisma.adminBoard.count({ where: whereClause }) // 검색 조건에 맞는 전체 게시물 개수
+        ])
+
+        // 조회된 게시물 목록과 페이지네이션 정보를 반환합니다.
+        return {
+          posts,
+          total: totalCount,
+          page: parseInt(page),
+          limit: parseInt(limit)
         }
       }
-
-      // 정렬 컬럼과 순서가 제공된 경우 ORDER BY 절을 구성합니다. 기본 정렬은 ID 내림차순입니다.
-      let orderBy = {}
-      if (sortColumn && sortOrder) {
-        orderBy[sortColumn] = sortOrder.toLowerCase()
-      } else {
-        orderBy = { id: 'desc' } // 기본 정렬: 최신 게시물이 먼저 오도록 ID 내림차순 정렬
-      }
-
-      // 관리자 게시물 목록과 총 개수를 병렬로 조회합니다.
-      const [posts, totalCount] = await Promise.all([
-        prisma.adminBoard.findMany({
-          where: whereClause,
-          orderBy: orderBy,
-          take: parseInt(limit),
-          skip: skip
-        }),
-        prisma.adminBoard.count({ where: whereClause }) // 검색 조건에 맞는 전체 게시물 개수
-      ])
-
-      // 조회된 게시물 목록과 페이지네이션 정보를 반환합니다.
-      return {
-        posts,
-        total: totalCount,
-        page: parseInt(page),
-        limit: parseInt(limit)
-      }
+    } catch (error) {
+      handleApiError(event, 500, '관리자 게시글 목록 조회 실패', error)
     }
   }
 
@@ -75,8 +80,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, id: result.id }
     } catch (error) {
       // 게시물 생성 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('관리자 게시글 생성 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '관리자 게시글 생성 실패' })
+      handleApiError(event, 500, '관리자 게시글 생성 실패', error)
     }
   }
 
@@ -92,8 +96,7 @@ export default defineEventHandler(async (event) => {
       return { success: true } // 성공 응답
     } catch (error) {
       // 게시물 업데이트 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('관리자 게시글 업데이트 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '관리자 게시글 업데이트 실패' })
+      handleApiError(event, 500, '관리자 게시글 업데이트 실패', error)
     }
   }
 
@@ -108,11 +111,10 @@ export default defineEventHandler(async (event) => {
       return { success: true } // 성공 응답
     } catch (error) {
       // 게시물 삭제 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('관리자 게시글 삭제 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '관리자 게시글 삭제 실패' })
+      handleApiError(event, 500, '관리자 게시글 삭제 실패', error)
     }
   }
 
   // 지원하지 않는 HTTP 메소드에 대한 처리: 405 Method Not Allowed 반환
-  throw createError({ statusCode: 405, statusMessage: 'Method Not Allowed' })
+  handleApiError(event, 405, 'Method Not Allowed')
 })

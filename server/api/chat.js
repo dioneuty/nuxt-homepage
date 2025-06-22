@@ -1,10 +1,6 @@
 import prisma from '~/server/utils/prisma'
 import OpenAI from 'openai';
-
-// OpenAI 클라이언트 초기화: 환경 변수에서 OpenAI API 키를 가져옵니다.
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY // API 키를 환경 변수에서 가져옵니다.
-});
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 채팅 및 OpenAI 연동 API
@@ -72,8 +68,7 @@ export default defineEventHandler(async (event) => {
       };
     } catch (error) {
       // OpenAI API 호출 또는 채팅 처리 중 오류 발생 시 콘솔에 로그를 출력하고 실패 응답을 반환합니다.
-      console.error('OpenAI API 오류:', error);
-      return { success: false, error: '채팅 처리 중 오류가 발생했습니다.' };
+      return handleApiError(error, '채팅 처리 중 오류가 발생했습니다.');
     }
   } else if (action === 'load') {
     // 'load' 액션 처리: 데이터베이스에 저장된 모든 채팅 내역을 최신 업데이트 순으로 조회합니다.
@@ -84,15 +79,14 @@ export default defineEventHandler(async (event) => {
       return { success: true, chats }; // 성공 응답과 함께 조회된 채팅 목록을 반환합니다.
     } catch (error) {
       // 채팅 내역 로드 중 오류 발생 시 콘솔에 로그를 출력하고 실패 응답을 반환합니다.
-      console.error('채팅 내역 로드 중 오류 발생:', error);
-      return { success: false, error: '채팅 내역 로드 중 오류가 발생했습니다.' };
+      return handleApiError(error, '채팅 내역 로드 중 오류가 발생했습니다.');
     }
   } else if (action === 'save') {
     // 'save' 액션 처리: 특정 'screenId'에 해당하는 채팅 내역을 업데이트하거나, 존재하지 않으면 새로 생성합니다.
     try {
       // 'screenId'가 제공되지 않으면 저장할 채팅을 특정할 수 없으므로 오류를 반환합니다.
       if (!screenId) {
-        return { success: false, error: '저장할 채팅 screenId가 제공되지 않았습니다.' };
+        return handleApiError(null, '저장할 채팅 screenId가 제공되지 않았습니다.');
       }
       
       // 'screenId'를 기준으로 채팅 내역을 upsert (update + insert) 합니다.
@@ -115,15 +109,14 @@ export default defineEventHandler(async (event) => {
       return { success: true, message: '채팅이 성공적으로 저장되었습니다.', chat: upsertedChat }; // 성공 응답과 저장된 채팅 정보를 반환합니다.
     } catch (error) {
       // 채팅 저장 중 오류 발생 시 콘솔에 로그를 출력하고 실패 응답을 반환합니다.
-      console.error('채팅 저장 중 오류 발생:', error);
-      return { success: false, error: '채팅 저장 중 오류가 발생했습니다.' };
+      return handleApiError(error, '채팅 저장 중 오류가 발생했습니다.');
     }
   } else if (action === 'delete') {
     // 'delete' 액션 처리: 특정 'screenId'에 해당하는 채팅 내역을 데이터베이스에서 삭제합니다.
     try {
       // 'screenId'가 제공되지 않으면 삭제할 채팅을 특정할 수 없으므로 오류를 반환합니다.
       if (!screenId) {
-        return { success: false, error: '삭제할 채팅 screenId가 제공되지 않았습니다.' };
+        return handleApiError(null, '삭제할 채팅 screenId가 제공되지 않았습니다.');
       }
       
       // 'screenId'를 기준으로 채팅 내역을 삭제합니다.
@@ -134,11 +127,10 @@ export default defineEventHandler(async (event) => {
       return { success: true, message: '채팅이 성공적으로 삭제되었습니다.' }; // 성공적으로 삭제되었음을 반환합니다.
     } catch (error) {
       // 채팅 삭제 중 오류 발생 시 콘솔에 로그를 출력하고 실패 응답을 반환합니다.
-      console.error('채팅 삭제 중 오류 발생:', error);
-      return { success: false, error: '채팅 삭제 중 오류가 발생했습니다.' };
+      return handleApiError(error, '채팅 삭제 중 오류가 발생했습니다.');
     }
   } else {
     // 정의되지 않거나 유효하지 않은 'action' 값에 대한 오류 응답을 반환합니다.
-    return { success: false, error: '잘못된 액션입니다.' };
+    return handleApiError(null, '잘못된 액션입니다.');
   }
 });

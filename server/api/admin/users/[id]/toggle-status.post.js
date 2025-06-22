@@ -1,14 +1,12 @@
 import prisma from '~/server/utils/prisma'
 import * as jose from 'jose'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 export default defineEventHandler(async (event) => {
   // 인증 확인
   const token = getCookie(event, 'auth_token')
   if (!token) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: '인증이 필요합니다.'
-    })
+    return handleApiError(event, 401, '인증이 필요합니다.')
   }
 
   try {
@@ -16,24 +14,15 @@ export default defineEventHandler(async (event) => {
     const { payload } = await jose.jwtVerify(token, secret)
     
     if (payload.role !== 'ADMIN') {
-      throw createError({
-        statusCode: 403,
-        statusMessage: '관리자 권한이 필요합니다.'
-      })
+      return handleApiError(event, 403, '관리자 권한이 필요합니다.')
     }
   } catch (error) {
-    throw createError({
-      statusCode: 401,
-      statusMessage: '유효하지 않은 토큰입니다.'
-    })
+    return handleApiError(event, 401, '유효하지 않은 토큰입니다.', error)
   }
 
   const userId = parseInt(getRouterParam(event, 'id'))
-  if (!userId) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: '유효하지 않은 사용자 ID입니다.'
-    })
+  if (isNaN(userId)) {
+    return handleApiError(event, 400, '유효하지 않은 사용자 ID입니다.')
   }
 
   try {
@@ -44,10 +33,7 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!existingUser) {
-      throw createError({
-        statusCode: 404,
-        statusMessage: '사용자를 찾을 수 없습니다.'
-      })
+      return handleApiError(event, 404, '사용자를 찾을 수 없습니다.')
     }
 
     // 자기 자신의 상태를 변경하려는 경우 방지
@@ -55,10 +41,7 @@ export default defineEventHandler(async (event) => {
     const { payload } = await jose.jwtVerify(getCookie(event, 'auth_token'), secret)
     
     if (payload.userId === userId) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: '자기 자신의 계정 상태를 변경할 수 없습니다.'
-      })
+      return handleApiError(event, 400, '자기 자신의 계정 상태를 변경할 수 없습니다.')
     }
 
     // 상태 토글
@@ -84,14 +67,6 @@ export default defineEventHandler(async (event) => {
       user: updatedUser
     }
   } catch (error) {
-    if (error.statusCode) {
-      throw error
-    }
-    
-    console.error('계정 상태 변경 오류:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: '계정 상태 변경 중 오류가 발생했습니다.'
-    })
+    handleApiError(event, 500, '계정 상태 변경 중 오류가 발생했습니다.', error)
   }
 }) 

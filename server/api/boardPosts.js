@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 export default defineEventHandler(async (event) => {
   const method = event.node.req.method
@@ -134,11 +135,7 @@ export default defineEventHandler(async (event) => {
         }
       }
     } catch (error) {
-      console.error('게시글 조회 중 오류:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: '서버 오류'
-      })
+      handleApiError(event, error, '게시글 조회 중 오류')
     }
   }
 
@@ -162,11 +159,7 @@ export default defineEventHandler(async (event) => {
       })
       return { success: true, id: result.id }
     } catch (error) {
-      console.error('게시글 생성 중 오류:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: '게시글 생성 실패'
-      })
+      handleApiError(event, error, '게시글 생성 중 오류')
     }
   }
 
@@ -180,11 +173,7 @@ export default defineEventHandler(async (event) => {
       })
       return { success: true }
     } catch (error) {
-      console.error('게시글 업데이트 중 오류:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: '게시글 업데이트 실패'
-      })
+      handleApiError(event, error, '게시글 업데이트 중 오류')
     }
   }
 
@@ -197,11 +186,7 @@ export default defineEventHandler(async (event) => {
       })
       return { success: true }
     } catch (error) {
-      console.error('게시글 삭제 중 오류:', error)
-      throw createError({
-        statusCode: 500,
-        statusMessage: '게시글 삭제 실패'
-      })
+      handleApiError(event, error, '게시글 삭제 중 오류')
     }
   }
 

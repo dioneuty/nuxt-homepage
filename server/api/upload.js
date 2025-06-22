@@ -1,5 +1,6 @@
 import { writeFile } from 'fs/promises'
 import { join } from 'path'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 파일 업로드 API
@@ -9,10 +10,7 @@ import { join } from 'path'
 export default defineEventHandler(async (event) => {
   // POST 메소드만 허용합니다. 다른 메소드 요청 시 405 Method Not Allowed 오류를 반환합니다.
   if (event.node.req.method !== 'POST') {
-    throw createError({
-      statusCode: 405,
-      statusMessage: 'Method Not Allowed'
-    })
+    handleApiError(event, 405, 'Method Not Allowed')
   }
 
   try {
@@ -21,10 +19,7 @@ export default defineEventHandler(async (event) => {
     
     // 업로드된 파일이 없거나 파일 배열이 비어있는 경우 400 Bad Request 오류를 반환합니다.
     if (!files || files.length === 0) {
-      throw createError({
-        statusCode: 400,
-        statusMessage: 'No file uploaded'
-      })
+      handleApiError(event, 400, 'No file uploaded')
     }
 
     // 첫 번째 업로드된 파일을 처리합니다.
@@ -44,10 +39,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     // 파일 업로드 중 오류 발생 시 서버 콘솔에 오류를 로깅하고 500 Internal Server Error를 반환합니다.
-    console.error('파일 업로드 중 오류:', error)
-    throw createError({
-      statusCode: 500,
-      statusMessage: '파일 업로드 실패'
-    })
+    handleApiError(event, 500, '파일 업로드 실패', error)
   }
 })

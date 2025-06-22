@@ -1,4 +1,5 @@
 import { PrismaClient, Prisma } from '@prisma/client';
+import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
@@ -9,10 +10,7 @@ export default defineEventHandler(async (event) => {
   const modelInfo = Prisma.dmmf.datamodel.models.find(m => m.name.toLowerCase() === modelName.toLowerCase());
 
   if (!modelName || !modelInfo) {
-    throw createError({
-      statusCode: 400,
-      statusMessage: 'Invalid model name',
-    });
+    return handleApiError(event, 400, 'Invalid model name');
   }
 
   // Convert BigInt fields from string to BigInt
@@ -21,7 +19,7 @@ export default defineEventHandler(async (event) => {
       try {
         body[field.name] = BigInt(body[field.name]);
       } catch (e) {
-        throw createError({ statusCode: 400, statusMessage: `Invalid BigInt value for field ${field.name}` });
+        return handleApiError(event, 400, `Invalid BigInt value for field ${field.name}`, e);
       }
     }
   }
@@ -32,10 +30,6 @@ export default defineEventHandler(async (event) => {
     });
     return createdRecord;
   } catch (error) {
-    console.error(error);
-    throw createError({
-      statusCode: 500,
-      statusMessage: error.message || 'Error creating record',
-    });
+    handleApiError(event, 500, error.message || 'Error creating record', error);
   }
 }); 

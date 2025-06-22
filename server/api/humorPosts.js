@@ -1,4 +1,5 @@
 import prisma from '~/server/utils/prisma'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 유머 게시판 API
@@ -19,7 +20,7 @@ export default defineEventHandler(async (event) => {
         where: { id: parseInt(id) } // 제공된 ID로 게시물을 찾습니다.
       })
       // 게시물을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
-      return post || createError({ statusCode: 404, statusMessage: '유머 게시글을 찾을 수 없습니다' })
+      return post || handleApiError(null, '유머 게시글을 찾을 수 없습니다', 404);
     } else {
       // 'id'가 없는 경우, 유머 게시물 목록을 페이지네이션하여 조회합니다.
       const skip = (page - 1) * limit // 현재 페이지의 시작 오프셋을 계산합니다.
@@ -52,8 +53,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, id: result.id } // 성공 응답과 생성된 게시물의 ID를 반환합니다.
     } catch (error) {
       // 게시물 생성 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      console.error('유머 게시글 생성 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '유머 게시글 생성 실패' })
+      handleApiError(error, '유머 게시글 생성 실패', 500);
     }
   }
 
@@ -69,8 +69,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, likes: updatedPost.likes } // 성공 응답과 업데이트된 좋아요 수를 반환합니다.
     } catch (error) {
       // 좋아요 업데이트 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      console.error('좋아요 업데이트 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '좋아요 업데이트 실패' })
+      handleApiError(error, '좋아요 업데이트 실패', 500);
     }
   }
 
@@ -82,14 +81,13 @@ export default defineEventHandler(async (event) => {
       await prisma.humorPost.delete({
         where: { id: parseInt(id) } // 삭제할 게시물의 ID를 지정합니다.
       })
-      return { success: true } // 성공적으로 삭제되었음을 반환합니다.
+      return { success: true } // 성공적으로 삭제되었음을 반환합니다。
     } catch (error) {
       // 게시물 삭제 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      console.error('유머 게시글 삭제 중 오류:', error)
-      throw createError({ statusCode: 500, statusMessage: '유머 게시글 삭제 실패' })
+      handleApiError(error, '유머 게시글 삭제 실패', 500);
     }
   }
 
   // 지원하지 않는 HTTP 메소드에 대한 처리: 405 Method Not Allowed 오류를 반환합니다.
-  throw createError({ statusCode: 405, statusMessage: 'Method Not Allowed' })
+  throw handleApiError(405, 'Method Not Allowed');
 })

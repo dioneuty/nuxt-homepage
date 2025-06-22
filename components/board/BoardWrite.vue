@@ -52,6 +52,24 @@ import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
 import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
 
+/**
+ * 필수 필드의 유효성을 검사하고, 누락된 필드가 있을 경우 경고 모달을 표시합니다.
+ * @param {object} postData - 현재 게시물 데이터.
+ * @param {Array} fields - 필드 정의 배열 (required 속성 포함).
+ * @param {function} openModalFn - useModal의 openModal 함수.
+ * @returns {boolean} 모든 필수 필드가 채워졌으면 true, 아니면 false.
+ */
+function validateRequiredFields(postData, fields, openModalFn) {
+  const requiredFields = fields.filter(field => field.required).map(field => field.name);
+  const missingFields = requiredFields.filter(field => !postData[field]);
+
+  if (missingFields.length > 0) {
+    openModalFn('경고', `다음 필드를 입력해주세요: ${missingFields.join(', ')}`);
+    return false;
+  }
+  return true;
+}
+
 const props = defineProps({
   apiEndpoint: {
     type: String,
@@ -109,12 +127,8 @@ function updateField(fieldName, event) {
  * 실패 시 오류 모달을 띄웁니다.
  */
 async function submitPost() {
-  const requiredFields = props.fields.filter(field => field.required).map(field => field.name)
-  const missingFields = requiredFields.filter(field => !post.value[field])
-
-  if (missingFields.length > 0) {
-    openModal('경고', `다음 필드를 입력해주세요: ${missingFields.join(', ')}`)
-    return
+  if (!validateRequiredFields(post.value, props.fields, openModal)) {
+    return;
   }
 
   //console.log('Submitting post:', post.value)

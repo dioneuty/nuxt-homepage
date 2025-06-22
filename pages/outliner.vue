@@ -124,18 +124,6 @@ import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
 import OutlineDetailViewer from '~/components/OutlineDetailViewer.vue'
 import OutlineModal from '~/components/OutlineModal.vue'
 
-// Helper function to check if an item is an ancestor of another item
-function isAncestor(ancestorItem, descendantId, items) {
-  if (!ancestorItem || !ancestorItem.children) return false;
-  for (const child of ancestorItem.children) {
-    if (child.id === descendantId) return true;
-    if (child.children && isAncestor(child, descendantId, items)) {
-      return true;
-    }
-  }
-  return false;
-}
-
 // Helper function to ensure all item children arrays are initialized
 function normalizeItemChildren(items) {
   if (!Array.isArray(items)) { // Ensure the top level is an array
@@ -446,6 +434,18 @@ function deepCopyItem(item) {
   };
 }
 
+/**
+ * 클립보드에 아이템을 설정하고, 잘라내기 작업 여부를 지정합니다.
+ * @param item 복사/잘라내기할 아이템
+ * @param isCut 잘라내기 작업인지 여부
+ */
+function setClipboardItem(item, isCut) {
+  if (item) {
+    clipboardItem.value = deepCopyItem(item); // 클립보드에 복사본 저장
+    isCutOperation.value = isCut;
+  }
+}
+
 // 복제 기능
 function duplicateItem(itemId) {
   const itemToDuplicate = findItem(rootItems.value, itemId);
@@ -466,8 +466,7 @@ function duplicateItem(itemId) {
 function cutItem(itemId) {
   const itemToCut = findItem(rootItems.value, itemId);
   if (itemToCut) {
-    clipboardItem.value = deepCopyItem(itemToCut); // 클립보드에 복사본 저장
-    isCutOperation.value = true;
+    setClipboardItem(itemToCut, true);
     deleteItem(itemId); // 원본 삭제
   }
 }
@@ -476,8 +475,7 @@ function cutItem(itemId) {
 function copyItem(itemId) {
   const itemToCopy = findItem(rootItems.value, itemId);
   if (itemToCopy) {
-    clipboardItem.value = deepCopyItem(itemToCopy); // 클립보드에 복사본 저장
-    isCutOperation.value = false;
+    setClipboardItem(itemToCopy, false);
   }
 }
 
@@ -584,17 +582,22 @@ function findPathToItem(items, id) {
   return null;
 }
 
+// 새 항목 객체를 생성하는 헬퍼 함수
+function createNewOutlineItem() {
+  return {
+    id: generateUUID(),
+    content: '새 항목',
+    children: [],
+    expanded: true,
+  };
+}
+
 /**
  * 새 아이템 추가
  * @param parentId 부모 아이템의 ID (최상위면 null)
  */
 async function addItem(parentId = null) {
-  const newItem = {
-    id: generateUUID(),
-    content: '새 항목',
-    children: [],
-    expanded: true, // 새 항목 추가 시 기본적으로 펼쳐진 상태
-  };
+  const newItem = createNewOutlineItem();
 
   if (parentId === null) {
     rootItems.value.push(newItem);
@@ -622,12 +625,7 @@ async function addAboveItem(targetItemId) {
   if (parentList) {
     const index = parentList.findIndex(item => item.id === targetItemId);
     if (index !== -1) {
-      const newItem = {
-        id: generateUUID(),
-        content: '새 항목',
-        children: [],
-        expanded: true,
-      };
+      const newItem = createNewOutlineItem();
       parentList.splice(index, 0, newItem);
       saveTreeState(rootItems.value);
       await saveItemContentToDB(newItem.id, '');
@@ -644,12 +642,7 @@ async function addBelowItem(targetItemId) {
   if (parentList) {
     const index = parentList.findIndex(item => item.id === targetItemId);
     if (index !== -1) {
-      const newItem = {
-        id: generateUUID(),
-        content: '새 항목',
-        children: [],
-        expanded: true,
-      };
+      const newItem = createNewOutlineItem();
       parentList.splice(index + 1, 0, newItem);
       saveTreeState(rootItems.value);
       await saveItemContentToDB(newItem.id, '');
@@ -662,20 +655,9 @@ async function addBelowItem(targetItemId) {
  * @param id 삭제할 아이템의 ID
  */
 function deleteItem(id) {
-  const deleteRecursive = (items) => {
-    for (let i = 0; i < items.length; i++) {
-      if (items[i].id === id) {
-        items.splice(i, 1);
-        return true;
-      }
-      if (items[i].children && deleteRecursive(items[i].children)) {
-        return true;
-      }
-    }
-    return false;
-  };
+  const result = findAndRemoveItemFromTree(rootItems.value, id);
 
-  if (deleteRecursive(rootItems.value)) {
+  if (result) {
     saveTreeState(rootItems.value);
     if (selectedItem.value && selectedItem.value.id === id) {
       selectedItem.value = null; // 삭제된 항목이 선택되어 있으면 선택 해제
@@ -723,36 +705,35 @@ function indentItem(id) {
  * @param id 내어쓰기할 아이템의 ID
  */
 function outdentItem(id) {
-  const currentParentList = findParentList(rootItems.value, id);
-  const currentParent = findParent(rootItems.value, id);
-
-  if (!currentParentList || !currentParent) {
-    // 이미 최상위이거나 부모를 찾을 수 없는 경우
-    return;
+  const result = findAndRemoveItemFromTree(rootItems.value, id);
+  if (!result) {
+    return; // 아이템을 찾지 못함
   }
 
-  const itemToOutdent = currentParentList.find(item => item.id === id);
-  if (!itemToOutdent) return;
+  const { removedItem, parent: currentParent } = result;
 
-  // 현재 부모의 부모를 찾음 (새로운 부모 리스트)
-  const newParentList = findParentList(rootItems.value, currentParent.id);
-  if (!newParentList) {
-    // 현재 부모가 최상위인 경우 rootItems.value에 추가
-    const indexInRoot = currentParentList.findIndex(item => item.id === id);
-    if (indexInRoot !== -1) {
-      currentParentList.splice(indexInRoot, 1); // 현재 위치에서 제거
-      const parentIndex = rootItems.value.findIndex(item => item.id === currentParent.id);
-      if (parentIndex !== -1) {
-        rootItems.value.splice(parentIndex + 1, 0, itemToOutdent); // 부모 바로 다음에 추가
+  if (currentParent) {
+    // 현재 부모가 있는 경우: 현재 부모의 부모를 찾아 그곳에 삽입
+    const newParentListResult = findParentList(rootItems.value, currentParent.id);
+    if (newParentListResult) {
+      const indexInNewParentList = newParentListResult.findIndex(item => item.id === currentParent.id);
+      if (indexInNewParentList !== -1) {
+        newParentListResult.splice(indexInNewParentList + 1, 0, removedItem);
+      }
+    } else {
+      // 현재 부모가 최상위 항목이면, rootItems에 추가
+      const parentIndexInRoot = rootItems.value.findIndex(item => item.id === currentParent.id);
+      if (parentIndexInRoot !== -1) {
+        rootItems.value.splice(parentIndexInRoot + 1, 0, removedItem);
       }
     }
   } else {
-    // 새로운 부모 리스트에 추가
-    const indexInNewParentList = newParentList.findIndex(item => item.id === currentParent.id);
-    if (indexInNewParentList !== -1) {
-      currentParentList.splice(currentParentList.findIndex(item => item.id === id), 1); // 현재 위치에서 제거
-      newParentList.splice(indexInNewParentList + 1, 0, itemToOutdent); // 새로운 부모 바로 다음에 추가
-    }
+    // 이미 최상위 항목이므로 내어쓰기 불가능 (또는 처리할 필요 없음)
+    // 이 경우는 findAndRemoveItemFromTree에서 제거되지 않았을 것이므로 여기에 도달하지 않을 수도 있음
+    // 안전을 위해 다시 추가하거나 로깅
+    console.warn('Attempted to outdent a top-level item without a parent, which should not happen if removed successfully.');
+    // removedItem을 다시 rootItems에 추가 (혹시 모를 상황 대비)
+    rootItems.value.push(removedItem);
   }
   saveTreeState(rootItems.value);
 }
@@ -763,19 +744,9 @@ function outdentItem(id) {
  */
 function handleReorder(evt) {
   console.log('handleReorder called. Event:', evt);
-  // `added` 또는 `removed` 속성을 통해 항목이 다른 목록으로 이동했는지 확인
-  if (evt.added) {
-    // 현재는 v-model 변경으로 인해 Vue가 자동으로 트리를 업데이트하므로,
-    // 단순히 변경 후 상태를 저장하는 것으로 충분합니다.
-    saveTreeState(rootItems.value);
-
-  } else if (evt.removed) {
-    // 항목이 제거된 경우 (다른 목록으로 이동했거나 삭제된 경우)
-    saveTreeState(rootItems.value);
-  } else {
-    // 단순히 같은 목록 내에서 순서가 변경된 경우
-    saveTreeState(rootItems.value);
-  }
+  // v-model 변경으로 인해 Vue가 자동으로 트리를 업데이트하므로,
+  // 단순히 변경 후 상태를 저장하는 것으로 충분합니다.
+  saveTreeState(rootItems.value);
 }
 
 function zoomToItem(item) {
@@ -809,69 +780,21 @@ function handleDragStart(evt) {
     originalParentId: parent ? parent.id : null,
     originalIndex: evt.oldIndex
   };
-  // 드래그 시작 시 잠재적 변경 초기화
-  potentialHierarchyChange.value = { type: null, targetItemId: null };
 }
 
 function handleDragEnd(evt) {
   if (!draggingItem.value) return;
 
-  const movedItemId = draggingItem.value.item.id;
-  
-  // potentialHierarchyChange 값에 따라 들여쓰기/내어쓰기 수행
-  if (potentialHierarchyChange.value.type === 'indent' && potentialHierarchyChange.value.targetItemId) {
-    // vuedraggable이 이미 DOM을 이동시켰으므로, 우리가 할 일은 `indentItem`이 계층을 올바르게 조정하도록 하는 것입니다.
-    // 여기서는 단순히 들여쓰기/내어쓰기를 다시 트리거하여 정렬을 맞춥니다.
-    // 만약 드래그앤드롭으로 이미 들여쓰기가 되었다면, 중복 호출될 수 있으니 로직을 더 정교하게 해야 할 수 있습니다.
-    indentItem(movedItemId); // 드래그된 아이템을 대상으로 들여쓰기 시도
-  } else if (potentialHierarchyChange.value.type === 'outdent' && potentialHierarchyChange.value.targetItemId) {
-    outdentItem(movedItemId); // 드래그된 아이템을 대상으로 내어쓰기 시도
-  }
+  // 드래그 종료 시 추가 로직이 필요하다면 여기에 추가
 
   draggingItem.value = null;
-  potentialHierarchyChange.value = { type: null, targetItemId: null }; // 상태 초기화
   saveTreeState(rootItems.value); // 최종적으로 트리 상태 저장
 }
 
 // vuedraggable move event handler for validation and potential hierarchy change detection
 function checkDragMove(evt, currentDepth) {
-  // const draggedItem = draggingItem.value.item;
-  // const relatedEl = evt.relatedContext.element;
-  // const futureParent = evt.to.__vue_component__?.props.item;
-  // const newIndex = evt.newIndex;
-
-  // // 들여쓰기/내어쓰기 의도 감지 및 시각적 피드백 업데이트
-  // const targetItemBoundingRect = evt.related.getBoundingClientRect();
-  // const mouseX = evt.originalEvent.clientX;
-
-  // const indentThreshold = targetItemBoundingRect.left + 50; // 예시 임계값
-  // const outdentThreshold = targetItemBoundingRect.left - 20; // 예시 임계값
-
-  // potentialHierarchyChange.value = { type: null, targetItemId: null };
-
-  // if (mouseX > indentThreshold) {
-  //   // 들여쓰기: 관련 요소의 자식으로 들어가는 경우 (오른쪽으로 이동)
-  //   if (relatedEl && !isAncestor(draggedItem, relatedEl.id)) {
-  //     potentialHierarchyChange.value = { type: 'indent', targetItemId: relatedEl.id };
-  //   }
-  // } else if (mouseX < outdentThreshold && draggedItem.parentId !== null) {
-  //   // 내어쓰기: 현재 부모의 형제로 나가는 경우 (왼쪽으로 이동)
-  //   const parentItem = findItem(rootItems.value, draggedItem.parentId);
-  //   if (parentItem) {
-  //     potentialHierarchyChange.value = { type: 'outdent', targetItemId: parentItem.id };
-  //   }
-  // }
-
-  // // 1. 드래그하는 항목이 자신의 부모가 되는 것을 방지
-  // if (futureParent && isAncestor(draggedItem, futureParent.id)) {
-  //   return false;
-  // }
-
-  // // 2. 드래그하는 항목이 자기 자신이거나 이미 부모인 경우 방지
-  // if (relatedEl && draggedItem.id === relatedEl.id) {
-  //   return false;
-  // }
-
+  // 이 함수는 현재 드래그앤드롭 유효성 검사 또는 계층 변경 감지 로직을 수행하지 않음.
+  // 모든 드래그 이동을 허용.
   return true;
 }
 
@@ -886,6 +809,29 @@ function selectItem(item) {
   if (item) {
     fetchSelectedItemContent(item.id);
   }
+}
+
+/**
+ * ID로 아이템을 찾고, 현재 위치에서 제거하며, 제거된 아이템, 직계 부모, 그리고 아이템이 제거된 리스트를 반환합니다.
+ * @param items 검색할 아이템 배열
+ * @param targetId 찾을 아이템의 ID
+ * @param parent 직계 부모 아이템 (재귀 호출용)
+ * @returns { removedItem, parent, parentList } 객체 또는 null
+ */
+function findAndRemoveItemFromTree(items, targetId, parent = null) {
+  for (let i = 0; i < items.length; i++) {
+    if (items[i].id === targetId) {
+      const removedItem = items.splice(i, 1)[0];
+      return { removedItem, parent, parentList: items };
+    }
+    if (items[i].children && items[i].children.length > 0) {
+      const result = findAndRemoveItemFromTree(items[i].children, targetId, items[i]);
+      if (result) {
+        return result;
+      }
+    }
+  }
+  return null;
 }
 
 </script>

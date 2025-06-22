@@ -1,6 +1,7 @@
 import prisma from '~/server/utils/prisma'
 import bcrypt from 'bcrypt'
 import * as jose from 'jose'
+import { handleApiError } from '~/server/utils/apiErrorHandlers'
 
 /**
  * @file 사용자 관련 API 엔드포인트
@@ -23,10 +24,7 @@ export default defineEventHandler(async (event) => {
     return handleUpdate(event)
   } else {
     // 유효하지 않은 'type'이거나 'type'이 없는 경우 400 Bad Request 오류를 반환합니다.
-    return createError({
-      statusCode: 400,
-      statusMessage: '잘못된 요청입니다.',
-    })
+    return handleApiError(400, '잘못된 요청입니다.')
   }
 })
 
@@ -43,10 +41,7 @@ async function handleLogin(event) {
 
   // 필수 필드 검증
   if (!username || !password) {
-    return createError({
-      statusCode: 400,
-      statusMessage: '사용자 이름과 비밀번호를 모두 입력해주세요.',
-    })
+    return handleApiError(400, '사용자 이름과 비밀번호를 모두 입력해주세요.')
   }
 
   // 사용자 이름으로 사용자 조회
@@ -56,10 +51,7 @@ async function handleLogin(event) {
 
   // 사용자가 없는 경우 오류 반환
   if (!user) {
-    return createError({
-      statusCode: 401,
-      statusMessage: '사용자를 찾을 수 없습니다.',
-    })
+    return handleApiError(401, '사용자를 찾을 수 없습니다.')
   }
 
   // 비밀번호 검증
@@ -67,10 +59,7 @@ async function handleLogin(event) {
 
   // 비밀번호가 일치하지 않는 경우 오류 반환
   if (!isPasswordValid) {
-    return createError({
-      statusCode: 401,
-      statusMessage: '비밀번호가 일치하지 않습니다.',
-    })
+    return handleApiError(401, '비밀번호가 일치하지 않습니다.')
   }
 
   // JWT Secret 가져오기 및 토큰 생성
@@ -161,10 +150,7 @@ async function handleRegister(event) {
 
   // 필수 필드 검증
   if (!username || !email || !password) {
-    return createError({
-      statusCode: 400,
-      statusMessage: '모든 필드를 입력해주세요.',
-    })
+    return handleApiError(400, '모든 필드를 입력해주세요.')
   }
 
   // 사용자 이름 중복 확인
@@ -172,10 +158,7 @@ async function handleRegister(event) {
     where: { username: username },
   })
   if (existingUserByUsername) {
-    return createError({
-      statusCode: 409,
-      statusMessage: '이미 사용 중인 사용자 이름입니다.',
-    })
+    return handleApiError(409, '이미 사용 중인 사용자 이름입니다.')
   }
 
   // 이메일 중복 확인
@@ -183,10 +166,7 @@ async function handleRegister(event) {
     where: { email: email },
   })
   if (existingUserByEmail) {
-    return createError({
-      statusCode: 409,
-      statusMessage: '이미 사용 중인 이메일입니다.',
-    })
+    return handleApiError(409, '이미 사용 중인 이메일입니다.')
   }
 
   try {
@@ -220,10 +200,7 @@ async function handleRegister(event) {
     return { message: '회원가입 성공', user: { id: user.id, username: user.username, role: user.role } }
   } catch (error) {
     console.error('Register error:', error)
-    return createError({
-      statusCode: 500,
-      statusMessage: '회원가입 중 오류가 발생했습니다.',
-    })
+    return handleApiError(500, '회원가입 중 오류가 발생했습니다.')
   }
 }
 
@@ -239,10 +216,7 @@ async function handleUpdate(event) {
   
   // 토큰이 없는 경우 인증되지 않음 오류 반환
   if (!token) {
-    return createError({
-      statusCode: 401,
-      statusMessage: '인증되지 않은 사용자입니다.',
-    })
+    return handleApiError(401, '인증되지 않은 사용자입니다.')
   }
 
   try {
@@ -272,10 +246,7 @@ async function handleUpdate(event) {
     return { success: true, user: updatedUser }
   } catch (error) {
     console.error('User update error:', error)
-    return createError({
-      statusCode: 500,
-      statusMessage: '사용자 정보 업데이트 중 오류가 발생했습니다.',
-    })
+    return handleApiError(500, '사용자 정보 업데이트 중 오류가 발생했습니다.')
   }
 }
 
