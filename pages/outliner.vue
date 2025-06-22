@@ -101,6 +101,7 @@
         <OutlineDetailViewer
           v-else-if="selectedItem && !isDetailEditing"
           :content="selectedItemContent"
+          @openYoutubeModal="handleOpenYoutubeModal"
         />
         <p v-else class="text-gray-500 dark:text-gray-400 text-center">항목을 선택하여 내용을 확인하세요.</p>
       </div>
@@ -117,6 +118,14 @@
       @update:content="updateSelectedItemContent"
       @toggle:editMode="toggleEditMode"
     />
+
+    <!-- YouTube 크게 보기 모달 -->
+    <PlayModal
+      v-if="showYoutubeModal"
+      :isVisible="showYoutubeModal"
+      :youtubeVideoId="currentYoutubeVideoId"
+      @close="handleCloseYoutubeModal"
+    />
   </div>
 </template>
 
@@ -128,6 +137,7 @@ import draggable from 'vuedraggable'
 import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
 import OutlineDetailViewer from '~/components/OutlineDetailViewer.vue'
 import OutlineModal from '~/components/OutlineModal.vue'
+import PlayModal from '~/components/youtubeGallery/PlayModal.vue'
 
 // Helper function to ensure all item children arrays are initialized
 function normalizeItemChildren(items) {
@@ -167,6 +177,30 @@ const selectedItem = ref(null) // 선택된 항목
 const selectedItemContent = ref('') // 선택된 항목의 내용
 const isDetailEditing = ref(false); // 상세 화면 편집 모드 상태
 const showDetailModal = ref(false); // 모바일 상세 모달 가시성
+
+// --- START: YouTube Fullscreen Modal Logic ---
+const showYoutubeModal = ref(false); // YouTube 크게 보기 모달 가시성
+const currentYoutubeVideoId = ref(null); // 현재 크게 볼 YouTube 영상 ID
+
+/**
+ * @function handleOpenYoutubeModal
+ * @description YouTube 크게 보기 모달을 열고 영상 ID를 설정합니다.
+ * @param {string} videoId - 크게 볼 YouTube 영상의 ID.
+ */
+const handleOpenYoutubeModal = (videoId) => {
+  currentYoutubeVideoId.value = videoId;
+  showYoutubeModal.value = true;
+};
+
+/**
+ * @function handleCloseYoutubeModal
+ * @description YouTube 크게 보기 모달을 닫습니다.
+ */
+const handleCloseYoutubeModal = () => {
+  showYoutubeModal.value = false;
+  currentYoutubeVideoId.value = null; // 모달이 닫힐 때 영상 ID 초기화
+};
+// --- END: YouTube Fullscreen Modal Logic ---
 
 const draggingItem = ref(null); // 드래그 중인 아이템 및 원래 위치 정보
 const clipboardItem = ref(null); // 클립보드에 복사/잘라내기된 아이템
