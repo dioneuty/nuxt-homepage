@@ -245,12 +245,13 @@
 
 <script setup>
 import { Icon } from '@iconify/vue'
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { debounce } from 'lodash-es'
-import UserCreateModal from '~/components/admin/UserCreateModal.vue'
-import UserEditModal from '~/components/admin/UserEditModal.vue'
-import ResetPasswordModal from '~/components/admin/ResetPasswordModal.vue'
-import DeleteConfirmModal from '~/components/admin/DeleteConfirmModal.vue'
+// 🚀 관리자 모달 지연 로딩
+const UserCreateModal = defineAsyncComponent(() => import('~/components/admin/UserCreateModal.vue'))
+const UserEditModal = defineAsyncComponent(() => import('~/components/admin/UserEditModal.vue'))
+const ResetPasswordModal = defineAsyncComponent(() => import('~/components/admin/ResetPasswordModal.vue'))
+const DeleteConfirmModal = defineAsyncComponent(() => import('~/components/admin/DeleteConfirmModal.vue'))
 import Toast from '~/components/common/Toast.vue'
 import { formatDate } from '~/utils/dateFormatter'
 

@@ -206,9 +206,10 @@
 </template>
 
 <script setup>
-import { ref, watch, onMounted } from 'vue'
-import CommentEditModal from '~/components/CommentEditModal.vue'
-import GuestbookDeleteModal from '~/components/GuestbookDeleteModal.vue'
+import { ref, watch, onMounted, defineAsyncComponent } from 'vue'
+// 🚀 모달 지연 로딩
+const CommentEditModal = defineAsyncComponent(() => import('~/components/CommentEditModal.vue'))
+const GuestbookDeleteModal = defineAsyncComponent(() => import('~/components/GuestbookDeleteModal.vue'))
 import { formatDate } from '~/utils/dateFormatter'
 
 const posts = ref([])

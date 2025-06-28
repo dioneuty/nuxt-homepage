@@ -113,10 +113,11 @@
 
 <script setup>
 // 필요한 의존성 import
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, watch, defineAsyncComponent } from 'vue'
 import { Icon } from '@iconify/vue'
-import GalleryModal from './GalleryModal.vue'
-import GalleryEditModal from './GalleryEditModal.vue'
+// 🚀 모달 지연 로딩
+const GalleryModal = defineAsyncComponent(() => import('./GalleryModal.vue'))
+const GalleryEditModal = defineAsyncComponent(() => import('./GalleryEditModal.vue'))
 import { useRoute } from 'vue-router'
 import { useAuth } from '~/composables/useAuth'
 import { useRouter } from 'vue-router'

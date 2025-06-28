@@ -46,12 +46,14 @@
 </template>
   
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
-import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
 import { useFormSubmit } from '~/composables/useFormSubmit'
+
+// 🚀 에디터 지연 로딩
+const CommonQuillEditor = defineAsyncComponent(() => import('~/components/CommonQuillEditor.vue'))
 
 const props = defineProps({
   apiEndpoint: { // 게시글 데이터 엔드포인트

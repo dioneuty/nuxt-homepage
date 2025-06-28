@@ -45,9 +45,11 @@
 
 <script setup>
 import { ref, computed, defineAsyncComponent, onMounted, watch } from 'vue'
-import GalleryModal from '@/components/gallery/GalleryModal.vue'
 import { useGalleryStore } from '@/stores/galleryStore'
 import { Icon } from '@iconify/vue'
+
+// 🚀 모달 지연 로딩
+const GalleryModal = defineAsyncComponent(() => import('@/components/gallery/GalleryModal.vue'))
 
 const sections = [
   { id: 'carousel', label: '슬라이드 보기' },

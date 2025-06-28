@@ -3,7 +3,7 @@
   <ul class="pl-4 lg:pl-0 lg:py-1">
     <li v-for="menu in reactiveMenus" :key="menu.id" class="relative group">
        <div 
-          @click.stop="toggleMenu(menu)"
+          @click="handleMenuClick(menu)"
           :class="[
             'flex justify-between items-center px-4 py-2 text-sm cursor-pointer rounded-md transition-colors duration-150 ease-in-out',
             'hover:bg-blue-700', // 통합된 호버 배경색
@@ -16,7 +16,7 @@
               : 'text-blue-100' // 비활성 시에도 잘 보이는 텍스트
           ]"
         >
-        <NuxtLink :to="menu.path || '#'" @click.stop="handleLinkClick(menu)" class="flex-grow">
+        <NuxtLink :to="menu.path || '#'" class="flex-grow pointer-events-none">
           <Icon v-if="menu.icon" :icon="menu.icon" class="mr-2" />
           <span>{{ menu.name }}</span>
         </NuxtLink>
@@ -44,7 +44,7 @@
 
 <script setup>
 import { ref, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 
 // 이 컴포넌트는 자기 자신을 참조하므로, 이름을 명시적으로 지정합니다.
@@ -61,6 +61,7 @@ const props = defineProps({
 
 const emit = defineEmits(['close-parent']);
 const route = useRoute();
+const router = useRouter();
 
 // props.menus를 반응형으로 만들기 위해 ref와 watch 사용
 const reactiveMenus = ref([]);
@@ -91,31 +92,39 @@ watch(() => [props.menus, route.path], ([newMenus, currentPath]) => {
 }, { immediate: true, deep: true });
 
 /**
+ * 메뉴 클릭을 처리하는 통합 함수입니다.
+ * 경로가 있으면 바로 네비게이션하고, 자식 메뉴가 있으면 토글합니다.
+ * @param {object} clickedMenu - 클릭된 메뉴 객체.
+ */
+function handleMenuClick(clickedMenu) {
+  // 경로가 있는 메뉴는 바로 네비게이션
+  if (clickedMenu.path && clickedMenu.path !== '#') {
+    router.push(clickedMenu.path);
+    // 자식 메뉴가 없는 링크를 클릭했을 때 상위 메뉴를 닫습니다.
+    if (!clickedMenu.children || clickedMenu.children.length === 0) {
+      emit('close-parent');
+    }
+    return;
+  }
+  
+  // 자식 메뉴가 있는 경우만 토글
+  if (clickedMenu.children && clickedMenu.children.length > 0) {
+    toggleMenu(clickedMenu);
+  }
+}
+
+/**
  * 하위 메뉴 항목을 토글하는 함수입니다.
  * 클릭된 메뉴가 자식 메뉴를 가지고 있다면 해당 메뉴의 `isOpen` 상태를 토글합니다.
  * (현재 구현에서는 형제 메뉴를 닫는 로직은 주석 처리되어 있습니다.)
  * @param {object} clickedMenu - 클릭된 메뉴 객체.
  */
 function toggleMenu(clickedMenu) {
-   if (clickedMenu.children && clickedMenu.children.length > 0) {
-      const wasOpen = clickedMenu.isOpen;
-      // 먼저 모든 형제 메뉴를 닫습니다. (선택적)
-      // reactiveMenus.value.forEach(menu => {
-      //   if(menu.id !== clickedMenu.id) menu.isOpen = false;
-      // });
-      clickedMenu.isOpen = !wasOpen;
-   }
-}
-
-/**
- * 링크 클릭을 처리하는 함수입니다.
- * 자식 메뉴가 없는 링크를 클릭했을 때만 `close-parent` 이벤트를 발생시켜 상위 메뉴를 닫도록 합니다.
- * @param {object} menu - 클릭된 메뉴 객체.
- */
-function handleLinkClick(menu) {
-  // 자식 메뉴가 없는 링크를 클릭했을 때만 상위 메뉴를 닫습니다.
-  if (!menu.children || menu.children.length === 0) {
-    emit('close-parent');
-  }
+  const wasOpen = clickedMenu.isOpen;
+  // 먼저 모든 형제 메뉴를 닫습니다. (선택적)
+  // reactiveMenus.value.forEach(menu => {
+  //   if(menu.id !== clickedMenu.id) menu.isOpen = false;
+  // });
+  clickedMenu.isOpen = !wasOpen;
 }
 </script> 

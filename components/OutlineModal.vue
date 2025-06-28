@@ -32,8 +32,10 @@
 </template>
 
 <script setup>
+import { defineAsyncComponent } from 'vue'
 import { Icon } from '@iconify/vue';
-import CommonQuillEditor from '~/components/CommonQuillEditor.vue';
+// 🚀 에디터 지연 로딩
+const CommonQuillEditor = defineAsyncComponent(() => import('~/components/CommonQuillEditor.vue'))
 import OutlineDetailViewer from '~/components/OutlineDetailViewer.vue';
 
 const props = defineProps({

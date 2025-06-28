@@ -57,12 +57,14 @@
   </template>
   
   <script setup>
-  import { ref, onMounted, computed } from 'vue'
+  import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { useModal } from '~/composables/useModal'
-  import { Icon } from '@iconify/vue'
-  import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
-  import { useBlogSubmit } from '~/composables/useBlogSubmit'
+import { Icon } from '@iconify/vue'
+import { useBlogSubmit } from '~/composables/useBlogSubmit'
+
+// 🚀 에디터 지연 로딩
+const CommonQuillEditor = defineAsyncComponent(() => import('~/components/CommonQuillEditor.vue'))
   
   const props = defineProps({
     apiEndpoint: {

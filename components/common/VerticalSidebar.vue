@@ -8,9 +8,12 @@
     }"
     :style="{ backgroundColor: backgroundColor }"
   >
-    <div class="p-4 text-2xl font-bold text-blue-100 flex items-center">
-      <Icon v-if="siteLogoIcon" :icon="siteLogoIcon" class="w-7 h-7 mr-2" />
-      {{ siteTitle }}
+    <div class="p-4">
+      <!-- 🏠 클릭 가능한 로고와 사이트 제목 -->
+      <NuxtLink to="/" class="flex items-center text-2xl font-bold text-blue-100 hover:text-blue-300 transition-colors duration-200 cursor-pointer no-underline focus:outline-none focus:ring-0">
+        <Icon v-if="siteLogoIcon" :icon="siteLogoIcon" class="w-7 h-7 mr-2" />
+        {{ siteTitle }}
+      </NuxtLink>
     </div>
     <!-- 현재 시간 표시 -->
     <div class="px-4 text-xl font-semibold text-blue-200 mt-2">
@@ -156,5 +159,23 @@ const handleRegisterClick = () => {
 /* 활성 링크 스타일 */
 .router-link-exact-active {
   @apply bg-blue-800 dark:bg-blue-800 border-r-4 border-blue-500 font-semibold text-blue-100;
+}
+
+/* 링크 기본 스타일 제거 */
+a {
+  text-decoration: none !important;
+  outline: none !important;
+  box-shadow: none !important;
+}
+
+a:focus {
+  outline: none !important;
+  box-shadow: none !important;
+  border: none !important;
+}
+
+a:active {
+  outline: none !important;
+  box-shadow: none !important;
 }
 </style> 

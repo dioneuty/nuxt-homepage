@@ -139,11 +139,12 @@
 </template>
 
 <script setup>
-import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick } from 'vue'
+import { ref, computed, onMounted, onBeforeUnmount, watch, nextTick, defineAsyncComponent } from 'vue'
 import { Icon } from '@iconify/vue'
 import OutlineItem from '~/components/OutlineItem.vue'
 import draggable from 'vuedraggable'
-import CommonQuillEditor from '~/components/CommonQuillEditor.vue'
+// 🚀 에디터 지연 로딩
+const CommonQuillEditor = defineAsyncComponent(() => import('~/components/CommonQuillEditor.vue'))
 import OutlineDetailViewer from '~/components/OutlineDetailViewer.vue'
 import OutlineModal from '~/components/OutlineModal.vue'
 import PlayModal from '~/components/youtubeGallery/PlayModal.vue'

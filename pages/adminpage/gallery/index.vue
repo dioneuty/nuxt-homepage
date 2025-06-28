@@ -160,11 +160,12 @@
 </template>
 
 <script setup>
-import { ref, onMounted, computed } from 'vue';
+import { ref, onMounted, computed, defineAsyncComponent } from 'vue';
 import { useToast } from '~/composables/useToast';
 import { formatDateTime } from '~/utils/dateFormatter';
 import AdminGalleryWrite from '~/components/admin/AdminGalleryWrite.vue';
-import GalleryDeleteConfirmModal from '~/components/admin/GalleryDeleteConfirmModal.vue';
+// 🚀 관리자 모달 지연 로딩
+const GalleryDeleteConfirmModal = defineAsyncComponent(() => import('~/components/admin/GalleryDeleteConfirmModal.vue'))
 import { useAuth } from '~/composables/useAuth';
 import { useRouter } from 'vue-router';
 

@@ -7,14 +7,14 @@
     ]">
       <li v-for="menu in accessibleMenus" :key="menu.id" class="relative group">
         <div 
-          @click="toggleMenu(menu)"
+          @click="handleMenuClick(menu)"
           :class="[
             'flex justify-between items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer',
             'text-blue-100 hover:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-700',
             isActive(menu) ? 'bg-blue-800 dark:bg-blue-800' : ''
           ]"
         >
-          <NuxtLink v-if="menu.path" :to="menu.path" class="flex-grow flex items-center" @click.stop>
+          <NuxtLink v-if="menu.path" :to="menu.path" class="flex-grow flex items-center">
             <Icon v-if="menu.icon" :icon="menu.icon" class="mr-1" />
             <span>{{ menu.name }}</span>
           </NuxtLink>
@@ -44,7 +44,7 @@
 
 <script setup>
 import { ref, computed, watch } from 'vue';
-import { useRoute } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useMenuStore } from '~/stores/menu';
 import { useAuth } from '~/composables/useAuth';
 import { Icon } from '@iconify/vue';
@@ -53,6 +53,7 @@ import AppSubMenu from './AppSubMenu.vue';
 const menuStore = useMenuStore();
 const { user, isAdmin } = useAuth();
 const route = useRoute();
+const router = useRouter();
 
 const props = defineProps({
   isVertical: {
@@ -90,6 +91,24 @@ watch(() => [menuStore.getAccessibleMenus(userRole.value), route.path], ([newMen
 }, { immediate: true, deep: true });
 
 /**
+ * 메뉴 클릭을 처리하는 통합 함수입니다.
+ * 경로가 있으면 바로 네비게이션하고, 자식 메뉴가 있으면 토글합니다.
+ * @param {object} clickedMenu - 클릭된 메뉴 객체.
+ */
+function handleMenuClick(clickedMenu) {
+  // 경로가 있는 메뉴는 바로 네비게이션
+  if (clickedMenu.path) {
+    router.push(clickedMenu.path);
+    return;
+  }
+  
+  // 자식 메뉴가 있는 경우만 토글 (모바일 또는 세로 메뉴에서)
+  if (clickedMenu.children && clickedMenu.children.length > 0) {
+    toggleMenu(clickedMenu);
+  }
+}
+
+/**
  * 메뉴 항목을 토글하는 함수입니다.
  * 모바일 뷰(폭 1024px 미만) 또는 `isVertical` prop이 true일 때만 작동합니다.
  * 클릭된 메뉴가 자식 메뉴를 가지고 있다면 해당 메뉴의 `isOpen` 상태를 토글하고,
@@ -99,19 +118,17 @@ watch(() => [menuStore.getAccessibleMenus(userRole.value), route.path], ([newMen
 function toggleMenu(clickedMenu) {
   // isVertical이 true이거나 모바일 뷰(아코디언)에서만 작동
   if (props.isVertical || window.innerWidth < 1024) {
-    if (clickedMenu.children && clickedMenu.children.length > 0) {
-      const wasOpen = clickedMenu.isOpen;
-      
-      // 다른 메뉴는 모두 닫습니다.
-      accessibleMenus.value.forEach(menu => {
-        if (menu.id !== clickedMenu.id) {
-          menu.isOpen = false;
-        }
-      });
-      
-      // 클릭된 메뉴의 상태를 토글합니다.
-      clickedMenu.isOpen = !wasOpen;
-    }
+    const wasOpen = clickedMenu.isOpen;
+    
+    // 다른 메뉴는 모두 닫습니다.
+    accessibleMenus.value.forEach(menu => {
+      if (menu.id !== clickedMenu.id) {
+        menu.isOpen = false;
+      }
+    });
+    
+    // 클릭된 메뉴의 상태를 토글합니다.
+    clickedMenu.isOpen = !wasOpen;
   }
 }
 
