@@ -28,29 +28,44 @@
         />
       </div>
       <div class="flex justify-between">
-        <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center">
-          <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
-          {{ isEditing ? '수정하기' : '작성하기' }}
+        <!-- 임시저장 버튼 (왼쪽) -->
+        <button 
+          type="button" 
+          @click="saveDraft" 
+          :disabled="isDraftLoading"
+          class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 flex items-center disabled:opacity-50"
+        >
+          <Icon :icon="isDraftLoading ? 'mdi:loading' : 'mdi:content-save-outline'" class="mr-2" :class="{ 'animate-spin': isDraftLoading }" />
+          {{ isDraftLoading ? '저장 중...' : '임시저장' }}
         </button>
-        <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
-          <Icon icon="mdi:cancel" class="mr-2" />
-          취소
-        </button>
-        <NuxtLink :to="listPath" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
-          <Icon icon="mdi:format-list-bulleted" class="mr-2" />
-          목록
-        </NuxtLink>
+
+        <!-- 기존 버튼들 (오른쪽) -->
+        <div class="flex space-x-4">
+          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center">
+            <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
+            {{ isEditing ? '수정하기' : '작성하기' }}
+          </button>
+          <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
+            <Icon icon="mdi:cancel" class="mr-2" />
+            취소
+          </button>
+          <NuxtLink :to="listPath" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
+            <Icon icon="mdi:format-list-bulleted" class="mr-2" />
+            목록
+          </NuxtLink>
+        </div>
       </div>
     </form>
   </div>
 </template>
   
 <script setup>
-import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
+import { ref, onMounted, computed, defineAsyncComponent, nextTick } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
 import { useFormSubmit } from '~/composables/useFormSubmit'
+import { useDraftSave } from '~/composables/useDraftSave'
 
 // 🚀 에디터 지연 로딩
 const CommonQuillEditor = defineAsyncComponent(() => import('~/components/CommonQuillEditor.vue'))
@@ -77,7 +92,7 @@ const { openModal } = useModal() // 모달 관련 함수
 const isEditing = ref(false) // 게시글 수정 여부
 const post = ref({}) // 게시글 데이터
   
-const { submitForm } = useFormSubmit(
+const { submitForm: originalSubmitForm } = useFormSubmit(
   post,
   props.apiEndpoint,
   props.listPath,
@@ -90,7 +105,31 @@ const { submitForm } = useFormSubmit(
   '게시글 수정에 실패했습니다.'
 )
 
+// 임시저장 기능 추가
+const {
+  isDraftLoading,
+  saveDraft,
+  showDraftRestorePrompt,
+  onFormSubmitSuccess,
+  cleanupExpiredDrafts
+} = useDraftSave('board', post, props.fields)
+
+// 폼 제출 시 초안 삭제를 포함한 래핑된 함수
+const submitPost = async () => {
+  try {
+    await originalSubmitForm()
+    // 제출 성공 시 초안 삭제
+    onFormSubmitSuccess()
+  } catch (error) {
+    // 제출 실패 시에는 초안을 보존
+    throw error
+  }
+}
+
 onMounted(async () => {
+  // 만료된 초안들 정리
+  cleanupExpiredDrafts()
+
   // 게시글 필드 초기화
   props.fields.forEach(field => {
     post.value[field.name] = ''
@@ -107,6 +146,11 @@ onMounted(async () => {
     }
     // 게시글 데이터 설정
     post.value = data.value
+  } else {
+    // 새 글 작성 시에만 초안 복구 프롬프트 표시
+    nextTick(() => {
+      showDraftRestorePrompt()
+    })
   }
 })
   

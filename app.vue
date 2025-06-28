@@ -7,6 +7,7 @@
     <ReplyModal />
     <LoginModal />
     <RegisterModal />
+    <CommandPalette />
     <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
       <Toast 
         v-for="toast in toasts"
@@ -25,14 +26,19 @@ import Modal from '~/components/common/Modal.vue'
 import ReplyModal from '~/components/common/ReplyModal.vue'
 import LoginModal from '~/components/common/LoginModal.vue'
 import RegisterModal from '~/components/common/RegisterModal.vue'
+import CommandPalette from '~/components/common/CommandPalette.vue'
 import Toast from '~/components/common/Toast.vue'
 import { useAuth } from '~/composables/useAuth'
 import { useMenuStore } from '~/stores/menu'
 import { useToast } from '~/composables/useToast'
+import { useCommandPalette } from '~/composables/useCommandPalette'
 
-const { checkAuth } = useAuth()
+const { checkAuth }: any = useAuth()
 const menuStore = useMenuStore()
-const { toasts, removeToast } = useToast()
+const { toasts, removeToast }: any = useToast()
+
+// Command Palette 초기화 (전역 키보드 이벤트 등록)
+useCommandPalette()
 
 // 초기 앱 로드 시 실행
 onMounted(async () => {
