@@ -3,6 +3,46 @@
     <!-- 아웃라이너 섹션 -->
     <div :class="outlinerSectionClasses">
       <h1 class="text-3xl text-gray-800 dark:text-gray-200 mb-5 text-center">아웃라이너</h1>
+      <!-- 검색 바 -->
+      <div class="mb-4">
+        <div class="relative">
+          <input
+            v-model="searchQuery"
+            type="text"
+            placeholder="아웃라이너 검색..."
+            class="w-full px-4 py-2 pl-10 pr-20 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-700 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+            @keyup.escape="clearSearch"
+          />
+          <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+          <div class="absolute right-2 top-1/2 transform -translate-y-1/2 flex space-x-1">
+            <button
+              v-if="searchQuery"
+              @click="clearSearch"
+              class="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded"
+            >
+              <Icon icon="mdi:close" class="text-gray-400" />
+            </button>
+            <div v-if="searchResults.length > 0" class="flex items-center space-x-1">
+              <span class="text-xs text-gray-500">{{ currentSearchIndex + 1 }}/{{ searchResults.length }}</span>
+              <button
+                @click="navigateSearchResults(-1)"
+                :disabled="searchResults.length === 0"
+                class="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded disabled:opacity-50"
+              >
+                <Icon icon="mdi:chevron-up" class="text-gray-400" />
+              </button>
+              <button
+                @click="navigateSearchResults(1)"
+                :disabled="searchResults.length === 0"
+                class="p-1 hover:bg-gray-200 dark:hover:bg-gray-600 rounded disabled:opacity-50"
+              >
+                <Icon icon="mdi:chevron-down" class="text-gray-400" />
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!-- 버튼 -->
       <div class="flex justify-between mb-5" ref="headerButtonsRef">
         <button @click="addItem(null)" class="px-4 py-2 bg-green-500 hover:bg-green-600 text-white rounded transition-colors duration-300 transform active:scale-98">
@@ -82,6 +122,7 @@
               :isClipboardNotEmpty="isClipboardNotEmpty"
               :potentialHierarchyChange="potentialHierarchyChange"
               :isMobile="isMobile"
+              :searchQuery="searchQuery"
             />
           </template>
         </draggable>
@@ -174,6 +215,9 @@ const {
   potentialHierarchyChange,
   isClipboardNotEmpty,
   currentItems,
+  searchQuery,
+  searchResults,
+  currentSearchIndex,
   addItem,
   addAboveItem,
   addBelowItem,
@@ -198,6 +242,8 @@ const {
   initializeOutlineData,
   cleanupOutlineData,
   setupOutlineWatchers,
+  clearSearch,
+  navigateSearchResults,
 } = useOutlineData();
 
 const { showYoutubeModal, currentYoutubeVideoId, handleOpenYoutubeModal, handleCloseYoutubeModal } = useYoutubeGallery();

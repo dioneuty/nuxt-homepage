@@ -17,8 +17,12 @@
         @openMenu="openMenu" 
         @closeMenu="closeMenu"
       />
+      <!-- 전역 탭 바 -->
+      <GlobalTabBar />
       <div class="flex-grow pb-12">
-        <slot />
+        <TabPageWrapper>
+          <slot />
+        </TabPageWrapper>
       </div>
       <Footer />
       <ScrollToTop />
@@ -38,6 +42,8 @@ import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
 import VerticalSidebar from '~/components/common/VerticalSidebar.vue'
+import GlobalTabBar from '~/components/tab/GlobalTabBar.vue'
+import TabPageWrapper from '~/components/tab/TabPageWrapper.vue'
 import { useLayoutStore } from '~/stores/layout';
 
 const layoutStore = useLayoutStore();

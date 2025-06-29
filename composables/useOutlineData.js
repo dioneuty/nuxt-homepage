@@ -157,6 +157,11 @@ export default function useOutlineData() {
     targetItemId: null // 들여쓰기/내어쓰기 대상 아이템 ID
   });
 
+  // 검색 관련 상태
+  const searchQuery = ref('');
+  const searchResults = ref([]);
+  const currentSearchIndex = ref(0);
+
   // 클립보드에 아이템이 있는지 확인
   const isClipboardNotEmpty = computed(() => {
     return !!clipboardItem.value;
@@ -744,6 +749,115 @@ export default function useOutlineData() {
   }
 
   /**
+   * 모든 아이템을 재귀적으로 검색하여 결과 배열 반환
+   * @param {Array} items - 검색할 아이템 배열
+   * @param {string} query - 검색 쿼리
+   * @param {Array} path - 현재 아이템까지의 경로
+   * @returns {Array} 검색 결과 배열
+   */
+  function searchItems(items, query, path = []) {
+    let results = [];
+    const lowerQuery = query.toLowerCase();
+
+    for (const item of items) {
+      const currentPath = [...path, item];
+      
+      // 아이템 내용에서 검색
+      if (item.content.toLowerCase().includes(lowerQuery)) {
+        results.push({
+          item: item,
+          path: currentPath,
+          matchType: 'content'
+        });
+      }
+
+      // 자식들도 재귀적으로 검색
+      if (item.children && item.children.length > 0) {
+        const childResults = searchItems(item.children, query, currentPath);
+        results = results.concat(childResults);
+      }
+    }
+
+    return results;
+  }
+
+  /**
+   * 검색 실행
+   * @param {string} query - 검색 쿼리
+   */
+  function performSearch(query) {
+    if (!query || query.trim() === '') {
+      searchResults.value = [];
+      currentSearchIndex.value = 0;
+      return;
+    }
+
+    searchResults.value = searchItems(rootItems.value, query.trim());
+    currentSearchIndex.value = 0;
+
+    // 첫 번째 검색 결과가 있으면 해당 항목으로 이동
+    if (searchResults.value.length > 0) {
+      navigateToSearchResult(0);
+    }
+  }
+
+  /**
+   * 특정 검색 결과로 이동
+   * @param {number} index - 이동할 검색 결과 인덱스
+   */
+  function navigateToSearchResult(index) {
+    if (searchResults.value.length === 0) return;
+
+    const result = searchResults.value[index];
+    if (!result) return;
+
+    // 검색 결과 항목까지의 경로를 모두 확장
+    const pathToExpand = result.path.slice(0, -1); // 마지막 항목 제외
+    pathToExpand.forEach(item => {
+      item.expanded = true;
+    });
+
+    // 해당 항목 선택
+    selectItem(result.item);
+    
+    // 줌 경로 설정 (선택사항)
+    const parentPath = result.path.slice(0, -1);
+    if (parentPath.length > 0) {
+      // 부모가 있는 경우, 부모까지의 경로를 줌 패스로 설정할 수 있음
+      // 하지만 여기서는 단순히 해당 항목을 선택만 함
+    }
+  }
+
+  /**
+   * 검색 결과 네비게이션 (이전/다음)
+   * @param {number} direction - 방향 (-1: 이전, 1: 다음)
+   */
+  function navigateSearchResults(direction) {
+    if (searchResults.value.length === 0) return;
+
+    let newIndex = currentSearchIndex.value + direction;
+    
+    // 순환 처리
+    if (newIndex < 0) {
+      newIndex = searchResults.value.length - 1;
+    } else if (newIndex >= searchResults.value.length) {
+      newIndex = 0;
+    }
+
+    currentSearchIndex.value = newIndex;
+    navigateToSearchResult(newIndex);
+  }
+
+  /**
+   * 검색 초기화
+   */
+  function clearSearch() {
+    searchQuery.value = '';
+    searchResults.value = [];
+    currentSearchIndex.value = 0;
+  }
+
+  /**
    * 아웃라이너 데이터 관찰자 설정
    */
   function setupOutlineWatchers() {
@@ -760,6 +874,11 @@ export default function useOutlineData() {
     watch(rootItems, (newValue) => {
       saveToLocalStorage(newValue);
     }, { deep: true });
+
+    // 검색 쿼리 변경 감지
+    watch(searchQuery, (newQuery) => {
+      performSearch(newQuery);
+    });
   }
 
 
@@ -778,6 +897,9 @@ export default function useOutlineData() {
     potentialHierarchyChange, // 드래그 중 잠재적인 들여쓰기/내어쓰기 의도를 저장할 ref
     isClipboardNotEmpty, // 클립보드가 비어있지 않은지 여부
     currentItems, // 현재 아이템 배열
+    searchQuery, // 검색 쿼리
+    searchResults, // 검색 결과
+    currentSearchIndex, // 현재 검색 결과 인덱스
 
     // 2. 아웃라이너 데이터 관리 관련 함수
     generateUUID, // 새로운 UUID 생성 헬퍼 함수
@@ -824,5 +946,10 @@ export default function useOutlineData() {
     initializeOutlineData, // 아웃라이너 데이터 초기화
     cleanupOutlineData, // 아웃라이너 데이터 정리
     setupOutlineWatchers, // 아웃라이너 데이터 관찰자 설정
+    searchItems, // 검색 실행 함수
+    performSearch, // 검색 실행
+    navigateToSearchResult, // 특정 검색 결과로 이동
+    navigateSearchResults, // 검색 결과 네비게이션
+    clearSearch, // 검색 초기화
   }
 } 

@@ -15,6 +15,8 @@
           @closeMenu="closeMenu" 
           :headerColor="currentHeaderColor"
         />
+        <!-- 전역 탭 바 -->
+        <GlobalTabBar />
         <div :class="{ 'lg:pt-0': !navStore.isAlwaysOnTop }">
           <slot />
         </div>
@@ -36,6 +38,7 @@
   import Footer from '~/components/Footer.vue'
   import ScrollToTop from '~/components/common/ScrollToTop.vue'
   import VerticalSidebar from '~/components/common/VerticalSidebar.vue'
+  import GlobalTabBar from '~/components/tab/GlobalTabBar.vue'
   import { useNavStore } from '~/stores/navStore'
   import { useLayoutStore } from '~/stores/layout';
   

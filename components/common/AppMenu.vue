@@ -49,11 +49,13 @@ import { useMenuStore } from '~/stores/menu';
 import { useAuth } from '~/composables/useAuth';
 import { Icon } from '@iconify/vue';
 import AppSubMenu from './AppSubMenu.vue';
+import useGlobalTabManager from '~/composables/useGlobalTabManager.js';
 
 const menuStore = useMenuStore();
 const { user, isAdmin } = useAuth();
 const route = useRoute();
 const router = useRouter();
+const globalTabManager = useGlobalTabManager();
 
 const props = defineProps({
   isVertical: {
@@ -92,13 +94,28 @@ watch(() => [menuStore.getAccessibleMenus(userRole.value), route.path], ([newMen
 
 /**
  * 메뉴 클릭을 처리하는 통합 함수입니다.
- * 경로가 있으면 바로 네비게이션하고, 자식 메뉴가 있으면 토글합니다.
+ * 경로가 있으면 탭으로 열거나 네비게이션하고, 자식 메뉴가 있으면 토글합니다.
  * @param {object} clickedMenu - 클릭된 메뉴 객체.
  */
 function handleMenuClick(clickedMenu) {
-  // 경로가 있는 메뉴는 바로 네비게이션
+  // 경로가 있는 메뉴 처리
   if (clickedMenu.path) {
-    router.push(clickedMenu.path);
+    // 데스크탑에서만 탭으로 열기 시도
+    if (window.innerWidth >= 768) { // md breakpoint
+      const openedInTab = globalTabManager.openInTab(
+        clickedMenu.path, 
+        clickedMenu.name, 
+        getTabTypeFromPath(clickedMenu.path)
+      );
+      
+      // 탭으로 열지 못한 경우 일반 네비게이션
+      if (!openedInTab) {
+        router.push(clickedMenu.path);
+      }
+    } else {
+      // 모바일에서는 항상 일반 네비게이션
+      router.push(clickedMenu.path);
+    }
     return;
   }
   
@@ -106,6 +123,20 @@ function handleMenuClick(clickedMenu) {
   if (clickedMenu.children && clickedMenu.children.length > 0) {
     toggleMenu(clickedMenu);
   }
+}
+
+/**
+ * 경로를 기반으로 탭 타입을 결정합니다.
+ * @param {string} path - 메뉴 경로
+ * @returns {string} 탭 타입
+ */
+function getTabTypeFromPath(path) {
+  if (path === '/') return 'home';
+  if (path === '/outliner') return 'outliner';
+  if (path.includes('/blog') || path.includes('/board')) return 'editor';
+  if (path.includes('/wiki')) return 'editor';
+  if (path.includes('/admin')) return 'admin';
+  return 'page';
 }
 
 /**

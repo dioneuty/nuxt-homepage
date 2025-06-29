@@ -51,8 +51,8 @@
           @dblclick="startEditing"
           class="flex-grow p-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-200"
           :class="{'font-bold': item.children && item.children.length > 0}"
+          v-html="highlightedContent"
         >
-          {{ item.content }}
         </span>
 
         <!-- 자식 추가 버튼 -->
@@ -139,6 +139,7 @@
               :isClipboardNotEmpty="isClipboardNotEmpty"
               :potentialHierarchyChange="potentialHierarchyChange"
               :isMobile="isMobile"
+              :searchQuery="searchQuery"
             />
           </template>
         </draggable>
@@ -193,6 +194,10 @@ const props = defineProps({
   isMobile: {
     type: Boolean,
     default: false,
+  },
+  searchQuery: {
+    type: String,
+    default: '',
   }
 })
 
@@ -244,6 +249,22 @@ const isSelected = computed(() => {
   // For now, let's just make a simple check (you'd replace this with actual logic)
   return false; // This needs to be hooked up to the actual selected item in pages/outliner.vue
 });
+
+// 검색 결과 하이라이팅
+const highlightedContent = computed(() => {
+  if (!props.searchQuery || props.searchQuery.trim() === '') {
+    return props.item.content;
+  }
+
+  const query = props.searchQuery.trim();
+  const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
+  return props.item.content.replace(regex, '<mark class="bg-yellow-300 dark:bg-yellow-600">$1</mark>');
+});
+
+// 정규표현식 특수문자 이스케이프
+function escapeRegExp(string) {
+  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+}
 
 watch(() => props.item.content, (newContent) => {
   mutableContent.value = newContent;

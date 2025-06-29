@@ -1,7 +1,7 @@
 <template>
-  <div class="flex h-[calc(100vh-4.5rem)] lg:h-screen bg-gray-100 dark:bg-gray-900">
+  <div class="flex h-[calc(100vh-4.5rem)] md:h-[calc(100vh-8rem)] bg-gray-100 dark:bg-gray-900">
     <!-- 사이드바 (채팅 내역) -->
-    <div :class="['w-64 bg-gray-100 dark:bg-gray-600 border-r-gray-600 border-r overflow-y-auto transition-all duration-300 ease-in-out h-[calc(100vh-4.5rem)] lg:h-screen', 
+    <div :class="['w-64 bg-gray-100 dark:bg-gray-600 border-r-gray-600 border-r overflow-y-auto transition-all duration-300 ease-in-out h-[calc(100vh-4.5rem)] md:h-[calc(100vh-8rem)]', 
                   isSidebarOpen ? 'translate-x-0' : '-translate-x-full', 
                   'md:translate-x-0 md:static absolute z-10 h-full']">
       <div class="p-2">
@@ -136,6 +136,7 @@ import { formatUnixTimestamp } from '~/utils/dateFormatter'
 // 페이지 제목과 설명을 동적으로 설정
 definePageMeta ({
   title: 'AI 채팅 - Dion',
+  layout: 'default', // 기본 레이아웃 사용하여 탭 바 표시
   meta: [
     { name: 'description', content: 'AI와 대화를 나눌 수 있는 채팅 페이지입니다.' },
     { name: 'keywords', content: 'AI, 채팅, 대화, Dion' }
