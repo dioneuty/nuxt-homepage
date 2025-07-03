@@ -22,3 +22,360 @@ body.menu-open .pointer-events-auto {
 img {
   content-visibility: auto;
 }
+
+/* 글래스모피즘 푸터 스타일 */
+.glassmorphism-footer {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.37);
+}
+
+.dark .glassmorphism-footer {
+  background: rgba(26, 32, 44, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* AI 채팅 글래스모피즘 스타일 */
+.glassmorphism-sidebar {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.glassmorphism-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
+}
+
+.glassmorphism-chat-area {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glassmorphism-input-area {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 -4px 16px 0 rgba(31, 38, 135, 0.1);
+}
+
+.glassmorphism-new-chat {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px 0 rgba(59, 130, 246, 0.3);
+}
+
+.glassmorphism-new-chat:hover {
+  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+.glassmorphism-chat-item:hover {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px 0 rgba(31, 38, 135, 0.1);
+}
+
+.glassmorphism-user-msg {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px 0 rgba(59, 130, 246, 0.3);
+}
+
+.glassmorphism-ai-msg {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+}
+
+.glassmorphism-input {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: inset 0 2px 4px 0 rgba(31, 38, 135, 0.1);
+}
+
+.glassmorphism-input:focus {
+  box-shadow: inset 0 2px 4px 0 rgba(31, 38, 135, 0.1), 0 0 0 3px rgba(59, 130, 246, 0.2);
+}
+
+.glassmorphism-send-btn {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px 0 rgba(59, 130, 246, 0.3);
+}
+
+.glassmorphism-send-btn:hover {
+  box-shadow: 0 6px 20px 0 rgba(59, 130, 246, 0.4);
+  transform: translateY(-1px);
+}
+
+/* 헤더/네비게이션 글래스모피즘 스타일 */
+.glassmorphism-logo-area {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.1);
+}
+
+.glassmorphism-nav-bar {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.15);
+}
+
+.glassmorphism-mobile-header {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
+}
+
+.glassmorphism-mobile-menu {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 4px 0 32px 0 rgba(31, 38, 135, 0.3);
+}
+
+/* 헤더 내 버튼들에 글래스 효과 */
+.glassmorphism-nav-bar button:hover {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+
+.glassmorphism-mobile-header button:hover {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 0.5rem;
+}
+
+/* 유튜브 갤러리 글래스모피즘 스타일 */
+.glassmorphism-youtube-title {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 8px 32px 0 rgba(239, 68, 68, 0.2);
+}
+
+.glassmorphism-youtube-icon {
+  box-shadow: 0 4px 16px 0 rgba(239, 68, 68, 0.4);
+}
+
+.glassmorphism-video-card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+}
+
+.glassmorphism-video-card:hover {
+  box-shadow: 0 12px 40px 0 rgba(31, 38, 135, 0.25);
+  transform: translateY(-4px) scale(1.02);
+}
+
+.glassmorphism-video-wrapper {
+  position: relative;
+}
+
+.glassmorphism-video-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(45deg, rgba(239, 68, 68, 0.1), rgba(236, 72, 153, 0.1));
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.glassmorphism-video-wrapper:hover::after {
+  opacity: 1;
+}
+
+.glassmorphism-video-content {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glassmorphism-btn {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px 0 rgba(31, 38, 135, 0.2);
+}
+
+.glassmorphism-btn:hover {
+  box-shadow: 0 6px 20px 0 rgba(31, 38, 135, 0.3);
+  transform: translateY(-1px) scale(1.05);
+}
+
+/* 유튜브 모달 글래스모피즘 */
+.glassmorphism-modal-overlay {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glassmorphism-youtube-modal {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 24px 48px 0 rgba(31, 38, 135, 0.3);
+}
+
+.glassmorphism-youtube-close {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px 0 rgba(239, 68, 68, 0.4);
+}
+
+.glassmorphism-youtube-close:hover {
+  box-shadow: 0 6px 20px 0 rgba(239, 68, 68, 0.5);
+}
+
+.glassmorphism-youtube-player {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+}
+
+/* 유튜브 갤러리 개선된 레이아웃 스타일 */
+.glassmorphism-header-section {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glassmorphism-controls {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.glassmorphism-filter-group,
+.glassmorphism-sort-group {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glassmorphism-select {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  transition: all 0.2s ease;
+}
+
+.glassmorphism-select:focus {
+  background: rgba(255, 255, 255, 0.7);
+  border-color: rgba(239, 68, 68, 0.5);
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2);
+}
+
+.glassmorphism-layout-btn {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 4px 16px 0 rgba(147, 51, 234, 0.3);
+}
+
+.glassmorphism-layout-btn:hover {
+  box-shadow: 0 6px 20px 0 rgba(147, 51, 234, 0.4);
+}
+
+/* 리스트 레이아웃 스타일 */
+.glassmorphism-list-card {
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: 0 4px 24px 0 rgba(31, 38, 135, 0.1);
+}
+
+.glassmorphism-list-card:hover {
+  box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.2);
+  transform: translateY(-2px);
+}
+
+.glassmorphism-video-wrapper-list {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glassmorphism-list-content {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.glassmorphism-list-controls {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* 배지 스타일 */
+.glassmorphism-badge {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  box-shadow: 0 2px 8px 0 rgba(239, 68, 68, 0.3);
+}
+
+/* 유튜브 갤러리 컨테이너 */
+.youtube-gallery-container.grid-mode {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 1.5rem;
+}
+
+@media (min-width: 768px) {
+  .youtube-gallery-container.grid-mode {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .youtube-gallery-container.grid-mode {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+@media (min-width: 1280px) {
+  .youtube-gallery-container.grid-mode {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.youtube-gallery-container.list-mode {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 비디오 아이템 */
+.video-item.list-layout .video-card {
+  display: flex;
+  flex-direction: row;
+}
+
+.video-item.list-layout .video-card.card-list-mode {
+  display: flex;
+  width: 100%;
+}
+
+.video-item.grid-layout .video-card {
+  display: block;
+}
+
+/* 반응형 개선 */
+@media (max-width: 768px) {
+  .glassmorphism-controls {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .glassmorphism-filter-group,
+  .glassmorphism-sort-group {
+    width: 100%;
+    justify-content: center;
+  }
+  
+  .list-item {
+    flex-direction: column;
+  }
+  
+  .glassmorphism-video-wrapper-list {
+    width: 100% !important;
+    border-radius: 1rem 1rem 0 0 !important;
+  }
+}

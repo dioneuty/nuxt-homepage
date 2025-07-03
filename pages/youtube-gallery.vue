@@ -1,18 +1,68 @@
 <template>
     <div class="mx-auto h-auto px-4 py-8">
-      <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
-        <Icon icon="mdi:youtube" class="mr-2" />
-        유튜브 갤러리
-      </h1>
-      
-      <div class="masonry-layout">
+      <div class="flex justify-between items-center mb-6">
+        <h1 class="text-3xl font-bold dark:text-white flex items-center">
+          <Icon icon="mdi:youtube" class="mr-2" />
+          유튜브 갤러리
+        </h1>
+        
+        <!-- Admin Controls -->
+        <div v-if="isAdmin" class="flex space-x-2">
+          <button
+            @click="openVideoModal()"
+            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+          >
+            <Icon icon="mdi:plus" class="mr-1" />
+            비디오 추가
+          </button>
+        </div>
+      </div>
+
+      <!-- Loading State -->
+      <div v-if="isLoading" class="flex justify-center items-center py-12">
+        <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
+        <span class="ml-3 text-gray-600 dark:text-gray-300">비디오 목록을 불러오는 중...</span>
+      </div>
+
+      <!-- Error State -->
+      <div v-else-if="error" class="text-center py-12">
+        <Icon icon="mdi:alert-circle" class="text-red-500 text-4xl mx-auto mb-4" />
+        <p class="text-red-600 dark:text-red-400">비디오 목록을 불러오는데 실패했습니다.</p>
+        <button
+          @click="loadVideos"
+          class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+        >
+          다시 시도
+        </button>
+      </div>
+
+      <!-- Video Grid -->
+      <div v-else class="masonry-layout">
         <div 
           v-for="video in videos" 
           :key="video.id" 
           class="masonry-item mb-4 break-inside-avoid"
-          :ref="(el) => { if (el) videoRefs[video.id] = el }"
+          :ref="(el) => { if (el) videoRefs[video.videoId] = el }"
         >
           <div class="bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden">
+            <!-- Admin Controls for each video -->
+            <div v-if="isAdmin" class="bg-gray-100 dark:bg-gray-700 px-4 py-2 flex justify-end space-x-2">
+              <button
+                @click="openVideoModal(video)"
+                class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                title="수정"
+              >
+                <Icon icon="mdi:pencil" class="text-sm" />
+              </button>
+              <button
+                @click="handleVideoDelete(video)"
+                class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                title="삭제"
+              >
+                <Icon icon="mdi:delete" class="text-sm" />
+              </button>
+            </div>
+
             <div @click="loadVideo(video)" class='cursor-pointer'>
               <div v-if="video.loaded">
                 <iframe 
@@ -25,7 +75,7 @@
               </div>
               <div v-else>
                 <img
-                    :src="`https://img.youtube.com/vi/${video.id}/0.jpg`"
+                    :src="`https://img.youtube.com/vi/${video.videoId}/0.jpg`"
                     :alt="video.title"
                     :class="{'w-full min-h-[225px] h-auto aspect-[16/9] object-cover': !video.isShort, 'w-full h-auto aspect-[9/16] object-cover': video.isShort}"
                     loading="lazy"
@@ -35,72 +85,249 @@
             <div class="p-4">
               <h2 class="text-lg font-semibold mb-2 dark:text-white">{{ video.title }}</h2>
               <p class="text-sm text-gray-600 dark:text-gray-300">{{ video.description }}</p>
-              <div class="flex justify-between">
-                <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="unloadVideo(video)">썸네일</button>
-                <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="loadVideo(video)">플레이어</button>
-                <button class="bg-gray-500 text-white px-2 py-1 rounded-md mt-2" @click="openModal(video)">모달</button>
+              
+              <!-- Thread Stats -->
+              <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-2 mb-3">
+                <Icon icon="mdi:comment-text-outline" class="mr-1" />
+                {{ getVideoThreadStats(video.videoId).totalThreads }} thread(s)
+              </div>
+              
+              <!-- Video Controls -->
+              <div class="flex justify-between mb-3">
+                <button class="bg-gray-500 text-white px-2 py-1 rounded-md text-sm" @click="unloadVideo(video)">썸네일</button>
+                <button class="bg-gray-500 text-white px-2 py-1 rounded-md text-sm" @click="loadVideo(video)">플레이어</button>
+                <button class="bg-gray-500 text-white px-2 py-1 rounded-md text-sm" @click="openModal(video)">모달</button>
+              </div>
+              
+              <!-- Thread Controls -->
+              <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-3">
+                <button 
+                  @click="openThreadEditor(video.videoId)"
+                  class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm flex items-center transition-colors"
+                >
+                  <Icon icon="mdi:plus" class="mr-1" />
+                  New Thread
+                </button>
+                <button 
+                  @click="toggleThreads(video.videoId)"
+                  class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm flex items-center transition-colors"
+                >
+                  <Icon icon="mdi:comment-text" class="mr-1" />
+                  {{ showingThreads.has(video.videoId) ? 'Hide' : 'Show' }} Threads
+                </button>
+              </div>
+              
+              <!-- Thread Display -->
+              <div v-if="showingThreads.has(video.videoId)" class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                <ThreadDisplay 
+                  :videoId="video.videoId"
+                  :threads="threads"
+                  @edit-thread="openThreadEditor(video.videoId, $event)"
+                  @delete-thread="handleDeleteThread"
+                />
               </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-    <PlayModal :youtubeVideoId="selectedVideo ? selectedVideo.id : null" :isVisible="isModalOpen" @close="closeModal" />
+    
+    <!-- Video Play Modal -->
+    <PlayModal :youtubeVideoId="selectedVideo ? selectedVideo.videoId : null" :isVisible="isModalOpen" @close="closeModal" />
+    
+    <!-- Video Management Modal -->
+    <AdminYouTubeVideoWrite
+      :isOpen="showVideoModal"
+      :videoItem="selectedVideoForEdit"
+      @close="closeVideoModal"
+      @refresh="handleVideoRefresh"
+    />
+    
+    <!-- Thread Editor Modal -->
+    <div v-if="showThreadEditor" class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center" @click="closeThreadEditor">
+      <div class="max-w-2xl w-full mx-4" @click.stop>
+        <ThreadEditor 
+          :videoId="selectedVideoForThread"
+          :thread="editingThread"
+          :isVisible="showThreadEditor"
+          @close="closeThreadEditor"
+          @submit="handleThreadSubmit"
+        />
+      </div>
+    </div>
   </template>
   
   <script setup>
   import { ref, onMounted } from 'vue'
   import { Icon } from '@iconify/vue'
   import PlayModal from '@/components/youtubeGallery/PlayModal.vue'
+  import ThreadEditor from '@/components/youtubeGallery/ThreadEditor.vue'
+  import ThreadDisplay from '@/components/youtubeGallery/ThreadDisplay.vue'
+  import AdminYouTubeVideoWrite from '@/components/admin/AdminYouTubeVideoWrite.vue'
   import useYoutubeGallery from '@/composables/useYoutubeGallery'
+  import useVideoThreads from '@/composables/useVideoThreads'
+  import { useAuth } from '@/composables/useAuth'
+  import { useToast } from '@/composables/useToast'
+
+  const { isAdmin } = useAuth()
+  const { showToast } = useToast()
 
   const selectedVideo = ref(null)
   const isModalOpen = ref(false)
-
   
-  const videos = ref([
-    { id: 'dQw4w9WgXcQ', title: 'Rick Astley - Never Gonna Give You Up', description: 'Official music video', loaded: false, isShort: false },
-    { id: 'zdPEWrW4TIw', title: 'YouTube 비디오 1', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    { id: '1-sthGL34FA', title: 'YouTube Short', description: '새로 추가된 YouTube Short', loaded: false, isShort: true },
-    { id: 'x1sZjAtePx8', title: 'YouTube 비디오 2', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    { id: 'jNQXAC9IVRw', title: 'Me at the zoo', description: 'The first video on YouTube', loaded: false, isShort: false },
-    { id: '6A0bCLmAXrk', title: 'YouTube 비디오 3', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=mHUrRj0IoIs&list=RDmHUrRj0IoIs&start_radio=1
-    { id: 'mHUrRj0IoIs', title: 'YouTube 비디오 4', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=Mgg90NYAvvc
-    { id: 'Mgg90NYAvvc', title: 'YouTube 비디오 5', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    { id: '5em1MuTz3aQ', title: 'YouTube Short 2', description: '새로 추가된 YouTube Short', loaded: false, isShort: true },
-    { id: 'xqvHMmc1csM', title: 'YouTube 비디오 6', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=Ev2DJFa9isY
-    { id: 'Ev2DJFa9isY', title: 'YouTube 비디오 7', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    { id: 'SO-ABoaaCNg', title: 'YouTube 비디오 8', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=odRZzI_P0Lk
-    { id: 'WlXjN48UyFM', title: 'YouTube Short 3', description: '새로 추가된 YouTube Short', loaded: false, isShort: true },
-    { id: 'odRZzI_P0Lk', title: 'YouTube 비디오 9', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/shorts/WlXjN48UyFM
-    //https://www.youtube.com/watch?v=EHhvP0EMhfE
-    { id: 'EHhvP0EMhfE', title: 'YouTube 비디오 10', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=XIPLXi1gfv8
-    { id: 'XIPLXi1gfv8', title: 'YouTube 비디오 11', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=WIA825Dd8dc
-    { id: 'WIA825Dd8dc', title: 'YouTube 비디오 12', description: '새로 추가된 YouTube 비디오', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=EHhvP0EMhfE
-    { id: 'EHhvP0EMhfE', title: '피식대학 - 헬스장 레전드', description: '피식대학의 유머러스한 헬스장 상황', loaded: false, isShort: false },
-    //https://www.youtube.com/watch?v=XIPLXi1gfv8
-    { id: 'XIPLXi1gfv8', title: '피식대학 - 학교에서 생긴 일', description: '학교 생활을 재치있게 표현한 영상', loaded: false, isShort: false },
-  { id: 'WlXjN48UyFM', title: '피식대학 쇼츠 - 웃긴 순간 모음', description: '피식대학의 짧은 웃음 영상', loaded: false, isShort: true },
-    
-  ])
+  // Video data management
+  const videos = ref([])
+  const isLoading = ref(true)
+  const error = ref(null)
+  
+  // Video management modal
+  const showVideoModal = ref(false)
+  const selectedVideoForEdit = ref(null)
+  
+  // Thread management
+  const {
+    threads,
+    isLoading: threadsLoading,
+    error: threadsError,
+    getThreadsForVideo,
+    createThread,
+    updateThread,
+    deleteThread,
+    getVideoThreadStats
+  } = useVideoThreads()
+  
+  const showThreadEditor = ref(false)
+  const selectedVideoForThread = ref(null)
+  const editingThread = ref(null)
+  const showingThreads = ref(new Set())
 
   const { getEmbedUrl, loadVideo, unloadVideo } = useYoutubeGallery(videos)
   
   const videoRefs = ref({})
+
+  /**
+   * 서버에서 YouTube 비디오 목록을 로드합니다.
+   */
+  const loadVideos = async () => {
+    try {
+      isLoading.value = true
+      error.value = null
+      
+      const response = await $fetch('/api/admin/youtube-gallery', {
+        method: 'GET'
+      })
+      
+      // API 응답을 기존 videos 형태로 변환
+      videos.value = response.items.map(item => ({
+        id: item.id,
+        videoId: item.videoId,
+        title: item.title,
+        description: item.description,
+        isShort: item.isShort,
+        loaded: false
+      }))
+      
+    } catch (err) {
+      console.error('비디오 목록 로드 실패:', err)
+      error.value = err.message || '비디오 목록을 불러오는데 실패했습니다.'
+    } finally {
+      isLoading.value = false
+    }
+  }
+
+  /**
+   * 비디오 관리 모달을 엽니다.
+   */
+  const openVideoModal = (video = null) => {
+    selectedVideoForEdit.value = video
+    showVideoModal.value = true
+  }
+
+  /**
+   * 비디오 관리 모달을 닫습니다.
+   */
+  const closeVideoModal = () => {
+    showVideoModal.value = false
+    selectedVideoForEdit.value = null
+  }
+
+  /**
+   * 비디오 목록을 새로고침합니다.
+   */
+  const handleVideoRefresh = () => {
+    loadVideos()
+  }
+
+  /**
+   * 비디오를 삭제합니다.
+   */
+  const handleVideoDelete = async (video) => {
+    if (!confirm(`"${video.title}" 비디오를 삭제하시겠습니까?`)) {
+      return
+    }
+
+    try {
+      await $fetch(`/api/admin/youtube-gallery/${video.id}`, {
+        method: 'DELETE'
+      })
+      
+      showToast('비디오가 성공적으로 삭제되었습니다.', 'success')
+      await loadVideos()
+    } catch (err) {
+      console.error('비디오 삭제 실패:', err)
+      const errorMessage = err.data?.message || '비디오 삭제에 실패했습니다.'
+      showToast(errorMessage, 'error')
+    }
+  }
+  
+  // Thread management methods
+  const openThreadEditor = (videoId, thread = null) => {
+    selectedVideoForThread.value = videoId
+    editingThread.value = thread
+    showThreadEditor.value = true
+  }
+
+  const closeThreadEditor = () => {
+    showThreadEditor.value = false
+    selectedVideoForThread.value = null
+    editingThread.value = null
+  }
+
+  const handleThreadSubmit = async (threadData) => {
+    try {
+      if (editingThread.value) {
+        // Update existing thread
+        await updateThread(editingThread.value.id, threadData)
+      } else {
+        // Create new thread
+        await createThread(threadData)
+      }
+      closeThreadEditor()
+    } catch (error) {
+      console.error('Error saving thread:', error)
+    }
+  }
+
+  const handleDeleteThread = async (threadId) => {
+    try {
+      await deleteThread(threadId)
+    } catch (error) {
+      console.error('Error deleting thread:', error)
+    }
+  }
+
+  const toggleThreads = (videoId) => {
+    if (showingThreads.value.has(videoId)) {
+      showingThreads.value.delete(videoId)
+    } else {
+      showingThreads.value.add(videoId)
+    }
+  }
   
   function openModal(video) {
     selectedVideo.value = video
     isModalOpen.value = true
   }
-
 
   function closeModal() {
     isModalOpen.value = false
@@ -128,12 +355,15 @@
   // 5. API 연동 (필요시):
   //    - 만약 유튜브 비디오 정보를 서버에서 가져오거나 특정 비디오 시청 기록 등을 저장해야 한다면, 관련 API를 개발하거나 기존 API를 수정합니다. 현재 파일 구조상 `server/api/gallery` 또는 유사한 경로에 추가될 수 있습니다.
   
-  onMounted(() => {
+  onMounted(async () => {
+    // Load videos from API
+    await loadVideos()
+    
     if (process.client) {
       const observer = new IntersectionObserver((entries) => {
         entries.forEach((entry) => {
           if (entry.isIntersecting) {
-            const video = videos.value.find(v => videoRefs.value[v.id] === entry.target)
+            const video = videos.value.find(v => videoRefs.value[v.videoId] === entry.target)
             if (video) {
               // loadVideo(video) // Removed this line to prevent auto-loading
             }

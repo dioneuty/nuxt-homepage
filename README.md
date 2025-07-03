@@ -146,3 +146,6 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 ## 설치 및 실행 방법
 
 (영문 섹션의 Setup, Development Server, Production 부분과 동일)
+
+## 대화방식
+한국어로 설명해줘

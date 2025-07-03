@@ -1,15 +1,15 @@
 <template>
-    <div v-if="isVisible" class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-75 flex items-center justify-center" @click="closeModalOutside">
-      <div class="relative p-8 bg-white dark:bg-gray-800 w-full max-w-screen-xl mx-auto flex-col flex rounded-lg" @click.stop>
+    <div v-if="isVisible" class="glassmorphism-modal-overlay fixed inset-0 z-50 overflow-auto backdrop-blur-sm bg-black/75 flex items-center justify-center" @click="closeModalOutside">
+      <div class="glassmorphism-youtube-modal relative p-8 backdrop-blur-xl bg-white/90 dark:bg-gray-800/90 w-full max-w-screen-xl mx-auto flex-col flex rounded-2xl shadow-2xl border border-white/30 dark:border-gray-700/30" @click.stop>
         <div class="flex justify-end items-center mb-4">
-          <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100">
-            <Icon icon="mdi:close" class="text-3xl" />
+          <button @click="$emit('close')" class="glassmorphism-youtube-close backdrop-blur-sm bg-red-500/80 hover:bg-red-600/80 text-white p-2 rounded-full transition-all duration-200 border border-white/20 shadow-lg hover:scale-110">
+            <Icon icon="mdi:close" class="text-xl" />
           </button>
         </div>
-        <div class="relative w-full pb-[56.25%]" style="height: 0;">
+        <div class="glassmorphism-youtube-player relative w-full pb-[56.25%] rounded-xl overflow-hidden shadow-lg border border-white/20 dark:border-gray-600/20" style="height: 0;">
           <iframe
             :src="getEmbedUrl(youtubeVideoId)"
-            class="absolute top-0 left-0 w-full h-full"
+            class="absolute top-0 left-0 w-full h-full rounded-xl"
             frameborder="0"
             allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
             allowfullscreen

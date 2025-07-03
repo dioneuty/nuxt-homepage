@@ -17,6 +17,10 @@ export default defineNuxtConfig({
       ],
       link: [
         { rel: 'icon', type: 'image/x-icon', href: '/favicon.ico' },
+      ],
+      script: [
+        // PDF.js 라이브러리 CDN 통합
+        { src: 'https://cdn.jsdelivr.net/npm/pdfjs-dist@4.12.6/build/pdf.min.js', defer: true },
       ]
     },
   },

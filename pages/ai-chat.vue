@@ -1,7 +1,7 @@
 <template>
-  <div class="flex h-[calc(100vh-4.5rem)] md:h-[calc(100vh-8rem)] bg-gray-100 dark:bg-gray-900">
+  <div class="flex h-[calc(100vh-4.5rem)] md:h-[calc(100vh-12rem)] bg-gradient-to-br from-blue-50/80 to-indigo-100/80 dark:from-gray-900/80 dark:to-blue-900/80 relative">
     <!-- 사이드바 (채팅 내역) -->
-    <div :class="['w-64 bg-gray-100 dark:bg-gray-600 border-r-gray-600 border-r overflow-y-auto transition-all duration-300 ease-in-out h-[calc(100vh-4.5rem)] md:h-[calc(100vh-8rem)]', 
+    <div :class="['w-64 glassmorphism-sidebar backdrop-blur-xl bg-white/20 dark:bg-gray-800/20 border-r border-white/30 dark:border-gray-700/30 overflow-y-auto transition-all duration-300 ease-in-out h-[calc(100vh-4.5rem)] md:h-[calc(100vh-12rem)] shadow-lg', 
                   isSidebarOpen ? 'translate-x-0' : '-translate-x-full', 
                   'md:translate-x-0 md:static absolute z-10 h-full']">
       <div class="p-2">
@@ -26,12 +26,12 @@
           </svg>
           <h1 class="text-lg font-bold text-gray-800 dark:text-gray-200">Chat History</h1>
         </div>
-        <button @click="startNewChat" class="w-full bg-blue-500 text-white p-2 rounded mb-4 hover:bg-blue-600 transition-colors">
+        <button @click="startNewChat" class="glassmorphism-new-chat w-full backdrop-blur-sm bg-gradient-to-r from-blue-500/80 to-purple-600/80 text-white p-3 rounded-xl mb-4 hover:from-blue-600/80 hover:to-purple-700/80 transition-all duration-200 border border-white/20 shadow-lg">
           새 채팅 시작
         </button>
         <ul>
           <li v-for="chat in chatHistory" :key="chat.screenId" class="flex justify-between items-center">
-            <button @click="loadChat(chat.screenId)" class="w-full text-left p-2 rounded hover:bg-gray-200 dark:hover:bg-gray-700 dark:text-white">
+            <button @click="loadChat(chat.screenId)" class="glassmorphism-chat-item w-full text-left p-3 rounded-xl hover:bg-white/30 dark:hover:bg-gray-700/30 dark:text-white transition-all duration-200 backdrop-blur-sm border border-transparent hover:border-white/20">
               {{ chat.title }}
             </button>
             <button @click="deleteChat(chat.screenId)" class="ml-2 text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300">
@@ -45,7 +45,7 @@
     </div>
     <!-- 메인 채팅 영역 -->
     <div class="flex-1 flex flex-col">
-      <header class="flex items-center justify-between p-4 bg-gray-800 dark:bg-gray-900 text-white">
+      <header class="glassmorphism-header flex items-center justify-between p-4 backdrop-blur-xl bg-gray-800/70 dark:bg-gray-900/70 text-white border-b border-white/20 dark:border-gray-700/20 shadow-lg">
         <div class="flex items-center">
           <svg
             xmlns="http://www.w3.org/2000/svg"
@@ -76,11 +76,11 @@
         </div>
       </header>
       <!-- 채팅 메시지 -->
-      <div ref="chatContainer" class="flex-1 overflow-y-auto p-4 bg-white dark:bg-gray-800">
+      <div ref="chatContainer" class="glassmorphism-chat-area flex-1 overflow-y-auto p-4 backdrop-blur-sm bg-white/10 dark:bg-gray-800/10">
         <div v-if="isLoading" class="loading-bar">로딩 중...</div>
         <div v-for="(message, index) in currentChat" :key="index" class="mb-4">
           <div :class="message.role === 'user' ? 'text-right' : 'text-left'">
-            <div :class="message.role === 'user' ? 'bg-blue-500 text-white' : 'bg-gray-200 dark:bg-gray-700 dark:text-white'" class="inline-block p-2 rounded-lg" @click="handleClick">
+            <div :class="message.role === 'user' ? 'glassmorphism-user-msg bg-gradient-to-r from-blue-500/90 to-purple-600/90 text-white border-white/30' : 'glassmorphism-ai-msg bg-white/80 dark:bg-gray-700/80 dark:text-white border-white/40 dark:border-gray-500/40'" class="inline-block p-3 rounded-xl backdrop-blur-sm border shadow-lg" @click="handleClick">
                 <div v-if="message.content" v-html="renderMarkdown(message.content)"></div>
                 <div v-else class="text-gray-500 italic">빈 메시지</div>
             </div>
@@ -98,10 +98,10 @@
       </div>
 
       <!-- 입력 영역 -->
-      <div class="p-4 bg-gray-200 dark:bg-gray-700">
+      <div class="glassmorphism-input-area p-4 mb-4 md:mb-8 backdrop-blur-xl bg-white/20 dark:bg-gray-700/20 border-t border-white/30 dark:border-gray-600/30">
         <form @submit.prevent="sendMessage" class="flex">
-          <input v-model="userInput" type="text" placeholder="메시지를 입력하세요..." class="flex-1 p-2 rounded-l-lg dark:bg-gray-800 dark:text-white" />
-          <button type="submit" class="bg-blue-500 text-white p-2 rounded-r-lg">전송</button>
+          <input v-model="userInput" type="text" placeholder="메시지를 입력하세요..." class="glassmorphism-input flex-1 p-3 rounded-l-xl backdrop-blur-sm bg-white/50 dark:bg-gray-800/50 border border-white/30 dark:border-gray-600/30 dark:text-white placeholder-gray-500 dark:placeholder-gray-400 focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 transition-all duration-200" />
+          <button type="submit" class="glassmorphism-send-btn bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white p-3 rounded-r-xl transition-all duration-200 backdrop-blur-sm border border-white/20 shadow-lg">전송</button>
         </form>
       </div>
     </div>

@@ -9,7 +9,7 @@
       <div class="hidden lg:block" v-if="!layoutStore.isSidebarOpen">
         <!-- 로고 영역 -->
         <div :class="[
-          'relative overflow-hidden dark:bg-gray-800',
+          'glassmorphism-logo-area relative overflow-hidden backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 border-b border-white/20 dark:border-gray-700/20 shadow-lg',
           navStore.isAlwaysOnTop ? 'h-16' : 'h-16'
         ]" :style="{ backgroundColor: 'var(--header-bg-color)' }">
           <NuxtLink to="/" class="absolute inset-0 flex items-center justify-center">
@@ -30,7 +30,7 @@
           </NuxtLink>
         </div>
         <!-- 네비게이션 바 -->
-        <div class="dark:bg-gray-800 text-white p-2 shadow-lg" :style="{ backgroundColor: 'var(--header-bg-color)' }">
+        <div class="glassmorphism-nav-bar backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 text-white p-2 shadow-lg border-b border-white/20 dark:border-gray-700/20" :style="{ backgroundColor: 'var(--header-bg-color)' }">
           <div class="container mx-auto flex justify-between items-center">
             <div class="space-x-4">
               <AppMenu :isVertical="false" />
@@ -80,7 +80,7 @@
       </div>
 
       <!-- 모바일 네비게이션 헤더 -->
-      <div class="lg:hidden fixed top-0 left-0 right-0 z-50 dark:bg-gray-800 text-white px-4 py-2" :style="{ backgroundColor: 'var(--header-bg-color)' }">
+      <div class="glassmorphism-mobile-header lg:hidden fixed top-0 left-0 right-0 z-50 backdrop-blur-xl bg-white/80 dark:bg-gray-800/80 text-white px-4 py-2 border-b border-white/20 dark:border-gray-700/20 shadow-lg" :style="{ backgroundColor: 'var(--header-bg-color)' }">
         <div class="flex items-center justify-between" :class="{ 'pointer-events-auto': isMenuOpen }">
           <button @click="openMenu" class="text-white" :class="{ 'pointer-events-none': isMenuOpen }">
             <Bars3Icon class="h-6 w-6" />
@@ -136,7 +136,7 @@
       <!-- 모바일 슬라이딩 메뉴 -->
       <div
         :class="[
-          'fixed inset-y-0 left-0 z-50 w-72 bg-gradient-to-b from-blue-700 to-blue-600 dark:from-gray-800 dark:to-gray-700 text-white transform transition-transform duration-300 ease-in-out shadow-lg pointer-events-auto',
+          'glassmorphism-mobile-menu fixed inset-y-0 left-0 z-50 w-72 backdrop-blur-xl bg-gradient-to-b from-blue-700/90 to-blue-600/90 dark:from-gray-800/90 dark:to-gray-700/90 text-white transform transition-transform duration-300 ease-in-out shadow-2xl pointer-events-auto border-r border-white/20 dark:border-gray-600/20',
           isMenuOpen ? 'translate-x-0' : '-translate-x-full'
         ]"
       >
