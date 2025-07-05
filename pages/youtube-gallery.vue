@@ -65,13 +65,34 @@
 
             <div @click="loadVideo(video)" class='cursor-pointer'>
               <div v-if="video.loaded">
-                <iframe 
-                  :class="{ 'w-full min-h-[225px] h-auto aspect-[16/9]': !video.isShort, 'w-full h-auto aspect-[9/16]': video.isShort }"
-                  :src="getEmbedUrl(video)"
-                  frameborder="0" 
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
-                  allowfullscreen
-                ></iframe>
+                <div class="relative">
+                  <iframe 
+                    :class="{ 'w-full min-h-[225px] h-auto aspect-[16/9]': !video.isShort, 'w-full h-auto aspect-[9/16]': video.isShort }"
+                    :src="getEmbedUrl(video)"
+                    frameborder="0" 
+                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                    allowfullscreen
+                    referrerpolicy="strict-origin-when-cross-origin"
+                    :title="`${video.title} - YouTube video player`"
+                    @error="handleVideoError(video)"
+                  ></iframe>
+                  <!-- 재생 실패 시 대체 링크 -->
+                  <div v-if="video.hasError" class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+                    <div class="text-center text-white p-4">
+                      <Icon icon="mdi:alert-circle" class="text-4xl mb-2" />
+                      <p class="mb-3">비디오를 재생할 수 없습니다</p>
+                      <a 
+                        :href="`https://www.youtube.com/watch?v=${video.videoId}`" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md inline-flex items-center"
+                      >
+                        <Icon icon="mdi:youtube" class="mr-2" />
+                        YouTube에서 보기
+                      </a>
+                    </div>
+                  </div>
+                </div>
               </div>
               <div v-else>
                 <img
@@ -133,7 +154,7 @@
     </div>
     
     <!-- Video Play Modal -->
-    <PlayModal :youtubeVideoId="selectedVideo ? selectedVideo.videoId : null" :isVisible="isModalOpen" @close="closeModal" />
+    <PlayModal :youtubeVideoId="selectedVideo ? selectedVideo.videoId : ''" :isVisible="isModalOpen" @close="closeModal" />
     
     <!-- Video Management Modal -->
     <AdminYouTubeVideoWrite
@@ -213,7 +234,7 @@
       isLoading.value = true
       error.value = null
       
-      const response = await $fetch('/api/admin/youtube-gallery', {
+      const response = await $fetch('/api/youtube-gallery', {
         method: 'GET'
       })
       
@@ -224,7 +245,8 @@
         title: item.title,
         description: item.description,
         isShort: item.isShort,
-        loaded: false
+        loaded: false,
+        hasError: false
       }))
       
     } catch (err) {
@@ -262,6 +284,11 @@
    * 비디오를 삭제합니다.
    */
   const handleVideoDelete = async (video) => {
+    if (!isAdmin.value) {
+      showToast('관리자 권한이 필요합니다.', 'error')
+      return
+    }
+
     if (!confirm(`"${video.title}" 비디오를 삭제하시겠습니까?`)) {
       return
     }
@@ -324,6 +351,15 @@
     }
   }
   
+  /**
+   * YouTube 비디오 재생 오류 처리
+   * @param {Object} video - 오류가 발생한 비디오 객체
+   */
+  const handleVideoError = (video) => {
+    console.error('YouTube video playback error for:', video.videoId);
+    video.hasError = true;
+  }
+
   function openModal(video) {
     selectedVideo.value = video
     isModalOpen.value = true

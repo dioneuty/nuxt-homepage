@@ -36,16 +36,30 @@ export default defineEventHandler(async (event) => {
   const { id } = event.context.params
 
   try {
+    // ID 유효성 검사
+    if (!id || typeof id !== 'string') {
+      console.warn('Invalid outline item ID:', id);
+      handleApiError(event, 400, '유효하지 않은 아이템 ID입니다');
+      return;
+    }
+
     // GET 요청 처리: 특정 아웃라인 항목을 ID로 조회합니다.
     if (method === 'GET') {
+      console.log('Fetching outline item with ID:', id);
+      
       // Prisma를 사용하여 ID에 해당하는 아웃라인 항목을 조회합니다. ID는 문자열로 유지합니다.
       const item = await prisma.outlineItem.findUnique({
         where: { id: id }
       })
+      
       // 항목을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
       if (!item) {
-        return handleApiError(event, 404, '아웃라인 항목을 찾을 수 없습니다')
+        console.log('Outline item not found for ID:', id);
+        handleApiError(event, 404, '아웃라인 항목을 찾을 수 없습니다');
+        return;
       }
+      
+      console.log('Successfully fetched outline item:', item.id);
       // 조회된 항목의 BigInt 필드를 문자열로 변환하여 반환합니다.
       return bigIntToString(item)
     }
@@ -55,6 +69,8 @@ export default defineEventHandler(async (event) => {
     if (method === 'PUT') {
       // 요청 본문에서 업데이트할 'content'를 추출합니다.
       const { content } = await readBody(event)
+      
+      console.log('Updating/creating outline item with ID:', id, 'content length:', content?.length || 0);
       
       // 기존 항목 조회 (upsert의 create 부분에서 사용될 수 있는 order 및 parentId를 가져오기 위함)
       const existingItem = await prisma.outlineItem.findUnique({
@@ -76,14 +92,23 @@ export default defineEventHandler(async (event) => {
         }
       })
 
+      console.log('Successfully updated/created outline item:', result.id);
       // 업데이트되거나 생성된 항목의 BigInt 필드를 문자열로 변환하여 반환합니다.
       return bigIntToString(result)
     }
     
     // 지원하지 않는 HTTP 메소드에 대한 처리: 405 Method Not Allowed 반환 (선택적)
+    console.warn('Method not allowed:', method);
     handleApiError(event, 405, '허용되지 않은 메소드입니다.');
+    return;
 
   } catch (error) {
+    console.error('Outline item API error:', {
+      id,
+      method,
+      error: error.message,
+      stack: error.stack
+    });
     handleApiError(event, 500, '아웃라인 항목 처리 중 오류 발생', error);
   }
 })

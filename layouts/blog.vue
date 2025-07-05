@@ -16,7 +16,7 @@
         @closeMenu="closeMenu" 
         v-if="!layoutStore.isSidebarOpen || isMobile"
       />
-      <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row" :class="{ 'pt-28': navStore.isAlwaysOnTop }">
+      <div class="container mt-8 md:mt-16 mx-auto px-4 py-8 flex-grow flex flex-col md:flex-row pt-16 lg:pt-8" :class="{ 'pt-28': navStore.isAlwaysOnTop }">
         <aside class="w-full md:w-1/4 pr-0 md:pr-8 mb-8 md:mb-0 hidden md:block">
           <BlogSidebar :categories="categories" />
         </aside>

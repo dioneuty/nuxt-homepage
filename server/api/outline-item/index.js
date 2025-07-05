@@ -17,7 +17,8 @@ export default defineEventHandler(async (event) => {
       const { id, content } = await readBody(event)
 
       if (!id || !content) {
-        return handleApiError(event, 400, 'ID와 내용은 필수 입력 사항입니다.')
+        handleApiError(event, 400, 'ID와 내용은 필수 입력 사항입니다.');
+        return;
       }
       
       // Prisma를 사용하여 새로운 아웃라인 항목 레코드를 생성합니다.

@@ -1,21 +1,13 @@
 import { PrismaClient } from '@prisma/client';
-import { verifyAuthToken } from '~/server/utils/auth';
 import { handleApiError } from '~/server/utils/apiErrorHandlers';
 
 const prisma = new PrismaClient();
 
 export default defineEventHandler(async (event) => {
   try {
-    // 관리자 권한 확인
-    await verifyAuthToken(event);
-    const userId = event.context.user.id;
-    if (!userId || event.context.user.role !== 'ADMIN') {
-      handleApiError(event, 403, '접근 권한이 없습니다.');
-    }
-
     const query = getQuery(event);
     const page = parseInt(query.page) || 1;
-    const limit = parseInt(query.limit) || 10;
+    const limit = parseInt(query.limit) || 20;
     const skip = (page - 1) * limit;
     const searchText = query.searchText;
     const searchType = query.searchType;
@@ -39,6 +31,15 @@ export default defineEventHandler(async (event) => {
         orderBy: { [sortColumn]: sortOrder },
         skip,
         take: limit,
+        select: {
+          id: true,
+          videoId: true,
+          title: true,
+          description: true,
+          isShort: true,
+          createdAt: true,
+          updatedAt: true
+        }
       }),
       prisma.youTubeVideo.count({ where }),
     ]);
@@ -52,6 +53,7 @@ export default defineEventHandler(async (event) => {
     };
 
   } catch (error) {
+    console.error('YouTube 갤러리 API 오류:', error);
     handleApiError(event, error.statusCode || 500, error.message || 'YouTube 비디오 목록을 불러오는 데 실패했습니다.', error);
   }
 }); 

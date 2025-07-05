@@ -20,7 +20,7 @@ export default defineEventHandler(async (event) => {
       // 최신 상태가 존재하면 해당 상태의 'state' 데이터를 반환하고, 없으면 'null'을 반환합니다.
       return latestState ? latestState.state : null
     } catch (error) {
-      handleApiError(error, '아웃라인 상태 조회 중 오류', 500);
+      handleApiError(event, 500, '아웃라인 상태 조회 중 오류', error);
     }
   }
 
@@ -35,10 +35,10 @@ export default defineEventHandler(async (event) => {
       })
       return { success: true } // 상태 저장이 성공했음을 나타내는 응답을 반환합니다.
     } catch (error) {
-      handleApiError(error, '아웃라인 상태 저장 중 오류', 500);
+      handleApiError(event, 500, '아웃라인 상태 저장 중 오류', error);
     }
   }
 
   // 지원하지 않는 HTTP 메소드에 대한 처리: 405 Method Not Allowed 오류를 반환합니다.
-  throw handleApiError(405, 'Method Not Allowed');
+  handleApiError(event, 405, 'Method Not Allowed');
 })

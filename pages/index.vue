@@ -1,8 +1,8 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <div class="glass-section mb-8 p-6 rounded-lg">
-      <h2 class="text-2xl font-bold mb-4 dark:text-gray-200">섹션 선택</h2>
-      <div class="flex flex-wrap gap-4">
+  <div class="container mx-auto px-2 md:px-4 py-4 md:py-8">
+    <div class="glass-section mb-6 md:mb-8 p-4 md:p-6 rounded-lg">
+      <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 dark:text-gray-200">섹션 선택</h2>
+      <div class="flex flex-wrap gap-3 md:gap-4">
         <label v-for="section in sections" :key="section.id" class="inline-flex items-center cursor-pointer">
           <div class="relative">
             <input type="checkbox" v-model="selectedSections" :value="section.id" class="sr-only">
@@ -12,7 +12,7 @@
               </svg>
             </div>
           </div>
-          <span class="ml-2 text-gray-700 dark:text-gray-300">{{ section.label }}</span>
+          <span class="ml-2 text-sm md:text-base text-gray-700 dark:text-gray-300">{{ section.label }}</span>
         </label>
       </div>
     </div>

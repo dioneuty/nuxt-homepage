@@ -19,7 +19,7 @@
                   <Icon :icon="fetchedThemeSettings.siteLogoIcon" class="h-10 w-10 mr-2" />
                 </template>
                 <template v-else-if="fetchedThemeSettings.showSiteLogoUrl && fetchedThemeSettings.siteLogoUrl">
-                  <img :src="fetchedThemeSettings.siteLogoUrl" :alt="fetchedThemeSettings.siteTitle" class="h-10 mr-2" />
+                  <img :src="fetchedThemeSettings.siteLogoUrl" alt="사이트 로고" class="h-10 mr-2" />
                 </template>
                 <template v-else-if="fetchedThemeSettings.showSiteLogoIcon || fetchedThemeSettings.showSiteLogoUrl">
                   <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
@@ -91,7 +91,7 @@
                 <Icon :icon="fetchedThemeSettings.siteLogoIcon" class="h-8 w-8 mr-2" />
               </template>
               <template v-else-if="fetchedThemeSettings.showSiteLogoUrl && fetchedThemeSettings.siteLogoUrl">
-                <img :src="fetchedThemeSettings.siteLogoUrl" :alt="fetchedThemeSettings.siteTitle" class="h-8 w-8 mr-2" />
+                <img :src="fetchedThemeSettings.siteLogoUrl" alt="사이트 로고" class="h-8 w-8 mr-2" />
               </template>
               <template v-else-if="fetchedThemeSettings.showSiteLogoIcon || fetchedThemeSettings.showSiteLogoUrl">
                 <WrenchScrewdriverIcon class="h-8 w-8 mr-2" />
@@ -248,12 +248,12 @@ const { data: fetchedThemeSettings } = await useFetch('/api/theme-settings', {
     darkFooterColor: '#1A202C',
     lightBackgroundColor: '#FFFFFF',
     darkBackgroundColor: '#1A202C',
-    siteTitle: 'My Website',
+    siteTitle: 'Dion',
     siteLogoUrl: '/images/logo.png',
     siteLogoIcon: null,
     showSiteTitle: true,
-    showSiteLogoUrl: true,
-    showSiteLogoIcon: true,
+    showSiteLogoUrl: false,
+    showSiteLogoIcon: false,
   }),
   transform: (data) => ({
     lightHeaderColor: data?.lightHeaderColor || '#FFFFFF',
@@ -262,12 +262,12 @@ const { data: fetchedThemeSettings } = await useFetch('/api/theme-settings', {
     darkFooterColor: data?.darkFooterColor || '#1A202C',
     lightBackgroundColor: data?.lightBackgroundColor || '#FFFFFF',
     darkBackgroundColor: data?.darkBackgroundColor || '#1A202C',
-    siteTitle: data?.siteTitle || 'My Website',
+    siteTitle: data?.siteTitle || 'Dion',
     siteLogoUrl: data?.siteLogoUrl || '/images/logo.png',
     siteLogoIcon: data?.siteLogoIcon || null,
     showSiteTitle: data?.showSiteTitle ?? true,
-    showSiteLogoUrl: data?.showSiteLogoUrl ?? true,
-    showSiteLogoIcon: data?.showSiteLogoIcon ?? true,
+    showSiteLogoUrl: data?.showSiteLogoUrl ?? false,
+    showSiteLogoIcon: data?.showSiteLogoIcon ?? false,
   }),
 });
 
@@ -396,7 +396,13 @@ const navHeight = ref(120)
  * 네비게이션 바가 고정되면 해당 높이만큼 패딩을 추가하고, 그렇지 않으면 0으로 설정합니다.
  */
 function updateBodyPadding() {
-  // navStore의 값 사용
+  // 모바일에서는 레이아웃에서 패딩을 처리하므로 body 패딩 설정 안함
+  if (window.innerWidth < 1024) {
+    document.body.style.paddingTop = '0px'
+    return
+  }
+  
+  // navStore의 값 사용 (데스크톱에서만)
   if (navStore.isAlwaysOnTop) {
     document.body.style.paddingTop = `${navHeight.value}px`
   } else {

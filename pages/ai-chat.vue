@@ -134,12 +134,12 @@ import { formatDate } from '~/utils/dateFormatter'
 import { formatUnixTimestamp } from '~/utils/dateFormatter'
 
 // 페이지 제목과 설명을 동적으로 설정
-definePageMeta ({
+definePageMeta({
+  layout: 'aichat-layout',
   title: 'AI 채팅 - Dion',
-  layout: 'default', // 기본 레이아웃 사용하여 탭 바 표시
   meta: [
-    { name: 'description', content: 'AI와 대화를 나눌 수 있는 채팅 페이지입니다.' },
-    { name: 'keywords', content: 'AI, 채팅, 대화, Dion' }
+    { name: 'description', content: 'AI 채팅 - 인공지능과 대화하세요' },
+    { name: 'keywords', content: 'Dion, AI, 채팅, 인공지능' }
   ]
 })
 

@@ -284,15 +284,26 @@ export default function useOutlineData() {
    * @param {string} itemId - 항목 ID
    */
   async function fetchSelectedItemContent(itemId) {
+    if (!itemId) {
+      console.warn('fetchSelectedItemContent called with empty itemId');
+      selectedItemContent.value = '';
+      return;
+    }
+
     try {
+      console.log('Fetching content for item ID:', itemId);
       const response = await fetch(`/api/outline-item/${itemId.toString()}`);
+      
       if (response.ok) {
         const data = await response.json();
         selectedItemContent.value = data.content || '';
+        console.log('Successfully fetched content for item:', itemId);
       } else if (response.status === 404) {
+        console.log('Item not found, creating with empty content:', itemId);
         selectedItemContent.value = '';
         await saveItemContentToDB(itemId, '');
       } else {
+        console.error('Error fetching content:', response.status, response.statusText);
         selectedItemContent.value = `Error loading content: ${response.status}`;
       }
     } catch (error) {
@@ -307,6 +318,11 @@ export default function useOutlineData() {
    */
   function handleItemSelected(item) {
     selectedItem.value = item;
+    if (item && item.id) {
+      fetchSelectedItemContent(item.id);
+    } else {
+      selectedItemContent.value = '';
+    }
   }
 
   /**

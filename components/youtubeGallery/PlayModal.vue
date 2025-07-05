@@ -11,8 +11,10 @@
             :src="getEmbedUrl(youtubeVideoId)"
             class="absolute top-0 left-0 w-full h-full rounded-xl"
             frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
             allowfullscreen
+            referrerpolicy="strict-origin-when-cross-origin"
+            title="YouTube video player"
           ></iframe>
         </div>
       </div>
@@ -41,7 +43,23 @@
    * @returns {string} YouTube 임베드 URL.
    */
   function getEmbedUrl(videoId) {
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1`; // 자동 재생 추가
+    if (!videoId) return '';
+    
+    const baseUrl = `https://www.youtube.com/embed/${videoId}`;
+    
+    // YouTube 임베드 매개변수 설정
+    const params = new URLSearchParams({
+      autoplay: '1',
+      rel: '0', // 관련 동영상 표시 안함
+      modestbranding: '1', // YouTube 로고 최소화
+      fs: '1', // 전체화면 허용
+      cc_load_policy: '0', // 자막 기본 비활성화
+      iv_load_policy: '3', // 주석 비활성화
+      autohide: '1', // 컨트롤 자동 숨김
+      enablejsapi: '1' // JavaScript API 활성화
+    });
+    
+    return `${baseUrl}?${params.toString()}`;
   }
 
   /**

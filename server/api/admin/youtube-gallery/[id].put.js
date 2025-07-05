@@ -10,19 +10,19 @@ export default defineEventHandler(async (event) => {
     await verifyAuthToken(event);
     const userId = event.context.user.id;
     if (!userId || event.context.user.role !== 'ADMIN') {
-      handleApiError(null, '접근 권한이 없습니다.', 403);
+      handleApiError(event, 403, '접근 권한이 없습니다.');
     }
 
     const id = parseInt(getRouterParam(event, 'id'));
     if (!id || isNaN(id)) {
-      handleApiError(null, '유효하지 않은 비디오 ID입니다.', 400);
+      handleApiError(event, 400, '유효하지 않은 비디오 ID입니다.');
     }
 
     const body = await readBody(event);
     const { url, title, description, isShort } = body;
 
     if (!title) {
-      handleApiError(null, '제목은 필수 입력 사항입니다.', 400);
+      handleApiError(event, 400, '제목은 필수 입력 사항입니다.');
     }
 
     // 기존 비디오 확인
@@ -31,7 +31,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!existingVideo) {
-      handleApiError(null, 'YouTube 비디오를 찾을 수 없습니다.', 404);
+      handleApiError(event, 404, 'YouTube 비디오를 찾을 수 없습니다.');
     }
 
     let updateData = {
@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
     if (url && url !== `https://www.youtube.com/watch?v=${existingVideo.videoId}`) {
       const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1];
       if (!videoId) {
-        handleApiError(null, '유효한 YouTube URL이 아닙니다.', 400);
+        handleApiError(event, 400, '유효한 YouTube URL이 아닙니다.');
       }
 
       // 다른 비디오와 중복 체크
@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
       });
 
       if (duplicateVideo) {
-        handleApiError(null, '이미 등록된 YouTube 비디오입니다.', 409);
+        handleApiError(event, 409, '이미 등록된 YouTube 비디오입니다.');
       }
 
       updateData.videoId = videoId;
@@ -74,6 +74,6 @@ export default defineEventHandler(async (event) => {
     };
 
   } catch (error) {
-    handleApiError(error, error.message || 'YouTube 비디오 수정에 실패했습니다.', error.statusCode || 500);
+    handleApiError(event, error.statusCode || 500, error.message || 'YouTube 비디오 수정에 실패했습니다.', error);
   }
 }); 

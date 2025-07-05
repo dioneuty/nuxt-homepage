@@ -10,12 +10,12 @@ export default defineEventHandler(async (event) => {
     await verifyAuthToken(event);
     const userId = event.context.user.id;
     if (!userId || event.context.user.role !== 'ADMIN') {
-      handleApiError(null, '접근 권한이 없습니다.', 403);
+      handleApiError(event, 403, '접근 권한이 없습니다.');
     }
 
     const id = parseInt(getRouterParam(event, 'id'));
     if (!id || isNaN(id)) {
-      handleApiError(null, '유효하지 않은 비디오 ID입니다.', 400);
+      handleApiError(event, 400, '유효하지 않은 비디오 ID입니다.');
     }
 
     // 기존 비디오 확인
@@ -24,7 +24,7 @@ export default defineEventHandler(async (event) => {
     });
 
     if (!existingVideo) {
-      handleApiError(null, 'YouTube 비디오를 찾을 수 없습니다.', 404);
+      handleApiError(event, 404, 'YouTube 비디오를 찾을 수 없습니다.');
     }
 
     // 비디오 삭제
@@ -38,6 +38,6 @@ export default defineEventHandler(async (event) => {
     };
 
   } catch (error) {
-    handleApiError(error, error.message || 'YouTube 비디오 삭제에 실패했습니다.', error.statusCode || 500);
+    handleApiError(event, error.statusCode || 500, error.message || 'YouTube 비디오 삭제에 실패했습니다.', error);
   }
 }); 
