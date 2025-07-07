@@ -1,5 +1,6 @@
 import prisma from '~/server/utils/prisma'
 import { handleApiError } from '~/server/utils/apiErrorHandlers'
+import { executePaginatedQuery } from '~/server/utils/pagination'
 
 /**
  * @file 유머 게시판 API
@@ -20,26 +21,19 @@ export default defineEventHandler(async (event) => {
         where: { id: parseInt(id) } // 제공된 ID로 게시물을 찾습니다.
       })
       // 게시물을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
-      return post || handleApiError(null, '유머 게시글을 찾을 수 없습니다', 404);
+      if (!post) {
+        handleApiError(event, 404, '유머 게시글을 찾을 수 없습니다')
+      }
+      return post;
     } else {
       // 'id'가 없는 경우, 유머 게시물 목록을 페이지네이션하여 조회합니다.
-      const skip = (page - 1) * limit // 현재 페이지의 시작 오프셋을 계산합니다.
-      // 게시물 목록과 전체 게시물 개수를 비동기적으로 병렬 조회합니다.
-      const [posts, totalCount] = await Promise.all([
-        prisma.humorPost.findMany({
-          orderBy: { createdAt: 'desc' }, // 최신 게시물이 먼저 오도록 생성일 내림차순으로 정렬합니다.
-          take: parseInt(limit), // 한 페이지에 표시할 게시물 수를 제한합니다.
-          skip: skip // 건너뛸 게시물 수를 지정하여 페이지네이션을 구현합니다.
-        }),
-        prisma.humorPost.count() // 전체 유머 게시물 개수를 계산합니다.
-      ])
-      // 조회된 게시물 목록과 페이지네이션 관련 정보를 반환합니다.
-      return {
-        posts,
-        total: totalCount,
-        page: parseInt(page),
-        limit: parseInt(limit)
-      }
+      // 새로운 페이지네이션 유틸리티를 사용하여 코드 중복을 제거합니다.
+      return await executePaginatedQuery(prisma.humorPost, {
+        where: {}, // 유머 게시판은 특별한 필터링 조건이 없습니다.
+        orderBy: { createdAt: 'desc' }, // 최신 게시물이 먼저 오도록 생성일 내림차순으로 정렬합니다.
+        page,
+        limit
+      })
     }
   }
 
@@ -53,7 +47,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, id: result.id } // 성공 응답과 생성된 게시물의 ID를 반환합니다.
     } catch (error) {
       // 게시물 생성 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      handleApiError(error, '유머 게시글 생성 실패', 500);
+      handleApiError(event, 500, '유머 게시글 생성 실패', error);
     }
   }
 
@@ -69,7 +63,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, likes: updatedPost.likes } // 성공 응답과 업데이트된 좋아요 수를 반환합니다.
     } catch (error) {
       // 좋아요 업데이트 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      handleApiError(error, '좋아요 업데이트 실패', 500);
+      handleApiError(event, 500, '좋아요 업데이트 실패', error);
     }
   }
 
@@ -84,7 +78,7 @@ export default defineEventHandler(async (event) => {
       return { success: true } // 성공적으로 삭제되었음을 반환합니다。
     } catch (error) {
       // 게시물 삭제 중 오류 발생 시 콘솔에 로그를 출력하고 500 Internal Server Error를 반환합니다.
-      handleApiError(error, '유머 게시글 삭제 실패', 500);
+      handleApiError(event, 500, '유머 게시글 삭제 실패', error);
     }
   }
 

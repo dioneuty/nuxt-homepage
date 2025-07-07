@@ -116,7 +116,6 @@ const setupIntersectionObserver = (enable) => {
   if (enable && infiniteScrollTrigger.value) {
     observer = new IntersectionObserver((entries) => {
       const entry = entries[0];
-      // console.log(`IntersectionObserver: isIntersecting: ${entry.isIntersecting}, loading: ${loading.value}, noMoreData: ${noMoreData.value}`);
       if (entry.isIntersecting && !loading.value && !noMoreData.value) {
         loadMore();
       } else if (entry.isIntersecting) {
@@ -135,16 +134,13 @@ const setupIntersectionObserver = (enable) => {
  */
 const fetchQnAs = async (append = false) => {
   if (loading.value && append) {
-    // console.log('fetchQnAs: Already loading, skipping.');
     return;
   }
   if (append && noMoreData.value) {
-    // console.log('fetchQnAs: No more data, skipping.');
     return;
   }
   
   loading.value = true;
-  // console.log(`fetchQnAs: Starting fetch for page ${currentPage.value}, append: ${append}`);
   try {
     const data = await $fetch('/api/qna', {
       params: {
@@ -153,7 +149,6 @@ const fetchQnAs = async (append = false) => {
         ...searchParams.value
       }
     });
-    // console.log('fetchQnAs: API response data:', data);
 
     if (append) {
       qnas.value = [...qnas.value, ...data.qnas];
@@ -162,7 +157,6 @@ const fetchQnAs = async (append = false) => {
     }
     totalItems.value = data.total;
     noMoreData.value = qnas.value.length >= totalItems.value;
-    // console.log(`fetchQnAs: Current QnAs count: ${qnas.value.length}, Total items: ${totalItems.value}, No more data: ${noMoreData.value}`);
   } catch (error) {
     console.error('Error fetching QnAs:', error)
   } finally {
@@ -223,7 +217,6 @@ const updateRouteQuery = () => {
 const loadMore = () => {
   if (isMobile.value && !loading.value && !noMoreData.value) {
     currentPage.value++;
-    // console.log(`loadMore: Attempting to load more, new page: ${currentPage.value}`);
     fetchQnAs(true);
   } else {
     // console.log(`loadMore: Conditions not met. isMobile: ${isMobile.value}, loading: ${loading.value}, noMoreData: ${noMoreData.value}`);

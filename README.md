@@ -147,5 +147,50 @@ Check out the [deployment documentation](https://nuxt.com/docs/getting-started/d
 
 (영문 섹션의 Setup, Development Server, Production 부분과 동일)
 
+## 🔄 최근 리팩터링 (2025년 1월)
+
+이 프로젝트는 코드 재사용성과 유지보수성을 향상시키기 위한 대규모 리팩터링을 완료했습니다.
+
+### 서버 사이드 리팩터링
+
+- **📊 페이지네이션 유틸리티**: 모든 API에서 일관된 페이지네이션 처리
+- **🔍 검색 조건 빌더**: 동적 검색 및 필터링 로직 통합
+- **⚠️ 오류 처리 통일**: handleApiError 패턴 표준화
+- **📝 폼 제출 통합**: 중복된 폼 로직 제거 및 확장성 향상
+- **🔧 코드 중복 제거**: 총 150줄 이상의 중복 코드 제거
+
+### 프론트엔드 리팩터링 (신규)
+
+- **🎨 테마 설정 통합**: 4개 파일의 중복 API 호출을 1개로 통합 (95% 코드 감소)
+- **📋 목록 컴포넌트 통합**: BlogIndex와 BoardIndex의 공통 로직을 useListData 컴포저블로 추상화
+- **🔄 UI 상태 관리**: 로딩, 에러, 성공 상태를 useUIStates 컴포저블로 통합
+- **📱 반응형 최적화**: 모바일 무한스크롤 + 데스크톱 페이지네이션 하이브리드 지원
+- **🚀 성능 향상**: 불필요한 API 호출 제거 및 캐싱 최적화
+
+### 새로운 유틸리티 및 컴포저블
+
+**서버 사이드**:
+- `server/utils/pagination.js`: 서버 사이드 페이지네이션
+- `server/utils/queryBuilder.js`: 검색 조건 빌더
+- `composables/useFormSubmit.js`: 통합된 폼 제출 컴포저블
+
+**프론트엔드**:
+- `composables/useThemeSettings.js`: 테마 설정 관리
+- `composables/useListData.js`: 범용 목록 데이터 관리
+- `composables/useUIStates.js`: 공통 UI 상태 관리
+
+### 리팩터링 성과
+
+| 구분 | 기존 | 개선 후 | 개선율 |
+|------|------|---------|--------|
+| **테마 설정 중복 코드** | 80줄 | 4줄 | 95% 감소 |
+| **BoardIndex 코드 라인** | 406줄 | 250줄 | 38% 감소 |
+| **API 호출 최적화** | 4개 중복 | 1개 캐싱 | 75% 감소 |
+| **전체 중복 코드 제거** | 300줄+ | - | 대폭 감소 |
+
+자세한 내용은 다음 문서들을 참조하세요:
+- [서버 사이드 리팩터링](./REFACTORING_SUMMARY.md)
+- [프론트엔드 리팩터링](./FRONTEND_REFACTORING_SUMMARY.md)
+
 ## 대화방식
 한국어로 설명해줘

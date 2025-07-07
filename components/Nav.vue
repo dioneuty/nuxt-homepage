@@ -199,6 +199,7 @@ import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
 import { useLayoutStore } from '~/stores/layout'
 import { useCurrentTime } from '~/composables/useCurrentTime'
+import { useThemeSettings } from '~/composables/useThemeSettings'
 
 const router = useRouter()
 const navKey = ref(0)
@@ -239,37 +240,8 @@ const { isLoggedIn, user, setAuth } = useAuth()
 const navStore = useNavStore()
 const colorMode = useColorMode()
 
-// useFetch를 사용하여 서버 및 클라이언트에서 테마 설정 데이터를 미리 가져옵니다.
-const { data: fetchedThemeSettings } = await useFetch('/api/theme-settings', {
-  default: () => ({
-    lightHeaderColor: '#FFFFFF',
-    darkHeaderColor: '#1A202C',
-    lightFooterColor: '#F7FAFC',
-    darkFooterColor: '#1A202C',
-    lightBackgroundColor: '#FFFFFF',
-    darkBackgroundColor: '#1A202C',
-    siteTitle: 'Dion',
-    siteLogoUrl: '/images/logo.png',
-    siteLogoIcon: null,
-    showSiteTitle: true,
-    showSiteLogoUrl: false,
-    showSiteLogoIcon: false,
-  }),
-  transform: (data) => ({
-    lightHeaderColor: data?.lightHeaderColor || '#FFFFFF',
-    darkHeaderColor: data?.darkHeaderColor || '#1A202C',
-    lightFooterColor: data?.lightFooterColor || '#F7FAFC',
-    darkFooterColor: data?.darkFooterColor || '#1A202C',
-    lightBackgroundColor: data?.lightBackgroundColor || '#FFFFFF',
-    darkBackgroundColor: data?.darkBackgroundColor || '#1A202C',
-    siteTitle: data?.siteTitle || 'Dion',
-    siteLogoUrl: data?.siteLogoUrl || '/images/logo.png',
-    siteLogoIcon: data?.siteLogoIcon || null,
-    showSiteTitle: data?.showSiteTitle ?? true,
-    showSiteLogoUrl: data?.showSiteLogoUrl ?? false,
-    showSiteLogoIcon: data?.showSiteLogoIcon ?? false,
-  }),
-});
+// useThemeSettings 컴포저블을 사용하여 테마 설정 데이터를 가져옵니다.
+const { data: fetchedThemeSettings } = await useThemeSettings();
 
 const props = defineProps({
   isMenuOpen: Boolean

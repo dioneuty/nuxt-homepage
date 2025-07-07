@@ -15,7 +15,7 @@ export default defineEventHandler(async (event) => {
   const { title, content, author, password } = body
 
   // 요청 수신 및 본문 내용을 콘솔에 로깅하여 디버깅에 도움을 줍니다.
-  console.log('백엔드: 방명록 POST 요청 수신. 본문:', body);
+  // Guestbook POST request received
 
   try {
     // Prisma를 사용하여 guestbook 테이블에 새 게시물을 생성합니다.
@@ -28,7 +28,7 @@ export default defineEventHandler(async (event) => {
       }
     })
     // 게시물 데이터베이스 저장 성공 시 콘솔에 결과를 로깅합니다.
-    console.log('백엔드: 방명록 데이터베이스 저장 성공. 결과:', post);
+    // Guestbook entry saved successfully
 
     // 생성된 게시물 객체를 반환합니다.
     return post

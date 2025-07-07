@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
     // 검색 결과를 반환합니다.
     return results
   } catch (error) {
-    handleApiError(error, '통합 검색 중 오류가 발생했습니다.', 500);
+    handleApiError(event, 500, '통합 검색 중 오류가 발생했습니다.', error);
   }
 })
 

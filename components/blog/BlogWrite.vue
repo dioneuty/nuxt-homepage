@@ -75,7 +75,7 @@
   import { useRoute, useRouter } from 'vue-router'
   import { useModal } from '~/composables/useModal'
 import { Icon } from '@iconify/vue'
-import { useBlogSubmit } from '~/composables/useBlogSubmit'
+import { useBlogSubmit } from '~/composables/useFormSubmit'
 import { useDraftSave } from '~/composables/useDraftSave'
 
 // 🚀 에디터 지연 로딩

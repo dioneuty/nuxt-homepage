@@ -38,14 +38,14 @@ export default defineEventHandler(async (event) => {
   try {
     // ID 유효성 검사
     if (!id || typeof id !== 'string') {
-      console.warn('Invalid outline item ID:', id);
+      // Invalid outline item ID
       handleApiError(event, 400, '유효하지 않은 아이템 ID입니다');
       return;
     }
 
     // GET 요청 처리: 특정 아웃라인 항목을 ID로 조회합니다.
     if (method === 'GET') {
-      console.log('Fetching outline item with ID:', id);
+      // Fetching outline item
       
       // Prisma를 사용하여 ID에 해당하는 아웃라인 항목을 조회합니다. ID는 문자열로 유지합니다.
       const item = await prisma.outlineItem.findUnique({
@@ -54,7 +54,7 @@ export default defineEventHandler(async (event) => {
       
       // 항목을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
       if (!item) {
-        console.log('Outline item not found for ID:', id);
+        // Outline item not found
         handleApiError(event, 404, '아웃라인 항목을 찾을 수 없습니다');
         return;
       }

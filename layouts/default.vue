@@ -40,6 +40,7 @@ import Footer from '~/components/Footer.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
 import VerticalSidebar from '~/components/common/VerticalSidebar.vue'
 import { useLayoutStore } from '~/stores/layout';
+import { useThemeSettings } from '~/composables/useThemeSettings';
 
 const layoutStore = useLayoutStore();
 
@@ -47,31 +48,8 @@ const isMenuOpen = ref(false)
 
 const colorMode = useColorMode();
 
-// useFetch를 사용하여 서버 및 클라이언트에서 테마 설정 데이터를 미리 가져옵니다.
-const { data: fetchedThemeSettings } = await useFetch('/api/theme-settings', {
-  default: () => ({
-    lightHeaderColor: '#FFFFFF',
-    darkHeaderColor: '#1A202C',
-    lightFooterColor: '#F7FAFC',
-    darkFooterColor: '#1A202C',
-    lightBackgroundColor: '#FFFFFF',
-    darkBackgroundColor: '#1A202C',
-    siteTitle: 'My Website',
-    siteLogoUrl: '/images/logo.png',
-    siteLogoIcon: null,
-  }),
-  transform: (data) => ({
-    lightHeaderColor: data?.lightHeaderColor || '#FFFFFF',
-    darkHeaderColor: data?.darkHeaderColor || '#1A202C',
-    lightFooterColor: data?.lightFooterColor || '#F7FAFC',
-    darkFooterColor: data?.darkFooterColor || '#1A202C',
-    lightBackgroundColor: data?.lightBackgroundColor || '#FFFFFF',
-    darkBackgroundColor: data?.darkBackgroundColor || '#1A202C',
-    siteTitle: data?.siteTitle || 'My Website',
-    siteLogoUrl: data?.siteLogoUrl || '/images/logo.png',
-    siteLogoIcon: data?.siteLogoIcon || null,
-  }),
-});
+// useThemeSettings 컴포저블을 사용하여 테마 설정 데이터를 가져옵니다.
+const { data: fetchedThemeSettings } = await useThemeSettings();
 
 const currentHeaderColor = computed(() => {
   return colorMode.value === 'dark' ? fetchedThemeSettings.value.darkHeaderColor : fetchedThemeSettings.value.lightHeaderColor;

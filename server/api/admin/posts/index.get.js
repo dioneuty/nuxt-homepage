@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
   const sortOrder = query.sortOrder || 'desc' // 최신순 기본값
 
   if (!boardType) {
-    handleApiError(null, 'Board type is required', 400);
+    handleApiError(event, 400, 'Board type is required');
   }
 
   try {
@@ -54,6 +54,6 @@ export default defineEventHandler(async (event) => {
       total,
     }
   } catch (error) {
-    handleApiError(error, `Failed to fetch posts for board type ${boardType}`, 500);
+    handleApiError(event, 500, `Failed to fetch posts for board type ${boardType}`, error);
   }
 }) 

@@ -15,7 +15,7 @@
     </div>
     
     <div v-else>
-      <div v-if="posts.length === 0" class="text-center text-gray-600 dark:text-gray-400 py-12">
+      <div v-if="isEmpty || posts.length === 0" class="text-center text-gray-600 dark:text-gray-400 py-12">
         <Icon icon="mdi:folder-open-outline" class="mx-auto mb-4" width="64" height="64" />
         <p>{{ emptyMessage }}</p>
       </div>
@@ -54,6 +54,8 @@
 import { Icon } from '@iconify/vue'
 import { useRouter } from 'vue-router'
 import { formatDate } from '~/utils/dateFormatter'
+import { useListData } from '~/composables/useListData'
+import { useUIStates } from '~/composables/useUIStates'
 
 const props = defineProps({
   title: { type: String, default: '블로그' },
@@ -66,9 +68,23 @@ const props = defineProps({
 
 const router = useRouter()
 
-const { data: posts, pending, error } = useFetch(props.apiEndpoint, {
-  method: 'GET',
-  default: () => []
+// useListData 컴포저블을 사용하여 목록 데이터 관리
+const {
+  posts,
+  pending,
+  error,
+  isEmpty
+} = useListData(props.apiEndpoint, {
+  enableInfiniteScroll: false,
+  enableSearch: false,
+  enableSort: false,
+  contentType: 'posts'
+})
+
+// useUIStates 컴포저블을 사용하여 UI 상태 관리
+const uiStates = useUIStates({
+  autoReset: false, // 블로그 목록에서는 자동 리셋 비활성화
+  logErrors: true
 })
 
 /**

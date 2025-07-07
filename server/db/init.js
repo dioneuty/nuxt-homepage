@@ -12,8 +12,7 @@ dotenv.config({ path: join(__dirname, '..', '..', '.env') })
 const supabaseUrl = process.env.SUPABASE_URL
 const supabaseKey = process.env.SUPABASE_KEY
 
-console.log('SUPABASE_URL:', supabaseUrl)
-console.log('SUPABASE_KEY:', supabaseKey)
+// Environment variables loaded
 
 if (!supabaseUrl || !supabaseKey) {
   console.error('SUPABASE_URL과 SUPABASE_KEY 환경 변수가 설정되어 있지 않습니다.')
@@ -170,7 +169,7 @@ async function initDatabase() {
     return
   }
 
-  console.log('Database initialized with sample data')
+  // Database initialized with sample data
 }
 
 initDatabase()

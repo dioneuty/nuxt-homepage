@@ -237,10 +237,8 @@ const selectedComment = ref(null)
 
 // 방명록 목록 조회
 const fetchPosts = async () => {
-  console.log('fetchPosts 함수 호출됨. API 요청 시작...');
   try {
     const response = await $fetch(`/api/guestbook?page=${currentPage.value}`)
-    console.log('API 응답 수신:', response);
     posts.value = response.posts
     totalPages.value = response.totalPages
   } catch (error) {
@@ -250,13 +248,11 @@ const fetchPosts = async () => {
 
 // 방명록 작성
 const handleSubmit = async () => {
-  console.log('방명록 작성 폼 제출됨. 데이터:', form.value);
   try {
     await $fetch('/api/guestbook', {
       method: 'POST',
       body: form.value
     })
-    console.log('방명록 작성 성공!');
     form.value = { title: '', content: '', author: '', password: '' }
     await fetchPosts()
   } catch (error) {

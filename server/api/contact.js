@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
   if (method === 'POST') {
     const body = await readBody(event)
     const { author, title, content, email, type, id } = body
-    console.log(body) // 요청 본문 로깅 (디버깅용)
+    // Contact form data received
 
     try {
       // 'reply' 타입 요청인 경우, 기존 문의에 대한 답변을 생성합니다.

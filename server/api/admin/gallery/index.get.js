@@ -10,7 +10,7 @@ export default defineEventHandler(async (event) => {
     await verifyAuthToken(event);
     const userId = event.context.user.id;
     if (!userId || event.context.user.role !== 'ADMIN') {
-        handleApiError(null, '접근 권한이 없습니다.', 403);
+        handleApiError(event, 403, '접근 권한이 없습니다.');
     }
 
     const query = getQuery(event);
@@ -38,7 +38,7 @@ export default defineEventHandler(async (event) => {
       if (galleryItem) {
         return { ...galleryItem, galleryType: 'general' };
       }
-      handleApiError(null, '갤러리 아이템을 찾을 수 없습니다.', 404);
+      handleApiError(event, 404, '갤러리 아이템을 찾을 수 없습니다.');
     } else {
       // 통합 목록 조회 로직
       let adminWhere = {};
@@ -120,6 +120,6 @@ export default defineEventHandler(async (event) => {
       };
     }
   } catch (error) {
-    handleApiError(error, error.message || '갤러리 아이템을 불러오는 데 실패했습니다.', error.statusCode || 500);
+    handleApiError(event, error.statusCode || 500, error.message || '갤러리 아이템을 불러오는 데 실패했습니다.', error);
   }
 }); 

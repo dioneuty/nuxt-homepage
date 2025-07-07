@@ -22,8 +22,7 @@ export default defineEventHandler(async (event) => {
     const base64Data = imageBase64.replace(/^data:image\/[a-z]+;base64,/, '')
     const inputBuffer = Buffer.from(base64Data, 'base64')
     
-    console.log('🖼️ 서버사이드 압축 시작...')
-    console.log(`📥 원본 크기: ${formatBytes(inputBuffer.length)}`)
+      // Server-side compression started
 
     const startTime = performance.now()
 
@@ -32,7 +31,7 @@ export default defineEventHandler(async (event) => {
 
     // 메타데이터 추출
     const metadata = await sharpInstance.metadata()
-    console.log(`📐 원본 해상도: ${metadata.width}×${metadata.height}`)
+    // Original resolution processed
 
     // 리사이징 (명시적으로 요청된 경우에만)
     const maxWidth = options.maxWidth
@@ -44,9 +43,9 @@ export default defineEventHandler(async (event) => {
         withoutEnlargement: true,
         kernel: sharp.kernel.lanczos3 // 고품질 리샘플링
       })
-      console.log(`📏 리사이징: ${maxWidth}×${maxHeight}`)
-    } else {
-      console.log('📏 원본 해상도 유지 (리사이징 없음)')
+          // Resizing applied
+  } else {
+    // Original resolution maintained
     }
 
     // 포맷별 최적화 압축
@@ -157,7 +156,7 @@ export default defineEventHandler(async (event) => {
     }
 
   } catch (error) {
-    console.error('❌ 서버 압축 실패:', error)
+    console.error('Server compression failed:', error)
     throw createError({
       statusCode: 500,
       statusMessage: `이미지 압축 중 오류가 발생했습니다: ${error.message}`

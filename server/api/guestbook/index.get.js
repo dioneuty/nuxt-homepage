@@ -55,6 +55,6 @@ export default defineEventHandler(async (event) => {
     }
   } catch (error) {
     // 데이터베이스 조회 중 오류가 발생하면 콘솔에 로그를 기록합니다.
-    handleApiError(error, '방명록을 불러오는데 실패했습니다.', 500);
+    handleApiError(event, 500, '방명록을 불러오는데 실패했습니다.', error);
   }
 })

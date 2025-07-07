@@ -7,7 +7,7 @@ export default defineEventHandler(async (event) => {
   const body = await readBody(event)
 
   if (!boardType) {
-    handleApiError(null, 'Board type is required', 400);
+    handleApiError(event, 400, 'Board type is required');
   }
 
   try {
@@ -34,6 +34,6 @@ export default defineEventHandler(async (event) => {
 
     return newPost
   } catch (error) {
-    handleApiError(error, `Failed to create post for board type ${boardType}`, 500);
+    handleApiError(event, 500, `Failed to create post for board type ${boardType}`, error);
   }
 }) 

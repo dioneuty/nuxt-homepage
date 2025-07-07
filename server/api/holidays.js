@@ -6,7 +6,7 @@ import { handleApiError } from '~/server/utils/apiErrorHandlers'
  * @description 특정 년도와 월에 해당하는 공휴일 정보를 데이터베이스에서 조회하여 반환합니다.
  */
 export default defineEventHandler(async (event) => {
-  console.log('holidays api called') // API 호출 로그
+  // Holidays API called
   
   try {
     // 쿼리 파라미터에서 년도와 월을 추출합니다.

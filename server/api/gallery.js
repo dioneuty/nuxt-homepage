@@ -18,7 +18,7 @@ export default defineEventHandler(async (event) => {
       if (query.id) {
         // 'action' 쿼리 파라미터가 'comments'인 경우, 특정 갤러리 항목의 댓글 목록을 조회합니다.
         if (query.action === 'comments') {
-          console.log('comments') // 디버깅을 위한 로그 출력
+          // Fetching comments
           return await getGalleryItemComments(parseInt(query.id)) // 댓글 조회 함수 호출
         } else {
           // 'action'이 없거나 'comments'가 아닌 경우, 특정 갤러리 항목의 상세 정보를 조회합니다.
@@ -127,7 +127,7 @@ async function getGalleryItem(id) {
       }
     }
   })
-  console.log('info', info) // 디버깅을 위한 로그 출력
+  // Gallery info processed
   return info
 }
 
@@ -243,13 +243,13 @@ async function deleteComment(id) {
  * @returns {Array<object>} 댓글 목록 배열.
  */
 async function getGalleryItemComments(id) {
-  console.log('getGalleryItemComments', id) // 디버깅을 위한 로그 출력
+  // Getting gallery item comments
   const comments = await prisma.galleryComment.findMany({
     where: { galleryItemId: id }, // 해당 갤러리 항목에 연결된 댓글만 조회합니다.
     orderBy: {
       createdAt: 'desc' // 최신 댓글이 먼저 오도록 생성일 내림차순으로 정렬합니다.
     }
   })
-  console.log('getGalleryItemComments', comments) // 디버깅을 위한 로그 출력
+  // Gallery comments retrieved
   return comments
 }

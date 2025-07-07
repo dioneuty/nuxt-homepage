@@ -54,6 +54,7 @@ import VerticalSidebar from '~/components/common/VerticalSidebar.vue'
 import { useRoute } from 'vue-router'
 import { useNavStore } from '~/stores/navStore'
 import { useLayoutStore } from '~/stores/layout';
+import { useThemeSettings } from '~/composables/useThemeSettings';
 
 const route = useRoute()
 const categories = ref([])
@@ -64,30 +65,7 @@ const showMobileCategory = ref(true)
 
 const colorMode = useColorMode();
 
-const { data: fetchedThemeSettings } = await useFetch('/api/theme-settings', {
-  default: () => ({
-    lightHeaderColor: '#FFFFFF',
-    darkHeaderColor: '#1A202C',
-    lightFooterColor: '#F7FAFC',
-    darkFooterColor: '#1A202C',
-    lightBackgroundColor: '#FFFFFF',
-    darkBackgroundColor: '#1A202C',
-    siteTitle: 'My Website',
-    siteLogoUrl: '/images/logo.png',
-    siteLogoIcon: null,
-  }),
-  transform: (data) => ({
-    lightHeaderColor: data?.lightHeaderColor || '#FFFFFF',
-    darkHeaderColor: data?.darkHeaderColor || '#1A202C',
-    lightFooterColor: data?.lightFooterColor || '#F7FAFC',
-    darkFooterColor: data?.darkFooterColor || '#1A202C',
-    lightBackgroundColor: data?.lightBackgroundColor || '#FFFFFF',
-    darkBackgroundColor: data?.darkBackgroundColor || '#1A202C',
-    siteTitle: data?.siteTitle || 'My Website',
-    siteLogoUrl: data?.siteLogoUrl || '/images/logo.png',
-    siteLogoIcon: data?.siteLogoIcon || null,
-  }),
-});
+const { data: fetchedThemeSettings } = await useThemeSettings();
 
 const currentHeaderColor = computed(() => {
   return colorMode.value === 'dark' ? fetchedThemeSettings.value.darkHeaderColor : fetchedThemeSettings.value.lightHeaderColor;

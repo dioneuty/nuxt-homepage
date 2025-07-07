@@ -1,5 +1,7 @@
 import prisma from '~/server/utils/prisma'
 import { handleApiError } from '~/server/utils/apiErrorHandlers'
+import { executePaginatedQuery } from '~/server/utils/pagination'
+import { buildBoardSpecificWhere, buildOrderBy } from '~/server/utils/queryBuilder'
 
 export default defineEventHandler(async (event) => {
   const method = event.node.req.method
@@ -59,38 +61,20 @@ export default defineEventHandler(async (event) => {
           }
         }
       } else {
-        // 기존 게시글 목록 조회 로직
-        const skip = (page - 1) * itemsPerPage
-        let whereClause = {}
+        // 기존 게시글 목록 조회 로직 - 새로운 유틸리티 사용
+        const searchParams = { type, text }
+        const orderBy = buildOrderBy(sortColumn, sortOrder, { id: 'desc' }) // 기본 정렬
 
-        if (text) {
-          if (type === 'author') {
-            whereClause.author = { contains: text }
-          } else if (type === 'title') {
-            whereClause.title = { contains: text }
-          } else if (type === 'content') {
-            whereClause.content = { contains: text }
-          }
-        }
+        // 자유게시판은 parentId가 null인 것만 조회 (답글 제외)
+        const result = await executePaginatedQuery(prisma.boardPost, {
+          where: buildBoardSpecificWhere('freeboard', searchParams),
+          orderBy,
+          page,
+          limit: itemsPerPage
+        })
 
-        let orderBy = {}
-        if (sortColumn && sortOrder) {
-          orderBy[sortColumn] = sortOrder.toLowerCase()
-        } else {
-          orderBy = { id: 'desc' } // 기본 정렬
-        }
-
-        const whereWithParent = { ...whereClause, parentId: null }
-
-        const [parentPosts, totalCount] = await Promise.all([
-          prisma.boardPost.findMany({
-            where: whereWithParent,
-            orderBy: orderBy,
-            take: parseInt(itemsPerPage),
-            skip: skip
-          }),
-          prisma.boardPost.count({ where: whereWithParent })
-        ])
+        const parentPosts = result.posts
+        const totalCount = result.total
 
         const parentIds = parentPosts.map(p => p.id)
         

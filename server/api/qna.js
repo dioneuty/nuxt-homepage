@@ -1,5 +1,7 @@
 import prisma from '~/server/utils/prisma'
 import { handleApiError } from '~/server/utils/apiErrorHandlers'
+import { executePaginatedQuery } from '~/server/utils/pagination'
+import { buildBoardSpecificWhere, buildOrderBy } from '~/server/utils/queryBuilder'
 
 /**
  * @file QnA (질문과 답변) API
@@ -20,49 +22,32 @@ export default defineEventHandler(async (event) => {
         where: { id: parseInt(id) }
       })
       // QnA를 찾을 수 없으면 404 Not Found 오류를 반환합니다.
-      return qna || handleApiError(null, 'QnA를 찾을 수 없습니다', 404);
-    } else {
-      // ID가 없는 경우 QnA 목록을 페이지네이션 및 검색하여 조회합니다.
-      const skip = (parseInt(page) - 1) * parseInt(itemsPerPage)
-      let whereClause = {}
+      if (!qna) {
+        handleApiError(event, 404, 'QnA를 찾을 수 없습니다')
+      }
+      return qna;
+          } else {
+        // ID가 없는 경우 QnA 목록을 페이지네이션 및 검색하여 조회합니다.
+        // 새로운 검색 및 페이지네이션 유틸리티를 사용하여 코드 중복을 제거합니다.
+        const searchParams = { type, text }
+        const whereClause = buildBoardSpecificWhere('qna', searchParams)
+        const orderBy = buildOrderBy(null, null, { id: 'desc' }) // 기본 정렬: 최신 질문이 먼저
 
-      // 검색 텍스트가 있는 경우 검색 유형(저자, 제목, 내용)에 따라 WHERE 절을 구성합니다.
-      if (text) {
-        if (type === 'author') {
-          whereClause.author = { contains: text, mode: 'insensitive' }
-        } else if (type === 'title') {
-          whereClause.questionTitle = { contains: text, mode: 'insensitive' }
-        } else if (type === 'content') {
-          whereClause.questionContent = { contains: text, mode: 'insensitive' }
-        } else {
-          // 검색 유형이 지정되지 않은 경우, 여러 필드(저자, 질문 제목, 질문 내용)에서 검색합니다.
-          whereClause.OR = [
-            { author: { contains: text, mode: 'insensitive' } },
-            { questionTitle: { contains: text, mode: 'insensitive' } },
-            { questionContent: { contains: text, mode: 'insensitive' } }
-          ]
+        const result = await executePaginatedQuery(prisma.qnA, {
+          where: whereClause,
+          orderBy,
+          page,
+          limit: itemsPerPage
+        })
+
+        // QnA 특화 응답 형식으로 변환 (기존 API와 호환성 유지)
+        return {
+          qnas: result.posts, // posts를 qnas로 변경
+          total: result.total,
+          page: result.page,
+          itemsPerPage: result.itemsPerPage
         }
       }
-
-      // QnA 목록과 총 개수를 병렬로 조회합니다.
-      const [qnas, totalCount] = await Promise.all([
-        prisma.qnA.findMany({
-          where: whereClause,
-          orderBy: { id: 'desc' }, // 최신 질문이 먼저 오도록 ID 내림차순 정렬
-          take: parseInt(itemsPerPage),
-          skip: skip
-        }),
-        prisma.qnA.count({ where: whereClause }) // 검색 조건에 맞는 전체 QnA 개수
-      ])
-
-      // 조회된 QnA 목록과 페이지네이션 정보를 반환합니다.
-      return {
-        qnas,
-        total: totalCount,
-        page: parseInt(page),
-        itemsPerPage: parseInt(itemsPerPage)
-      }
-    }
   }
 
   // POST 요청 처리: 새로운 QnA 질문을 생성합니다.
@@ -75,8 +60,7 @@ export default defineEventHandler(async (event) => {
       return { success: true, id: result.id }
     } catch (error) {
       // QnA 생성 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('QnA 생성 중 오류:', error)
-      throw handleApiError(error, 'QnA 생성 실패', 500)
+      handleApiError(event, 500, 'QnA 생성 실패', error)
     }
   }
 
@@ -92,8 +76,7 @@ export default defineEventHandler(async (event) => {
       return { success: true } // 성공 응답
     } catch (error) {
       // QnA 업데이트 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('QnA 업데이트 중 오류:', error)
-      throw handleApiError(error, 'QnA 업데이트 실패', 500)
+      handleApiError(event, 500, 'QnA 업데이트 실패', error)
     }
   }
 
@@ -108,11 +91,10 @@ export default defineEventHandler(async (event) => {
       return { success: true } // 성공 응답
     } catch (error) {
       // QnA 삭제 중 오류 발생 시 로깅하고 500 Internal Server Error 반환
-      console.error('QnA 삭제 중 오류:', error)
-      throw handleApiError(error, 'QnA 삭제 실패', 500)
+      handleApiError(event, 500, 'QnA 삭제 실패', error)
     }
   }
 
   // 지원하지 않는 HTTP 메소드에 대한 처리: 405 Method Not Allowed 반환
-  throw handleApiError(null, 'Method Not Allowed', 405)
+  handleApiError(event, 405, 'Method Not Allowed')
 })
