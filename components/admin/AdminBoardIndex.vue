@@ -246,7 +246,7 @@ function goToPostDetail(postId) {
 function onDragEnd() {
   // 변경된 헤더 순서를 로컬 스토리지에 저장
   localStorage.setItem(`${props.boardType}_headerOrder`, JSON.stringify(localHeaders.value.map(function(h) { return h.key })))
-  console.log('New header order:', localHeaders.value)
+  
 }
 
 onMounted(function() {

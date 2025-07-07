@@ -176,7 +176,7 @@ export default function useOutlineData() {
       return zoomPath.value[zoomPath.value.length - 1].children
     },
     set: (newItems) => {
-      console.log('currentItems setter called. New items:', newItems);
+  
       if (zoomPath.value.length === 0) {
         rootItems.value = newItems
       } else {
@@ -291,15 +291,15 @@ export default function useOutlineData() {
     }
 
     try {
-      console.log('Fetching content for item ID:', itemId);
+  
       const response = await fetch(`/api/outline-item/${itemId.toString()}`);
       
       if (response.ok) {
         const data = await response.json();
         selectedItemContent.value = data.content || '';
-        console.log('Successfully fetched content for item:', itemId);
+  
       } else if (response.status === 404) {
-        console.log('Item not found, creating with empty content:', itemId);
+  
         selectedItemContent.value = '';
         await saveItemContentToDB(itemId, '');
       } else {
@@ -600,7 +600,7 @@ export default function useOutlineData() {
    * @param evt vuedraggable change 이벤트 객체
    */
   function handleReorder(evt) {
-    console.log('handleReorder called. Event:', evt);
+
     saveAllItems(rootItems.value);
   }
 

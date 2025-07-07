@@ -59,7 +59,7 @@ export default defineEventHandler(async (event) => {
         return;
       }
       
-      console.log('Successfully fetched outline item:', item.id);
+
       // 조회된 항목의 BigInt 필드를 문자열로 변환하여 반환합니다.
       return bigIntToString(item)
     }
@@ -70,7 +70,7 @@ export default defineEventHandler(async (event) => {
       // 요청 본문에서 업데이트할 'content'를 추출합니다.
       const { content } = await readBody(event)
       
-      console.log('Updating/creating outline item with ID:', id, 'content length:', content?.length || 0);
+
       
       // 기존 항목 조회 (upsert의 create 부분에서 사용될 수 있는 order 및 parentId를 가져오기 위함)
       const existingItem = await prisma.outlineItem.findUnique({
@@ -92,7 +92,7 @@ export default defineEventHandler(async (event) => {
         }
       })
 
-      console.log('Successfully updated/created outline item:', result.id);
+
       // 업데이트되거나 생성된 항목의 BigInt 필드를 문자열로 변환하여 반환합니다.
       return bigIntToString(result)
     }

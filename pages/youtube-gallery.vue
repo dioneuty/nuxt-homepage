@@ -302,8 +302,7 @@
       await loadVideos()
     } catch (err) {
       console.error('비디오 삭제 실패:', err)
-      const errorMessage = err.data?.message || '비디오 삭제에 실패했습니다.'
-      showToast(errorMessage, 'error')
+      error.value = err.message || '비디오 삭제에 실패했습니다.'
     }
   }
   
@@ -356,7 +355,6 @@
    * @param {Object} video - 오류가 발생한 비디오 객체
    */
   const handleVideoError = (video) => {
-    console.error('YouTube video playback error for:', video.videoId);
     video.hasError = true;
   }
 

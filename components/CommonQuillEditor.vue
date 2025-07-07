@@ -123,7 +123,7 @@ function imageHandler() {
       const quill = quillInstance.value;
       const range = quill.getSelection(true);
       
-      console.log('🖼️ 하이브리드 이미지 압축 시작...', files.length, '개 파일');
+  
       
       try {
                  // 🎯 서버사이드 압축 시도 (1순위)
@@ -235,7 +235,7 @@ async function compressImageWithServer(file, options = {}) {
  * 서버 압축 실패 시 기존 클라이언트 압축 방식 사용
  */
 async function fallbackToClientCompression(files, quill, range) {
-  console.log('🔄 클라이언트 압축으로 폴백 중...');
+  
   
   try {
     // 🎨 클라이언트 압축 처리
@@ -409,7 +409,7 @@ function formatBytes(bytes) {
  * @param {Object} range - 선택 범위
  */
 function fallbackImageHandler(files, quill, range) {
-  console.log('🔄 기존 방식으로 폴백...');
+  
   
   const readFilesAsBase64 = Array.from(files).map(file => {
     return new Promise((resolve, reject) => {

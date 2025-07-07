@@ -55,7 +55,6 @@ export const useMenuStore = defineStore('menu', {
         this.menus = data;
       } catch (e) {
         this.error = e;
-        console.error('메뉴 데이터 로딩 실패:', e);
       } finally {
         this.loading = false;
       }

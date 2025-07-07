@@ -117,7 +117,7 @@ export function usePdfReader() {
       // 페이지 렌더링
       await page.render(renderContext).promise
       
-      console.log(`페이지 ${pageNum} 렌더링 완료`)
+
 
     } catch (err) {
       error.value = `페이지 렌더링 실패: ${err.message}`
@@ -182,7 +182,7 @@ export function usePdfReader() {
     // PDF.js 라이브러리가 로드될 때까지 대기
     const checkPdfLib = () => {
       if (initializePdfjs()) {
-        console.log('PDF.js 라이브러리 초기화 완료')
+    
       } else {
         // 100ms 후 다시 시도
         setTimeout(checkPdfLib, 100)

@@ -161,6 +161,6 @@ onMounted(async () => {
  */
 function updateField(fieldName, event) {
   wiki.value[fieldName] = event.target ? event.target.value : event
-  //console.log(`Field ${fieldName} updated:`, wiki.value[fieldName])
+  
 }
 </script>

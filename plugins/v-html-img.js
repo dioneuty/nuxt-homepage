@@ -10,7 +10,7 @@ export default defineNuxtPlugin((nuxtApp) => {
             //문자열을 html 태그로 변환
             // https://velog.io/@godud2604/%EC%9D%B4%EB%AF%B8%EC%A7%80-%EC%B5%9C%EC%A0%81%ED%99%94-Lazy-Load-Intersection-Observer-API
             const html = new DOMParser().parseFromString(binding.value, 'text/html')
-            debugger
+        
             const images = html.querySelectorAll('img')
 
             Array.from(images).forEach((img) => {

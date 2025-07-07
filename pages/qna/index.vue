@@ -119,7 +119,7 @@ const setupIntersectionObserver = (enable) => {
       if (entry.isIntersecting && !loading.value && !noMoreData.value) {
         loadMore();
       } else if (entry.isIntersecting) {
-        // console.log('IntersectionObserver: Intersecting, but conditions not met for loadMore.');
+
       }
     }, {
       rootMargin: '100px'
@@ -219,7 +219,7 @@ const loadMore = () => {
     currentPage.value++;
     fetchQnAs(true);
   } else {
-    // console.log(`loadMore: Conditions not met. isMobile: ${isMobile.value}, loading: ${loading.value}, noMoreData: ${noMoreData.value}`);
+    
   }
 };
 
@@ -256,13 +256,13 @@ watch(isMobile, (newValue, oldValue) => {
   setupIntersectionObserver(newValue); // isMobile 값에 따라 Observer 설정/해제
 
   if (newValue) { // 새로운 상태가 모바일이라면 초기 데이터 로드 (첫 페이지)
-    // console.log('isMobile changed to true, setting up observer and fetching initial data.');
+    
     // watch 훅에서 fetchQnAs 호출은 onMounted에서 이미 했다면 스킵
     if (qnas.value.length === 0) { // 비어있을 때만 다시 로드
       fetchQnAs();
     }
   } else { // 새로운 상태가 데스크톱이라면 URL 쿼리 파라미터 업데이트 및 초기 데이터 로드
-    // console.log('isMobile changed to false, updating route query and fetching initial data.');
+    
     updateRouteQuery();
     fetchQnAs();
   }

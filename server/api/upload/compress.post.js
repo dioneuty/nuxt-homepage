@@ -138,13 +138,7 @@ export default defineEventHandler(async (event) => {
       }
     }
 
-    console.log(`🚀 서버 압축 완료:
-      처리 시간: ${processTime}ms
-      원본: ${formatBytes(originalSize)}
-      압축: ${formatBytes(compressedSize)}
-      절약: ${reduction}% 🎉
-      포맷: ${format}
-      해상도: ${compressedMetadata.width}×${compressedMetadata.height}`)
+
 
     // Base64 형태로 반환
     const compressedBase64 = `data:image/${format};base64,${compressedBuffer.toString('base64')}`

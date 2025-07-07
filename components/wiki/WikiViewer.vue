@@ -69,7 +69,7 @@ const error = ref(null)
 onMounted(async () => {
   try {
     const response = await $fetch(`${props.apiEndpoint}?id=${route.query.id}`)
-    console.log('Wiki data:', response) // 데이터 확인
+
     wiki.value = response
   } catch (fetchError) {
     error.value = '위키 페이지를 불러오는데 실패했습니다.'

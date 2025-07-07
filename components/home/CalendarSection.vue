@@ -47,10 +47,10 @@ const calendarOptions = ref({
     { title: '이벤트 2', date: '2024-09-15', },
   ],
   dateClick: (info) => {
-    console.log('날짜 클릭:', info.dateStr)
+
   },
   eventClick: (info) => {
-    console.log('이벤트 클릭:', info.event.title)
+
   },
   dayCellClassNames: (arg) => {
     if (arg.date.getDay() === 0) {
@@ -121,7 +121,7 @@ async function fetchHolidays(year, month) {
       display: 'background'
     }))
 
-    console.log('holidays', holidays)
+  
 
     return holidays
   } catch (error) {

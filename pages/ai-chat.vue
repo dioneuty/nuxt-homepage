@@ -294,7 +294,7 @@ async function saveChatToServer(chat) {
 
 async function loadChat(screenId) {
   const chat = chatHistory.value.find(c => c.screenId === screenId)
-  console.log(chat)
+  
   if (chat) {
     currentChat.value = JSON.parse(chat.messages)
     currentScreenId.value = chat.screenId
@@ -349,7 +349,7 @@ function renderMarkdown(content) {
         if (code.lang && hljs.getLanguage(code.lang)) {
         // 언어가 지정되고 해당 언어가 지원되는 경우
         highlightedCode = hljs.highlight(code.text, { language : code.lang });
-        console.log(highlightedCode)
+
         } else {
         // 언어가 지정되지 않았거나 지원되지 않는 경우 자동 감지
         highlightedCode = hljs.highlightAuto(code.text);

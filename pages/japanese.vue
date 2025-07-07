@@ -208,7 +208,6 @@ function importTXT(event) {
         }
       } catch (error) {
         alert('텍스트 파일 가져오기에 실패했습니다. 파일 형식을 확인해주세요.')
-        console.error('텍스트 가져오기 오류:', error)
       }
     }
     reader.readAsText(file)

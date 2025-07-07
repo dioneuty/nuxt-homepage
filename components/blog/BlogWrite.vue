@@ -198,7 +198,7 @@ const CommonQuillEditor = defineAsyncComponent(() => import('~/components/Common
    */
   function updateField(fieldName, event) {
     post.value[fieldName] = event.target ? event.target.value : event
-    //console.log(`Field ${fieldName} updated:`, post.value[fieldName])
+    
   }
   
   /**

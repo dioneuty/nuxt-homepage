@@ -118,7 +118,6 @@ async function saveChanges(event) {
     }
   } catch (error) {
     console.error('사용자 정보 업데이트 중 오류 발생:', error)
-    alert('사용자 정보 업데이트 중 오류가 발생했습니다.')
   }
 }
 </script>

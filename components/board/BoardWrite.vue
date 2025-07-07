@@ -163,7 +163,7 @@ onMounted(async () => {
 function updateField(fieldName, event) {
   // 폼 필드의 값을 업데이트
   post.value[fieldName] = event.target ? event.target.value : event
-  //console.log(`Field ${fieldName} updated:`, post.value[fieldName])
+  
 }
 
 /**

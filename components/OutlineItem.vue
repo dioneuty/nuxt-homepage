@@ -275,11 +275,11 @@ watch(() => props.item.content, (newContent) => {
  * @returns {void}
  */
 function toggleExpand() {
-  // console.log('Toggle expand called for item:', props.item.id, 'Current expanded:', props.item.expanded);
+
   props.item.expanded = !props.item.expanded;
-  // console.log('New expanded state:', props.item.expanded);
+
   emit('toggle', props.item);
-  // console.log('Emitted toggle event with new item state.');
+
 }
 
 /**
