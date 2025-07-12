@@ -145,31 +145,23 @@
    */
   async function checkUsernameDuplication() {
     if (!username.value) {
-      usernameCheckMessage.value = '사용자 이름을 입력해주세요.'
-      isUsernameAvailable.value = false
-      usernameChecked.value = false
+      setUsernameCheckResult(false, '사용자 이름을 입력해주세요.', false)
       return
     }
   
     try {
-      const response = await fetch(`/api/user/check-username?username=${username.value}`)
-      const data = await response.json()
-  
-      if (response.ok) {
-        isUsernameAvailable.value = data.available
-        usernameCheckMessage.value = data.message
-        usernameChecked.value = true
-      } else {
-        isUsernameAvailable.value = false
-        usernameCheckMessage.value = data.statusMessage || '중복 확인 중 오류 발생'
-        usernameChecked.value = true
-      }
+      const data = await $fetch(`/api/user/check-username?username=${username.value}`)
+      setUsernameCheckResult(data.available, data.message, true)
     } catch (error) {
       console.error('Username duplication check error:', error)
-      isUsernameAvailable.value = false
-      usernameCheckMessage.value = '중복 확인 중 네트워크 오류가 발생했습니다.'
-      usernameChecked.value = true
+      setUsernameCheckResult(false, '중복 확인 중 오류가 발생했습니다.', true)
     }
+  }
+
+  function setUsernameCheckResult(available, message, checked = true) {
+    isUsernameAvailable.value = available
+    usernameCheckMessage.value = message
+    usernameChecked.value = checked
   }
   
   /**

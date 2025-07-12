@@ -140,53 +140,35 @@ const CommonQuillEditor = defineAsyncComponent(() => import('~/components/Common
     }
   }
 
-  /**
-   * 컴포넌트 마운트 시 카테고리 목록을 불러오고,
-   * URL 쿼리에 `id`가 있다면 기존 블로그 게시글 데이터를 불러와 수정 모드로 설정합니다.
-   * API 호출 중 로딩 및 에러 상태를 처리하고, 모달을 통해 사용자에게 피드백을 제공합니다.
-   */
+  // 컴포넌트 초기화
   onMounted(async () => {
+    cleanupExpiredDrafts()
+    
+    // 필드 초기화
+    props.fields.forEach(field => {
+      post.value[field.name] = post.value[field.name] || ''
+    })
+    
     try {
-      // 만료된 초안들 정리
-      cleanupExpiredDrafts()
-      
-      // post 객체 초기화 (필드가 존재하도록)
-      props.fields.forEach(field => {
-        if (!post.value[field.name]) {
-          post.value[field.name] = ''
-        }
-      })
-      
-      const { data: categoriesData } = await useFetch('/api/categories')
-      categories.value = categoriesData.value.filter(category => category.id !== 'all')
+      // 카테고리 로드
+      const { data } = await useFetch('/api/categories')
+      categories.value = data.value.filter(cat => cat.id !== 'all')
 
+      // 수정 모드 처리
       if (route.query.id) {
         isEditing.value = true
         pending.value = true
-        try {
-          const { data } = await useFetch(`${props.apiEndpoint}?id=${route.query.id}`)
-          if (data.value) {
-            post.value = data.value
-          } else {
-            openModal('오류', '블로그 글을 불러오는데 실패했습니다.')
-          }
-        } catch (e) {
-          error.value = e
-          openModal('오류', '블로그 글을 불러오는데 실패했습니다.')
-        } finally {
-          pending.value = false
-        }
+        
+        const postData = await useFetch(`${props.apiEndpoint}?id=${route.query.id}`)
+        post.value = postData.data.value || {}
+        pending.value = false
       } else {
-        // 새 글 작성 시에만 초안 복구 프롬프트 표시
-        // 카테고리 로딩 완료 후 초안 복원 시도
-        await nextTick()
-        setTimeout(() => {
-          showDraftRestorePrompt()
-        }, 100) // 약간의 지연을 줘서 모든 초기화가 완료된 후 실행
+        // 새 글 작성 시 초안 복구
+        setTimeout(showDraftRestorePrompt, 100)
       }
     } catch (e) {
       error.value = e
-      openModal('오류', '카테고리 목록을 불러오는데 실패했습니다.')
+      openModal('오류', route.query.id ? '게시글을 불러오는데 실패했습니다.' : '카테고리를 불러오는데 실패했습니다.')
     }
   })
   

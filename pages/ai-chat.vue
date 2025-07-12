@@ -210,29 +210,29 @@ async function sendMessage() {
 
   const userMessage = { role: 'user', content: userInput.value, created: Math.floor(Date.now() / 1000) }
   currentChat.value.push(userMessage)
+  const messageToSend = userInput.value
+  userInput.value = ''
 
   try {
     isWaiting.value = true
-    const response = await fetch('/api/chat', {
+    const data = await $fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ 
+      body: { 
         action: 'chat', 
-        message: userInput.value, 
+        message: messageToSend, 
         screenId: currentScreenId.value
-      })
+      }
     })
 
-    const data = await response.json()
     if (data.success) {
-      const assistantMessage = { role: 'assistant', content: data.message, model: data.model, created: data.created }
-      currentChat.value.push(assistantMessage)
+      currentChat.value.push({ 
+        role: 'assistant', 
+        content: data.message, 
+        model: data.model, 
+        created: data.created 
+      })
       updateChatHistory()
-    } else {
-      console.error('API 요청 실패:', data.error)
     }
-
-    userInput.value = ''
   } catch (error) {
     console.error('Error:', error)
     alert('메시지 전송 중 오류가 발생했습니다.')
@@ -243,31 +243,27 @@ async function sendMessage() {
 
 async function loadChatHistory() {
   try {
-    const response = await fetch('/api/chat', {
+    const data = await $fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ action: 'load' })
+      body: { action: 'load' }
     })
-    const data = await response.json()
-    if (data.success) {
-      chatHistory.value = data.chats
-    }
+    if (data.success) chatHistory.value = data.chats
   } catch (error) {
     console.error('채팅 내역 로드 중 오류:', error)
-  } finally {
   }
 }
 
 function updateChatHistory() {
-  const existingChatIndex = chatHistory.value.findIndex(chat => chat.screenId === currentScreenId.value)
   const updatedChat = {
     screenId: currentScreenId.value,
     title: currentChat.value[0]?.content.substring(0, 30) || '새 채팅',
     messages: JSON.stringify(currentChat.value)
   }
 
-  if (existingChatIndex !== -1) {
-    chatHistory.value[existingChatIndex] = updatedChat
+  const existingIndex = chatHistory.value.findIndex(chat => chat.screenId === currentScreenId.value)
+  
+  if (existingIndex !== -1) {
+    chatHistory.value[existingIndex] = updatedChat
   } else {
     chatHistory.value.unshift(updatedChat)
   }
@@ -277,15 +273,14 @@ function updateChatHistory() {
 
 async function saveChatToServer(chat) {
   try {
-    await fetch('/api/chat', {
+    await $fetch('/api/chat', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
+      body: {
         action: 'save',
         screenId: chat.screenId,
         title: chat.title,
         messages: chat.messages
-      })
+      }
     })
   } catch (error) {
     console.error('채팅 저장 중 오류:', error)

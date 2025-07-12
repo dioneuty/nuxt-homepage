@@ -1,57 +1,70 @@
 <template>
-  <div class="container mx-auto px-4 py-8 dark:bg-gray-800 dark:text-white">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
-      <Icon icon="mdi:frequently-asked-questions" class="mr-2" />
-      질문과 답변
-    </h1>
-    <div class="mb-6 flex justify-between items-center">
-      <NuxtLink to="/qna/write" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center">
-        <Icon icon="mdi:pencil-plus" class="mr-2" />
-        질문 작성하기
-      </NuxtLink>
+  <div class="container mx-auto px-4 py-8">
+    <div class="mb-8">
+      <h1 class="text-3xl font-bold text-gray-800 dark:text-gray-200 mb-4 flex items-center">
+        <Icon icon="mdi:help-circle" class="w-8 h-8 mr-3 text-blue-600 dark:text-blue-400" />
+        질문과 답변
+      </h1>
+      
+      <SearchBar 
+        :board-type="'qna'"
+        @search="handleSearch"
+      />
     </div>
-    
-    <!-- 검색 바 컴포넌트 -->
-    <SearchBar @search="handleSearch" />
-    
-    <ul class="space-y-4 mt-6">
-      <li v-for="qna in qnas" :key="qna.id" class="border p-4 rounded shadow hover:shadow-md transition dark:border-gray-700 dark:bg-gray-700">
-        <NuxtLink :to="`/qna/view?id=${qna.id}`" class="block">
-          <h2 class="text-xl font-semibold mb-2 dark:text-white flex items-center">
-            <Icon icon="mdi:help-circle-outline" class="mr-2" />
-            {{ qna.questionTitle }}
-          </h2>
-          <p class="text-gray-600 mb-2 dark:text-gray-300">{{ qna.questionContent.substring(0, 100) }}...</p>
-          <div class="text-sm text-gray-500 mb-2 dark:text-gray-400 flex items-center">
-            <Icon icon="mdi:account" class="mr-1" />
-            작성자: {{ qna.author }} | 
-            <Icon icon="mdi:calendar" class="ml-2 mr-1" />
-            작성일: {{ formatDate(qna.createdAt) }}
-          </div>
-          <div class="flex items-center mb-2">
-            <span :class="qna.answerContent ? 'bg-green-500' : 'bg-red-500'" class="px-2 py-1 rounded text-white text-xs mr-2 flex items-center">
-              <Icon :icon="qna.answerContent ? 'mdi:check-circle' : 'mdi:clock-outline'" class="mr-1" />
-              {{ qna.answerContent ? '답변 완료' : '답변 대기' }}
-            </span>
-          </div>
-          <div v-if="qna.answerContent" class="bg-blue-50 p-3 rounded dark:bg-blue-900">
-            <h3 class="font-semibold mb-1 dark:text-white flex items-center">
-              <Icon icon="mdi:comment-text-outline" class="mr-2" />
-              답변:
-            </h3>
-            <p class="text-gray-700 dark:text-gray-300">{{ qna.answerContent.substring(0, 100) }}...</p>
-            <div class="text-sm text-gray-500 mt-1 dark:text-gray-400 flex items-center">
-              <Icon icon="mdi:account" class="mr-1" />
-              답변자: {{ qna.answerer }} | 
-              <Icon icon="mdi:calendar" class="ml-2 mr-1" />
-              답변일: {{ formatDate(qna.updatedAt) }}
+
+    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-lg overflow-hidden">
+      <div class="bg-blue-100 dark:bg-blue-800 px-6 py-4">
+        <h2 class="text-lg font-semibold text-gray-800 dark:text-gray-200 flex items-center">
+          <Icon icon="mdi:format-list-bulleted" class="w-5 h-5 mr-2" />
+          질문 목록 (총 {{ totalItems }}개)
+        </h2>
+      </div>
+
+      <div class="p-6">
+        <div v-if="qnas.length === 0 && !loading" class="text-center py-8 text-gray-500 dark:text-gray-400">
+          등록된 질문이 없습니다.
+        </div>
+        
+        <div v-else class="space-y-4">
+          <div 
+            v-for="qna in qnas" 
+            :key="qna.id"
+            class="border border-gray-200 dark:border-gray-700 rounded-lg p-4 hover:bg-gray-50 dark:hover:bg-gray-700 transition-colors"
+          >
+            <div class="flex items-start justify-between">
+              <div class="flex-1">
+                <nuxt-link 
+                  :to="`/qna/view?id=${qna.id}`"
+                  class="text-lg font-medium text-gray-800 dark:text-gray-200 hover:text-blue-600 dark:hover:text-blue-400 block mb-2"
+                >
+                  {{ qna.questionTitle }}
+                </nuxt-link>
+                
+                <div class="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  {{ qna.questionContent?.substring(0, 150) }}...
+                </div>
+                
+                <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 space-x-4">
+                  <span>작성자: {{ qna.author }}</span>
+                  <span>작성일: {{ formatDate(qna.createdAt) }}</span>
+                </div>
+              </div>
+              
+              <div class="ml-4">
+                <span 
+                  :class="qna.answerContent ? 'bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100' : 'bg-gray-100 text-gray-800 dark:bg-gray-700 dark:text-gray-300'"
+                  class="px-2 py-1 rounded-full text-xs font-medium"
+                >
+                  {{ qna.answerContent ? '답변완료' : '답변대기' }}
+                </span>
+              </div>
             </div>
           </div>
-        </NuxtLink>
-      </li>
-    </ul>
-    
-    <!-- 페이지네이션 컴포넌트 -->
+        </div>
+      </div>
+    </div>
+
+    <!-- 데스크톱 페이지네이션 -->
     <Pagination 
       v-if="!isMobile"
       :total-items="totalItems" 
@@ -61,7 +74,7 @@
       @items-per-page-change="handleItemsPerPageChange"
     />
 
-    <!-- 모바일 무한 스크롤 로딩 인디케이터 -->
+    <!-- 모바일 무한 스크롤 로딩 -->
     <div v-if="isMobile && loading" class="flex justify-center items-center py-4">
       <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-gray-900 dark:border-gray-100"></div>
       <p class="ml-3 dark:text-gray-300">불러오는 중...</p>
@@ -104,10 +117,6 @@ const noMoreData = ref(false)
 const infiniteScrollTrigger = ref(null)
 let observer = null
 
-/**
- * @description Intersection Observer를 설정하거나 해제합니다.
- * @param {boolean} enable - Observer를 활성화할지 여부
- */
 const setupIntersectionObserver = (enable) => {
   if (observer) {
     observer.disconnect();
@@ -118,27 +127,14 @@ const setupIntersectionObserver = (enable) => {
       const entry = entries[0];
       if (entry.isIntersecting && !loading.value && !noMoreData.value) {
         loadMore();
-      } else if (entry.isIntersecting) {
-
       }
-    }, {
-      rootMargin: '100px'
-    });
+    }, { rootMargin: '100px' });
     observer.observe(infiniteScrollTrigger.value);
   }
 };
 
-/**
- * @description Q&A 목록을 가져옵니다. `append`가 true이면 기존 목록에 추가합니다.
- * @param {boolean} append - 데이터를 기존 목록에 추가할지 여부
- */
 const fetchQnAs = async (append = false) => {
-  if (loading.value && append) {
-    return;
-  }
-  if (append && noMoreData.value) {
-    return;
-  }
+  if ((loading.value && append) || (append && noMoreData.value)) return;
   
   loading.value = true;
   try {
@@ -150,11 +146,7 @@ const fetchQnAs = async (append = false) => {
       }
     });
 
-    if (append) {
-      qnas.value = [...qnas.value, ...data.qnas];
-    } else {
-      qnas.value = data.qnas;
-    }
+    qnas.value = append ? [...qnas.value, ...data.qnas] : data.qnas;
     totalItems.value = data.total;
     noMoreData.value = qnas.value.length >= totalItems.value;
   } catch (error) {
@@ -164,43 +156,28 @@ const fetchQnAs = async (append = false) => {
   }
 }
 
-/**
- * @description 검색 바에서 검색 이벤트 발생 시 호출됩니다.
- * @param {object} params - 검색 파라미터 (type, text)
- */
 const handleSearch = (params) => {
   searchParams.value = params
   currentPage.value = 1
-  noMoreData.value = false // 검색 시 데이터가 새로 로드되므로 초기화
+  noMoreData.value = false
   if (!isMobile.value) {
-  updateRouteQuery()
+    updateRouteQuery()
   } else {
-    fetchQnAs() // 모바일에서는 즉시 fetch
+    fetchQnAs()
   }
 }
 
-/**
- * @description 페이지 변경 이벤트 발생 시 호출됩니다 (데스크톱).
- * @param {number} page - 변경될 페이지 번호
- */
 const handlePageChange = (page) => {
   currentPage.value = page
   updateRouteQuery()
 }
 
-/**
- * @description 페이지당 아이템 수 변경 이벤트 발생 시 호출됩니다 (데스크톱).
- * @param {number} newItemsPerPage - 변경될 페이지당 아이템 수
- */
 const handleItemsPerPageChange = (newItemsPerPage) => {
   itemsPerPage.value = newItemsPerPage
   currentPage.value = 1
   updateRouteQuery()
 }
 
-/**
- * @description 라우트 쿼리 파라미터를 업데이트합니다 (데스크톱).
- */
 const updateRouteQuery = () => {
   router.push({
     query: {
@@ -211,58 +188,41 @@ const updateRouteQuery = () => {
   })
 }
 
-/**
- * @description 모바일 환경에서 추가 데이터를 로드합니다.
- */
 const loadMore = () => {
   if (isMobile.value && !loading.value && !noMoreData.value) {
     currentPage.value++;
     fetchQnAs(true);
-  } else {
-    
   }
 };
 
 onMounted(() => {
-  // onMounted에서는 isMobile.value가 true일 때만 Observer 설정 시도
   if (isMobile.value) {
-    // infiniteScrollTrigger 요소가 DOM에 있을 때까지 기다린 후 Observer 설정
     watch(infiniteScrollTrigger, (newValue) => {
       if (newValue) {
         setupIntersectionObserver(true);
-        if (qnas.value.length === 0) { // qnas가 비어있을 때만 초기 로딩
-          fetchQnAs();
-        }
+        if (qnas.value.length === 0) fetchQnAs();
       }
     }, { immediate: true });
   }
 });
 
-onUnmounted(() => {
-  setupIntersectionObserver(false);
-});
+onUnmounted(() => setupIntersectionObserver(false));
 
-// isMobile 상태 변화를 감지하고, 그에 따라 로직을 조정합니다.
+// 모바일 <-> 데스크톱 전환 처리
 watch(isMobile, (newValue, oldValue) => {
-  if (newValue === oldValue) return; // 같은 값으로의 변화는 무시
+  if (newValue === oldValue) return;
 
-  // 모바일 <-> 데스크톱 전환 시 데이터 및 상태 초기화
   qnas.value = [];
   currentPage.value = 1;
   totalItems.value = 0;
   noMoreData.value = false;
   loading.value = false;
 
-  setupIntersectionObserver(newValue); // isMobile 값에 따라 Observer 설정/해제
+  setupIntersectionObserver(newValue);
 
-  if (newValue) { // 새로운 상태가 모바일이라면 초기 데이터 로드 (첫 페이지)
-    
-    // watch 훅에서 fetchQnAs 호출은 onMounted에서 이미 했다면 스킵
-    if (qnas.value.length === 0) { // 비어있을 때만 다시 로드
-      fetchQnAs();
-    }
-  } else { // 새로운 상태가 데스크톱이라면 URL 쿼리 파라미터 업데이트 및 초기 데이터 로드
-    
+  if (newValue) {
+    if (qnas.value.length === 0) fetchQnAs();
+  } else {
     updateRouteQuery();
     fetchQnAs();
   }
@@ -270,14 +230,13 @@ watch(isMobile, (newValue, oldValue) => {
 
 watchEffect(() => {
   if (!isMobile.value) {
-    // 데스크톱 환경에서는 URL 쿼리 파라미터 기반 페이지네이션
-  currentPage.value = parseInt(route.query.page) || 1
-  itemsPerPage.value = parseInt(route.query.itemsPerPage) || 10
-  searchParams.value = {
-    type: route.query.type || '',
-    text: route.query.text || ''
-  }
-    fetchQnAs(); // 데스크톱 환경에서만 watchEffect에 의한 fetchQnAs 호출
+    currentPage.value = parseInt(route.query.page) || 1
+    itemsPerPage.value = parseInt(route.query.itemsPerPage) || 10
+    searchParams.value = {
+      type: route.query.type || '',
+      text: route.query.text || ''
+    }
+    fetchQnAs();
   }
 });
 </script>

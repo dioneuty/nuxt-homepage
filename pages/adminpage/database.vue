@@ -229,52 +229,49 @@ const cancelEdit = () => {
 };
 
 const saveRecord = async () => {
-  if (!selectedModel.value || !formFields.value) return;
+  if (!selectedModel.value || !formFields.value) return
 
   const url = editingRecord.value
     ? `/api/admin/db/${selectedModel.value}/${editingRecord.value.id}`
-    : `/api/admin/db/${selectedModel.value}`;
+    : `/api/admin/db/${selectedModel.value}`
   
-  const method = editingRecord.value ? 'PUT' : 'POST';
+  const dataToSave = { ...formData.value }
 
-  const dataToSave = { ...formData.value };
-
-  // Prepare data for saving
-  for (const field of formFields.value) {
-    const value = dataToSave[field.name];
-    if (value === '' || value === null || value === undefined) {
-      delete dataToSave[field.name];
-      continue;
+  // 데이터 타입 변환
+  formFields.value.forEach(field => {
+    const value = dataToSave[field.name]
+    if (!value) {
+      delete dataToSave[field.name]
+      return
     }
-    if (['Int', 'Float', 'Decimal'].includes(field.type)) {
-      dataToSave[field.name] = Number(value);
-    } else if (field.type === 'BigInt') {
-      dataToSave[field.name] = BigInt(value).toString(); // Send as string to avoid JSON issues
-    } else if (field.type === 'DateTime') {
-      dataToSave[field.name] = new Date(value).toISOString();
-    } else if (field.type === 'Json') {
-      try {
-        dataToSave[field.name] = JSON.parse(value);
-      } catch (e) {
-        alert(`Invalid JSON in field: ${field.name}`);
-        return;
+
+    const typeMap = {
+      Int: Number, Float: Number, Decimal: Number,
+      BigInt: v => BigInt(v).toString(),
+      DateTime: v => new Date(v).toISOString(),
+      Json: v => {
+        try { return JSON.parse(v) }
+        catch { alert(`Invalid JSON in field: ${field.name}`); throw new Error('Invalid JSON') }
       }
     }
-  }
 
+    if (typeMap[field.type]) {
+      dataToSave[field.name] = typeMap[field.type](value)
+    }
+  })
 
   try {
     await $fetch(url, {
-      method: method,
-      body: dataToSave,
-    });
-    await fetchRecords(selectedModel.value);
-    cancelEdit();
+      method: editingRecord.value ? 'PUT' : 'POST',
+      body: dataToSave
+    })
+    await fetchRecords(selectedModel.value)
+    cancelEdit()
   } catch (error) {
-    console.error('Error saving record:', error);
-    alert('Failed to save record.');
+    console.error('Error saving record:', error)
+    alert('Failed to save record.')
   }
-};
+}
 
 const handleDateTimeInput = (fieldName: string, event: Event) => {
   if (event.target instanceof HTMLInputElement) {

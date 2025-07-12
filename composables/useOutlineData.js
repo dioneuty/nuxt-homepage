@@ -234,20 +234,17 @@ export default function useOutlineData() {
     }
   }
 
-  /**
-   * 모든 아이템 저장 (DB & LocalStorage)
-   * @param {Object} items - 저장할 아이템 배열
-   */
+  // 통합 저장 (DB & LocalStorage)
   async function saveAllItems(items) { 
+    saveToLocalStorage(items)
     try {
       await fetch('/api/outline', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(items) 
-      });
-      saveToLocalStorage(items); 
+      })
     } catch (error) {
-      console.error('Error saving all items:', error);
+      console.error('Error saving all items:', error)
     }
   }
 
@@ -899,73 +896,24 @@ export default function useOutlineData() {
 
 
   return {
-    // 1. 아웃라이너 데이터 관리 관련 상태
-    rootItems, // 루트 아이템 배열
-    zoomPath, // 확대 경로 배열
-    treeState, // 트리 상태를 저장할 객체
-    selectedItem, // 선택된 항목
-    selectedItemContent, // 선택된 항목의 내용
-    isDetailEditing, // 상세 화면 편집 모드 상태
-    showDetailModal, // 모바일 상세 모달 가시성
-    draggingItem, // 드래그 중인 아이템 및 원래 위치 정보
-    clipboardItem, // 클립보드에 복사/잘라내기된 아이템
-    isCutOperation, // 잘라내기 작업인지 여부
-    potentialHierarchyChange, // 드래그 중 잠재적인 들여쓰기/내어쓰기 의도를 저장할 ref
-    isClipboardNotEmpty, // 클립보드가 비어있지 않은지 여부
-    currentItems, // 현재 아이템 배열
-    searchQuery, // 검색 쿼리
-    searchResults, // 검색 결과
-    currentSearchIndex, // 현재 검색 결과 인덱스
+    // 상태
+    rootItems, zoomPath, selectedItem, selectedItemContent, isDetailEditing, showDetailModal,
+    draggingItem, clipboardItem, isCutOperation, potentialHierarchyChange, isClipboardNotEmpty, 
+    currentItems, searchQuery, searchResults, currentSearchIndex,
 
-    // 2. 아웃라이너 데이터 관리 관련 함수
-    generateUUID, // 새로운 UUID 생성 헬퍼 함수
-    createNewOutlineItem, // 새 항목 객체를 생성하는 헬
-    findItem, // ID로 아이템 찾기 (재귀)
-    findParentList, // ID로 아이템의 부모 배열 찾기 (재귀)
-    findParent, // ID로 아이템의 부모 아이템 찾기 (재귀)
-    findPathToItem, // ID로 아이템까지의 전체 경로 찾기 (재귀)
-    findAndRemoveItemFromTree, // 아이템을 트리에서 찾아 제거하고, 제거된 아이템과 그 부모를 반환합니다.
-    loadFromLocalStorage, // localStorage에서 아웃라이너 데이터 불러오기
-    saveToLocalStorage, // localStorage에 데이터 저장하기
-    loadFromDB, // DB에서 아웃라이너 데이터 불러오기
-    saveToDB, // DB에 아웃라이너 데이터 저장하기
-    saveAllItems, // 모든 아이템 저장 (DB & LocalStorage)
-    updateSelectedItemContent, // 선택된 항목의 내용 업데이트 및 DB 저장
-    saveItemContentToDB, // 선택된 항목의 내용을 DB에 저장
-    fetchSelectedItemContent, // 선택된 항목의 내용을 DB에서 불러오기
-    handleItemSelected, // 항목 선택 핸들러
-    closeDetail, // 상세 모달 닫기
-    toggleEditMode, // 상세 편집 모드 토글
-    toggleItem, // 아이템 토글 (확장/축소)
-    deepCopyItem, // 아이템 복사 (재귀적으로 자식도 복사)
-    setClipboardItem, // 클립보드에 아이템을 설정하고, 잘라내기 작업 여부를 지정합니다.
-    duplicateItem, // 아이템 복제
-    cutItem, // 아이템 잘라내기
-    copyItem, // 아이템 복사
-    pasteItem, // 아이템 붙여넣기
-    addItem, // 아이템 추가
-    addAboveItem, // 아이템 위에 추가
-    addBelowItem, // 아이템 아래에 추가
-    deleteItem, // 아이템 삭제
-    updateItem, // 아이템 내용 업데이트
-    indentItem, // 아이템 들여쓰기
-    outdentItem, // 아이템 내어쓰기
-    handleReorder, // 재정렬 처리 및 들여쓰기/내어쓰기 감지
-    zoomToItem, // 특정 아이템으로 확대
-    zoomTo, // 특정 인덱스로 확대
-    zoomOut, // 확대 취소
-    handleDragStart, // 드래그 시작 처리
-    handleDragEnd, // 드래그 종료 처리
-    checkDragMove, // 드래그 이동 처리
-    handleShowDetail, // 상세 모달 표시
-    selectItem, // 아이템 선택
-    initializeOutlineData, // 아웃라이너 데이터 초기화
-    cleanupOutlineData, // 아웃라이너 데이터 정리
-    setupOutlineWatchers, // 아웃라이너 데이터 관찰자 설정
-    searchItems, // 검색 실행 함수
-    performSearch, // 검색 실행
-    navigateToSearchResult, // 특정 검색 결과로 이동
-    navigateSearchResults, // 검색 결과 네비게이션
-    clearSearch, // 검색 초기화
+    // 핵심 기능
+    generateUUID, createNewOutlineItem, findItem, findParentList, findParent, findPathToItem,
+    findAndRemoveItemFromTree, loadFromLocalStorage, saveToLocalStorage, loadFromDB, saveToDB,
+    saveAllItems, updateSelectedItemContent, saveItemContentToDB, fetchSelectedItemContent,
+
+    // 액션
+    handleItemSelected, closeDetail, toggleEditMode, toggleItem, deepCopyItem, setClipboardItem,
+    duplicateItem, cutItem, copyItem, pasteItem, addItem, addAboveItem, addBelowItem, deleteItem,
+    updateItem, indentItem, outdentItem, handleReorder, zoomToItem, zoomTo, zoomOut,
+
+    // 드래그 & 검색
+    handleDragStart, handleDragEnd, checkDragMove, handleShowDetail, selectItem,
+    initializeOutlineData, cleanupOutlineData, setupOutlineWatchers, performSearch,
+    navigateToSearchResult, navigateSearchResults, clearSearch
   }
 } 

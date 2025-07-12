@@ -37,18 +37,11 @@
   const username = ref('')
   const password = ref('')
 
-  /**
-   * 로그인 폼 제출을 처리하는 비동기 함수입니다.
-   * API를 통해 사용자 인증을 시도하고, 성공 시 사용자 인증 상태를 설정하고 모달을 닫습니다.
-   * 실패 시 오류 메시지를 콘솔에 기록하고 사용자에게 알림을 표시합니다.
-   */
-  async function handleLogin() {
+  const handleLogin = async () => {
     try {
       const response = await fetch('/api/user?type=login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           username: username.value,
           password: password.value,
@@ -59,7 +52,6 @@
         const data = await response.json()
         setAuth(true, data.user)
         closeModal()
-        // 추가적인 로그인 성공 처리 (예: 페이지 리로드, 리다이렉트 등)
       } else {
         const errorData = await response.json()
         console.error('Login error:', errorData)

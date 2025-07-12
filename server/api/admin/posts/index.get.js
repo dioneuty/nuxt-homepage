@@ -3,57 +3,34 @@ import { handleApiError } from '~/server/utils/apiErrorHandlers.js'
 
 export default defineEventHandler(async (event) => {
   const query = getQuery(event)
-  const boardType = query.boardType
-  const page = parseInt(query.page || '1')
-  const itemsPerPage = parseInt(query.itemsPerPage || '10')
-  const searchType = query.type || 'title'
-  const searchText = query.text || ''
-  const sortColumn = query.sortColumn || 'createdAt'
-  const sortOrder = query.sortOrder || 'desc' // 최신순 기본값
+  const { boardType, page = '1', itemsPerPage = '10', type: searchType = 'title', text: searchText = '', sortColumn = 'createdAt', sortOrder = 'desc' } = query
 
-  if (!boardType) {
-    handleApiError(event, 400, 'Board type is required');
-  }
+  if (!boardType) handleApiError(event, 400, 'Board type is required')
 
   try {
     const model = getBoardModel(boardType)
-
-    let whereClause = {}
-
-    // Add search conditions
-    if (searchText) {
-      if (boardType === 'qna') {
-        // QnA model has questionTitle, not title
-        whereClause = {
-          OR: [
+    
+    const whereClause = searchText ? (
+      boardType === 'qna' 
+        ? { OR: [
             { questionTitle: { contains: searchText, mode: 'insensitive' } },
-            { questionContent: { contains: searchText, mode: 'insensitive' } },
-          ],
-        }
-      } else {
-        whereClause = {
-          [searchType]: { contains: searchText, mode: 'insensitive' },
-        }
-      }
-    }
+            { questionContent: { contains: searchText, mode: 'insensitive' } }
+          ]}
+        : { [searchType]: { contains: searchText, mode: 'insensitive' } }
+    ) : {}
 
     const [posts, total] = await Promise.all([
       model.findMany({
         where: whereClause,
-        skip: (page - 1) * itemsPerPage,
-        take: itemsPerPage,
-        orderBy: { [sortColumn]: sortOrder },
+        skip: (parseInt(page) - 1) * parseInt(itemsPerPage),
+        take: parseInt(itemsPerPage),
+        orderBy: { [sortColumn]: sortOrder }
       }),
-      model.count({
-        where: whereClause,
-      }),
+      model.count({ where: whereClause })
     ])
 
-    return {
-      posts,
-      total,
-    }
+    return { posts, total }
   } catch (error) {
-    handleApiError(event, 500, `Failed to fetch posts for board type ${boardType}`, error);
+    handleApiError(event, 500, `Failed to fetch posts for board type ${boardType}`, error)
   }
 }) 

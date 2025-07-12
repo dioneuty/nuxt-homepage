@@ -81,16 +81,16 @@ const sections = [
 const selectedSections = ref([])
 
 // 컴포넌트 마운트 시 로컬 스토리지에서 선택된 섹션 불러오기
+// 섹션 설정 로드/저장
+const loadSectionSettings = () => {
+  const saved = localStorage.getItem('selectedSections')
+  return saved ? JSON.parse(saved) : ['carousel']
+}
+
 onMounted(() => {
-  const savedSections = localStorage.getItem('selectedSections')
-  if (savedSections) {
-    selectedSections.value = JSON.parse(savedSections)
-  } else {
-    selectedSections.value = ['carousel'] // 기본값: 슬라이드 보기만 선택
-  }
+  selectedSections.value = loadSectionSettings()
 })
 
-// 선택된 섹션이 변경될 때마다 로컬 스토리지에 저장
 watch(selectedSections, (newValue) => {
   localStorage.setItem('selectedSections', JSON.stringify(newValue))
 }, { deep: true })

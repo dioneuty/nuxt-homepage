@@ -306,73 +306,43 @@
     }
   }
   
-  // Thread management methods
+  // 간소화된 핸들러들
   const openThreadEditor = (videoId, thread = null) => {
-    selectedVideoForThread.value = videoId
-    editingThread.value = thread
-    showThreadEditor.value = true
+    Object.assign({ selectedVideoForThread, editingThread, showThreadEditor }, 
+      { selectedVideoForThread: videoId, editingThread: thread, showThreadEditor: true })
   }
 
   const closeThreadEditor = () => {
-    showThreadEditor.value = false
-    selectedVideoForThread.value = null
-    editingThread.value = null
+    Object.assign({ selectedVideoForThread, editingThread, showThreadEditor }, 
+      { selectedVideoForThread: null, editingThread: null, showThreadEditor: false })
   }
 
   const handleThreadSubmit = async (threadData) => {
     try {
-      if (editingThread.value) {
-        // Update existing thread
-        await updateThread(editingThread.value.id, threadData)
-      } else {
-        // Create new thread
-        await createThread(threadData)
-      }
+      editingThread.value 
+        ? await updateThread(editingThread.value.id, threadData)
+        : await createThread(threadData)
       closeThreadEditor()
     } catch (error) {
-      console.error('Error saving thread:', error)
+      console.error('Thread error:', error)
     }
   }
 
   const handleDeleteThread = async (threadId) => {
-    try {
-      await deleteThread(threadId)
-    } catch (error) {
-      console.error('Error deleting thread:', error)
-    }
+    try { await deleteThread(threadId) } catch (e) { console.error('Delete error:', e) }
   }
 
   const toggleThreads = (videoId) => {
-    if (showingThreads.value.has(videoId)) {
-      showingThreads.value.delete(videoId)
-    } else {
-      showingThreads.value.add(videoId)
-    }
+    showingThreads.value.has(videoId) 
+      ? showingThreads.value.delete(videoId)
+      : showingThreads.value.add(videoId)
   }
   
-  /**
-   * YouTube 비디오 재생 오류 처리
-   * @param {Object} video - 오류가 발생한 비디오 객체
-   */
-  const handleVideoError = (video) => {
-    video.hasError = true;
-  }
+  const handleVideoError = (video) => { video.hasError = true }
 
-  function openModal(video) {
-    selectedVideo.value = video
-    isModalOpen.value = true
-  }
-
-  function closeModal() {
-    isModalOpen.value = false
-    selectedVideo.value = null
-  }
-
-  function updateVideoTime(time) {
-    if (selectedVideo.value) {
-      selectedVideo.value.currentTime = time
-    }
-  }
+  const openModal = (video) => { selectedVideo.value = video; isModalOpen.value = true }
+  const closeModal = () => { isModalOpen.value = false; selectedVideo.value = null }
+  const updateVideoTime = (time) => { if (selectedVideo.value) selectedVideo.value.currentTime = time }
 
   // TODO: 유튜브 갤러리 크게 보기 화면 구현
   // 1. `components/youtubeGallery/PlayModal.vue` 수정:

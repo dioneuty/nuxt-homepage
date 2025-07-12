@@ -48,7 +48,7 @@
         <span
           v-else
           @click="selectItem"
-          @dblclick="startEditing"
+          @dblclick="() => handleAction('rename')"
           class="flex-grow p-1 cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-600 rounded transition-colors duration-200"
           :class="{'font-bold': item.children && item.children.length > 0}"
           v-html="highlightedContent"
@@ -57,7 +57,7 @@
 
         <!-- 자식 추가 버튼 -->
         <button
-          @click.stop="emitAdd(item.id)"
+          @click.stop="() => handleAction('add')"
           class="flex-shrink-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0"
         >
           <Icon icon="mdi:plus" class="text-lg text-gray-600 dark:text-gray-300" />
@@ -66,7 +66,7 @@
         <!-- 상세 보기 아이콘 (모바일 전용) -->
         <button
           v-if="isMobile"
-          @click.stop="emit('showDetail', item)"
+          @click.stop="() => handleAction('showDetail', item)"
           class="flex-shrink-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0"
         >
           <Icon icon="mdi:text-box-search-outline" class="text-lg text-gray-600 dark:text-gray-300" />
@@ -74,7 +74,7 @@
 
         <!-- 노드 옵션 드롭다운 -->
         <div class="relative ml-auto">
-          <button @click.stop="toggleDropdown" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0">
+          <button @click.stop="() => showDropdown.value = !showDropdown.value" class="p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0">
             <Icon icon="mdi:dots-horizontal" class="text-lg text-gray-600 dark:text-gray-300" />
           </button>
           <DropdownMenu
@@ -88,7 +88,7 @@
 
         <!-- 확대/축소 버튼 -->
         <button
-          @click.stop="zoomToItem"
+          @click.stop="() => handleAction('zoom')"
           v-if="item.children && item.children.length > 0"
           class="flex-shrink-0 p-1 rounded-full hover:bg-gray-200 dark:hover:bg-gray-600 focus:outline-none focus:ring-0"
         >
@@ -115,23 +115,23 @@
               :item="element"
               :depth="depth + 1"
               :siblings="item.children"
-              @toggle="emitToggle"
-              @zoom="emitZoom"
-              @add="emitAdd"
-              @delete="emitDelete"
-              @update="emitUpdate"
-              @indent="emitIndent"
-              @outdent="emitOutdent"
+              @toggle="(item) => handleAction('toggle', item)"
+              @zoom="(item) => handleAction('zoom', item)"
+              @add="(id) => handleAction('add', id)"
+              @delete="(id) => handleAction('delete', id)"
+              @update="(item) => handleAction('update', item)"
+              @indent="(id) => handleAction('indent', id)"
+              @outdent="(id) => handleAction('outdent', id)"
               @reorder="(e) => emit('reorder', e)"
-              @itemSelected="emitItemSelected"
-              @addAbove="emitAddAbove"
-              @addBelow="emitAddBelow"
-              @rename="emitUpdate"
-              @duplicate="emitDuplicate"
-              @cut="emitCut"
-              @copy="(e) => emit('copy', e)"
-              @paste="(e) => emit('paste', e)"
-              @showDetail="emitShowDetail"
+              @itemSelected="(item) => handleAction('itemSelected', item)"
+              @addAbove="(id) => handleAction('addAbove', id)"
+              @addBelow="(id) => handleAction('addBelow', id)"
+              @rename="(item) => handleAction('update', item)"
+              @duplicate="(id) => handleAction('duplicate', id)"
+              @cut="(id) => handleAction('cut', id)"
+              @copy="(id) => handleAction('copy', id)"
+              @paste="(id) => handleAction('paste', id)"
+              @showDetail="(item) => handleAction('showDetail', item)"
               :checkDragMove="checkDragMove"
               :draggingItem="draggingItem"
               :handleDragStart="handleDragStart"
@@ -252,19 +252,14 @@ const isSelected = computed(() => {
 
 // 검색 결과 하이라이팅
 const highlightedContent = computed(() => {
-  if (!props.searchQuery || props.searchQuery.trim() === '') {
-    return props.item.content;
-  }
-
-  const query = props.searchQuery.trim();
-  const regex = new RegExp(`(${escapeRegExp(query)})`, 'gi');
-  return props.item.content.replace(regex, '<mark class="bg-yellow-300 dark:bg-yellow-600">$1</mark>');
+  if (!props.searchQuery?.trim()) return props.item.content;
+  
+  const query = props.searchQuery.trim().replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  return props.item.content.replace(
+    new RegExp(`(${query})`, 'gi'), 
+    '<mark class="bg-yellow-300 dark:bg-yellow-600">$1</mark>'
+  );
 });
-
-// 정규표현식 특수문자 이스케이프
-function escapeRegExp(string) {
-  return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-}
 
 watch(() => props.item.content, (newContent) => {
   mutableContent.value = newContent;
@@ -274,142 +269,49 @@ watch(() => props.item.content, (newContent) => {
  * 항목의 확장 상태를 토글하는 함수입니다.
  * @returns {void}
  */
-function toggleExpand() {
-
+// 간소화된 함수들
+const toggleExpand = () => {
   props.item.expanded = !props.item.expanded;
-
   emit('toggle', props.item);
-
 }
 
-/**
- * 편집 중인 항목의 내용을 저장하는 함수입니다.
- * `mutableContent`가 변경되었을 경우에만 `update` 이벤트를 발생시킵니다.
- * 편집 모드를 비활성화합니다.
- * @returns {void}
- */
-function saveContent() {
+const saveContent = () => {
   isEditing.value = false;
   if (mutableContent.value !== props.item.content) {
     emit('update', { id: props.item.id, content: mutableContent.value });
   }
 }
 
-/**
- * 항목을 선택하는 함수입니다.
- * `itemSelected` 이벤트를 발생시켜 현재 항목을 전달하고, 상세 보기 모달을 엽니다.
- * @returns {void}
- */
-function selectItem() {
+const selectItem = () => {
   emit('itemSelected', props.item);
   emit('showDetail', props.item);
 }
 
-/**
- * 항목의 편집 모드를 활성화하는 함수입니다.
- * @returns {void}
- */
-function startEditing() {
-  isEditing.value = true;
-}
-
-function zoomToItem() {
-  emit('zoom', props.item);
-}
-
-function emitToggle(item) {
-  emit('toggle', item);
-}
-
-function emitZoom(item) {
-  emit('zoom', item);
-}
-
-/**
- * 새로운 자식 항목을 추가하기 위해 `add` 이벤트를 발생시키는 함수입니다.
- * @param {number} parentId - 새로운 항목이 추가될 부모 항목의 ID.
- * @returns {void}
- */
-function emitAdd(parentId) {
-  emit('add', parentId);
-}
-
-function emitDelete(id) {
-  emit('delete', id);
-}
-
-function emitUpdate(updatedItem) {
-  emit('update', updatedItem);
-}
-
-function emitIndent(id) {
-  emit('indent', id);
-}
-
-function emitOutdent(id) {
-  emit('outdent', id);
-}
-
-function emitItemSelected(item) {
-  emit('itemSelected', item);
-}
-
-function emitAddAbove(id) {
-  emit('addAbove', id);
-}
-
-function emitAddBelow(id) {
-  emit('addBelow', id);
-}
-
-/**
- * 드롭다운 메뉴의 가시성을 토글하는 함수입니다.
- * @returns {void}
- */
-function toggleDropdown() {
-  showDropdown.value = !showDropdown.value;
-}
-
-/**
- * 드롭다운 메뉴에서 항목이 선택되었을 때 호출되는 핸들러 함수입니다.
- * 선택된 작업에 따라 적절한 이벤트를 발생시킵니다.
- * @param {object} option - 선택된 메뉴 옵션 객체 (label, action).
- * @returns {void}
- */
-function handleMenuItemSelect(option) {
-  showDropdown.value = false; // 메뉴 선택 시 드롭다운 닫기
-  switch (option.action) {
-    case 'rename':
-      startEditing();
-      break;
-    case 'delete':
-      emit('delete', props.item.id);
-      break;
-    case 'duplicate':
-      emit('duplicate', props.item.id);
-      break;
-    case 'cut':
-      emit('cut', props.item.id);
-      break;
-    case 'copy':
-      emit('copy', props.item.id);
-      break;
-    case 'paste':
-      emit('paste', props.item.id);
-      break;
-    case 'addAbove':
-      emit('addAbove', props.item.id);
-      break;
-    case 'addBelow':
-      emit('addBelow', props.item.id);
-      break;
-    default:
-      break;
+// 통합된 액션 핸들러
+const handleAction = (action, data = props.item.id) => {
+  const actions = {
+    rename: () => isEditing.value = true,
+    zoom: () => emit('zoom', props.item),
+    toggle: () => emit('toggle', data),
+    add: () => emit('add', data),
+    delete: () => emit('delete', data),
+    update: () => emit('update', data),
+    indent: () => emit('indent', data),
+    outdent: () => emit('outdent', data),
+    addAbove: () => emit('addAbove', data),
+    addBelow: () => emit('addBelow', data),
+    duplicate: () => emit('duplicate', data),
+    cut: () => emit('cut', data),
+    copy: () => emit('copy', data),
+    paste: () => emit('paste', data),
+    showDetail: () => emit('showDetail', data)
   }
+  actions[action]?.()
 }
 
-function emitShowDetail(item) {
-  emit('showDetail', item);
+const handleMenuItemSelect = (option) => {
+  showDropdown.value = false;
+  handleAction(option.action);
 }
 </script>
 

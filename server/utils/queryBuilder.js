@@ -27,47 +27,26 @@ const BOARD_FIELD_MAPPING = {
   }
 }
 
-/**
- * 기본 검색 조건을 생성합니다.
- * @param {string} searchType - 검색 타입 ('title', 'content', 'author')
- * @param {string} searchText - 검색할 텍스트
- * @param {string} boardType - 게시판 타입 (선택사항, 필드 매핑에 사용)
- * @returns {object} Prisma where 조건 객체
- */
 export function buildSearchCondition(searchType, searchText, boardType = 'default') {
-  // 검색 텍스트가 없으면 빈 조건 반환
-  if (!searchText || typeof searchText !== 'string' || searchText.trim() === '') {
-    return {}
-  }
+  if (!searchText?.trim()) return {}
 
-  // 검색 조건 기본 설정 (대소문자 구분 없음)
-  const condition = { 
-    contains: searchText.trim(), 
-    mode: 'insensitive' 
-  }
-
-  // 게시판 타입별 필드 매핑 가져오기
+  const condition = { contains: searchText.trim(), mode: 'insensitive' }
   const fieldMapping = BOARD_FIELD_MAPPING[boardType] || BOARD_FIELD_MAPPING.default
 
-  switch (searchType) {
-    case 'title':
-      return { [fieldMapping.title]: condition }
-    case 'content':
-      return { [fieldMapping.content]: condition }
-    case 'author':
-      return { author: condition }
-    case 'all':
-      // 전체 검색: 제목, 내용, 작성자에서 모두 검색
-      return {
-        OR: [
-          { [fieldMapping.title]: condition },
-          { [fieldMapping.content]: condition },
-          { author: condition }
-        ]
-      }
-    default:
-      return {}
+  const searchMap = {
+    title: { [fieldMapping.title]: condition },
+    content: { [fieldMapping.content]: condition },
+    author: { author: condition },
+    all: {
+      OR: [
+        { [fieldMapping.title]: condition },
+        { [fieldMapping.content]: condition },
+        { author: condition }
+      ]
+    }
   }
+
+  return searchMap[searchType] || {}
 }
 
 /**
