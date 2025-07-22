@@ -44,10 +44,18 @@
               관련 사이트 관리
             </NuxtLink>
           </li>
+          <!-- DB 테이블 조회 링크 -->
           <li>
             <NuxtLink to="/adminpage/database" class="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
-              <Icon icon="mdi:database-outline" class="w-5 h-5 mr-3" />
-              DB 관리
+              <Icon icon="mdi:database-search-outline" class="w-5 h-5 mr-3" />
+              DB 테이블 조회
+            </NuxtLink>
+          </li>
+          <!-- DB 백업/복구 링크 (새로 추가) -->
+          <li>
+            <NuxtLink to="/adminpage/db-backup-restore" class="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+              <Icon icon="mdi:database-sync-outline" class="w-5 h-5 mr-3" />
+              DB 백업/복구
             </NuxtLink>
           </li>
           <li>
@@ -83,10 +91,10 @@
 
 <script setup>
 import { Icon } from '@iconify/vue';
-// import { useColorMode } from '@nuxtjs/color-mode'; // 올바른 임포트 경로 -> 자동 임포트되므로 필요 없음
 import { computed } from 'vue';
+// import { useColorMode } from '#app'; // Nuxt 3에서 useColorMode 임포트 방식 변경 -> 이 줄을 제거합니다.
 
-const colorMode = useColorMode();
+const colorMode = useColorMode(); // Nuxt의 자동 임포트 기능을 통해 사용
 
 // 현재 색상 모드에 따라 아이콘을 동적으로 변경
 const colorModeIcon = computed(() => {
