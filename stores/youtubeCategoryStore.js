@@ -13,8 +13,6 @@ export const useYoutubeCategoryStore = defineStore('youtubeCategory', () => {
   const sortedCategories = computed(() => {
     console.log('youtubeCategoryStore: sortedCategories 계산 시작. categories.value:', categories.value);
     const result = [...categories.value].sort((a, b) => {
-      if (a.id === 'all') return -1
-      if (b.id === 'all') return 1
       return (a.order || 0) - (b.order || 0)
     })
     console.log('youtubeCategoryStore: sortedCategories 계산 완료. 결과:', result);
@@ -28,8 +26,8 @@ export const useYoutubeCategoryStore = defineStore('youtubeCategory', () => {
 
   const totalVideoCount = computed(() => {
     console.log('youtubeCategoryStore: totalVideoCount 계산 시작. categories.value:', categories.value);
-    const allCategory = categories.value.find(c => c.id === 'all')
-    const count = allCategory ? allCategory.video_count : 0
+    // API에서 "전체" 카테고리를 제거했으므로, 모든 카테고리의 비디오 수를 합산
+    const count = categories.value.reduce((sum, category) => sum + (category.video_count || 0), 0)
     console.log('youtubeCategoryStore: totalVideoCount 계산 완료. 결과:', count);
     return count;
   })
@@ -42,17 +40,21 @@ export const useYoutubeCategoryStore = defineStore('youtubeCategory', () => {
     try {
       const endpoint = useAdminEndpoint ? '/api/admin/youtube-categories' : '/api/youtube-categories'
       const response = await $fetch(endpoint)
-      categories.value = response
-      console.log('youtubeCategoryStore: fetchCategories API 응답 후 categories.value:', categories.value);
-      console.log('youtubeCategoryStore: fetchCategories API 응답 후 sortedCategories:', sortedCategories.value);
-      console.log('youtubeCategoryStore: fetchCategories API 응답 후 totalVideoCount:', totalVideoCount.value);
+      
+      // 응답이 배열인지 확인하고, 각 항목에 기본값 설정
+      const processedCategories = (Array.isArray(response) ? response : []).map(cat => ({
+        ...cat,
+        video_count: cat.video_count || 0
+      }))
+      
+      categories.value = processedCategories
       
       // 활성 카테고리가 없거나 삭제된 경우 '전체'로 설정
       if (!activeCategory.value || !categories.value.find(c => c.id === activeCategory.value)) {
         setActiveCategory('all')
       }
       
-      return response
+      return processedCategories
     } catch (err) {
       console.error('YouTube 카테고리 조회 실패:', err)
       error.value = err.message || '카테고리를 불러오는 데 실패했습니다.'
@@ -164,29 +166,13 @@ export const useYoutubeCategoryStore = defineStore('youtubeCategory', () => {
     return categories.value.find(c => c.slug === slug) || null
   }
 
-  // 카테고리별 비디오 수 다시 계산
-  function recalculateVideoCounts(videos = []) {
-    // 각 카테고리의 비디오 수 초기화
-    categories.value.forEach(category => {
-      if (category.id !== 'all') {
-        category.video_count = 0
-      }
-    })
-    
-    // 비디오 배열을 순회하며 카테고리별 수 계산
-    videos.forEach(video => {
-      if (video.categoryId) {
-        const category = categories.value.find(c => c.id === video.categoryId)
-        if (category) {
-          category.video_count += 1
-        }
-      }
-    })
-    
-    // '전체' 카테고리 수 업데이트
-    const allCategory = categories.value.find(c => c.id === 'all')
-    if (allCategory) {
-      allCategory.video_count = videos.length
+  // 카테고리별 비디오 수 다시 계산 (전체 비디오 데이터 기준)
+  async function recalculateVideoCounts() {
+    try {
+      // 데이터베이스에서 실제 카테고리별 비디오 수를 다시 가져옴
+      await fetchCategories()
+    } catch (error) {
+      console.error('카테고리 비디오 수 재계산 실패:', error)
     }
   }
 

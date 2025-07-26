@@ -89,13 +89,15 @@ function updateCssVariables() {
 
 async function fetchCategories() {
   try {
-    const response = await fetch('/api/categories?include=uncategorized_all')
+    const response = await fetch('/api/categories')
     if (!response.ok) {
       throw new Error('Failed to fetch categories')
     }
     categories.value = await response.json()
+    console.log('카테고리 로드 완료:', categories.value)
   } catch (error) {
     console.error('카테고리를 불러오는 데 실패했습니다:', error)
+    categories.value = [] // 에러 시 빈 배열로 초기화
   }
 }
 

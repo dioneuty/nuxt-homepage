@@ -17,13 +17,7 @@
         </NuxtLink>
       </li>
     </ul>
-    <!-- TODO: JGM 무한 스크롤 기능 추가
-    - Intersection Observer API를 사용하여 스크롤이 하단에 도달했을 때 감지
-    - 새 게시물을 불러오는 로딩 상태 표시
-    - API 호출을 통해 다음 페이지의 게시물 데이터 가져오기
-    - 가져온 데이터를 기존 `posts` 배열에 추가
-    - 모든 게시물을 불러왔을 때 추가 로딩 방지 로직 구현
-    -->
+    <!-- Future enhancement: 무한 스크롤 기능 추가 -->
   </div>
 </template>
 

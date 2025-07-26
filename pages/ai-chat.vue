@@ -81,7 +81,11 @@
         <div v-for="(message, index) in currentChat" :key="index" class="mb-4">
           <div :class="message.role === 'user' ? 'text-right' : 'text-left'">
             <div :class="message.role === 'user' ? 'glassmorphism-user-msg bg-gradient-to-r from-blue-500/90 to-purple-600/90 text-white border-white/30' : 'glassmorphism-ai-msg bg-white/80 dark:bg-gray-700/80 dark:text-white border-white/40 dark:border-gray-500/40'" class="inline-block p-3 rounded-xl backdrop-blur-sm border shadow-lg" @click="handleClick">
-                <div v-if="message.content" v-html="renderMarkdown(message.content)"></div>
+                <SafeHtml 
+                  v-if="message.content" 
+                  :content="renderMarkdown(message.content)" 
+                  type="markdown"
+                />
                 <div v-else class="text-gray-500 italic">빈 메시지</div>
             </div>
             <p v-if="message.model" class="text-xs text-gray-500">({{ message.model }})</p>
@@ -132,6 +136,7 @@ import 'highlight.js/styles/github-dark.css'
 import { v4 as uuidv4 } from 'uuid'
 import { formatDate } from '~/utils/dateFormatter'
 import { formatUnixTimestamp } from '~/utils/dateFormatter'
+import SafeHtml from '~/components/common/SafeHtml.vue'
 
 // 페이지 제목과 설명을 동적으로 설정
 definePageMeta({

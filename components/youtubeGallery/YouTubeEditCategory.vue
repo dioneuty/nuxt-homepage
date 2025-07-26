@@ -113,7 +113,7 @@ const deletedCategories = ref([])
  */
 onMounted(async () => {
   try {
-    await fetchCategories(true) // Use admin endpoint
+    await fetchCategories() // Use public endpoint (both APIs now return same data)
     // 'all' 카테고리 제외하고 복사
     if (storeCategories.value && Array.isArray(storeCategories.value)) {
       categories.value = storeCategories.value

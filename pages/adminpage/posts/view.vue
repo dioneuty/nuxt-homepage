@@ -32,6 +32,7 @@ import BoardView from '~/components/board/BoardView.vue'
 import { useAuth } from '~/composables/useAuth'
 import { useRouter, useRoute } from 'vue-router'
 import { onMounted } from 'vue'
+import { showConfirm } from '~/composables/useModal'
 
 definePageMeta({
   layout: 'admin',
@@ -53,9 +54,13 @@ onMounted(() => {
 });
 
 async function deletePost(id, boardType) {
-  if (!confirm('정말로 이 게시글을 삭제하시겠습니까?')) {
-    return;
-  }
+  const confirmDelete = await showConfirm(
+    '게시글 삭제',
+    '정말로 이 게시글을 삭제하시겠습니까?'
+  );
+  
+  if (!confirmDelete) return;
+  
   try {
     await $fetch(`/api/admin/posts/${id}`, {
       method: 'DELETE',

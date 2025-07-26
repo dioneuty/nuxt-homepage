@@ -75,6 +75,31 @@ export function useModal() {
     isConfirm.value = false
   }
 
+  /**
+   * Promise 기반 확인 모달을 표시합니다.
+   * @param {Object} options - 모달 옵션
+   * @param {string} options.title - 모달 제목
+   * @param {string} options.message - 모달 메시지
+   * @param {string} [options.type='info'] - 모달 타입 ('info', 'warning', 'danger')
+   * @param {string} [options.confirmText='확인'] - 확인 버튼 텍스트
+   * @param {string} [options.cancelText='취소'] - 취소 버튼 텍스트
+   * @returns {Promise<boolean>} 사용자가 확인을 클릭하면 true, 취소하면 false
+   */
+  function showConfirm(options) {
+    return new Promise((resolve) => {
+      const callback = (result) => {
+        resolve(result)
+      }
+      
+      openModal(
+        options.title || '확인',
+        options.message,
+        callback,
+        true // 확인 모달로 설정
+      )
+    })
+  }
+
   return {
     // 1. 모달 관련 상태
     isModalOpen, // 모달의 열림/닫힘 상태
@@ -87,5 +112,6 @@ export function useModal() {
     closeModal, // 모달을 닫는 함수
     confirmModal, // 확인 모달에서 '확인' 버튼을 클릭했을 때 호출되는 함수
     cancelModal, // 확인 모달에서 '취소' 버튼을 클릭했을 때 호출되는 함수
+    showConfirm, // Promise 기반 확인 모달 함수
   }
 }

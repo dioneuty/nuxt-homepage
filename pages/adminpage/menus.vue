@@ -94,6 +94,7 @@ import { ref, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import draggable from 'vuedraggable';
 import { useToast } from '~/composables/useToast';
+import { showConfirm } from '~/composables/useModal';
 
 definePageMeta({
   layout: 'admin',
@@ -163,7 +164,12 @@ async function saveMenu() {
 }
 
 async function deleteMenu(id) {
-  if (confirm('정말로 이 메뉴를 삭제하시겠습니까? 하위 메뉴도 모두 삭제됩니다.')) {
+  const confirmDelete = await showConfirm(
+    '메뉴 삭제',
+    '정말로 이 메뉴를 삭제하시겠습니까? 하위 메뉴도 모두 삭제됩니다.'
+  );
+  
+  if (confirmDelete) {
     try {
       await $fetch(`/api/menus/${id}`, { method: 'DELETE' });
       await fetchMenus();

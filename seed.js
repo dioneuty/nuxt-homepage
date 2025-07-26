@@ -209,6 +209,63 @@ async function main() {
   });
   console.log('Related sites created.');
 
+  // YouTube 카테고리 데이터 생성
+  console.log('Creating YouTube categories...');
+  const youtubeCategories = await prisma.youTubeVideoCategory.createManyAndReturn({
+    data: [
+      { name: '개발', slug: 'development', order: 1 },
+      { name: '디자인', slug: 'design', order: 2 },
+      { name: '라이프스타일', slug: 'lifestyle', order: 3 },
+      { name: '게임', slug: 'gaming', order: 4 },
+      { name: '음악', slug: 'music', order: 5 },
+      { name: '교육', slug: 'education', order: 6 }
+    ]
+  });
+  console.log('YouTube categories created.');
+
+  // YouTube 비디오 데이터 생성
+  console.log('Creating YouTube videos...');
+  await prisma.youTubeVideo.createMany({
+    data: [
+      { 
+        videoId: 'dQw4w9WgXcQ', 
+        title: 'Rick Astley - Never Gonna Give You Up', 
+        description: '클래식한 인터넷 밈 비디오입니다.', 
+        isShort: false,
+        categoryId: youtubeCategories[4].id // 음악 카테고리
+      },
+      { 
+        videoId: 'jNQXAC9IVRw', 
+        title: 'Me at the zoo', 
+        description: '유튜브 최초의 비디오입니다.', 
+        isShort: false,
+        categoryId: youtubeCategories[2].id // 라이프스타일 카테고리
+      },
+      { 
+        videoId: 'kJQP7kiw5Fk', 
+        title: 'Despacito', 
+        description: '인기 음악 비디오입니다.', 
+        isShort: false,
+        categoryId: youtubeCategories[4].id // 음악 카테고리
+      },
+      { 
+        videoId: '9bZkp7q19f0', 
+        title: 'Gangnam Style', 
+        description: 'PSY의 강남스타일 뮤직비디오입니다.', 
+        isShort: false,
+        categoryId: youtubeCategories[4].id // 음악 카테고리
+      },
+      { 
+        videoId: 'LXb3EKWsInQ', 
+        title: 'See You Again', 
+        description: 'Wiz Khalifa ft. Charlie Puth - See You Again', 
+        isShort: false,
+        categoryId: youtubeCategories[4].id // 음악 카테고리
+      }
+    ]
+  });
+  console.log('YouTube videos created.');
+
   console.log('Seeding finished.')
 }
 

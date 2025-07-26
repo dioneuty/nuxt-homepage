@@ -20,16 +20,23 @@ export default defineEventHandler(async (event) => {
         if (query.action === 'comments') {
           // Fetching comments
           return await getGalleryItemComments(parseInt(query.id)) // 댓글 조회 함수 호출
+        } else if (query.imageOnly === 'true') {
+          // 이미지만 요청하는 경우 (성능 최적화)
+          return await getGalleryItemImage(parseInt(query.id))
         } else {
           // 'action'이 없거나 'comments'가 아닌 경우, 특정 갤러리 항목의 상세 정보를 조회합니다.
           return await getGalleryItem(parseInt(query.id)) // 갤러리 항목 상세 조회 함수 호출
         }
       } else {
-        // 'id' 쿼리 파라미터가 없는 경우, 모든 갤러리 항목 목록을 조회합니다.
-        return await getGalleryList() // 갤러리 목록 조회 함수 호출
+        // 썸네일 모드 또는 전체 목록 조회
+        if (query.thumbnails === 'true') {
+          return await getGalleryThumbnails(query)
+        } else {
+          return await getGalleryList() // 갤러리 목록 조회 함수 호출
+        }
       }
     } catch (error) {
-      handleApiError(error, '갤러리 조회 중 오류', 500);
+      handleApiError(event, 500, '갤러리 조회 중 오류가 발생했습니다.', error);
     }
   }
 
@@ -109,6 +116,78 @@ async function getGalleryList() {
       }
     })
   }
+
+/**
+ * @function getGalleryThumbnails
+ * @description 썸네일 모드로 갤러리 메타데이터만 조회 (이미지 제외)
+ * @param {object} query - 쿼리 파라미터
+ * @returns {object} 페이지네이션된 썸네일 목록
+ */
+async function getGalleryThumbnails(query) {
+  const page = parseInt(query.page) || 1
+  const limit = Math.min(parseInt(query.limit) || 12, 20) // 최대 20개
+  const skip = (page - 1) * limit
+
+  const [items, total] = await Promise.all([
+    prisma.galleryItem.findMany({
+      skip,
+      take: limit,
+      select: {
+        id: true,
+        title: true,
+        description: true,
+        tags: true,
+        createdAt: true,
+        updatedAt: true,
+        // content 필드 제외 (이미지 데이터 제외)
+        _count: {
+          select: { comments: true }
+        }
+      },
+      orderBy: { createdAt: 'desc' }
+    }),
+    prisma.galleryItem.count()
+  ])
+
+  return {
+    items,
+    pagination: {
+      page,
+      limit,
+      total,
+      totalPages: Math.ceil(total / limit)
+    },
+    mode: 'thumbnails'
+  }
+}
+
+/**
+ * @function getGalleryItemImage
+ * @description 특정 갤러리 항목의 이미지만 조회 (성능 최적화)
+ * @param {number} id - 갤러리 항목 ID
+ * @returns {object} 이미지 데이터만 포함된 객체
+ */
+async function getGalleryItemImage(id) {
+  const item = await prisma.galleryItem.findUnique({
+    where: { id },
+    select: {
+      id: true,
+      content: true // 이미지 데이터만 선택
+    }
+  })
+
+  if (!item) {
+    throw createError({
+      statusCode: 404,
+      statusMessage: '갤러리 항목을 찾을 수 없습니다.'
+    })
+  }
+
+  return {
+    id: item.id,
+    content: item.content
+  }
+}
 
 /**
  * @function getGalleryItem

@@ -27,7 +27,7 @@ function escapeSqlValue(value, type) {
       return String(value);
     case 'BigInt':
       return '\'' + String(value) + '\''; // BigInt는 문자열로 저장
-    // TODO: Add support for other types like Bytes, Decimal, etc.
+    // Note: Add support for Bytes, Decimal types as needed
     default:
       return '\'' + String(value).replace(/'/g, '\'\'\'\'\'\'\'\'\'') + '\'';
   }

@@ -45,11 +45,7 @@
                   </span>
                   <span class="truncate block max-w-xs sm:max-w-none" :class="{ 'pl-5': post.parentId }">
                     <Icon v-if="post.parentId" icon="mdi:subdirectory-arrow-right" class="inline mr-1 text-gray-500" />
-                    <!-- TODO: JGM 글 썸네일 표시 기능 추가
-                    - post 객체에 썸네일 이미지 URL 필드가 있다고 가정
-                    - 해당 URL을 사용하여 <img> 태그 또는 배경 이미지 스타일로 썸네일 표시
-                    - 썸네일이 없을 경우 기본 이미지 또는 아이콘 표시 고려
-                    -->
+                    <!-- Future enhancement: 글 썸네일 표시 기능 추가 -->
                     <Icon v-else icon="mdi:text" class="inline mr-1" />
                     {{ post.title || '(제목 없음)' }}
                   </span>

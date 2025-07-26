@@ -7,8 +7,7 @@ import { handleApiError } from '~/server/utils/apiErrorHandlers';
  */
 export default defineEventHandler(async (event) => {
   try {
-    // TODO: JGM 데이터베이스 또는 설정 파일에서 실제 메뉴 목록 조회 로직 구현
-    // 현재는 임시 더미 데이터를 반환합니다.
+    // Note: Using dummy data - implement database integration for production
     const dummyMenus = [
       { id: 1, name: '소개', path: '/about', order: 1 },
       { id: 2, name: '게시판', path: '/board', order: 2 },

@@ -19,7 +19,11 @@
           <Icon icon="mdi:folder-outline" class="mr-1" />
           <span>{{ post.category?.name || '없음' }}</span>
         </div>
-        <div class="prose dark:prose-invert max-w-none" v-html="post.content"></div>
+        <SafeHtml 
+          :content="post.content" 
+          type="rich" 
+          container-class="prose dark:prose-invert max-w-none"
+        />
         
         
         <!-- 버튼 그룹 -->
@@ -74,6 +78,7 @@ import { useRoute } from 'vue-router'
 import { formatDate } from '~/utils/dateFormatter'
 import { useBlogPosts } from '~/composables/useBlogPosts'
 import { useConfirmDelete } from '~/composables/useConfirmDelete'
+import SafeHtml from '~/components/common/SafeHtml.vue'
 
 const props = defineProps({
   editButtonText: { type: String, default: '수정하기' },

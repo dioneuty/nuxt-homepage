@@ -247,9 +247,7 @@ function closeModal() {
   selectedItem.value = null
 }
 
-// TODO: JGM 전체 사진 보기(슬라이드 쇼) 기능을 위한 로직 추가
-// - 현재 선택된 이미지 외에 모든 이미지를 볼 수 있는 UI/UX 구현
-// - 이미지 전환 (이전/다음) 기능 구현
+// Future enhancement: 전체 사진 보기(슬라이드 쇼) 기능
 // - 키보드 탐색 (좌우 화살표 키) 지원 고려
 // - 모달 내에서 이미지 확대/축소 기능 고려
 

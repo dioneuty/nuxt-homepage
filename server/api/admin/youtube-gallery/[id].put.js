@@ -19,7 +19,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event);
-    const { url, title, description, isShort, categoryId } = body;
+    const { url, title, description, isShort, isPlayable, categoryId } = body;
 
     if (!title) {
       handleApiError(event, 400, '제목은 필수 입력 사항입니다.');
@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
       title,
       description: description || '',
       isShort: isShort || false,
+      isPlayable: isPlayable !== undefined ? isPlayable : true,
       categoryId: categoryId ? parseInt(categoryId) : null,
     };
 

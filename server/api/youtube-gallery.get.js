@@ -20,7 +20,12 @@ export default defineEventHandler(async (event) => {
     
     // 카테고리 필터링
     if (categoryId && categoryId !== 'all') {
-      where.categoryId = parseInt(categoryId);
+      if (categoryId === 'uncategorized') {
+        // "미분류" 카테고리: categoryId가 null인 비디오들
+        where.categoryId = null;
+      } else {
+        where.categoryId = parseInt(categoryId);
+      }
     }
     
     // 텍스트 검색 조건
@@ -45,6 +50,7 @@ export default defineEventHandler(async (event) => {
           title: true,
           description: true,
           isShort: true,
+          isPlayable: true,
           categoryId: true,
           category: {
             select: {

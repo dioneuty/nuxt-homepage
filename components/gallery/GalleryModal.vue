@@ -23,7 +23,11 @@
       
       <!-- 스크롤 가능 콘텐츠 영역 -->
       <div class="flex-1 min-h-0 overflow-y-auto">
-        <div v-html="item.content" class="w-full mb-4 rounded-lg overflow-hidden"></div>
+        <SafeHtml 
+          :content="item.content" 
+          type="gallery" 
+          container-class="w-full mb-4 rounded-lg overflow-hidden"
+        />
         <p class="text-gray-600 dark:text-gray-300 mb-4">{{ item.description }}</p>
         <div class="flex flex-wrap gap-2 mb-4">
           <span v-for="tag in item.tags" :key="tag" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center">
@@ -121,6 +125,7 @@ import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useModal } from '~/composables/useModal'
 import { formatDate } from '~/utils/dateFormatter'
+import SafeHtml from '~/components/common/SafeHtml.vue'
 
 const { openModal } = useModal()
 

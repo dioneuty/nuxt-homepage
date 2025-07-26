@@ -22,6 +22,9 @@ export default defineEventHandler(async (event) => {
 
   if (method === 'GET') {
     try {
+      console.log('YouTube Categories ADMIN API: 카테고리 조회 시작')
+      
+      // 1. 실제 카테고리들과 그들의 비디오 수
       const categories = await prisma.youTubeVideoCategory.findMany({
         include: {
           _count: { select: { videos: true } }
@@ -29,24 +32,84 @@ export default defineEventHandler(async (event) => {
         orderBy: { order: 'asc' }
       })
       
-      const categoriesWithCount = categories.map(category => ({
-        ...category,
-        video_count: category._count.videos
-      }))
+      // 2. categoryId가 null인 비디오 수 (진짜 미분류)
+      const uncategorizedVideoCount = await prisma.youTubeVideo.count({
+        where: { categoryId: null }
+      })
+      
+      console.log('YouTube Categories ADMIN API: 원본 카테고리 데이터:', categories)
+      console.log('YouTube Categories ADMIN API: categoryId가 null인 비디오 수:', uncategorizedVideoCount)
+      
+      // 3. 카테고리 처리: "미분류" 카테고리는 실제 null 비디오 수로 설정
+      const categoriesWithCount = categories.map(category => {
+        if (category.slug === 'uncategorized') {
+          // 데이터베이스의 "미분류" 카테고리는 categoryId가 null인 비디오 수로 설정
+          return {
+            ...category,
+            video_count: uncategorizedVideoCount
+          }
+        } else {
+          // 다른 카테고리들은 기존 로직 사용
+          return {
+            ...category,
+            video_count: category._count.videos
+          }
+        }
+      })
 
-      const totalVideos = categoriesWithCount.reduce((sum, category) => sum + category.video_count, 0)
-      const allCategory = { id: 'all', name: '전체', video_count: totalVideos, order: -1 }
+      console.log('YouTube Categories ADMIN API: 처리된 카테고리:', categoriesWithCount)
+      console.log('YouTube Categories ADMIN API: 최종 결과:', categoriesWithCount)
 
-      return [allCategory, ...categoriesWithCount]
+      return categoriesWithCount
     } catch (error) {
       return handleApiError(event, 500, 'YouTube 카테고리 조회 실패', error);
     }
   }
 
-  if (method === 'PUT') {
-    const { categories, deletedCategories } = await readBody(event)
+  if (method === 'POST') {
+    // 개별 카테고리 추가
+    const { name } = await readBody(event)
+    
+    if (!name || !name.trim()) {
+      return handleApiError(event, 400, '카테고리 이름이 필요합니다.');
+    }
+
     try {
-      await prisma.$transaction(async (prisma) => {
+      const slug = name.toLowerCase()
+        .replace(/[^a-z0-9가-힣\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .trim()
+
+      // 다음 order 값 계산
+      const maxOrder = await prisma.youTubeVideoCategory.aggregate({
+        _max: { order: true }
+      })
+      const nextOrder = (maxOrder._max.order || 0) + 1
+
+      const newCategory = await prisma.youTubeVideoCategory.create({
+        data: {
+          name: name.trim(),
+          slug,
+          order: nextOrder
+        }
+      })
+
+      console.log('YouTube Categories ADMIN API: 카테고리 추가 완료:', newCategory)
+      return newCategory
+    } catch (error) {
+      return handleApiError(event, 500, '카테고리 추가 실패', error);
+    }
+  }
+
+  if (method === 'PUT') {
+    const body = await readBody(event)
+    
+    // 기존 전체 업데이트 방식과 개별 수정 방식 구분
+    if (body.categories && body.deletedCategories) {
+      // 기존 전체 업데이트 방식
+      const { categories, deletedCategories } = body
+      try {
+        await prisma.$transaction(async (prisma) => {
         let defaultCategory = await prisma.youTubeVideoCategory.findFirst({
           where: { slug: 'uncategorized' }
         })
@@ -102,11 +165,15 @@ export default defineEventHandler(async (event) => {
             })
           }
         }
-      })
+        })
 
-      return { success: true }
-    } catch (error) {
-      return handleApiError(event, 500, 'YouTube 카테고리 업데이트 실패', error);
+        return { success: true }
+      } catch (error) {
+        return handleApiError(event, 500, 'YouTube 카테고리 업데이트 실패', error);
+      }
+    } else {
+      // 개별 수정 방식은 별도 API 사용
+      return handleApiError(event, 400, '잘못된 요청 형식입니다.');
     }
   }
 

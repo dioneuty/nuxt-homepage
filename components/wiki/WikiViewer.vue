@@ -60,7 +60,7 @@ const props = defineProps({
 
 const route = useRoute()
 const router = useRouter()
-const { openModal } = useModal()
+const { openModal, showConfirm } = useModal()
 
 const wiki = ref(null)
 const pending = ref(true)
@@ -85,7 +85,12 @@ onMounted(async () => {
  * 성공 시 성공 모달을 띄우고 위키 목록 페이지로 이동하며, 실패 시 오류 모달을 띄웁니다.
  */
 async function deleteWiki() {
-  if (confirm('정말로 이 위키 페이지를 삭제하시겠습니까?')) {
+  const confirmDelete = await showConfirm(
+    '위키 페이지 삭제',
+    '정말로 이 위키 페이지를 삭제하시겠습니까?'
+  );
+  
+  if (confirmDelete) {
     try {
       await $fetch(`${props.apiEndpoint}?id=${route.query.id}`, {
         method: 'DELETE'

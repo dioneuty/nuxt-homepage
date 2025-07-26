@@ -4,7 +4,16 @@ import { getCookie, createError } from 'h3';
 
 const prisma = new PrismaClient();
 
-const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET || 'your_jwt_secret');
+// JWT 시크릿 필수 환경변수 검증
+if (!process.env.JWT_SECRET) {
+  throw new Error('🔐 JWT_SECRET 환경 변수가 설정되지 않았습니다. 보안을 위해 필수적으로 설정해야 합니다.');
+}
+
+if (process.env.JWT_SECRET.length < 32) {
+  throw new Error('🔐 JWT_SECRET은 보안을 위해 최소 32자 이상이어야 합니다.');
+}
+
+const JWT_SECRET = new TextEncoder().encode(process.env.JWT_SECRET);
 
 export async function verifyAuthToken(event) {
   const token = getCookie(event, 'auth_token');

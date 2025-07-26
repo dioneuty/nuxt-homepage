@@ -123,6 +123,7 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { formatDate } from '~/utils/dateFormatter'
+import { showConfirm } from '~/composables/useModal'
 
 const route = useRoute()
 const router = useRouter()
@@ -200,7 +201,12 @@ const updateAnswer = async () => {
 }
 
 const deleteAnswer = async () => {
-  if (confirm('정말로 이 답변을 삭제하시겠습니까?')) {
+  const confirmDelete = await showConfirm(
+    '답변 삭제',
+    '정말로 이 답변을 삭제하시겠습니까?'
+  );
+  
+  if (confirmDelete) {
     try {
       await useFetch(`/api/qna`, {
         method: 'PUT',
@@ -218,7 +224,12 @@ const deleteAnswer = async () => {
 }
 
 const deleteQnA = async () => {
-  if (confirm('정말로 이 질문을 삭제하시겠습니까?')) {
+  const confirmDelete = await showConfirm(
+    '질문 삭제',
+    '정말로 이 질문을 삭제하시겠습니까?'
+  );
+  
+  if (confirmDelete) {
     try {
       await useFetch(`/api/qna`, {
         method: 'DELETE',

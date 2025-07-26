@@ -262,6 +262,7 @@ model YouTubeVideo {
   title       String
   description String
   isShort     Boolean  @default(false)
+  isPlayable  Boolean  @default(true) // 재생 가능 여부
   categoryId  Int?
   category    YouTubeVideoCategory? @relation(fields: [categoryId], references: [id])
   createdAt   DateTime @default(now())

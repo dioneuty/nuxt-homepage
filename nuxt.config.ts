@@ -64,11 +64,6 @@ export default defineNuxtConfig({
     transpile: ['vue3-quill', '@iconify/vue', 'bcryptjs', 'jose'],
   },
 
-  nitro: {
-    externals: {
-      inline: ['bcryptjs', 'jose']
-    },
-  },
 
   modules: [
     '@pinia/nuxt',
@@ -142,5 +137,53 @@ export default defineNuxtConfig({
 
     // 주기적으로 업데이트되는 페이지 (증분 정적 재생성)
     //'/frequently-updated/**': { isr: 60 } // 60초마다 재생성
+  },
+
+  // 보안 헤더 설정
+  nitro: {
+    routeRules: {
+      '/**': {
+        headers: {
+          // XSS 보호
+          'X-XSS-Protection': '1; mode=block',
+          // 콘텐츠 타입 스니핑 방지
+          'X-Content-Type-Options': 'nosniff',
+          // 클릭재킹 공격 방지
+          'X-Frame-Options': 'DENY',
+          // 리퍼러 정책
+          'Referrer-Policy': 'strict-origin-when-cross-origin',
+          // 권한 정책 (카메라, 마이크 등 차단)
+          'Permissions-Policy': 'camera=(), microphone=(), geolocation=()',
+          // CSP (Content Security Policy) - 이미지와 유튜브를 위해 조정됨
+          'Content-Security-Policy': [
+            "default-src 'self'",
+            "script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net https://www.youtube.com https://s.ytimg.com",
+            "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+            "font-src 'self' https://fonts.gstatic.com",
+            "img-src 'self' data: https: blob:",
+            "media-src 'self' data: https:",
+            "connect-src 'self' https:",
+            "frame-src 'self' https://www.youtube.com https://www.youtube-nocookie.com",
+            "worker-src 'self' blob:",
+            "child-src 'self' https://www.youtube.com",
+            "form-action 'self'",
+            "base-uri 'self'",
+            "manifest-src 'self'"
+          ].join('; ')
+        }
+      },
+      // API 라우트는 CORS 허용
+      '/api/**': {
+        cors: true,
+        headers: {
+          'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+          'Access-Control-Allow-Headers': 'Content-Type, Authorization',
+          'Access-Control-Allow-Origin': '*'
+        }
+      }
+    },
+    externals: {
+      inline: ['bcryptjs', 'jose']
+    }
   }
 })

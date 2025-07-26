@@ -127,6 +127,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { formatDateTime } from '~/utils/dateFormatter';
+import { showConfirm } from '~/composables/useModal';
 
 type ModelField = {
   name: string;
@@ -209,7 +210,13 @@ const editRecord = (record: any) => {
 
 const deleteRecord = async (id: number) => {
   if (!selectedModel.value) return;
-  if (!confirm('Are you sure you want to delete this record?')) return;
+  
+  const confirmDelete = await showConfirm(
+    'Delete Record',
+    'Are you sure you want to delete this record?'
+  );
+  
+  if (!confirmDelete) return;
 
   try {
     await $fetch(`/api/admin/db/${selectedModel.value}/${id}`, {
