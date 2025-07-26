@@ -20,6 +20,12 @@
     <!-- 커맨드 팔레트 (Ctrl+K 또는 Cmd+K로 호출) -->
     <CommandPalette />
     
+    <!-- 플로팅 YouTube 플레이어 (전역) -->
+    <FloatingYouTubePlayer />
+    
+    <!-- 플로팅 YouTube 버튼 (플레이어가 닫혀있을 때 표시) -->
+    <FloatingPlayerButton />
+    
     <!-- 토스트 알림 영역 (화면 상단 중앙에 고정) -->
     <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
       <Toast 
@@ -43,6 +49,8 @@ import LoginModal from '~/components/common/LoginModal.vue'
 import RegisterModal from '~/components/common/RegisterModal.vue'
 import CommandPalette from '~/components/common/CommandPalette.vue'
 import Toast from '~/components/common/Toast.vue'
+import FloatingYouTubePlayer from '~/components/FloatingYouTubePlayer.vue'
+import FloatingPlayerButton from '~/components/FloatingPlayerButton.vue'
 
 // 컴포저블 import
 import { useAuth } from '~/composables/useAuth'

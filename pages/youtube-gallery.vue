@@ -295,10 +295,18 @@
               </div>
               
               <!-- Video Controls -->
-              <div class="flex justify-between mb-3">
-                <button class="bg-gray-500 text-white px-2 py-1 rounded-md text-sm" @click="unloadVideo(video)">썸네일</button>
-                <button class="bg-gray-500 text-white px-2 py-1 rounded-md text-sm" @click="loadVideo(video)">플레이어</button>
-                <button class="bg-gray-500 text-white px-2 py-1 rounded-md text-sm" @click="openModal(video)">모달</button>
+              <div class="flex justify-between gap-2 mb-3">
+                <button class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded-md text-xs transition-colors" @click="unloadVideo(video)">썸네일</button>
+                <button class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded-md text-xs transition-colors" @click="loadVideo(video)">플레이어</button>
+                <button class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded-md text-xs transition-colors" @click="openModal(video)">모달</button>
+                <button 
+                  class="bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded-md text-xs transition-colors flex items-center" 
+                  @click="openFloatingPlayer(video)"
+                  title="PIP 모드로 재생"
+                >
+                  <Icon icon="mdi:picture-in-picture-bottom-right" class="w-3 h-3 mr-1" />
+                  PIP
+                </button>
               </div>
               
               <!-- Thread Controls -->
@@ -394,12 +402,16 @@
   import { useAuth } from '@/composables/useAuth'
   import { useToast } from '@/composables/useToast'
   import { useYoutubeCategoryStore } from '@/stores/youtubeCategoryStore'
+  import { useFloatingPlayerStore } from '@/stores/floatingPlayer'
   import { storeToRefs } from 'pinia' // Pinia에서 storeToRefs를 가져옵니다.
 
   const { isAdmin } = useAuth()
   const { showToast } = useToast()
   const route = useRoute()
   const router = useRouter()
+  
+  // Floating player store
+  const floatingPlayerStore = useFloatingPlayerStore()
 
   // Category store integration
   const youtubeCategoryStore = useYoutubeCategoryStore()
@@ -900,6 +912,14 @@
   const openModal = (video) => { selectedVideo.value = video; isModalOpen.value = true }
   const closeModal = () => { isModalOpen.value = false; selectedVideo.value = null }
   const updateVideoTime = (time) => { if (selectedVideo.value) selectedVideo.value.currentTime = time }
+  
+  /**
+   * PIP 모드로 비디오를 여는 함수
+   */
+  const openFloatingPlayer = (video) => {
+    floatingPlayerStore.openVideo(video.videoId, video.title)
+    showToast(`"${video.title}" PIP 모드로 재생 시작`, 'success')
+  }
 
   /**
    * 카테고리 변경 시 호출되는 함수

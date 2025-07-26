@@ -23,6 +23,7 @@
       </div>
       <Footer />
       <ScrollToTop />
+      
       <!-- 배경 오버레이 -->
       <div
         v-if="isMenuOpen"
@@ -39,10 +40,10 @@ import Nav from '~/components/Nav.vue'
 import Footer from '~/components/Footer.vue'
 import ScrollToTop from '~/components/common/ScrollToTop.vue'
 import VerticalSidebar from '~/components/common/VerticalSidebar.vue'
-import { useLayoutStore } from '~/stores/layout';
+import { useLayoutStore } from '~/stores/layout'
 import { useThemeSettings } from '~/composables/useThemeSettings';
 
-const layoutStore = useLayoutStore();
+const layoutStore = useLayoutStore()
 
 const isMenuOpen = ref(false)
 
