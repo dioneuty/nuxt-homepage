@@ -39,6 +39,12 @@
             </NuxtLink>
           </li>
           <li>
+            <NuxtLink to="/adminpage/youtube-categories" class="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
+              <Icon icon="mdi:youtube" class="w-5 h-5 mr-3" />
+              YouTube 카테고리 관리
+            </NuxtLink>
+          </li>
+          <li>
             <NuxtLink to="/adminpage/relatedsites" class="flex items-center px-4 py-2 text-gray-700 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-gray-700">
               <Icon icon="mdi:web" class="w-5 h-5 mr-3" />
               관련 사이트 관리

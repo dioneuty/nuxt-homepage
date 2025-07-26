@@ -18,6 +18,52 @@
         </div>
       </div>
 
+      <!-- Category Filter -->
+      <div class="flex flex-col sm:flex-row gap-4 mb-6">
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            카테고리 필터
+          </label>
+          <select 
+            v-model="selectedCategoryId" 
+            @change="onCategoryChange"
+            :disabled="isLoading"
+            class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            <option value="all">전체 카테고리 ({{ totalVideoCount }})</option>
+            <option 
+              v-for="category in sortedCategories" 
+              :key="category.id" 
+              :value="category.id"
+              
+            >
+              {{ category.name }} ({{ category.video_count }})
+            </option>
+          </select>
+        </div>
+        
+        <!-- Search Filter -->
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            검색
+          </label>
+          <div class="relative">
+            <input
+              v-model="searchQuery"
+              @input="onSearchChange"
+              :disabled="isLoading"
+              type="text"
+              placeholder="비디오 검색..."
+              class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+            <Icon 
+              icon="mdi:magnify" 
+              class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400"
+            />
+          </div>
+        </div>
+      </div>
+
       <!-- Loading State -->
       <div v-if="isLoading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
@@ -107,6 +153,14 @@
               <h2 class="text-lg font-semibold mb-2 dark:text-white">{{ video.title }}</h2>
               <p class="text-sm text-gray-600 dark:text-gray-300">{{ video.description }}</p>
               
+              <!-- Category Display -->
+              <div v-if="video.category" class="flex items-center mt-2 mb-2">
+                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                  <Icon icon="mdi:tag" class="mr-1 w-3 h-3" />
+                  {{ video.category.name }}
+                </span>
+              </div>
+              
               <!-- Thread Stats -->
               <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-2 mb-3">
                 <Icon icon="mdi:comment-text-outline" class="mr-1" />
@@ -179,7 +233,8 @@
   </template>
   
   <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, watch, computed, nextTick } from 'vue'
+  import { useRoute, useRouter } from 'vue-router'
   import { Icon } from '@iconify/vue'
   import PlayModal from '@/components/youtubeGallery/PlayModal.vue'
   import ThreadEditor from '@/components/youtubeGallery/ThreadEditor.vue'
@@ -189,9 +244,29 @@
   import useVideoThreads from '@/composables/useVideoThreads'
   import { useAuth } from '@/composables/useAuth'
   import { useToast } from '@/composables/useToast'
+  import { useYoutubeCategoryStore } from '@/stores/youtubeCategoryStore'
+  import { storeToRefs } from 'pinia' // Pinia에서 storeToRefs를 가져옵니다.
 
   const { isAdmin } = useAuth()
   const { showToast } = useToast()
+  const route = useRoute()
+  const router = useRouter()
+
+  // Category store integration
+  const youtubeCategoryStore = useYoutubeCategoryStore()
+  const {
+    categories,
+    sortedCategories,
+    totalVideoCount,
+    loading: categoryLoading,
+    error: categoryError
+  } = storeToRefs(youtubeCategoryStore)
+
+  const {
+    fetchCategories,
+    setActiveCategory,
+    recalculateVideoCounts
+  } = youtubeCategoryStore
 
   const selectedVideo = ref(null)
   const isModalOpen = ref(false)
@@ -200,6 +275,13 @@
   const videos = ref([])
   const isLoading = ref(true)
   const error = ref(null)
+
+  // Filter states
+  const selectedCategoryId = ref(route.query.category || 'all')
+  const searchQuery = ref(route.query.search || '')
+
+  // Debounced search handling
+  let searchTimeout = null
   
   // Video management modal
   const showVideoModal = ref(false)
@@ -234,8 +316,26 @@
       isLoading.value = true
       error.value = null
       
+      // Build query parameters
+      const queryParams = {
+        page: 1,
+        limit: 100 // Load more videos for better UX
+      }
+
+      // Add category filter
+      if (selectedCategoryId.value && selectedCategoryId.value !== 'all') {
+        queryParams.categoryId = selectedCategoryId.value
+      }
+
+      // Add search filter
+      if (searchQuery.value.trim()) {
+        queryParams.searchText = searchQuery.value.trim()
+        queryParams.searchType = 'title' // Search in title by default
+      }
+      
       const response = await $fetch('/api/youtube-gallery', {
-        method: 'GET'
+        method: 'GET',
+        query: queryParams
       })
       
       // API 응답을 기존 videos 형태로 변환
@@ -245,9 +345,14 @@
         title: item.title,
         description: item.description,
         isShort: item.isShort,
+        categoryId: item.categoryId,
+        category: item.category,
         loaded: false,
         hasError: false
       }))
+
+      // Update category video counts
+      recalculateVideoCounts(response.items)
       
     } catch (err) {
       console.error('비디오 목록 로드 실패:', err)
@@ -344,6 +449,63 @@
   const closeModal = () => { isModalOpen.value = false; selectedVideo.value = null }
   const updateVideoTime = (time) => { if (selectedVideo.value) selectedVideo.value.currentTime = time }
 
+  /**
+   * 카테고리 변경 시 호출되는 함수
+   */
+  const onCategoryChange = () => {
+    // Update URL with new category
+    const query = { ...route.query }
+    
+    if (selectedCategoryId.value === 'all') {
+      delete query.category
+    } else {
+      query.category = selectedCategoryId.value
+    }
+
+    router.push({ query })
+    setActiveCategory(selectedCategoryId.value)
+    loadVideos()
+  }
+
+  /**
+   * 검색어 변경 시 호출되는 함수 (디바운스 적용)
+   */
+  const onSearchChange = () => {
+    // Clear existing timeout
+    if (searchTimeout) {
+      clearTimeout(searchTimeout)
+    }
+
+    // Set new timeout for debounced search
+    searchTimeout = setTimeout(() => {
+      const query = { ...route.query }
+      
+      if (searchQuery.value.trim()) {
+        query.search = searchQuery.value.trim()
+      } else {
+        delete query.search
+      }
+
+      router.push({ query })
+      loadVideos()
+    }, 300) // 300ms debounce delay
+  }
+
+  // Watch for URL parameter changes
+  watch(() => route.query.category, (newCategory) => {
+    selectedCategoryId.value = newCategory || 'all'
+    if (categories.value.length > 0) {
+      loadVideos()
+    }
+  })
+
+  watch(() => route.query.search, (newSearch) => {
+    searchQuery.value = newSearch || ''
+    if (categories.value.length > 0) {
+      loadVideos()
+    }
+  })
+
   // TODO: 유튜브 갤러리 크게 보기 화면 구현
   // 1. `components/youtubeGallery/PlayModal.vue` 수정:
   //    - 현재 모달에서 유튜브 비디오를 재생하는 기능을 확장하여, 비디오를 더 크게 볼 수 있는 모드 또는 옵션을 추가합니다.
@@ -360,23 +522,42 @@
   //    - 만약 유튜브 비디오 정보를 서버에서 가져오거나 특정 비디오 시청 기록 등을 저장해야 한다면, 관련 API를 개발하거나 기존 API를 수정합니다. 현재 파일 구조상 `server/api/gallery` 또는 유사한 경로에 추가될 수 있습니다.
   
   onMounted(async () => {
-    // Load videos from API
-    await loadVideos()
-    
-    if (process.client) {
-      const observer = new IntersectionObserver((entries) => {
-        entries.forEach((entry) => {
-          if (entry.isIntersecting) {
-            const video = videos.value.find(v => videoRefs.value[v.videoId] === entry.target)
-            if (video) {
-              // loadVideo(video) // Removed this line to prevent auto-loading
+    try {
+      console.log('YoutubeGalleryPage: onMounted hook 실행됨');
+      
+      // Load categories first
+      console.log('YoutubeGalleryPage: fetchCategories 호출 전 - categories:', categories?.value, 'sortedCategories:', sortedCategories?.value, 'totalVideoCount:', totalVideoCount?.value);
+      
+      // 카테고리 데이터가 비어있다면 강제로 다시 불러옵니다.
+      if (!categories.value || categories.value.length === 0) {
+        console.log('YoutubeGalleryPage: 카테고리 데이터가 비어있어 다시 fetchCategories를 호출합니다.');
+        await fetchCategories();
+      }
+
+      // Set active category from URL or default to 'all'
+      setActiveCategory(selectedCategoryId.value)
+      
+      // Load videos from API
+      await loadVideos()
+      
+      if (process.client) {
+        const observer = new IntersectionObserver((entries) => {
+          entries.forEach((entry) => {
+            if (entry.isIntersecting) {
+              const video = videos.value.find(v => videoRefs.value[v.videoId] === entry.target)
+              if (video) {
+                // loadVideo(video) // Removed this line to prevent auto-loading
+              }
+              observer.unobserve(entry.target)
             }
-            observer.unobserve(entry.target)
-          }
+          })
         })
-      })
-  
-      Object.values(videoRefs.value).forEach(el => observer.observe(el))
+    
+        Object.values(videoRefs.value).forEach(el => observer.observe(el))
+      }
+    } catch (err) {
+      console.error('초기화 실패:', err)
+      error.value = '페이지를 불러오는데 실패했습니다.'
     }
   })
   </script>

@@ -19,11 +19,19 @@ export default defineEventHandler(async (event) => {
     const skip = (page - 1) * limit;
     const searchText = query.searchText;
     const searchType = query.searchType;
+    const categoryId = query.categoryId;
     const sortColumn = query.sortColumn || 'createdAt';
     const sortOrder = query.sortOrder === 'asc' ? 'asc' : 'desc';
 
     // 검색 조건 설정
     let where = {};
+    
+    // 카테고리 필터링
+    if (categoryId && categoryId !== 'all') {
+      where.categoryId = parseInt(categoryId);
+    }
+    
+    // 텍스트 검색 조건
     if (searchText && searchType) {
       if (searchType === 'title') {
         where.title = { contains: searchText, mode: 'insensitive' };
@@ -39,6 +47,15 @@ export default defineEventHandler(async (event) => {
         orderBy: { [sortColumn]: sortOrder },
         skip,
         take: limit,
+        include: {
+          category: {
+            select: {
+              id: true,
+              name: true,
+              slug: true
+            }
+          }
+        }
       }),
       prisma.youTubeVideo.count({ where }),
     ]);

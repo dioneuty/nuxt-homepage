@@ -14,7 +14,7 @@ export default defineEventHandler(async (event) => {
     }
 
     const body = await readBody(event);
-    const { url, title, description, isShort } = body;
+    const { url, title, description, isShort, categoryId } = body;
 
     if (!url || !title) {
       handleApiError(event, 400, 'YouTube URL과 제목은 필수 입력 사항입니다.');
@@ -42,7 +42,17 @@ export default defineEventHandler(async (event) => {
         title,
         description: description || '',
         isShort: isShort || false,
+        categoryId: categoryId ? parseInt(categoryId) : null,
       },
+      include: {
+        category: {
+          select: {
+            id: true,
+            name: true,
+            slug: true
+          }
+        }
+      }
     });
 
     return {

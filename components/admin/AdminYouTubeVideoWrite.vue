@@ -43,6 +43,26 @@
           </div>
           
           <div class="mb-4">
+            <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
+            <select
+              id="category"
+              v-model="form.categoryId"
+              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              :disabled="categoryLoading"
+            >
+              <option value="">카테고리 선택</option>
+              <option 
+                v-for="category in availableCategories" 
+                :key="category.id" 
+                :value="category.id"
+              >
+                {{ category.name }}
+              </option>
+            </select>
+            <p v-if="categoryLoading" class="mt-1 text-sm text-gray-500 dark:text-gray-400">카테고리를 불러오는 중...</p>
+          </div>
+          
+          <div class="mb-4">
             <label class="flex items-center">
               <input
                 type="checkbox"
@@ -76,8 +96,10 @@
 </template>
 
 <script setup>
-import { ref, watch, reactive } from 'vue';
+import { ref, watch, reactive, computed, onMounted } from 'vue';
 import { useToast } from '~/composables/useToast';
+import { useYoutubeCategories } from '~/stores/youtubeCategoryStore';
+import { storeToRefs } from 'pinia';
 
 const props = defineProps({
   isOpen: {
@@ -93,6 +115,9 @@ const props = defineProps({
 const emit = defineEmits(['close', 'refresh']);
 
 const { showToast } = useToast();
+const youtubeCategoryStore = useYoutubeCategoryStore();
+const { categories, loading: categoryLoading } = storeToRefs(youtubeCategoryStore);
+const { fetchCategories, getCategoryById } = youtubeCategoryStore;
 
 const form = reactive({
   id: null,
@@ -100,10 +125,28 @@ const form = reactive({
   title: '',
   description: '',
   isShort: false,
+  categoryId: '',
 });
 
 const urlError = ref('');
 const isSubmitting = ref(false);
+
+// 카테고리 관련 computed 및 helper 함수
+const availableCategories = computed(() => {
+  if (!categories.value || !Array.isArray(categories.value)) return [];
+  return categories.value.filter(category => category.id !== 'all');
+});
+
+const getDefaultCategoryId = () => {
+  if (!availableCategories.value || availableCategories.value.length === 0) return '';
+  
+  // 'uncategorized' 카테고리를 찾아서 기본값으로 설정
+  const uncategorized = availableCategories.value.find(cat => cat.slug === 'uncategorized');
+  if (uncategorized) return uncategorized.id;
+  
+  // 'uncategorized'가 없으면 첫 번째 카테고리 사용
+  return availableCategories.value[0]?.id || '';
+};
 
 const resetForm = () => {
   form.id = null;
@@ -111,8 +154,26 @@ const resetForm = () => {
   form.title = '';
   form.description = '';
   form.isShort = false;
+  form.categoryId = getDefaultCategoryId();
   urlError.value = '';
 };
+
+// 컴포넌트 마운트 시 카테고리 로드
+onMounted(async () => {
+  console.log('AdminYouTubeVideoWrite: onMounted hook 실행됨');
+  try {
+    console.log('AdminYouTubeVideoWrite: fetchCategories 호출 시도...');
+    await fetchCategories(true); // use admin endpoint
+    console.log('AdminYouTubeVideoWrite: fetchCategories 호출 완료. categories:', categories.value);
+    // 새 비디오인 경우 기본 카테고리 설정
+    if (!props.videoItem) {
+      form.categoryId = getDefaultCategoryId();
+    }
+  } catch (error) {
+    console.error('카테고리 로딩 실패:', error);
+    // 카테고리 로딩에 실패해도 모달은 사용할 수 있도록 함
+  }
+});
 
 /**
  * YouTube URL의 유효성을 검사하는 함수입니다.
@@ -143,6 +204,7 @@ watch(() => props.videoItem, (newItem) => {
     form.title = newItem.title;
     form.description = newItem.description || '';
     form.isShort = newItem.isShort || false;
+    form.categoryId = newItem.categoryId || getDefaultCategoryId();
   } else {
     resetForm();
   }
@@ -166,6 +228,12 @@ const handleSubmit = async () => {
     return;
   }
 
+  // 카테고리 유효성 검사 (선택 사항이지만 선택된 경우 유효한 카테고리인지 확인)
+  if (form.categoryId && !availableCategories.value.find(cat => cat.id === form.categoryId)) {
+    showToast('유효하지 않은 카테고리입니다.', 'error');
+    return;
+  }
+
   isSubmitting.value = true;
 
   try {
@@ -178,6 +246,7 @@ const handleSubmit = async () => {
           title: form.title,
           description: form.description,
           isShort: form.isShort,
+          categoryId: form.categoryId || null,
         },
       });
       showToast('YouTube 비디오가 성공적으로 수정되었습니다.', 'success');
@@ -190,6 +259,7 @@ const handleSubmit = async () => {
           title: form.title,
           description: form.description,
           isShort: form.isShort,
+          categoryId: form.categoryId || null,
         },
       });
       showToast('새 YouTube 비디오가 성공적으로 추가되었습니다.', 'success');

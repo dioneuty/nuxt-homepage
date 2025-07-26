@@ -246,12 +246,24 @@ model RelatedSite {
   updatedAt   DateTime @updatedAt
 }
 
+model YouTubeVideoCategory {
+  id        Int      @id @default(autoincrement())
+  name      String
+  slug      String   @unique
+  order     Int      @default(0)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  videos    YouTubeVideo[]
+}
+
 model YouTubeVideo {
   id          Int      @id @default(autoincrement())
   videoId     String   @unique // YouTube video ID
   title       String
   description String
   isShort     Boolean  @default(false)
+  categoryId  Int?
+  category    YouTubeVideoCategory? @relation(fields: [categoryId], references: [id])
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
 }

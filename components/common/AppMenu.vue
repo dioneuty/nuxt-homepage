@@ -32,7 +32,7 @@
              :class="[
                'lg:absolute lg:left-0 w-full lg:w-48 lg:bg-blue-800 lg:dark:bg-blue-900 rounded-md lg:shadow-lg',
                isVertical ? '' : 'lg:hidden lg:group-hover:block', // isVertical prop에 따라 hover 동작 변경
-               'z-10', // z-index 유지
+               'z-50', // z-index 유지
                { 'block': menu.isOpen, 'hidden': !menu.isOpen } // 모바일: isOpen 상태로 표시
              ]">
           <AppSubMenu :menus="menu.children" @close-parent="closeAllMenus" />
