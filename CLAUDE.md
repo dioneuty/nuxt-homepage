@@ -32,15 +32,49 @@
 - 타입 체크: `npm run typecheck` (있는 경우)
 - 린트: `npm run lint` (있는 경우)
 
+#### Prisma 관련
+- `npm run prisma:migrate` - 스키마 변경사항 적용
+- `npm run prisma:generate` - 클라이언트 생성
+- `npm run prisma:studio` - DB 시각적 관리
+- `npm run prisma:reset` - DB 초기화
+
 ## 주요 기능
 - 아웃라이너 (outliner): 계층적 텍스트 편집기
 - 드래프트 자동 저장 기능
 - 명령 팔레트 (CommandPalette)
 - 파일 업로드 및 압축
 
-## 데이터베이스
-- Supabase 사용
-- 인덱스 설정은 `supabase_indexes_corrected.sql` 참조
+## 데이터베이스 스키마 (Prisma)
+
+### 데이터베이스 환경
+- **Supabase** - 백엔드 서비스 (PostgreSQL)
+- **Better SQLite3** - 로컬 데이터베이스 (개발용)
+- **인덱스 설정**: `supabase_indexes_corrected.sql` 참조
+
+### 주요 데이터 모델
+- **User**: 사용자 관리 (username, email, role, chats 관계)
+- **BlogPost**: 블로그 게시글 (Category 관계)
+- **BoardPost**: 게시판 글 (계층형 답글 지원 - parentId/replies)
+- **GalleryItem, AdminGalleryItem**: 갤러리 시스템 (tags, comments)
+- **OutlineItem**: 아웃라이너 (계층 구조 - parent/children 관계)
+- **Wiki**: 위키 페이지 (title, content, 작성자 추적)
+- **Chat**: AI 채팅 (screenId, messages JSON, User 관계)
+- **Guestbook**: 방명록 (익명 지원, 댓글 시스템)
+- **HumorPost, QnA**: 유머게시판, Q&A 시스템
+- **Category, Holiday**: 카테고리, 공휴일 관리
+
+### Prisma 개발 명령어
+- `npm run prisma:migrate` - 데이터베이스 스키마 변경사항 적용
+- `npm run prisma:generate` - Prisma 클라이언트 생성
+- `npm run prisma:studio` - Prisma Studio 실행 (DB 시각적 관리)
+- `npm run prisma:reset` - 데이터베이스 초기화 및 마이그레이션 재적용
+- `npx prisma migrate dev --name [이름]` - 새로운 마이그레이션 생성
+
+### 데이터베이스 특징
+- **계층형 구조**: BoardPost(답글), OutlineItem(아웃라이너) 지원
+- **JSON 저장**: Chat.messages, OutlineState.state
+- **익명 시스템**: Guestbook, GuestbookComment 비밀번호 보호
+- **Base64 이미지**: content 필드에 직접 저장 (성능 최적화 필요)
 
 ## 기술 스택
 
@@ -199,6 +233,46 @@ server/api/
 - 성능: 대용량 데이터 처리 시 페이지네이션 고려
 - 사용자 경험: 로딩 상태 및 에러 처리 필수
 
+## API 참조 및 문서화
+
+### 주요 API 엔드포인트
+- **통합 검색 API**: `POST /api/search` - 게시판, 블로그, 위키, 갤러리 통합 검색
+- **아웃라이너 API**: `GET/POST /api/outline` - 상태 저장/조회
+- **아웃라인 아이템 API**: `/api/outline-item` - 아이템별 CRUD
+- **관리자 API**: `/api/admin/*` - 사용자, DB, 갤러리 관리
+- **콘텐츠 API**: 각 게시판별 CRUD 엔드포인트
+
+### API 문서 위치
+상세 API 명세는 `memory-bank/api-docs/` 폴더 참조:
+- `search-api.md` - 통합 검색 API 상세 명세
+- `outline-api.md` - 아웃라이너 API 상세 명세
+- 기타 21개 API 문서 (각 기능별 상세 명세)
+
+### API 공통 사항
+- **오류 처리**: `server/utils/apiErrorHandlers.js`의 `handleApiError` 공통 함수 사용
+- **인증**: JWT 기반 (jose 라이브러리)
+- **권한**: 역할 기반 접근 제어 (RBAC)
+
+## 구현 세부사항
+
+### 오류 처리 시스템
+- **handleApiError**: `server/utils/apiErrorHandlers.js`의 공통 오류 처리 함수
+- 모든 API 엔드포인트에서 일관된 오류 로깅 및 응답 제공
+- 기존 `createError` + `console.error` 패턴을 `handleApiError(event, statusCode, message, error)` 호출로 통합
+
+### 다크모드 구현 방식
+- **기술 스택**: `@nuxtjs/color-mode` + Tailwind CSS `darkMode: 'class'`
+- **동작 원리**: 
+  - `@nuxtjs/color-mode`가 시스템 색상 모드 감지
+  - `<html>` 태그에 `dark` 클래스 자동 토글
+  - Tailwind `dark:` 프리픽스 유틸리티 클래스 적용
+- **사용자 제어**: 라이트/다크/시스템 모드 수동 전환 UI 제공
+
+### 갤러리 관리 시스템
+- **라우팅 방식**: 페이지 기반 라우팅으로 `/adminpage/gallery` 처리
+- **API 통합**: 단일/목록 조회를 하나의 엔드포인트에서 처리
+- **데이터 안정성**: 옵셔널 체이닝으로 `TypeError` 방지
+
 ---
 
 # 📚 메모리뱅크 컨텍스트
@@ -236,6 +310,12 @@ server/api/
 - 메인 갤러리 페이지에 카테고리 필터 및 검색 기능
 - 비디오 카드에 카테고리 태그 표시
 - URL 파라미터 지원 (`?category=categoryId`)
+
+#### 4. **API 오류 처리 시스템 통합 완료**
+- `server/utils/apiErrorHandlers.js`의 `handleApiError` 공통 함수 도입
+- 전체 API 엔드포인트 (66개)에서 일관된 오류 처리 적용
+- 기존 개별 오류 처리 로직을 표준화된 함수로 통합
+- 일관된 로깅 및 에러 응답 형식 구축
 
 ### 🚀 진행중인 쉬림프 태스크 (3/8 완료, 37.5%)
 

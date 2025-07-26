@@ -8,7 +8,7 @@
 <template>
   <div class="container mx-auto px-2 md:px-4 py-4 md:py-8">
     <!-- 섹션 선택 UI -->
-    <div class="glass-section mb-6 md:mb-8 p-4 md:p-6 rounded-lg z-10">
+    <div class="glass-section mb-6 md:mb-8 p-4 md:p-6 rounded-lg relative" style="z-index: 1;">
       <h2 class="text-xl md:text-2xl font-bold mb-3 md:mb-4 dark:text-gray-200">섹션 선택</h2>
       <div class="flex flex-wrap gap-3 md:gap-4">
         <!-- 각 섹션에 대한 체크박스 -->

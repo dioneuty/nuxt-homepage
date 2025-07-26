@@ -85,11 +85,20 @@ export function useListData(apiEndpoint, options = {}) {
         }
       })
 
-      totalItems.value = response.total
-      const newPosts = response[contentType] || response.posts || []
-
-      loadedPosts.value = append ? [...loadedPosts.value, ...newPosts] : newPosts
-      hasMorePosts.value = loadedPosts.value.length < totalItems.value
+      // API 응답이 배열인 경우와 객체인 경우 모두 처리
+      if (Array.isArray(response)) {
+        // 단순 배열 응답인 경우 (예: /api/blogPosts)
+        totalItems.value = response.length
+        const newPosts = response
+        loadedPosts.value = append ? [...loadedPosts.value, ...newPosts] : newPosts
+        hasMorePosts.value = false // 단순 배열인 경우 페이지네이션 없음
+      } else {
+        // 페이지네이션 객체 응답인 경우
+        totalItems.value = response.total
+        const newPosts = response[contentType] || response.posts || []
+        loadedPosts.value = append ? [...loadedPosts.value, ...newPosts] : newPosts
+        hasMorePosts.value = loadedPosts.value.length < totalItems.value
+      }
 
     } catch (err) {
       console.error('Failed to fetch posts:', err)

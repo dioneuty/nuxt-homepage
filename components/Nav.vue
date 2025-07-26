@@ -3,7 +3,7 @@
   <div>
     <nav :key="navKey" :class="[
       'transition-all duration-300 ease-in-out',
-      navStore.isAlwaysOnTop ? 'fixed top-0 left-0 right-0 z-50' : 'relative'
+      navStore.isAlwaysOnTop ? 'fixed top-0 left-0 right-0 z-[100]' : 'relative z-[100]'
     ]">
       <!-- 데스크톱 네비게이션 -->
       <div class="hidden lg:block" v-if="!layoutStore.isSidebarOpen">
@@ -30,9 +30,9 @@
           </NuxtLink>
         </div>
         <!-- 네비게이션 바 -->
-        <div class="glassmorphism-nav-bar backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 text-white p-2 shadow-lg border-b border-white/20 dark:border-gray-700/20" :style="{ backgroundColor: 'var(--header-bg-color)' }">
-          <div class="container mx-auto flex justify-between items-center">
-            <div class="space-x-4">
+        <div class="glassmorphism-nav-bar backdrop-blur-xl bg-white/70 dark:bg-gray-800/70 text-white p-2 shadow-lg border-b border-white/20 dark:border-gray-700/20 relative" :style="{ backgroundColor: 'var(--header-bg-color)', zIndex: 9999 }">
+          <div class="container mx-auto flex justify-between items-center relative" style="z-index: 9999;">
+            <div class="space-x-4 relative" style="z-index: 9999;">
               <AppMenu :isVertical="false" />
             </div>
             <div class="flex items-center space-x-4">

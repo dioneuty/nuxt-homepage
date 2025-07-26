@@ -1,11 +1,11 @@
 <template>
-  <nav>
+  <nav class="relative" style="z-index: 9999;">
     <!-- 모바일에서는 세로, 데스크톱에서는 가로 메뉴 -->
     <ul :class="[
-      'flex flex-col',
+      'flex flex-col relative',
       isVertical ? '' : 'lg:flex-row lg:space-x-1' // isVertical prop에 따라 데스크톱 레이아웃 변경
-    ]">
-      <li v-for="menu in accessibleMenus" :key="menu.id" class="relative group">
+    ]" style="z-index: 9999;">
+      <li v-for="menu in accessibleMenus" :key="menu.id" class="relative group" style="z-index: 9999;">
         <div 
           @click="handleMenuClick(menu)"
           :class="[
@@ -30,12 +30,22 @@
         <!-- 하위 메뉴 -->
         <div v-if="menu.children && menu.children.length" 
              :class="[
-               'lg:absolute lg:left-0 w-full lg:w-48 lg:bg-blue-800 lg:dark:bg-blue-900 rounded-md lg:shadow-lg',
-               isVertical ? '' : 'lg:hidden lg:group-hover:block', // isVertical prop에 따라 hover 동작 변경
-               'z-50', // z-index 유지
-               { 'block': menu.isOpen, 'hidden': !menu.isOpen } // 모바일: isOpen 상태로 표시
-             ]">
-          <AppSubMenu :menus="menu.children" @close-parent="closeAllMenus" />
+               // 세로 메뉴(사이드바)에서는 static 포지셔닝으로 자연스럽게 아래로 펼침
+               isVertical 
+                 ? 'relative w-full' 
+                 : 'lg:absolute lg:left-0 w-full lg:w-48 lg:bg-blue-800 lg:dark:bg-blue-900 rounded-md lg:shadow-lg',
+               
+               // hover 동작도 세로 메뉴에서는 비활성화
+               isVertical ? '' : 'lg:hidden lg:group-hover:block',
+               
+               // z-index는 가로 메뉴(드롭다운)에서만 필요
+               isVertical ? '' : 'z-[9999]',
+               
+               // 표시/숨김 상태
+               { 'block': menu.isOpen, 'hidden': !menu.isOpen }
+             ]"
+             :style="isVertical ? '' : 'z-index: 9999 !important;'">
+          <AppSubMenu :menus="menu.children" @close-parent="closeAllMenus" :is-vertical="isVertical" />
         </div>
       </li>
     </ul>

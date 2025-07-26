@@ -1,6 +1,6 @@
 <template>
-  <!-- 모바일에서는 padding, 데스크톱에서는 py-1 -->
-  <ul class="pl-4 lg:pl-0 lg:py-1">
+  <!-- 세로 메뉴에서는 왼쪽 패딩 유지, 가로 메뉴에서는 데스크톱 스타일 적용 -->
+  <ul :class="props.isVertical ? 'pl-4' : 'pl-4 lg:pl-0 lg:py-1'">
     <li v-for="menu in reactiveMenus" :key="menu.id" class="relative group">
        <div 
           @click="handleMenuClick(menu)"
@@ -22,21 +22,37 @@
         </NuxtLink>
         <Icon 
           v-if="menu.children && menu.children.length" 
-          icon="mdi:chevron-right" 
-          :class="['transition-transform duration-200', menu.isOpen ? 'rotate-90' : '', 'lg:group-hover:opacity-100 lg:opacity-0']" 
+          :icon="props.isVertical ? 'mdi:chevron-down' : 'mdi:chevron-right'" 
+          :class="[
+            'transition-transform duration-200',
+            props.isVertical 
+              ? (menu.isOpen ? 'rotate-180' : '') 
+              : (menu.isOpen ? 'rotate-90' : ''),
+            props.isVertical ? '' : 'lg:group-hover:opacity-100 lg:opacity-0'
+          ]" 
         />
       </div>
 
       <!-- 하위 메뉴 -->
       <div v-if="menu.children && menu.children.length"
            :class="[
-             'lg:absolute lg:left-full lg:top-0 lg:mt-0 w-full lg:w-48 rounded-md lg:shadow-lg',
-             'bg-blue-800 dark:bg-blue-900', // 새로운 배경색
-             'lg:hidden lg:group-hover:block z-10',
+             // 세로 메뉴(사이드바)에서는 static 포지셔닝으로 자연스럽게 아래로 펼침
+             props.isVertical 
+               ? 'relative w-full ml-4' 
+               : 'lg:absolute lg:left-full lg:top-0 lg:mt-0 w-full lg:w-48 rounded-md lg:shadow-lg',
+             
+             // 배경색은 세로 메뉴에서는 필요없음 (이미 부모와 동일)
+             props.isVertical ? '' : 'bg-blue-800 dark:bg-blue-900',
+             
+             // hover 동작과 z-index는 가로 메뉴에서만 필요
+             props.isVertical ? '' : 'lg:hidden lg:group-hover:block z-[9999]',
+             
+             // 표시/숨김 상태
              { 'block': menu.isOpen, 'hidden': !menu.isOpen }
-           ]">
+           ]"
+           :style="props.isVertical ? '' : 'z-index: 9999 !important;'">
         <!-- 재귀 호출 -->
-        <AppSubMenu :menus="menu.children" @close-parent="$emit('close-parent')" />
+        <AppSubMenu :menus="menu.children" @close-parent="$emit('close-parent')" :is-vertical="props.isVertical" />
       </div>
     </li>
   </ul>
@@ -56,6 +72,10 @@ const props = defineProps({
   menus: {
     type: Array,
     required: true
+  },
+  isVertical: {
+    type: Boolean,
+    default: false
   }
 });
 

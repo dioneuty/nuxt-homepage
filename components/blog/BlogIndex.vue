@@ -5,7 +5,7 @@
       {{ title }}
     </h1>
     
-    <div v-if="pending" class="flex justify-center items-center h-64">
+    <div v-if="initialLoading" class="flex justify-center items-center h-64">
       <Icon icon="eos-icons:loading" class="text-blue-500" width="48" height="48" />
     </div>
     
@@ -15,7 +15,7 @@
     </div>
     
     <div v-else>
-      <div v-if="isEmpty || posts.length === 0" class="text-center text-gray-600 dark:text-gray-400 py-12">
+      <div v-if="posts.length === 0" class="text-center text-gray-600 dark:text-gray-400 py-12">
         <Icon icon="mdi:folder-open-outline" class="mx-auto mb-4" width="64" height="64" />
         <p>{{ emptyMessage }}</p>
       </div>
@@ -71,9 +71,8 @@ const router = useRouter()
 // useListData 컴포저블을 사용하여 목록 데이터 관리
 const {
   posts,
-  pending,
-  error,
-  isEmpty
+  initialLoading,
+  error
 } = useListData(props.apiEndpoint, {
   enableInfiniteScroll: false,
   enableSearch: false,
