@@ -34,8 +34,10 @@ export default defineNuxtRouteMiddleware(async (to, from) => {
       // 예: if (payload.role !== 'admin') { ... }
     } catch (error) {
       // 토큰이 유효하지 않은 경우 처리
-      // 예: 로그인 페이지로 리다이렉트 (여기서는 콘솔 에러 로깅 후 미들웨어 종료)
-      console.error('Invalid token:', error)
+      // 개발 환경에서만 상세 에러 로깅
+      if (process.dev) {
+        console.error('Token validation failed:', error)
+      }
     }
   }
 })

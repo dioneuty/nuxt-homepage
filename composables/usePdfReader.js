@@ -62,11 +62,6 @@ export function usePdfReader() {
       totalPages.value = pdfDocument.value.numPages
       currentPage.value = 1
 
-      console.log('PDF 로드 완료:', {
-        totalPages: totalPages.value,
-        title: pdfDocument.value._pdfInfo?.info?.Title || 'Unknown'
-      })
-
     } catch (err) {
       error.value = `PDF 로드 실패: ${err.message}`
       console.error('PDF 로드 에러:', err)

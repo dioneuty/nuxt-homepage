@@ -141,33 +141,15 @@ function imageHandler() {
           quill.insertEmbed(range.index, 'image', compressedBase64);
           range.index += 1;
           
-          // 📊 압축 통계 출력
-          console.log(`🚀 서버 압축 완료:
-            원본: ${formatBytes(stats.originalSize)}
-            압축: ${formatBytes(stats.compressedSize)}
-            절약: ${stats.reduction}% 🎉
-            처리시간: ${stats.processTime}ms
-            포맷: ${stats.format}`);
         });
         
         quill.insertText(range.index, '\n');
         quill.setSelection(range.index + 1, 0);
         
-        // 🎯 전체 압축 통계
-        const totalOriginal = compressedImages.reduce((sum, img) => sum + img.stats.originalSize, 0);
-        const totalCompressed = compressedImages.reduce((sum, img) => sum + img.stats.compressedSize, 0);
-        const totalReduction = Math.round((1 - totalCompressed / totalOriginal) * 100);
-        const totalTime = compressedImages.reduce((sum, img) => sum + img.stats.processTime, 0);
-        
-        console.log(`🏆 서버 압축 최종 결과:
-          총 원본: ${formatBytes(totalOriginal)}
-          총 압축: ${formatBytes(totalCompressed)}
-          총 절약: ${totalReduction}%
-          총 처리시간: ${totalTime}ms`);
           
       } catch (error) {
-        console.error('❌ 서버 압축 실패, 클라이언트 압축으로 폴백:', error);
-        // 🔄 클라이언트 압축으로 폴백
+        console.error('Server compression failed, falling back to client compression:', error);
+        // 클라이언트 압축으로 폴백
         await fallbackToClientCompression(files, quill, range);
       }
     }
@@ -213,7 +195,6 @@ async function compressImageWithServer(file, options = {}) {
           }
           
         } catch (apiError) {
-          console.warn('📡 서버 압축 API 오류:', apiError);
           reject(apiError);
         }
       };
@@ -253,29 +234,14 @@ async function fallbackToClientCompression(files, quill, range) {
       quill.insertEmbed(range.index, 'image', compressedBase64);
       range.index += 1;
       
-      // 📊 압축 통계 출력
-      console.log(`⚡ 클라이언트 압축:
-        원본: ${formatBytes(stats.originalSize)}
-        압축: ${formatBytes(stats.compressedSize)}
-        절약: ${stats.reduction}% 
-        포맷: ${stats.format}`);
     });
     
     quill.insertText(range.index, '\n');
     quill.setSelection(range.index + 1, 0);
     
-    // 🎯 전체 압축 통계
-    const totalOriginal = compressedImages.reduce((sum, img) => sum + img.stats.originalSize, 0);
-    const totalCompressed = compressedImages.reduce((sum, img) => sum + img.stats.compressedSize, 0);
-    const totalReduction = Math.round((1 - totalCompressed / totalOriginal) * 100);
-    
-    console.log(`💪 클라이언트 압축 결과:
-      총 원본: ${formatBytes(totalOriginal)}
-      총 압축: ${formatBytes(totalCompressed)}
-      총 절약: ${totalReduction}%`);
       
   } catch (clientError) {
-    console.error('❌ 클라이언트 압축도 실패:', clientError);
+    console.error('Client compression also failed:', clientError);
     // 최후의 폴백: 원본 그대로 사용
     fallbackImageHandler(files, quill, range);
   }

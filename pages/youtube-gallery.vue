@@ -388,7 +388,7 @@
   </template>
   
   <script setup>
-  import { ref, onMounted, watch, computed, nextTick } from 'vue'
+  import { ref, onMounted, watch, computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { Icon } from '@iconify/vue'
   import PlayModal from '@/components/youtubeGallery/PlayModal.vue'
@@ -528,18 +528,6 @@
     const unplayableVideos = videos.value.filter(video => 
       video.hasError || (video.isPlayable !== undefined && video.isPlayable === false)
     )
-    console.log('unplayableCount debug:', {
-      totalVideos: videos.value.length,
-      unplayableVideos: unplayableVideos.length,
-      videosWithError: videos.value.filter(v => v.hasError).length,
-      videosNotPlayable: videos.value.filter(v => v.isPlayable === false).length,
-      videosWithUndefinedPlayable: videos.value.filter(v => v.isPlayable === undefined).length,
-      sampleUnplayable: unplayableVideos.slice(0, 3).map(v => ({
-        title: v.title,
-        hasError: v.hasError,
-        isPlayable: v.isPlayable
-      }))
-    })
     return unplayableVideos.length
   })
 
@@ -560,7 +548,6 @@
       // Add category filter
       if (selectedCategoryId.value && selectedCategoryId.value !== 'all') {
         queryParams.categoryId = selectedCategoryId.value
-        console.log('YouTubeGallery: 카테고리 필터 적용 -', selectedCategoryId.value)
       }
 
       // Add search filter
@@ -587,18 +574,6 @@
         loaded: false,
         hasError: false
       }))
-
-      // 디버깅: API에서 받은 isPlayable 상태 확인
-      console.log('loadVideos debug:', {
-        totalVideos: response.items.length,
-        isPlayableUndefined: response.items.filter(item => item.isPlayable === undefined).length,
-        isPlayableFalse: response.items.filter(item => item.isPlayable === false).length,
-        isPlayableTrue: response.items.filter(item => item.isPlayable === true).length,
-        sampleVideos: response.items.slice(0, 5).map(item => ({
-          title: item.title,
-          isPlayable: item.isPlayable
-        }))
-      })
 
       // 카테고리 비디오 수는 API에서 가져온 값을 유지
       // recalculateVideoCounts는 필터링된 결과에 영향을 주지 않도록 제거
@@ -792,7 +767,6 @@
       
       // 실제 구현에서는 YouTube Data API를 사용하거나
       // iframe 내부 DOM을 체크하는 로직을 추가할 수 있음
-      console.log(`비디오 재생 가능성 체크: ${video.title} (${video.videoId})`)
       
     }, 3000)
   }
@@ -844,13 +818,11 @@
             
             if (!response.ok) {
               // oEmbed API에서 404 또는 기타 에러 발생 시 재생불가로 간주
-              console.log(`비디오 재생불가 감지 (oEmbed 실패): ${video.title}`)
               await updateVideoPlayability(video, false)
               updatedCount++
             }
           } catch (fetchError) {
             // 네트워크 에러 등으로 확인 불가능한 경우 건너뛰기
-            console.log(`비디오 상태 확인 실패: ${video.title}`, fetchError)
           }
 
           checkedCount++
@@ -1202,16 +1174,10 @@
   
   onMounted(async () => {
     try {
-      console.log('YoutubeGalleryPage: onMounted hook 실행됨');
-      
       // Load categories first - 항상 최신 데이터를 가져오도록 강제 호출
-      console.log('YoutubeGalleryPage: fetchCategories 호출 전 - categories:', categories?.value, 'sortedCategories:', sortedCategories?.value, 'totalVideoCount:', totalVideoCount?.value);
       
       // 카테고리 데이터를 강제로 다시 불러와서 최신 비디오 수 반영
-      console.log('YoutubeGalleryPage: 최신 카테고리 데이터를 위해 fetchCategories를 호출합니다.');
       await fetchCategories();
-      
-      console.log('YoutubeGalleryPage: fetchCategories 호출 후 - categories:', categories?.value, 'sortedCategories:', sortedCategories?.value, 'totalVideoCount:', totalVideoCount?.value);
 
       // Set active category from URL or default to 'all'
       setActiveCategory(selectedCategoryId.value)

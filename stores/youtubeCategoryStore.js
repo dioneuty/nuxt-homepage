@@ -11,12 +11,9 @@ export const useYoutubeCategoryStore = defineStore('youtubeCategory', () => {
 
   // Getters
   const sortedCategories = computed(() => {
-    console.log('youtubeCategoryStore: sortedCategories 계산 시작. categories.value:', categories.value);
-    const result = [...categories.value].sort((a, b) => {
+    return [...categories.value].sort((a, b) => {
       return (a.order || 0) - (b.order || 0)
     })
-    console.log('youtubeCategoryStore: sortedCategories 계산 완료. 결과:', result);
-    return result;
   })
 
   const activeCategoryData = computed(() => {
@@ -25,11 +22,8 @@ export const useYoutubeCategoryStore = defineStore('youtubeCategory', () => {
   })
 
   const totalVideoCount = computed(() => {
-    console.log('youtubeCategoryStore: totalVideoCount 계산 시작. categories.value:', categories.value);
     // API에서 "전체" 카테고리를 제거했으므로, 모든 카테고리의 비디오 수를 합산
-    const count = categories.value.reduce((sum, category) => sum + (category.video_count || 0), 0)
-    console.log('youtubeCategoryStore: totalVideoCount 계산 완료. 결과:', count);
-    return count;
+    return categories.value.reduce((sum, category) => sum + (category.video_count || 0), 0)
   })
 
   // Actions

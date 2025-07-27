@@ -207,12 +207,8 @@ const handleBackdropClick = () => {
 const addCategory = async () => {
   if (!newCategoryName.value.trim() || addingCategory.value) return
 
-  console.log('addCategory 시작:', newCategoryName.value.trim())
-
   try {
     addingCategory.value = true
-
-    console.log('API 호출 전 - POST /api/admin/youtube-categories')
     const response = await $fetch('/api/admin/youtube-categories', {
       method: 'POST',
       body: {
@@ -220,15 +216,12 @@ const addCategory = async () => {
       }
     })
 
-    console.log('API 응답:', response)
     showToast('카테고리가 성공적으로 추가되었습니다.', 'success')
     newCategoryName.value = ''
     
     // Refresh categories
-    console.log('카테고리 목록 새로고침 시작')
     await fetchCategories()
     emit('updated')
-    console.log('카테고리 추가 완료')
 
   } catch (err) {
     console.error('카테고리 추가 실패:', err)
@@ -266,12 +259,9 @@ const cancelEdit = () => {
 const saveCategory = async () => {
   if (!editCategoryName.value.trim() || savingCategory.value) return
 
-  console.log('saveCategory 시작:', editingCategoryId.value, editCategoryName.value.trim())
-
   try {
     savingCategory.value = true
 
-    console.log('API 호출 전 - PUT /api/admin/youtube-categories/' + editingCategoryId.value)
     await $fetch(`/api/admin/youtube-categories/${editingCategoryId.value}`, {
       method: 'PUT',
       body: {
@@ -279,7 +269,6 @@ const saveCategory = async () => {
       }
     })
 
-    console.log('카테고리 수정 API 응답 성공')
     showToast('카테고리가 성공적으로 수정되었습니다.', 'success')
     
     // Reset edit state
@@ -287,10 +276,8 @@ const saveCategory = async () => {
     editCategoryName.value = ''
     
     // Refresh categories
-    console.log('카테고리 목록 새로고침 시작')
     await fetchCategories()
     emit('updated')
-    console.log('카테고리 수정 완료')
 
   } catch (err) {
     console.error('카테고리 수정 실패:', err)
@@ -318,29 +305,24 @@ const deleteCategory = async (category) => {
     : `"${category.name}" 카테고리를 삭제하시겠습니까?`
 
   if (!confirm(confirmMessage)) {
-    console.log('사용자가 삭제를 취소함')
     return
   }
 
   try {
     deletingCategoryId.value = category.id
 
-    console.log('API 호출 전 - DELETE /api/admin/youtube-categories/' + category.id)
     await $fetch(`/api/admin/youtube-categories/${category.id}`, {
       method: 'DELETE'
     })
 
-    console.log('카테고리 삭제 API 응답 성공')
     showToast('카테고리가 성공적으로 삭제되었습니다.', 'success')
     
     // Refresh categories and recalculate video counts
-    console.log('카테고리 목록 및 비디오 수 새로고침 시작')
     await Promise.all([
       fetchCategories(),
       recalculateVideoCounts()
     ])
     emit('updated')
-    console.log('카테고리 삭제 완료')
 
   } catch (err) {
     console.error('카테고리 삭제 실패:', err)
