@@ -81,6 +81,8 @@ export const useFloatingPlayerStore = defineStore('floatingPlayer', {
     playVideoFromList(video, index) {
       this.openVideo(video.videoId, video.title)
       this.currentVideoIndex = index
+      // 비디오 재생 시 목록을 닫습니다
+      this.showVideoList = false
     },
 
     playNext() {
@@ -107,8 +109,9 @@ export const useFloatingPlayerStore = defineStore('floatingPlayer', {
         const maxX = window.innerWidth - this.size.width
         const maxY = window.innerHeight - this.size.height
         
-        this.position.x = Math.max(0, Math.min(x, maxX))
-        this.position.y = Math.max(0, Math.min(y, maxY))
+        // 위치 업데이트 최적화: 정수로 반올림하여 미세한 변화 방지
+        this.position.x = Math.round(Math.max(0, Math.min(x, maxX)))
+        this.position.y = Math.round(Math.max(0, Math.min(y, maxY)))
       } else {
         this.position.x = x
         this.position.y = y

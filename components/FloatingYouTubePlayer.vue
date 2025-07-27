@@ -46,24 +46,26 @@
               <!-- 비디오 목록 토글 버튼 -->
               <button
                 @click="store.toggleVideoList"
-                class="control-btn"
+                class="control-btn playlist-btn"
                 :class="{ 'active': store.showVideoList }"
                 title="비디오 목록"
               >
                 <Icon name="mdi:playlist-play" class="control-icon" />
+                <span class="control-text">목록</span>
               </button>
             </div>
             
             <!-- 공통 컨트롤 -->
             <button
               @click="store.toggleMinimize"
-              class="control-btn"
+              class="control-btn minimize-btn"
               title="최소화/복원"
             >
               <Icon 
-                :name="store.isMinimized ? 'mdi:window-maximize' : 'mdi:window-minimize'" 
+                :name="store.isMinimized ? 'mdi:arrow-expand' : 'mdi:minus'" 
                 class="control-icon" 
               />
+              <span class="control-text">{{ store.isMinimized ? '펼치기' : '최소화' }}</span>
             </button>
             
             <button
@@ -72,6 +74,7 @@
               title="닫기"
             >
               <Icon name="mdi:close" class="control-icon" />
+              <span class="control-text">닫기</span>
             </button>
           </div>
         </div>
@@ -132,7 +135,7 @@
               <div
                 v-for="(video, index) in store.videoList"
                 :key="video.id"
-                @click="store.playVideoFromList(video, index)"
+                @dblclick="store.playVideoFromList(video, index)"
                 class="video-item"
                 :class="{ 'active': store.currentVideoIndex === index }"
               >
@@ -147,11 +150,17 @@
                     {{ video.category?.name || '카테고리 없음' }}
                   </p>
                 </div>
-                <Icon 
-                  v-if="store.currentVideoIndex === index"
-                  name="mdi:play"
-                  class="play-indicator"
-                />
+                <button
+                  @click.stop="store.playVideoFromList(video, index)"
+                  class="play-button"
+                  :class="{ 'playing': store.currentVideoIndex === index }"
+                  :title="store.currentVideoIndex === index ? '재생 중' : '재생'"
+                >
+                  <Icon 
+                    :name="store.currentVideoIndex === index ? 'mdi:pause' : 'mdi:play'"
+                    class="play-icon"
+                  />
+                </button>
               </div>
             </div>
           </div>
@@ -171,10 +180,34 @@
 </template>
 
 <script setup>
-import { computed, reactive, onMounted, onUnmounted } from 'vue'
+import { computed, reactive, onMounted, onUnmounted, ref } from 'vue'
 import { useFloatingPlayerStore } from '~/stores/floatingPlayer'
 
 const store = useFloatingPlayerStore()
+
+// 스로틀 헬퍼 함수
+const throttle = (func, limit) => {
+  let inThrottle
+  let lastRan
+  let lastFunc
+  return function() {
+    const context = this
+    const args = arguments
+    if (!inThrottle) {
+      func.apply(context, args)
+      lastRan = Date.now()
+      inThrottle = true
+    } else {
+      clearTimeout(lastFunc)
+      lastFunc = setTimeout(function() {
+        if ((Date.now() - lastRan) >= limit) {
+          func.apply(context, args)
+          lastRan = Date.now()
+        }
+      }, limit - (Date.now() - lastRan))
+    }
+  }
+}
 
 // 드래그 관련 상태
 const dragState = reactive({
@@ -183,7 +216,8 @@ const dragState = reactive({
   startX: 0,
   startY: 0,
   startPos: { x: 0, y: 0 },
-  startSize: { width: 0, height: 0 }
+  startSize: { width: 0, height: 0 },
+  animationFrameId: null
 })
 
 // 플레이어 스타일 계산
@@ -235,19 +269,33 @@ const startDrag = (e) => {
 const handleDrag = (e) => {
   if (!dragState.isDragging) return
   
-  const deltaX = e.clientX - dragState.startX
-  const deltaY = e.clientY - dragState.startY
+  // 이전 애니메이션 프레임 취소
+  if (dragState.animationFrameId) {
+    cancelAnimationFrame(dragState.animationFrameId)
+  }
   
-  store.updatePosition(
-    dragState.startPos.x + deltaX,
-    dragState.startPos.y + deltaY
-  )
+  // requestAnimationFrame으로 DOM 업데이트 최적화
+  dragState.animationFrameId = requestAnimationFrame(() => {
+    const deltaX = e.clientX - dragState.startX
+    const deltaY = e.clientY - dragState.startY
+    
+    store.updatePosition(
+      dragState.startPos.x + deltaX,
+      dragState.startPos.y + deltaY
+    )
+  })
 }
 
 // 드래그 종료
 const stopDrag = () => {
   dragState.isDragging = false
   store.setDragging(false)
+  
+  // 남은 애니메이션 프레임 취소
+  if (dragState.animationFrameId) {
+    cancelAnimationFrame(dragState.animationFrameId)
+    dragState.animationFrameId = null
+  }
   
   document.removeEventListener('mousemove', handleDrag)
   document.removeEventListener('mouseup', stopDrag)
@@ -271,19 +319,33 @@ const startResize = (e) => {
 const handleResize = (e) => {
   if (!dragState.isResizing) return
   
-  const deltaX = e.clientX - dragState.startX
-  const deltaY = e.clientY - dragState.startY
+  // 이전 애니메이션 프레임 취소
+  if (dragState.animationFrameId) {
+    cancelAnimationFrame(dragState.animationFrameId)
+  }
   
-  const newWidth = Math.max(400, dragState.startSize.width + deltaX)
-  const newHeight = Math.max(225, Math.round(newWidth * 9 / 16))
-  
-  store.size.width = newWidth
-  store.size.height = newHeight
+  // requestAnimationFrame으로 DOM 업데이트 최적화
+  dragState.animationFrameId = requestAnimationFrame(() => {
+    const deltaX = e.clientX - dragState.startX
+    const deltaY = e.clientY - dragState.startY
+    
+    const newWidth = Math.max(400, dragState.startSize.width + deltaX)
+    const newHeight = Math.max(225, Math.round(newWidth * 9 / 16))
+    
+    store.size.width = newWidth
+    store.size.height = newHeight
+  })
 }
 
 // 리사이즈 종료
 const stopResize = () => {
   dragState.isResizing = false
+  
+  // 남은 애니메이션 프레임 취소
+  if (dragState.animationFrameId) {
+    cancelAnimationFrame(dragState.animationFrameId)
+    dragState.animationFrameId = null
+  }
   
   document.removeEventListener('mousemove', handleResize)
   document.removeEventListener('mouseup', stopResize)
@@ -319,6 +381,7 @@ onUnmounted(() => {
   overflow: hidden;
   border: 1px solid #e5e7eb;
   user-select: none;
+  will-change: transform;
 }
 
 .header {
@@ -362,13 +425,17 @@ onUnmounted(() => {
 }
 
 .control-btn {
-  padding: 0.5rem;
+  padding: 0.5rem 0.75rem;
   color: #374151;
   background: rgba(0, 0, 0, 0.05);
   border: 1px solid rgba(0, 0, 0, 0.1);
   border-radius: 0.375rem;
   cursor: pointer;
   transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  white-space: nowrap;
 }
 
 .control-btn:hover {
@@ -384,6 +451,27 @@ onUnmounted(() => {
   box-shadow: 0 2px 4px rgba(59, 130, 246, 0.3);
 }
 
+.playlist-btn.active {
+  background: #dbeafe;
+  color: #1e40af;
+  border-color: #3b82f6;
+}
+
+.playlist-btn.active:hover {
+  background: #bfdbfe;
+  color: #1e3a8a;
+}
+
+.minimize-btn {
+  color: #059669;
+}
+
+.minimize-btn:hover {
+  background: #d1fae5;
+  color: #047857;
+  border-color: rgba(5, 150, 105, 0.2);
+}
+
 .close-btn {
   color: #dc2626;
   background: rgba(220, 38, 38, 0.05);
@@ -397,7 +485,14 @@ onUnmounted(() => {
 }
 
 .control-icon {
-  font-size: 1.25rem;
+  font-size: 1.125rem;
+  color: currentColor;
+  flex-shrink: 0;
+}
+
+.control-text {
+  font-size: 0.75rem;
+  font-weight: 500;
   color: currentColor;
 }
 
@@ -471,9 +566,11 @@ onUnmounted(() => {
   gap: 0.75rem;
   padding: 0.75rem;
   border-radius: 0.5rem;
-  cursor: pointer;
+  cursor: default;
   transition: all 0.2s ease;
   position: relative;
+  border: 2px solid transparent;
+  user-select: none;
 }
 
 .video-item:hover {
@@ -481,8 +578,9 @@ onUnmounted(() => {
 }
 
 .video-item.active {
-  background: #dbeafe;
-  border: 1px solid #3b82f6;
+  background: #eff6ff;
+  border: 2px solid #3b82f6;
+  padding: calc(0.75rem - 1px);
 }
 
 .video-thumbnail {
@@ -496,6 +594,11 @@ onUnmounted(() => {
 .video-info {
   flex: 1;
   min-width: 0;
+  cursor: pointer;
+}
+
+.video-info:hover .video-title {
+  text-decoration: underline;
 }
 
 .video-title {
@@ -515,10 +618,41 @@ onUnmounted(() => {
   margin: 0;
 }
 
-.play-indicator {
-  color: #3b82f6;
-  font-size: 1.25rem;
+.play-button {
+  padding: 0.75rem;
+  background: #3b82f6;
+  border: none;
+  border-radius: 50%;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   flex-shrink: 0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+.play-button:hover {
+  background: #2563eb;
+  transform: scale(1.1);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.play-button:active {
+  transform: scale(0.95);
+}
+
+.play-button.playing {
+  background: #10b981;
+}
+
+.play-button.playing:hover {
+  background: #059669;
+}
+
+.play-icon {
+  color: white;
+  font-size: 1.25rem;
 }
 
 /* 재생 컨트롤 */
@@ -601,6 +735,17 @@ onUnmounted(() => {
   background: rgba(239, 68, 68, 0.05);
 }
 
+/* 모바일 반응형 */
+@media (max-width: 480px) {
+  .control-text {
+    display: none;
+  }
+  
+  .control-btn {
+    padding: 0.5rem;
+  }
+}
+
 /* 다크 모드 지원 */
 @media (prefers-color-scheme: dark) {
   .floating-youtube-player {
@@ -650,8 +795,9 @@ onUnmounted(() => {
   }
   
   .video-item.active {
-    background: #1e40af;
+    background: #1e3a8a;
     border-color: #3b82f6;
+    padding: calc(0.75rem - 1px);
   }
   
   .video-title {
@@ -665,6 +811,22 @@ onUnmounted(() => {
   .loading-state,
   .empty-state {
     color: #d1d5db;
+  }
+  
+  .play-button {
+    background: #3b82f6;
+  }
+  
+  .play-button:hover {
+    background: #2563eb;
+  }
+  
+  .play-button.playing {
+    background: #10b981;
+  }
+  
+  .play-button.playing:hover {
+    background: #059669;
   }
 }
 </style>
