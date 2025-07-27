@@ -94,7 +94,8 @@ import { ref, onMounted } from 'vue';
 import { Icon } from '@iconify/vue';
 import draggable from 'vuedraggable';
 import { useToast } from '~/composables/useToast';
-import { showConfirm } from '~/composables/useModal';
+import { useModal } from '~/composables/useModal';
+import { useMenuStore } from '~/stores/menu.js';
 
 definePageMeta({
   layout: 'admin',
@@ -116,6 +117,9 @@ const editingMenu = ref({
 });
 
 const { showToast } = useToast();
+const { showConfirm } = useModal();
+
+const menuStore = useMenuStore();
 
 async function fetchMenus() {
   menus.value = await $fetch('/api/menus');

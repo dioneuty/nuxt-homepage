@@ -127,7 +127,7 @@
 <script setup lang="ts">
 import { ref, onMounted, computed } from 'vue';
 import { formatDateTime } from '~/utils/dateFormatter';
-import { showConfirm } from '~/composables/useModal';
+import { useModal } from '~/composables/useModal';
 
 type ModelField = {
   name: string;
@@ -152,6 +152,8 @@ const records = ref<any[]>([]);
 const showModal = ref(false);
 const editingRecord = ref<any | null>(null);
 const formData = ref<any>({});
+
+const { showConfirm } = useModal();
 
 
 onMounted(async () => {

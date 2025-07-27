@@ -32,7 +32,7 @@ import BoardView from '~/components/board/BoardView.vue'
 import { useAuth } from '~/composables/useAuth'
 import { useRouter, useRoute } from 'vue-router'
 import { onMounted } from 'vue'
-import { showConfirm } from '~/composables/useModal'
+import { useModal } from '~/composables/useModal'
 
 definePageMeta({
   layout: 'admin',
@@ -46,6 +46,7 @@ useHead({
 const { isLoggedIn, user } = useAuth();
 const router = useRouter();
 const route = useRoute();
+const { showConfirm } = useModal();
 
 onMounted(() => {
   if (!isLoggedIn.value || user.value?.role !== 'ADMIN') {

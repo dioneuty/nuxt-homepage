@@ -123,12 +123,16 @@ import { ref, reactive, onMounted } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import { formatDate } from '~/utils/dateFormatter'
-import { showConfirm } from '~/composables/useModal'
+import { useModal } from '~/composables/useModal';
+import { useToast } from '~/composables/useToast';
 
-const route = useRoute()
-const router = useRouter()
-const qna = ref(null)
-const isLoaded = ref(false)
+const route = useRoute();
+const router = useRouter();
+const { showToast } = useToast();
+const { showConfirm } = useModal();
+
+const qna = ref(null);
+const isLoaded = ref(false);
 const newAnswer = ref('')
 const isEditingQuestion = ref(false)
 const isEditingAnswer = ref(false)
