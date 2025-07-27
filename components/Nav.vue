@@ -323,8 +323,8 @@ function isActiveOrHasActiveChild(item) {
   if (isActive(item.path)) {
     return true
   }
-  if (item.children) {
-    return item.children.some(child => isActive(child.path))
+  if (item.other_Menu) {
+    return item.other_Menu.some(child => isActive(child.path))
   }
   return false
 }

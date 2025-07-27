@@ -124,6 +124,7 @@
 import { ref, onMounted } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useModal } from '~/composables/useModal'
+import { useApiCall, useApiCreate, useApiUpdate, useApiDelete } from '@/composables/useApiCall'
 import { formatDate } from '~/utils/dateFormatter'
 import SafeHtml from '~/components/common/SafeHtml.vue'
 
@@ -171,20 +172,26 @@ const showConfirmModal = ref(false)
  * 댓글 추가 후 `update` 이벤트를 발생시켜 부모 컴포넌트에 변경 사항을 알립니다.
  */
 async function addComment() {
-  const response = await $fetch(`${props.apiEndpoint}?action=comment`, {
-    method: 'POST',
-    body: {
-      galleryItemId: props.item.id,
-      title: newCommentTitle.value,
-      author: newCommentAuthor.value,
-      content: newCommentContent.value
+  await useApiCreate({
+    apiCall: () => $fetch(`${props.apiEndpoint}?action=comment`, {
+      method: 'POST',
+      body: {
+        galleryItemId: props.item.id,
+        title: newCommentTitle.value,
+        author: newCommentAuthor.value,
+        content: newCommentContent.value
+      }
+    }),
+    successMessage: '댓글이 성공적으로 작성되었습니다.',
+    errorMessage: '댓글 작성에 실패했습니다.',
+    onSuccess: (response) => {
+      comments.value.unshift(response)
+      newCommentTitle.value = ''
+      newCommentAuthor.value = ''
+      newCommentContent.value = ''
+      emit('update')
     }
   })
-  comments.value.unshift(response)
-  newCommentTitle.value = ''
-  newCommentAuthor.value = ''
-  newCommentContent.value = ''
-  emit('update')
 }
 
 /**
@@ -206,21 +213,22 @@ function cancelEditComment() {
  * 댓글을 업데이트하는 비동기 함수입니다.
  * API를 호출하여 댓글을 서버에 업데이트하고, 성공 시 댓글 목록을 갱신하고 `editingComment` 상태를 초기화합니다.
  * 업데이트 후 `update` 이벤트를 발생시켜 부모 컴포넌트에 변경 사항을 알립니다.
- * 실패 시 콘솔에 오류를 기록합니다.
  */
 async function updateComment() {
-  try {
-    const response = await $fetch(`${props.apiEndpoint}?action=comment&id=${editingComment.value.id}`, {
+  await useApiUpdate({
+    apiCall: () => $fetch(`${props.apiEndpoint}?action=comment&id=${editingComment.value.id}`, {
       method: 'PUT',
       body: editingComment.value
-    })
-    const index = comments.value.findIndex(c => c.id === editingComment.value.id)
-    comments.value.splice(index, 1, response)
-    editingComment.value = null
-    emit('update')
-  } catch (error) {
-    console.error('댓글 수정 중 오류 발생:', error)
-  }
+    }),
+    successMessage: '댓글이 성공적으로 수정되었습니다.',
+    errorMessage: '댓글 수정에 실패했습니다.',
+    onSuccess: (response) => {
+      const index = comments.value.findIndex(c => c.id === editingComment.value.id)
+      comments.value.splice(index, 1, response)
+      editingComment.value = null
+      emit('update')
+    }
+  })
 }
 
 /**
@@ -230,11 +238,17 @@ async function updateComment() {
  * @param {number} commentId - 삭제할 댓글의 ID.
  */
 async function deleteComment(commentId) {
-  await $fetch(`${props.apiEndpoint}?action=comment&id=${commentId}`, {
-    method: 'DELETE'
+  await useApiDelete({
+    apiCall: () => $fetch(`${props.apiEndpoint}?action=comment&id=${commentId}`, {
+      method: 'DELETE'
+    }),
+    successMessage: '댓글이 성공적으로 삭제되었습니다.',
+    errorMessage: '댓글 삭제에 실패했습니다.',
+    onSuccess: () => {
+      comments.value = comments.value.filter(c => c.id !== commentId)
+      emit('update')
+    }
   })
-  comments.value = comments.value.filter(c => c.id !== commentId)
-  emit('update')
 }
 
 /**
@@ -263,19 +277,21 @@ function cancelDelete() {
  * 갤러리 항목 삭제를 최종 확인하고 처리하는 비동기 함수입니다.
  * API를 호출하여 갤러리 항목을 서버에서 삭제하고,
  * 성공 시 `delete` 이벤트와 `close` 이벤트를 발생시킵니다.
- * 실패 시 콘솔에 오류를 기록하고 사용자에게 알림을 제공합니다.
  * 마지막으로 확인 모달을 닫습니다.
  */
 async function confirmDelete() {
-  try {
-    await $fetch(`${props.apiEndpoint}?action=delete&id=${props.item.id}`, { method: 'DELETE' })
-    emit('delete', props.item.id)
-    emit('close')
-  } catch (error) {
-    console.error('갤러리 항목 삭제 중 오류 발생:', error)
-  } finally {
-    showConfirmModal.value = false
-  }
+  await useApiDelete({
+    apiCall: () => $fetch(`${props.apiEndpoint}?action=delete&id=${props.item.id}`, { method: 'DELETE' }),
+    successMessage: '갤러리 항목이 성공적으로 삭제되었습니다.',
+    errorMessage: '갤러리 항목 삭제에 실패했습니다.',
+    onSuccess: () => {
+      emit('delete', props.item.id)
+      emit('close')
+    },
+    onFinally: () => {
+      showConfirmModal.value = false
+    }
+  })
 }
 
 /**
@@ -294,18 +310,20 @@ function shareLink() {
 
 /**
  * 갤러리 항목에 대한 댓글 목록을 비동기적으로 가져오는 함수입니다.
- * `showComments` prop이 true일 때만 작동하며, API 호출 중 발생하는 오류를 콘솔에 기록합니다.
+ * `showComments` prop이 true일 때만 작동합니다.
  */
 async function fetchComments() {
   if (!props.showComments) return
-  try {
-    const response = await $fetch(`${props.apiEndpoint}?id=${props.item.id}&action=comments`, {
+  
+  await useApiCall({
+    apiCall: () => $fetch(`${props.apiEndpoint}?id=${props.item.id}&action=comments`, {
       method: 'GET'
-    })
-    comments.value = response
-  } catch (error) {
-    console.error('댓글을 불러오는 데 실패했습니다:', error)
-  }
+    }),
+    errorMessage: '댓글을 불러오는데 실패했습니다.',
+    onSuccess: (response) => {
+      comments.value = response
+    }
+  })
 }
 
 onMounted(() => {

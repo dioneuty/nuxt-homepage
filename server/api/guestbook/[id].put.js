@@ -14,11 +14,11 @@ export default defineEventHandler(async (event) => {
     })
 
     if (!post) {
-      handleApiError(null, '방명록을 찾을 수 없습니다.', 404);
+      handleApiError(event, 404, '방명록을 찾을 수 없습니다.');
     }
 
     if (post.password && post.password !== password) {
-      handleApiError(null, '비밀번호가 일치하지 않습니다.', 401);
+      handleApiError(event, 401, '비밀번호가 일치하지 않습니다.');
     }
 
     const updatedPost = await prisma.guestbook.update({
@@ -31,6 +31,6 @@ export default defineEventHandler(async (event) => {
 
     return updatedPost
   } catch (error) {
-    handleApiError(error, error.message || '방명록 수정에 실패했습니다.', error.statusCode || 500);
+    handleApiError(event, error.statusCode || 500, error.message || '방명록 수정에 실패했습니다.', error);
   }
 })

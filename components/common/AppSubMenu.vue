@@ -21,7 +21,7 @@
           <span>{{ menu.name }}</span>
         </NuxtLink>
         <Icon 
-          v-if="menu.children && menu.children.length" 
+          v-if="menu.other_Menu && menu.other_Menu.length" 
           :icon="props.isVertical ? 'mdi:chevron-down' : 'mdi:chevron-right'" 
           :class="[
             'transition-transform duration-200',
@@ -34,7 +34,7 @@
       </div>
 
       <!-- 하위 메뉴 -->
-      <div v-if="menu.children && menu.children.length"
+      <div v-if="menu.other_Menu && menu.other_Menu.length"
            :class="[
              // 세로 메뉴(사이드바)에서는 static 포지셔닝으로 자연스럽게 아래로 펼침
              props.isVertical 
@@ -52,7 +52,7 @@
            ]"
            :style="props.isVertical ? '' : 'z-index: 9999 !important;'">
         <!-- 재귀 호출 -->
-        <AppSubMenu :menus="menu.children" @close-parent="$emit('close-parent')" :is-vertical="props.isVertical" />
+        <AppSubMenu :menus="menu.other_Menu" @close-parent="$emit('close-parent')" :is-vertical="props.isVertical" />
       </div>
     </li>
   </ul>
@@ -95,8 +95,8 @@ function isActive(menu) {
   if (menu.path && (route.path === menu.path || route.path.startsWith(menu.path + '/'))) {
     return true;
   }
-  if (menu.children) {
-    return menu.children.some(child => isActive(child));
+  if (menu.other_Menu) {
+    return menu.other_Menu.some(child => isActive(child));
   }
   return false;
 }
@@ -121,14 +121,14 @@ function handleMenuClick(clickedMenu) {
   if (clickedMenu.path && clickedMenu.path !== '#') {
     router.push(clickedMenu.path);
     // 자식 메뉴가 없는 링크를 클릭했을 때 상위 메뉴를 닫습니다.
-    if (!clickedMenu.children || clickedMenu.children.length === 0) {
+    if (!clickedMenu.other_Menu || clickedMenu.other_Menu.length === 0) {
       emit('close-parent');
     }
     return;
   }
   
   // 자식 메뉴가 있는 경우만 토글
-  if (clickedMenu.children && clickedMenu.children.length > 0) {
+  if (clickedMenu.other_Menu && clickedMenu.other_Menu.length > 0) {
     toggleMenu(clickedMenu);
   }
 }

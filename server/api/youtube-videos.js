@@ -16,7 +16,7 @@ export default defineEventHandler(async (event) => {
         isShort: true,
         isPlayable: true,
         categoryId: true,
-        category: {
+        YouTubeVideoCategory: {
           select: {
             id: true,
             name: true,

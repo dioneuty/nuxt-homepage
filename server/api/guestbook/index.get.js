@@ -23,7 +23,7 @@ export default defineEventHandler(async (event) => {
     // 1. 방명록 게시물 목록 조회
     // 2. 전체 방명록 게시물 개수 조회 (페이지네이션을 위함)
     const [posts, totalCount] = await Promise.all([
-      prisma.guestbook.findMany({
+      prisma.guestbooks.findMany({
         // 'skip'을 사용하여 지정된 수의 레코드를 건너뜁니다.
         skip,
         // 'take'를 사용하여 지정된 수의 레코드(페이지당 개수)를 가져옵니다.
@@ -34,7 +34,7 @@ export default defineEventHandler(async (event) => {
         },
         // 각 방명록 게시물에 연결된 댓글들을 함께 포함하여 조회합니다.
         include: {
-          comments: {
+          guestbook_comments: {
             // 댓글은 'createdAt' 필드를 기준으로 오래된순으로 정렬합니다.
             orderBy: {
               createdAt: 'asc'
@@ -43,7 +43,7 @@ export default defineEventHandler(async (event) => {
         }
       }),
       // 'guestbook' 테이블의 전체 레코드 개수를 세어 반환합니다.
-      prisma.guestbook.count()
+      prisma.guestbooks.count()
     ])
 
     // 클라이언트에게 반환할 데이터를 구성합니다.

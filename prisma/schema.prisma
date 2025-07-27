@@ -1,10 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-// npm run prisma:migrate - 데이터베이스 스키마 변경사항을 적용합니다.
-// npm run prisma:generate - Prisma 클라이언트를 생성합니다.
-// npm run prisma:studio - Prisma Studio를 실행하여 데이터베이스를 시각적으로 관리합니다.
-// npm run prisma:reset - 데이터베이스를 초기화하고 모든 마이그레이션을 다시 적용합니다.
-// npx prisma migrate dev --name init - 새로운 마이그레이션을 생성합니다.
 generator client {
   provider      = "prisma-client-js"
   binaryTargets = ["native", "debian-openssl-3.0.x"]
@@ -15,39 +8,60 @@ datasource db {
   url       = env("DATABASE_URL")
   directUrl = env("DIRECT_URL")
 }
-        
 
-model Category {
-  id        Int        @id @default(autoincrement())
-  name      String
-  slug      String     @unique
-  blogPosts BlogPost[]
+model AdminBoard {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model AdminGalleryItem {
+  id          Int      @id @default(autoincrement())
+  title       String
+  description String
+  content     String?
+  tags        String[]
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime
 }
 
 model BlogPost {
   id         Int      @id @default(autoincrement())
   title      String
   content    String
-  category   Category @relation(fields: [categoryId], references: [id])
   categoryId Int
   createdAt  DateTime @default(now())
+  Category   Category @relation(fields: [categoryId], references: [id])
 }
 
 model BoardPost {
-  id        Int         @id @default(autoincrement())
-  title     String?
-  content   String
-  author    String
-  createdAt DateTime    @default(now())
-  parentId  Int?
-  parent    BoardPost?  @relation("Replies", fields: [parentId], references: [id], onDelete: Cascade)
-  replies   BoardPost[] @relation("Replies")
+  id              Int         @id @default(autoincrement())
+  title           String?
+  content         String
+  author          String
+  createdAt       DateTime    @default(now())
+  parentId        Int?
+  BoardPost       BoardPost?  @relation("BoardPostToBoardPost", fields: [parentId], references: [id], onDelete: Cascade)
+  other_BoardPost BoardPost[] @relation("BoardPostToBoardPost")
 }
 
-model Image {
-  id  Int    @id @default(autoincrement())
-  url String
-  alt String
+model Category {
+  id       Int        @id @default(autoincrement())
+  name     String
+  slug     String     @unique
+  BlogPost BlogPost[]
+}
+
+model Chat {
+  id        Int      @id @default(autoincrement())
+  screenId  String?  @unique
+  title     String
+  messages  Json
+  createdAt DateTime @default(now())
+  updatedAt DateTime
+  userId    Int?
+  User      User?    @relation(fields: [userId], references: [id])
 }
 
 model Contact {
@@ -59,65 +73,33 @@ model Contact {
   createdAt DateTime @default(now())
 }
 
-model AdminBoard {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String
-  createdAt DateTime @default(now())
-}
-
-model QnA {
-  id            Int      @id @default(autoincrement())
-  questionTitle String
-  questionContent String
-  answerContent String?
-  author        String
-  answerer      String?
-  createdAt     DateTime @default(now())
-  updatedAt     DateTime? @updatedAt
-}
-
-model GalleryItem {
-  id          Int              @id @default(autoincrement())
-  title       String
-  description String
-  content     String?           // imageUrl 대신 content 컬럼 추가
-  tags        String[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
-  comments    GalleryComment[]
-}
-
 model GalleryComment {
   id            Int         @id @default(autoincrement())
   content       String
   author        String?
   authorId      Int?
   createdAt     DateTime    @default(now())
-  galleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id])
   galleryItemId Int
+  GalleryItem   GalleryItem @relation(fields: [galleryItemId], references: [id])
 }
 
-model AdminGalleryItem {
-  id          Int              @id @default(autoincrement())
-  title       String
-  description String
-  content     String?           // imageUrl 대신 content 컬럼 추가
-  tags        String[]
-  createdAt   DateTime         @default(now())
-  updatedAt   DateTime         @updatedAt
+model GalleryItem {
+  id             Int              @id @default(autoincrement())
+  title          String
+  description    String
+  content        String?
+  tags           String[]
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime
+  GalleryComment GalleryComment[]
 }
 
-model User {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
-  password  String
-  email     String   @unique
-  role      String   @default("user")
-  isActive  Boolean  @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  chats     Chat[]
+model Holiday {
+  id    Int    @id @default(autoincrement())
+  year  Int
+  month Int
+  day   Int
+  name  String
 }
 
 model HumorPost {
@@ -129,111 +111,51 @@ model HumorPost {
   likes     Int      @default(0)
 }
 
-model Wiki {
-  id        Int      @id @default(autoincrement())
-  title     String?
-  content   String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime? @updatedAt
-  author    String?
-  createdBy String?
-  updatedBy String?
+model Image {
+  id  Int    @id @default(autoincrement())
+  url String
+  alt String
+}
+
+model Menu {
+  id         Int      @id @default(autoincrement())
+  name       String
+  path       String?
+  icon       String?
+  role       String?  @default("public")
+  order      Int      @default(0)
+  parentId   Int?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime
+  Menu       Menu?    @relation("MenuToMenu", fields: [parentId], references: [id], onDelete: Cascade)
+  other_Menu Menu[]   @relation("MenuToMenu")
 }
 
 model OutlineItem {
-  id        String    @id @default(uuid())
-  content   String
-  parentId  String?
-  order     Int?
-  parent    OutlineItem?  @relation("ChildItems", fields: [parentId], references: [id])
-  children  OutlineItem[] @relation("ChildItems")
+  id                String        @id
+  content           String
+  parentId          String?
+  order             Int?
+  OutlineItem       OutlineItem?  @relation("OutlineItemToOutlineItem", fields: [parentId], references: [id])
+  other_OutlineItem OutlineItem[] @relation("OutlineItemToOutlineItem")
 }
 
 model OutlineState {
   id        Int      @id @default(autoincrement())
   state     Json
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  updatedAt DateTime
 }
 
-model Chat {
-  id        Int      @id @default(autoincrement())
-  screenId  String?  @unique
-  title     String
-  messages  Json
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  userId    Int?
-  user      User?    @relation(fields: [userId], references: [id])
-}
-
- // Start of Selection
-model Holiday {
-  id    Int      @id @default(autoincrement())
-  year  Int      // 년도 필드 추가
-  month Int      // 월 필드 추가
-  day   Int      // 일 필드 추가
-  name  String
-}
-
-model Guestbook {
-  id        Int      @id @default(autoincrement())
-  title     String
-  content   String   @db.Text
-  author    String?  // 익명 작성자 이름 (선택사항)
-  password  String?  // 익명 작성자의 비밀번호 (선택사항)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  comments  GuestbookComment[]
-
-  @@map("guestbooks")
-}
-
-model GuestbookComment {
-  id          Int       @id @default(autoincrement())
-  content     String    @db.Text
-  author      String?   // 익명 작성자 이름 (선택사항)
-  password    String?   // 익명 작성자의 비밀번호 (선택사항)
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  guestbook   Guestbook @relation(fields: [guestbookId], references: [id])
-  guestbookId Int
-
-  @@map("guestbook_comments")
-}
-
-model Menu {
-  id        Int      @id @default(autoincrement())
-  name      String
-  path      String?
-  icon      String?
-  role      String?  @default("public") // public, user, admin
-  order     Int      @default(0)
-  
-  parentId  Int?
-  parent    Menu?    @relation("SubMenus", fields: [parentId], references: [id], onDelete: Cascade)
-  children  Menu[]   @relation("SubMenus")
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-}
-
-model SiteConfig {
-  id                   Int      @id @default(autoincrement())
-  siteTitle            String   @default("My Website")
-  siteLogoUrl          String?  @default("/images/logo.png")
-  siteLogoIcon         String? // Heroicons 이름을 저장할 새 필드 추가 (예: 'heroicons-outline:home')
-  lightHeaderColor     String   @default("#FFFFFF")
-  darkHeaderColor      String   @default("#1A202C") // Tailwind dark gray-900 equivalent
-  lightFooterColor     String   @default("#F7FAFC") // Tailwind gray-100 equivalent
-  darkFooterColor      String   @default("#1A202C") // Tailwind dark gray-900 equivalent
-  lightBackgroundColor String @default("#FFFFFF")
-  darkBackgroundColor  String @default("#1A202C")
-  showSiteTitle        Boolean @default(true)
-  showSiteLogoUrl      Boolean @default(true)
-  showSiteLogoIcon     Boolean @default(true)
-  createdAt            DateTime @default(now())
-  updatedAt            DateTime @updatedAt
+model QnA {
+  id              Int       @id @default(autoincrement())
+  questionTitle   String
+  questionContent String
+  answerContent   String?
+  author          String
+  answerer        String?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime?
 }
 
 model RelatedSite {
@@ -243,28 +165,92 @@ model RelatedSite {
   description String?
   order       Int?
   createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  updatedAt   DateTime
 }
 
-model YouTubeVideoCategory {
+model SiteConfig {
+  id                   Int      @id @default(autoincrement())
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime
+  darkFooterColor      String   @default("#1A202C")
+  darkHeaderColor      String   @default("#1A202C")
+  lightFooterColor     String   @default("#F7FAFC")
+  lightHeaderColor     String   @default("#FFFFFF")
+  darkBackgroundColor  String   @default("#1A202C")
+  lightBackgroundColor String   @default("#FFFFFF")
+  siteLogoUrl          String?  @default("/images/logo.png")
+  siteTitle            String   @default("My Website")
+  siteLogoIcon         String?
+  showSiteLogoIcon     Boolean  @default(true)
+  showSiteLogoUrl      Boolean  @default(true)
+  showSiteTitle        Boolean  @default(true)
+}
+
+model User {
   id        Int      @id @default(autoincrement())
-  name      String
-  slug      String   @unique
-  order     Int      @default(0)
+  username  String   @unique
+  password  String
+  email     String   @unique
+  role      String   @default("user")
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  videos    YouTubeVideo[]
+  updatedAt DateTime
+  isActive  Boolean  @default(true)
+  Chat      Chat[]
+}
+
+model Wiki {
+  id        Int       @id @default(autoincrement())
+  title     String?
+  content   String?
+  createdAt DateTime  @default(now())
+  updatedAt DateTime?
+  author    String?
+  createdBy String?
+  updatedBy String?
 }
 
 model YouTubeVideo {
-  id          Int      @id @default(autoincrement())
-  videoId     String   @unique // YouTube video ID
-  title       String
-  description String
-  isShort     Boolean  @default(false)
-  isPlayable  Boolean  @default(true) // 재생 가능 여부
-  categoryId  Int?
-  category    YouTubeVideoCategory? @relation(fields: [categoryId], references: [id])
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id                   Int                   @id @default(autoincrement())
+  videoId              String                @unique
+  title                String
+  description          String
+  isShort              Boolean               @default(false)
+  createdAt            DateTime              @default(now())
+  updatedAt            DateTime
+  categoryId           Int?
+  isPlayable           Boolean               @default(true)
+  uploadedAt           DateTime?
+  YouTubeVideoCategory YouTubeVideoCategory? @relation(fields: [categoryId], references: [id])
+}
+
+model YouTubeVideoCategory {
+  id           Int            @id @default(autoincrement())
+  name         String
+  slug         String         @unique
+  order        Int            @default(0)
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime
+  YouTubeVideo YouTubeVideo[]
+}
+
+model guestbook_comments {
+  id          Int        @id @default(autoincrement())
+  content     String
+  author      String?
+  password    String?
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime
+  guestbookId Int
+  guestbooks  guestbooks @relation(fields: [guestbookId], references: [id])
+}
+
+model guestbooks {
+  id                 Int                  @id @default(autoincrement())
+  title              String
+  content            String
+  author             String?
+  password           String?
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime
+  guestbook_comments guestbook_comments[]
 }

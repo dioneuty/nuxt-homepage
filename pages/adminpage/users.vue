@@ -247,6 +247,7 @@
 import { Icon } from '@iconify/vue'
 import { ref, onMounted, computed, defineAsyncComponent } from 'vue'
 import { debounce } from 'lodash-es'
+import { useApiCall } from '@/composables/useApiCall'
 // 🚀 관리자 모달 지연 로딩
 const UserCreateModal = defineAsyncComponent(() => import('~/components/admin/UserCreateModal.vue'))
 const UserEditModal = defineAsyncComponent(() => import('~/components/admin/UserEditModal.vue'))
@@ -294,30 +295,26 @@ const toast = ref({
 
 // 사용자 목록 로드
 const loadUsers = async () => {
-  loading.value = true
-  error.value = ''
+  const params = new URLSearchParams({
+    page: currentPage.value.toString(),
+    limit: '10',
+    sortBy: sortBy.value,
+    sortOrder: sortOrder.value
+  })
   
-  try {
-    const params = new URLSearchParams({
-      page: currentPage.value.toString(),
-      limit: '10',
-      sortBy: sortBy.value,
-      sortOrder: sortOrder.value
-    })
-    
-    if (searchQuery.value) params.append('search', searchQuery.value)
-    if (roleFilter.value) params.append('role', roleFilter.value)
-    if (statusFilter.value) params.append('status', statusFilter.value)
-    
-    const data = await $fetch(`/api/admin/users?${params}`)
-    users.value = data.users
-    pagination.value = data.pagination
-  } catch (err) {
-    error.value = err.data?.message || '사용자 목록을 불러올 수 없습니다.'
-    console.error('사용자 목록 로드 오류:', err)
-  } finally {
-    loading.value = false
-  }
+  if (searchQuery.value) params.append('search', searchQuery.value)
+  if (roleFilter.value) params.append('role', roleFilter.value)
+  if (statusFilter.value) params.append('status', statusFilter.value)
+  
+  await useApiCall({
+    apiCall: () => $fetch(`/api/admin/users?${params}`),
+    loadingState: { loading, error },
+    errorMessage: '사용자 목록을 불러올 수 없습니다.',
+    onSuccess: (data) => {
+      users.value = data.users
+      pagination.value = data.pagination
+    }
+  })
 }
 
 // 디바운스된 검색
@@ -407,15 +404,19 @@ const onUserDeleted = () => {
 
 // 사용자 상태 토글
 const toggleUserStatus = async (user) => {
-  try {
-    const response = await $fetch(`/api/admin/users/${user.id}/toggle-status`, {
+  await useApiCall({
+    apiCall: () => $fetch(`/api/admin/users/${user.id}/toggle-status`, {
       method: 'POST'
-    })
-    showToast(response.message, 'success')
-    loadUsers()
-  } catch (err) {
-    showToast(err.data?.message || '상태 변경에 실패했습니다.', 'error')
-  }
+    }),
+    errorMessage: '상태 변경에 실패했습니다.',
+    onSuccess: (response) => {
+      showToast(response.message, 'success')
+      loadUsers()
+    },
+    onError: (err) => {
+      showToast(err.data?.message || '상태 변경에 실패했습니다.', 'error')
+    }
+  })
 }
 
 // 토스트 메시지

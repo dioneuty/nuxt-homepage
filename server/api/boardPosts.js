@@ -44,7 +44,7 @@ export default defineEventHandler(async (event) => {
           const post = await prisma.boardPost.findUnique({
             where: { id: parseInt(id) },
             include: {
-              replies: {
+              other_BoardPost: {
                 orderBy: {
                   createdAt: 'asc'
                 }
@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
             parentId: { in: parentIds }
           },
           include: {
-            parent: {
+            BoardPost: {
               select: { title: true }
             }
           },
@@ -98,7 +98,7 @@ export default defineEventHandler(async (event) => {
           }
           acc[reply.parentId].push({
             ...reply,
-            title: `${reply.parent.title}의 답변 글입니다`
+            title: `${reply.BoardPost.title}의 답변 글입니다`
           })
           return acc
         }, {})

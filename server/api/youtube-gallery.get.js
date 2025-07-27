@@ -37,11 +37,30 @@ export default defineEventHandler(async (event) => {
       }
     }
 
+    // 정렬 조건 설정
+    let orderBy;
+    if (sortColumn === 'category') {
+      // 카테고리 이름으로 정렬 (미분류는 맨 뒤로)
+      orderBy = [
+        {
+          YouTubeVideoCategory: {
+            name: sortOrder
+          }
+        },
+        // 카테고리가 null인 경우를 위한 보조 정렬
+        {
+          categoryId: sortOrder
+        }
+      ];
+    } else {
+      orderBy = { [sortColumn]: sortOrder };
+    }
+
     // 데이터 조회
     const [items, total] = await Promise.all([
       prisma.youTubeVideo.findMany({
         where,
-        orderBy: { [sortColumn]: sortOrder },
+        orderBy,
         skip,
         take: limit,
         select: {
@@ -51,8 +70,9 @@ export default defineEventHandler(async (event) => {
           description: true,
           isShort: true,
           isPlayable: true,
+          uploadedAt: true,
           categoryId: true,
-          category: {
+          YouTubeVideoCategory: {
             select: {
               id: true,
               name: true,

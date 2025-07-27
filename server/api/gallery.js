@@ -106,9 +106,9 @@ async function getGalleryList() {
       },
       include: {
         _count: { // _count 속성을 사용하여 관계된 레코드의 수를 가져옵니다.
-          select: { comments: true } // comments 관계의 수를 선택합니다.
+          select: { GalleryComment: true } // GalleryComment 관계의 수를 선택합니다.
         },
-        comments: { // 댓글 목록을 일부만 포함하여 조회 (성능 최적화를 위해 ID만 가져옵니다).
+        GalleryComment: { // 댓글 목록을 일부만 포함하여 조회 (성능 최적화를 위해 ID만 가져옵니다).
           select: {
             id: true
           }
@@ -141,7 +141,7 @@ async function getGalleryThumbnails(query) {
         updatedAt: true,
         // content 필드 제외 (이미지 데이터 제외)
         _count: {
-          select: { comments: true }
+          select: { GalleryComment: true }
         }
       },
       orderBy: { createdAt: 'desc' }
@@ -199,7 +199,7 @@ async function getGalleryItem(id) {
   const info = await prisma.galleryItem.findUnique({
     where: { id }, // 제공된 ID로 갤러리 항목을 찾습니다.
     include: {
-      comment: { // 댓글 조회: 최신 댓글이 먼저 오도록 생성일 내림차순으로 정렬합니다.
+      GalleryComment: { // 댓글 조회: 최신 댓글이 먼저 오도록 생성일 내림차순으로 정렬합니다.
         orderBy: {
           createdAt: 'desc'
         }

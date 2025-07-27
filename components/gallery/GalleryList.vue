@@ -76,7 +76,7 @@
           <!-- 댓글 수 표시 뱃지 -->
           <div v-if="showComments" class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
             <Icon icon="mdi:comment-outline" class="mr-1" />
-            {{ item.comments ? item.comments.length : 0 }}
+            {{ item.GalleryComment ? item.GalleryComment.length : 0 }}
           </div>
         </div>
       </div>

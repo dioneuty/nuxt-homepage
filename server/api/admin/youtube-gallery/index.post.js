@@ -1,6 +1,7 @@
 import { PrismaClient } from '@prisma/client';
 import { verifyAuthToken } from '~/server/utils/auth';
 import { handleApiError } from '~/server/utils/apiErrorHandlers';
+import { getYouTubeVideoInfo, extractVideoId } from '~/server/utils/youtube';
 
 const prisma = new PrismaClient();
 
@@ -21,7 +22,7 @@ export default defineEventHandler(async (event) => {
     }
 
     // YouTube URL에서 videoId 추출
-    const videoId = url.match(/(?:youtube\.com\/watch\?v=|youtu\.be\/)([^&\n?#]+)/)?.[1];
+    const videoId = extractVideoId(url);
     if (!videoId) {
       handleApiError(event, 400, '유효한 YouTube URL이 아닙니다.');
     }
@@ -35,15 +36,34 @@ export default defineEventHandler(async (event) => {
       handleApiError(event, 409, '이미 등록된 YouTube 비디오입니다.');
     }
 
+    // YouTube API에서 비디오 정보 가져오기 (업로드 일 포함)
+    const youtubeInfo = await getYouTubeVideoInfo(videoId);
+    
+    // 비디오 생성 데이터 준비
+    const videoData = {
+      videoId,
+      title,
+      description: description || '',
+      isShort: isShort || false,
+      categoryId: categoryId ? parseInt(categoryId) : null,
+    };
+
+    // YouTube API에서 업로드 일을 가져올 수 있으면 추가
+    if (youtubeInfo && youtubeInfo.uploadedAt) {
+      videoData.uploadedAt = youtubeInfo.uploadedAt;
+      
+      // 제목이나 설명이 비어있으면 YouTube에서 가져온 정보로 채움
+      if (!title.trim() && youtubeInfo.title) {
+        videoData.title = youtubeInfo.title;
+      }
+      if (!description && youtubeInfo.description) {
+        videoData.description = youtubeInfo.description;
+      }
+    }
+
     // 비디오 생성
     const newVideo = await prisma.youTubeVideo.create({
-      data: {
-        videoId,
-        title,
-        description: description || '',
-        isShort: isShort || false,
-        categoryId: categoryId ? parseInt(categoryId) : null,
-      },
+      data: videoData,
       include: {
         category: {
           select: {

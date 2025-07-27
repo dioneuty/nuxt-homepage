@@ -11,10 +11,10 @@ export default defineEventHandler(async (event) => {
         where: { parentId: null },
         orderBy: { order: 'asc' },
         include: {
-          children: {
+          other_Menu: {
             orderBy: { order: 'asc' },
             include: {
-              children: { orderBy: { order: 'asc' } }
+              other_Menu: { orderBy: { order: 'asc' } }
             }
           }
         }

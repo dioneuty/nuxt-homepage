@@ -19,13 +19,13 @@
             @click="toggleBulkMode"
             :class="[
               'px-4 py-2 rounded-md text-sm flex items-center transition-colors',
-              bulkMode 
+              bulkState.mode 
                 ? 'bg-orange-600 hover:bg-orange-700 text-white' 
                 : 'bg-gray-600 hover:bg-gray-700 text-white'
             ]"
           >
-            <Icon :icon="bulkMode ? 'mdi:close' : 'mdi:checkbox-multiple-marked'" class="mr-1" />
-            {{ bulkMode ? '선택 취소' : '대량 선택' }}
+            <Icon :icon="bulkState.mode ? 'mdi:close' : 'mdi:checkbox-multiple-marked'" class="mr-1" />
+            {{ bulkState.mode ? '선택 취소' : '대량 선택' }}
           </button>
           <button
             @click="checkAllVideosPlayability"
@@ -35,20 +35,29 @@
             <Icon :icon="isCheckingPlayability ? 'mdi:loading' : 'mdi:play-circle-outline'" class="mr-1" :class="{ 'animate-spin': isCheckingPlayability }" />
             {{ isCheckingPlayability ? '확인 중...' : '재생가능 일괄확인' }}
           </button>
+          <button
+            @click="updateUploadDates"
+            :disabled="isUpdatingUploadDates"
+            class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+          >
+            <Icon :icon="isUpdatingUploadDates ? 'mdi:loading' : 'mdi:calendar-upload'" class="mr-1" :class="{ 'animate-spin': isUpdatingUploadDates }" />
+            {{ isUpdatingUploadDates ? '업데이트 중...' : '업로드일 일괄갱신' }}
+          </button>
         </div>
       </div>
 
-      <!-- Category Filter -->
-      <div class="flex flex-col sm:flex-row gap-4 mb-6">
+      <!-- Filters Section -->
+      <div class="flex flex-col lg:flex-row gap-4 mb-6">
+        <!-- Category Filter -->
         <div class="flex-1">
           <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
             카테고리 필터
           </label>
           <div class="flex gap-2">
             <select 
-              v-model="selectedCategoryId" 
+              v-model="filterState.selectedCategoryId" 
               @change="onCategoryChange"
-              :disabled="isLoading || categoryLoading"
+              :disabled="videoState.isLoading || categoryLoading"
               class="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               <option value="all">
@@ -81,9 +90,9 @@
           </label>
           <div class="relative">
             <input
-              v-model="searchQuery"
+              v-model="filterState.searchQuery"
               @input="onSearchChange"
-              :disabled="isLoading"
+              :disabled="videoState.isLoading"
               type="text"
               placeholder="비디오 검색..."
               class="w-full p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 pr-10 disabled:opacity-50 disabled:cursor-not-allowed"
@@ -94,21 +103,59 @@
             />
           </div>
         </div>
+
+        <!-- Sort Filter -->
+        <div class="flex-1">
+          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+            정렬 기준
+          </label>
+          <div class="flex gap-2">
+            <select 
+              v-model="filterState.sortColumn" 
+              @change="onSortChange"
+              :disabled="videoState.isLoading"
+              class="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <option value="createdAt">등록일순</option>
+              <option value="uploadedAt">업로드일순</option>
+              <option value="title">제목순</option>
+              <option value="updatedAt">수정일순</option>
+              <option value="category">카테고리순</option>
+              <option value="isPlayable">재생가능순</option>
+            </select>
+            <!-- Sort Order Toggle -->
+            <button
+              @click="toggleSortOrder"
+              :disabled="videoState.isLoading"
+              class="px-3 py-3 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-md transition-colors flex items-center flex-shrink-0 relative"
+              :title="getSortOrderTooltip()"
+            >
+              <Icon 
+                :icon="filterState.sortOrder === 'desc' ? 'mdi:sort-descending' : 'mdi:sort-ascending'" 
+                class="w-5 h-5" 
+              />
+              <!-- Sort indicator badge -->
+              <span class="absolute -top-1 -right-1 w-2 h-2 bg-blue-500 rounded-full" 
+                    v-if="filterState.sortColumn !== 'createdAt' || filterState.sortOrder !== 'desc'">
+              </span>
+            </button>
+          </div>
+        </div>
       </div>
 
       <!-- Bulk Actions Toolbar -->
-      <div v-if="bulkMode && isAdmin" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
+      <div v-if="bulkState.mode && isAdmin" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
           <div class="flex items-center gap-4">
             <span class="text-sm font-medium text-blue-700 dark:text-blue-300">
-              {{ selectedVideos.size }}개 비디오 선택됨
+              {{ bulkState.selectedVideos.size }}개 비디오 선택됨
             </span>
             <div class="flex gap-2">
               <button
                 @click="selectAllVideos"
                 class="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300 rounded transition-colors"
               >
-                전체 선택 ({{ videos.length }})
+                전체 선택 ({{ videoState.videos.length }})
               </button>
               <button
                 @click="selectUncategorized"
@@ -132,12 +179,12 @@
           </div>
           
           <div class="flex gap-2">
-            <div v-if="selectedVideos.size === 0" class="text-sm text-gray-500 dark:text-gray-400 py-1 px-2">
+            <div v-if="bulkState.selectedVideos.size === 0" class="text-sm text-gray-500 dark:text-gray-400 py-1 px-2">
               비디오를 선택하여 카테고리를 일괄 변경하세요
             </div>
             <template v-else>
             <select 
-              v-model="bulkCategoryId" 
+              v-model="bulkState.categoryId" 
               class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500"
             >
               <option value="">카테고리 선택</option>
@@ -152,21 +199,21 @@
             </select>
             <button
               @click="applyBulkCategoryChange"
-              :disabled="!bulkCategoryId || bulkOperationInProgress"
+              :disabled="!bulkState.categoryId || bulkState.operationInProgress"
               class="px-4 py-1 text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded transition-colors flex items-center"
             >
-              <Icon v-if="bulkOperationInProgress" icon="mdi:loading" class="mr-1 animate-spin" />
+              <Icon v-if="bulkState.operationInProgress" icon="mdi:loading" class="mr-1 animate-spin" />
               <Icon v-else icon="mdi:check" class="mr-1" />
-              {{ bulkOperationInProgress ? '적용 중...' : '카테고리 적용' }}
+              {{ bulkState.operationInProgress ? '적용 중...' : '카테고리 적용' }}
             </button>
             <button
               @click="bulkDeleteVideos"
-              :disabled="bulkOperationInProgress"
+              :disabled="bulkState.operationInProgress"
               class="px-4 py-1 text-sm bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded transition-colors flex items-center"
             >
-              <Icon v-if="bulkOperationInProgress" icon="mdi:loading" class="mr-1 animate-spin" />
+              <Icon v-if="bulkState.operationInProgress" icon="mdi:loading" class="mr-1 animate-spin" />
               <Icon v-else icon="mdi:delete" class="mr-1" />
-              {{ bulkOperationInProgress ? '삭제 중...' : `선택된 ${selectedVideos.size}개 삭제` }}
+              {{ bulkState.operationInProgress ? '삭제 중...' : `선택된 ${bulkState.selectedVideos.size}개 삭제` }}
             </button>
             </template>
           </div>
@@ -174,13 +221,13 @@
       </div>
 
       <!-- Loading State -->
-      <div v-if="isLoading" class="flex justify-center items-center py-12">
+      <div v-if="videoState.isLoading" class="flex justify-center items-center py-12">
         <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600"></div>
         <span class="ml-3 text-gray-600 dark:text-gray-300">비디오 목록을 불러오는 중...</span>
       </div>
 
       <!-- Error State -->
-      <div v-else-if="error" class="text-center py-12">
+      <div v-else-if="videoState.error" class="text-center py-12">
         <Icon icon="mdi:alert-circle" class="text-red-500 text-4xl mx-auto mb-4" />
         <p class="text-red-600 dark:text-red-400">비디오 목록을 불러오는데 실패했습니다.</p>
         <button
@@ -194,28 +241,28 @@
       <!-- Video Grid -->
       <div v-else class="masonry-layout">
         <div 
-          v-for="video in videos" 
+          v-for="video in videoState.videos" 
           :key="video.id" 
           class="masonry-item mb-4 break-inside-avoid relative"
           :ref="(el) => { if (el) videoRefs[video.videoId] = el }"
         >
           <div :class="[
             'bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200',
-            bulkMode && selectedVideos.has(video.id) ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : '',
-            bulkMode ? 'hover:ring-2 hover:ring-gray-400' : ''
+            bulkState.mode && bulkState.selectedVideos.has(video.id) ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : '',
+            bulkState.mode ? 'hover:ring-2 hover:ring-gray-400' : ''
           ]">
             <!-- Bulk Selection Checkbox -->
-            <div v-if="bulkMode && isAdmin" class="absolute top-2 left-2 z-10">
+            <div v-if="bulkState.mode && isAdmin" class="absolute top-2 left-2 z-10">
               <input
                 type="checkbox"
-                :checked="selectedVideos.has(video.id)"
+                :checked="bulkState.selectedVideos.has(video.id)"
                 @change="toggleVideoSelection(video.id)"
                 class="w-5 h-5 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
               />
             </div>
             
             <!-- Admin Controls for each video -->
-            <div v-if="isAdmin && !bulkMode" class="bg-gray-100 dark:bg-gray-700 px-4 py-2 flex justify-end space-x-2">
+            <div v-if="isAdmin && !bulkState.mode" class="bg-gray-100 dark:bg-gray-700 px-4 py-2 flex justify-end space-x-2">
               <button
                 @click="openVideoModal(video)"
                 class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
@@ -233,8 +280,8 @@
             </div>
 
             <div 
-              @click="bulkMode ? toggleVideoSelection(video.id) : loadVideo(video)" 
-              :class="['cursor-pointer', bulkMode ? 'select-none' : '']"
+              @click="bulkState.mode ? toggleVideoSelection(video.id) : loadVideo(video)" 
+              :class="['cursor-pointer', bulkState.mode ? 'select-none' : '']"
             >
               <div v-if="video.loaded">
                 <div class="relative">
@@ -269,10 +316,12 @@
               </div>
               <div v-else>
                 <img
-                    :src="`https://img.youtube.com/vi/${video.videoId}/0.jpg`"
+                    :src="`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`"
                     :alt="video.title"
                     :class="{'w-full min-h-[225px] h-auto aspect-[16/9] object-cover': !video.isShort, 'w-full h-auto aspect-[9/16] object-cover': video.isShort}"
                     loading="lazy"
+                    @error="handleThumbnailError($event, video)"
+                    crossorigin="anonymous"
                     />
               </div>
             </div>
@@ -288,10 +337,16 @@
                 </span>
               </div>
               
-              <!-- Thread Stats -->
-              <div class="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-2 mb-3">
-                <Icon icon="mdi:comment-text-outline" class="mr-1" />
-                {{ getVideoThreadStats(video.videoId).totalThreads }} thread(s)
+              <!-- Upload Date and Thread Stats -->
+              <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-2 mb-3">
+                <div class="flex items-center">
+                  <Icon icon="mdi:comment-text-outline" class="mr-1" />
+                  {{ getVideoThreadStats(video.videoId).totalThreads }} thread(s)
+                </div>
+                <div v-if="video.uploadedAt" class="flex items-center">
+                  <Icon icon="mdi:calendar-upload" class="mr-1" />
+                  {{ formatDate(video.uploadedAt) }}
+                </div>
               </div>
               
               <!-- Video Controls -->
@@ -340,15 +395,45 @@
           </div>
         </div>
       </div>
+      
+      <!-- Load More Button / Loading Indicator -->
+      <div v-if="!videoState.isLoading && paginationState.hasMore" class="flex justify-center mt-8">
+        <button
+          @click="loadMoreVideos"
+          :disabled="paginationState.isLoadingMore"
+          class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-md flex items-center transition-colors"
+        >
+          <Icon 
+            v-if="paginationState.isLoadingMore" 
+            icon="mdi:loading" 
+            class="mr-2 animate-spin" 
+          />
+          <Icon 
+            v-else 
+            icon="mdi:chevron-down" 
+            class="mr-2" 
+          />
+          {{ paginationState.isLoadingMore ? '로딩 중...' : '더 보기' }}
+          <span class="ml-2 text-sm opacity-80">
+            ({{ videoState.videos.length }} / {{ paginationState.totalItems }})
+          </span>
+        </button>
+      </div>
+      
+      <!-- No More Items Message -->
+      <div v-if="!videoState.isLoading && !paginationState.hasMore && videoState.videos.length > 0" class="text-center mt-8 text-gray-500 dark:text-gray-400">
+        <Icon icon="mdi:check-circle" class="text-2xl mb-2" />
+        <p>모든 비디오를 불러왔습니다.</p>
+      </div>
     </div>
     
     <!-- Video Play Modal -->
-    <PlayModal :youtubeVideoId="selectedVideo ? selectedVideo.videoId : ''" :isVisible="isModalOpen" @close="closeModal" />
+    <PlayModal :youtubeVideoId="videoState.selectedVideo ? videoState.selectedVideo.videoId : ''" :isVisible="videoState.isModalOpen" @close="closeModal" />
     
     <!-- Video Management Modal -->
     <AdminYouTubeVideoWrite
-      :isOpen="showVideoModal"
-      :videoItem="selectedVideoForEdit"
+      :isOpen="modalState.showVideoModal"
+      :videoItem="modalState.selectedVideoForEdit"
       @close="closeVideoModal"
       @refresh="handleVideoRefresh"
     />
@@ -381,14 +466,14 @@
     
     <!-- Category Management Modal -->
     <CategoryManageModal
-      :isOpen="showCategoryManageModal"
+      :isOpen="modalState.showCategoryManageModal"
       @close="closeCategoryManageModal"
       @updated="handleCategoryUpdated"
     />
   </template>
   
   <script setup>
-  import { ref, onMounted, watch, computed } from 'vue'
+  import { ref, reactive, onMounted, onUnmounted, watch, computed } from 'vue'
   import { useRoute, useRouter } from 'vue-router'
   import { Icon } from '@iconify/vue'
   import PlayModal from '@/components/youtubeGallery/PlayModal.vue'
@@ -429,36 +514,69 @@
     recalculateVideoCounts
   } = youtubeCategoryStore
 
-  const selectedVideo = ref(null)
-  const isModalOpen = ref(false)
-  
-  // Video data management
-  const videos = ref([])
-  const isLoading = ref(true)
-  const error = ref(null)
+  // Grouped state management for better organization
+  const videoState = reactive({
+    videos: [],
+    isLoading: true,
+    error: null,
+    selectedVideo: null,
+    isModalOpen: false
+  })
 
-  // Filter states
-  const selectedCategoryId = ref(route.query.category || 'all')
-  const searchQuery = ref(route.query.search || '')
+  // Load user preferences from localStorage
+  const loadUserPreferences = () => {
+    if (process.client) {
+      const saved = localStorage.getItem('youtube-gallery-sort-preferences')
+      if (saved) {
+        try {
+          return JSON.parse(saved)
+        } catch (e) {
+          console.warn('Failed to parse sort preferences:', e)
+        }
+      }
+    }
+    return { sortColumn: 'createdAt', sortOrder: 'desc' }
+  }
 
-  // Bulk selection states
-  const bulkMode = ref(false)
-  const selectedVideos = ref(new Set())
-  const bulkCategoryId = ref('')
-  const bulkOperationInProgress = ref(false)
+  const userPreferences = loadUserPreferences()
 
-  // Video playability check state
+  // Filter states grouped
+  const filterState = reactive({
+    selectedCategoryId: route.query.category || 'all',
+    searchQuery: route.query.search || '',
+    searchTimeout: null,
+    sortColumn: route.query.sortColumn || userPreferences.sortColumn,
+    sortOrder: route.query.sortOrder || userPreferences.sortOrder
+  })
+
+  // Bulk operation states grouped
+  const bulkState = reactive({
+    mode: false,
+    selectedVideos: new Set(),
+    categoryId: '',
+    operationInProgress: false
+  })
+
+  // Modal states grouped
+  const modalState = reactive({
+    showVideoModal: false,
+    selectedVideoForEdit: null,
+    showCategoryManageModal: false
+  })
+
+  // Single operation states
   const isCheckingPlayability = ref(false)
-
-  // Debounced search handling
-  let searchTimeout = null
+  const isUpdatingUploadDates = ref(false)
   
-  // Video management modal
-  const showVideoModal = ref(false)
-  const selectedVideoForEdit = ref(null)
-  
-  // Category management modal
-  const showCategoryManageModal = ref(false)
+  // Pagination states
+  const paginationState = reactive({
+    currentPage: 1,
+    totalPages: 1,
+    totalItems: 0,
+    itemsPerPage: 20,
+    hasMore: true,
+    isLoadingMore: false
+  })
   
   // Confirm modal states
   const showConfirmModal = ref(false)
@@ -488,7 +606,7 @@
   const editingThread = ref(null)
   const showingThreads = ref(new Set())
 
-  const { getEmbedUrl, loadVideo, unloadVideo } = useYoutubeGallery(videos)
+  const { getEmbedUrl, loadVideo, unloadVideo } = useYoutubeGallery(videoState.videos)
   
   const videoRefs = ref({})
 
@@ -521,11 +639,11 @@
 
   // Computed properties for counting specific video types
   const uncategorizedCount = computed(() => {
-    return videos.value.filter(video => !video.categoryId).length
+    return videoState.videos.filter(video => !video.categoryId).length
   })
 
   const unplayableCount = computed(() => {
-    const unplayableVideos = videos.value.filter(video => 
+    const unplayableVideos = videoState.videos.filter(video => 
       video.hasError || (video.isPlayable !== undefined && video.isPlayable === false)
     )
     return unplayableVideos.length
@@ -536,25 +654,29 @@
    */
   const loadVideos = async () => {
     try {
-      isLoading.value = true
-      error.value = null
+      videoState.isLoading = true
+      videoState.error = null
       
       // Build query parameters
       const queryParams = {
-        page: 1,
-        limit: 100 // Load more videos for better UX
+        page: paginationState.currentPage,
+        limit: paginationState.itemsPerPage
       }
 
       // Add category filter
-      if (selectedCategoryId.value && selectedCategoryId.value !== 'all') {
-        queryParams.categoryId = selectedCategoryId.value
+      if (filterState.selectedCategoryId && filterState.selectedCategoryId !== 'all') {
+        queryParams.categoryId = filterState.selectedCategoryId
       }
 
       // Add search filter
-      if (searchQuery.value.trim()) {
-        queryParams.searchText = searchQuery.value.trim()
+      if (filterState.searchQuery.trim()) {
+        queryParams.searchText = filterState.searchQuery.trim()
         queryParams.searchType = 'title' // Search in title by default
       }
+
+      // Add sort parameters
+      queryParams.sortColumn = filterState.sortColumn
+      queryParams.sortOrder = filterState.sortOrder
       
       const response = await $fetch('/api/youtube-gallery', {
         method: 'GET',
@@ -562,58 +684,94 @@
       })
       
       // API 응답을 기존 videos 형태로 변환
-      videos.value = response.items.map(item => ({
+      const newVideos = response.items.map(item => ({
         id: item.id,
         videoId: item.videoId,
         title: item.title,
         description: item.description,
         isShort: item.isShort,
         isPlayable: item.isPlayable !== undefined ? item.isPlayable : true, // 기본값 true
+        uploadedAt: item.uploadedAt,
         categoryId: item.categoryId,
         category: item.category,
+        createdAt: item.createdAt,
+        updatedAt: item.updatedAt,
         loaded: false,
         hasError: false
       }))
+      
+      // 첫 페이지인 경우 새로 설정, 아니면 추가
+      if (paginationState.currentPage === 1) {
+        videoState.videos = newVideos
+      } else {
+        videoState.videos.push(...newVideos)
+      }
+      
+      // 페이지네이션 상태 업데이트
+      paginationState.totalPages = response.totalPages
+      paginationState.totalItems = response.total
+      paginationState.hasMore = paginationState.currentPage < response.totalPages
 
       // 카테고리 비디오 수는 API에서 가져온 값을 유지
       // recalculateVideoCounts는 필터링된 결과에 영향을 주지 않도록 제거
       
     } catch (err) {
       console.error('비디오 목록 로드 실패:', err)
-      error.value = err.message || '비디오 목록을 불러오는데 실패했습니다.'
+      videoState.error = err.message || '비디오 목록을 불러오는데 실패했습니다.'
     } finally {
-      isLoading.value = false
+      videoState.isLoading = false
     }
   }
 
   /**
+   * 더 많은 비디오를 로드합니다 (무한 스크롤용)
+   */
+  const loadMoreVideos = async () => {
+    if (!paginationState.hasMore || paginationState.isLoadingMore || videoState.isLoading) {
+      return
+    }
+    
+    try {
+      paginationState.isLoadingMore = true
+      paginationState.currentPage++
+      await loadVideos()
+    } catch (error) {
+      // 오류 발생 시 페이지 번호 되돌리기
+      paginationState.currentPage--
+      console.error('추가 비디오 로드 실패:', error)
+    } finally {
+      paginationState.isLoadingMore = false
+    }
+  }
+  
+  /**
    * 비디오 관리 모달을 엽니다.
    */
   const openVideoModal = (video = null) => {
-    selectedVideoForEdit.value = video
-    showVideoModal.value = true
+    modalState.selectedVideoForEdit = video
+    modalState.showVideoModal = true
   }
 
   /**
    * 비디오 관리 모달을 닫습니다.
    */
   const closeVideoModal = () => {
-    showVideoModal.value = false
-    selectedVideoForEdit.value = null
+    modalState.showVideoModal = false
+    modalState.selectedVideoForEdit = null
   }
 
   /**
    * 카테고리 관리 모달을 엽니다.
    */
   const openCategoryManageModal = () => {
-    showCategoryManageModal.value = true
+    modalState.showCategoryManageModal = true
   }
 
   /**
    * 카테고리 관리 모달을 닫습니다.
    */
   const closeCategoryManageModal = () => {
-    showCategoryManageModal.value = false
+    modalState.showCategoryManageModal = false
   }
 
   /**
@@ -741,6 +899,43 @@
   }
 
   /**
+   * 썸네일 이미지 로드 실패 시 대체 이미지로 변경하는 함수
+   */
+  const handleThumbnailError = (event, video) => {
+    const img = event.target
+    
+    // 이미 처리 중이면 무시
+    if (img.dataset.processing === 'true') return
+    img.dataset.processing = 'true'
+    
+    // 시도한 횟수 추적
+    const attemptCount = parseInt(img.dataset.attemptCount || '0')
+    img.dataset.attemptCount = String(attemptCount + 1)
+    
+    // fallback URL 목록 (hqdefault부터 시작)
+    const fallbackUrls = [
+      `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`,
+      `https://img.youtube.com/vi/${video.videoId}/mqdefault.jpg`, 
+      `https://img.youtube.com/vi/${video.videoId}/default.jpg`,
+      `https://i.ytimg.com/vi/${video.videoId}/default.jpg`, // 대체 도메인
+      `https://via.placeholder.com/480x360/374151/ffffff?text=${encodeURIComponent(video.title ? video.title.substring(0, 20) + '...' : 'Video')}`
+    ]
+    
+    // 다음 URL 시도
+    if (attemptCount < fallbackUrls.length) {
+      // 약간의 지연 후 시도 (네트워크 안정성)
+      setTimeout(() => {
+        img.src = fallbackUrls[attemptCount]
+        img.dataset.processing = 'false'
+      }, 100)
+    } else {
+      // 모든 시도 실패 시 이벤트 제거
+      img.removeEventListener('error', handleThumbnailError)
+      console.warn(`모든 썸네일 URL 실패: ${video.title}`)
+    }
+  }
+
+  /**
    * iframe 로드 후 비디오 재생 가능성을 체크하는 함수
    * YouTube는 iframe 에러 이벤트가 정확하지 않으므로 추가 체크
    */
@@ -783,7 +978,7 @@
     try {
       const confirmed = await showConfirm({
         title: '재생가능성 확인',
-        message: `현재 표시된 ${videos.value.length}개 비디오의 재생 가능성을 확인하시겠습니까?\n재생불가 비디오는 자동으로 표시됩니다.`,
+        message: `현재 표시된 ${videoState.videos.length}개 비디오의 재생 가능성을 확인하시겠습니까?\n재생불가 비디오는 자동으로 표시됩니다.`,
         type: 'warning',
         confirmText: '확인 시작',
         cancelText: '취소'
@@ -802,7 +997,7 @@
       showToast('비디오 재생 가능성 확인을 시작합니다...', 'info')
 
       // 순차적으로 각 비디오 확인 (동시 요청으로 인한 부하 방지)
-      for (const video of videos.value) {
+      for (const video of videoState.videos) {
         try {
           // 이미 재생불가로 표시된 비디오는 건너뛰기
           if (!video.isPlayable) {
@@ -881,9 +1076,9 @@
   }
 
 
-  const openModal = (video) => { selectedVideo.value = video; isModalOpen.value = true }
-  const closeModal = () => { isModalOpen.value = false; selectedVideo.value = null }
-  const updateVideoTime = (time) => { if (selectedVideo.value) selectedVideo.value.currentTime = time }
+  const openModal = (video) => { videoState.selectedVideo = video; videoState.isModalOpen = true }
+  const closeModal = () => { videoState.isModalOpen = false; videoState.selectedVideo = null }
+  const updateVideoTime = (time) => { if (videoState.selectedVideo) videoState.selectedVideo.currentTime = time }
   
   /**
    * PIP 모드로 비디오를 여는 함수
@@ -900,14 +1095,16 @@
     // Update URL with new category
     const query = { ...route.query }
     
-    if (selectedCategoryId.value === 'all') {
+    if (filterState.selectedCategoryId === 'all') {
       delete query.category
     } else {
-      query.category = selectedCategoryId.value
+      query.category = filterState.selectedCategoryId
     }
 
     router.push({ query })
-    setActiveCategory(selectedCategoryId.value)
+    setActiveCategory(filterState.selectedCategoryId)
+    // 카테고리 변경 시 첫 페이지부터 다시 로드
+    paginationState.currentPage = 1
     loadVideos()
   }
 
@@ -916,31 +1113,150 @@
    */
   const onSearchChange = () => {
     // Clear existing timeout
-    if (searchTimeout) {
-      clearTimeout(searchTimeout)
+    if (filterState.searchTimeout) {
+      clearTimeout(filterState.searchTimeout)
     }
 
     // Set new timeout for debounced search
-    searchTimeout = setTimeout(() => {
+    filterState.searchTimeout = setTimeout(() => {
       const query = { ...route.query }
       
-      if (searchQuery.value.trim()) {
-        query.search = searchQuery.value.trim()
+      if (filterState.searchQuery.trim()) {
+        query.search = filterState.searchQuery.trim()
       } else {
         delete query.search
       }
 
       router.push({ query })
+      // 검색어 변경 시 첫 페이지부터 다시 로드
+      paginationState.currentPage = 1
       loadVideos()
     }, 300) // 300ms debounce delay
+  }
+
+  /**
+   * 사용자 정렬 선호도 저장 함수
+   */
+  const saveUserPreferences = () => {
+    if (process.client) {
+      const preferences = {
+        sortColumn: filterState.sortColumn,
+        sortOrder: filterState.sortOrder
+      }
+      localStorage.setItem('youtube-gallery-sort-preferences', JSON.stringify(preferences))
+    }
+  }
+
+  /**
+   * 정렬 기준 변경 시 호출되는 함수
+   */
+  const onSortChange = () => {
+    // Update URL with new sort parameters
+    const query = { ...route.query }
+    
+    query.sortColumn = filterState.sortColumn
+    query.sortOrder = filterState.sortOrder
+
+    // Save user preferences
+    saveUserPreferences()
+
+    router.push({ query })
+    // 정렬 변경 시 첫 페이지부터 다시 로드
+    paginationState.currentPage = 1
+    loadVideos()
+  }
+
+  /**
+   * 정렬 순서 토글 함수 (오름차순 ↔ 내림차순)
+   */
+  const toggleSortOrder = () => {
+    filterState.sortOrder = filterState.sortOrder === 'desc' ? 'asc' : 'desc'
+    onSortChange()
+  }
+
+  /**
+   * 정렬 순서 툴팁 텍스트 생성 함수
+   */
+  const getSortOrderTooltip = () => {
+    const columnNames = {
+      'createdAt': '등록일',
+      'uploadedAt': '업로드일',
+      'title': '제목',
+      'updatedAt': '수정일',
+      'category': '카테고리',
+      'isPlayable': '재생가능'
+    }
+    
+    const columnName = columnNames[filterState.sortColumn] || '알 수 없음'
+    const orderText = filterState.sortOrder === 'desc' ? '내림차순' : '오름차순'
+    
+    return `${columnName} ${orderText} 정렬 (클릭하여 ${filterState.sortOrder === 'desc' ? '오름차순' : '내림차순'}으로 변경)`
+  }
+
+  /**
+   * 업로드 일을 일괄 업데이트하는 함수
+   */
+  const updateUploadDates = async () => {
+    if (!isAdmin.value || isUpdatingUploadDates.value) {
+      return
+    }
+
+    try {
+      const confirmed = await showConfirm({
+        title: '업로드일 일괄 갱신',
+        message: 'YouTube API를 사용하여 업로드 일이 없는 비디오들의 업로드 일을 자동으로 가져와서 업데이트하시겠습니까?\n\n주의: YouTube API 키가 필요하며, 많은 비디오가 있을 경우 시간이 걸릴 수 있습니다.',
+        type: 'warning',
+        confirmText: '업데이트 시작',
+        cancelText: '취소'
+      })
+
+      if (!confirmed) return
+    } catch (err) {
+      return
+    }
+
+    isUpdatingUploadDates.value = true
+
+    try {
+      showToast('업로드 일 업데이트를 시작합니다...', 'info')
+
+      const response = await $fetch('/api/admin/youtube-gallery/update-upload-dates', {
+        method: 'POST'
+      })
+
+      if (response.success) {
+        showToast(response.message, 'success')
+        
+        if (response.failedCount > 0) {
+          console.warn('일부 비디오 업데이트 실패:', response.failedVideos)
+          showToast(`${response.failedCount}개 비디오 업데이트 실패. 콘솔을 확인하세요.`, 'warning')
+        }
+
+        // 비디오 목록 새로고침
+        await loadVideos()
+      } else {
+        showToast('업로드 일 업데이트에 실패했습니다.', 'error')
+      }
+
+    } catch (error) {
+      console.error('업로드 일 업데이트 실패:', error)
+      
+      if (error.message.includes('YouTube API')) {
+        showToast('YouTube API 키가 설정되지 않았거나 유효하지 않습니다. 환경 설정을 확인하세요.', 'error')
+      } else {
+        showToast('업로드 일 업데이트 중 오류가 발생했습니다.', 'error')
+      }
+    } finally {
+      isUpdatingUploadDates.value = false
+    }
   }
 
   /**
    * 대량 선택 모드를 토글합니다.
    */
   const toggleBulkMode = () => {
-    bulkMode.value = !bulkMode.value
-    if (!bulkMode.value) {
+    bulkState.mode = !bulkState.mode
+    if (!bulkState.mode) {
       clearSelectedVideos()
     }
   }
@@ -949,65 +1265,94 @@
    * 비디오 선택 상태를 토글합니다.
    */
   const toggleVideoSelection = (videoId) => {
-    if (selectedVideos.value.has(videoId)) {
-      selectedVideos.value.delete(videoId)
+    if (bulkState.selectedVideos.has(videoId)) {
+      bulkState.selectedVideos.delete(videoId)
     } else {
-      selectedVideos.value.add(videoId)
+      bulkState.selectedVideos.add(videoId)
     }
     // Vue의 반응성을 위해 새로운 Set으로 교체
-    selectedVideos.value = new Set(selectedVideos.value)
+    bulkState.selectedVideos = new Set(bulkState.selectedVideos)
   }
 
   /**
    * 현재 페이지의 모든 비디오를 선택합니다.
    */
   const selectAllVideos = () => {
-    videos.value.forEach(video => {
-      selectedVideos.value.add(video.id)
+    videoState.videos.forEach(video => {
+      bulkState.selectedVideos.add(video.id)
     })
-    selectedVideos.value = new Set(selectedVideos.value)
+    bulkState.selectedVideos = new Set(bulkState.selectedVideos)
   }
 
   /**
    * 모든 선택을 해제합니다.
    */
   const clearSelectedVideos = () => {
-    selectedVideos.value.clear()
-    selectedVideos.value = new Set(selectedVideos.value)
-    bulkCategoryId.value = ''
+    bulkState.selectedVideos.clear()
+    bulkState.selectedVideos = new Set(bulkState.selectedVideos)
+    bulkState.categoryId = ''
+  }
+
+  /**
+   * 날짜를 포맷팅하는 함수
+   */
+  const formatDate = (dateString) => {
+    if (!dateString) return ''
+    
+    const date = new Date(dateString)
+    const now = new Date()
+    const diffInDays = Math.floor((now - date) / (1000 * 60 * 60 * 24))
+    
+    // 7일 이내면 상대적 시간 표시
+    if (diffInDays === 0) {
+      return '오늘'
+    } else if (diffInDays === 1) {
+      return '어제'
+    } else if (diffInDays < 7) {
+      return `${diffInDays}일 전`
+    } else if (diffInDays < 30) {
+      const weeks = Math.floor(diffInDays / 7)
+      return `${weeks}주 전`
+    } else if (diffInDays < 365) {
+      const months = Math.floor(diffInDays / 30)
+      return `${months}개월 전`
+    } else {
+      const years = Math.floor(diffInDays / 365)
+      return `${years}년 전`
+    }
   }
 
   /**
    * 카테고리가 없는 미분류 비디오들을 선택합니다.
    */
   const selectUncategorized = () => {
-    const uncategorizedIds = videos.value
+    const uncategorizedIds = videoState.videos
       .filter(video => !video.categoryId)
       .map(video => video.id)
     
-    uncategorizedIds.forEach(id => selectedVideos.value.add(id))
-    selectedVideos.value = new Set(selectedVideos.value)
+    uncategorizedIds.forEach(id => bulkState.selectedVideos.add(id))
+    bulkState.selectedVideos = new Set(bulkState.selectedVideos)
   }
 
   /**
    * 재생할 수 없는 비디오들을 선택합니다.
    */
   const selectUnplayable = () => {
-    const unplayableIds = videos.value
+    const unplayableIds = videoState.videos
       .filter(video => 
         video.hasError || (video.isPlayable !== undefined && video.isPlayable === false)
       )
       .map(video => video.id)
     
-    unplayableIds.forEach(id => selectedVideos.value.add(id))
-    selectedVideos.value = new Set(selectedVideos.value)
+    unplayableIds.forEach(id => bulkState.selectedVideos.add(id))
+    bulkState.selectedVideos = new Set(bulkState.selectedVideos)
   }
 
   /**
    * 선택된 비디오들에 카테고리를 일괄 적용합니다.
    */
   const applyBulkCategoryChange = async () => {
-    if (!bulkCategoryId.value || selectedVideos.value.size === 0) {
+    if (!bulkState.categoryId || bulkState.selectedVideos.size === 0) {
       showToast('카테고리와 비디오를 선택해주세요.', 'warning')
       return
     }
@@ -1015,7 +1360,7 @@
     try {
       const confirmed = await showConfirm({
         title: '카테고리 변경',
-        message: `선택된 ${selectedVideos.value.size}개 비디오의 카테고리를 변경하시겠습니까?`,
+        message: `선택된 ${bulkState.selectedVideos.size}개 비디오의 카테고리를 변경하시겠습니까?`,
         type: 'warning',
         confirmText: '변경',
         cancelText: '취소'
@@ -1027,10 +1372,10 @@
     }
 
     try {
-      bulkOperationInProgress.value = true
+      bulkState.operationInProgress = true
 
-      const categoryId = bulkCategoryId.value === 'uncategorized' ? null : bulkCategoryId.value
-      const videoIds = Array.from(selectedVideos.value)
+      const categoryId = bulkState.categoryId === 'uncategorized' ? null : bulkState.categoryId
+      const videoIds = Array.from(bulkState.selectedVideos)
 
       const response = await $fetch('/api/admin/youtube-gallery/bulk-update', {
         method: 'POST',
@@ -1051,7 +1396,7 @@
       console.error('대량 카테고리 변경 실패:', err)
       showToast('카테고리 변경에 실패했습니다.', 'error')
     } finally {
-      bulkOperationInProgress.value = false
+      bulkState.operationInProgress = false
     }
   }
 
@@ -1059,18 +1404,18 @@
    * 선택된 비디오들을 일괄 삭제합니다.
    */
   const bulkDeleteVideos = async () => {
-    if (selectedVideos.value.size === 0) {
+    if (bulkState.selectedVideos.size === 0) {
       showToast('삭제할 비디오를 선택해주세요.', 'warning')
       return
     }
 
-    const selectedVideoTitles = videos.value
-      .filter(video => selectedVideos.value.has(video.id))
+    const selectedVideoTitles = videoState.videos
+      .filter(video => bulkState.selectedVideos.has(video.id))
       .map(video => video.title)
       .slice(0, 3) // 처음 3개만 표시
 
     const titlePreview = selectedVideoTitles.join(', ')
-    const moreCount = selectedVideos.value.size - selectedVideoTitles.length
+    const moreCount = bulkState.selectedVideos.size - selectedVideoTitles.length
     const previewText = moreCount > 0 
       ? `${titlePreview} 외 ${moreCount}개`
       : titlePreview
@@ -1078,7 +1423,7 @@
     try {
       const confirmed = await showConfirm({
         title: '비디오 대량 삭제',
-        message: `선택된 ${selectedVideos.value.size}개 비디오를 삭제하시겠습니까?\n\n삭제할 비디오:\n${previewText}\n\n이 작업은 되돌릴 수 없습니다.`,
+        message: `선택된 ${bulkState.selectedVideos.size}개 비디오를 삭제하시겠습니까?\n\n삭제할 비디오:\n${previewText}\n\n이 작업은 되돌릴 수 없습니다.`,
         type: 'danger',
         confirmText: '삭제',
         cancelText: '취소'
@@ -1090,8 +1435,8 @@
     }
 
     try {
-      bulkOperationInProgress.value = true
-      const videoIds = Array.from(selectedVideos.value)
+      bulkState.operationInProgress = true
+      const videoIds = Array.from(bulkState.selectedVideos)
       let deletedCount = 0
       let failedCount = 0
 
@@ -1126,46 +1471,65 @@
       console.error('대량 삭제 실패:', err)
       showToast('비디오 삭제에 실패했습니다.', 'error')
     } finally {
-      bulkOperationInProgress.value = false
+      bulkState.operationInProgress = false
     }
   }
 
   // Watch for URL parameter changes
   watch(() => route.query.category, (newCategory) => {
-    selectedCategoryId.value = newCategory || 'all'
+    filterState.selectedCategoryId = newCategory || 'all'
     // 카테고리 변경 시 선택된 비디오 초기화
-    if (bulkMode.value) {
+    if (bulkState.mode) {
       clearSelectedVideos()
     }
     if (categories.value.length > 0) {
+      paginationState.currentPage = 1
       loadVideos()
     }
   })
 
   watch(() => route.query.search, (newSearch) => {
-    searchQuery.value = newSearch || ''
+    filterState.searchQuery = newSearch || ''
     // 검색어 변경 시 선택된 비디오 초기화
-    if (bulkMode.value) {
+    if (bulkState.mode) {
       clearSelectedVideos()
     }
     if (categories.value.length > 0) {
+      paginationState.currentPage = 1
+      loadVideos()
+    }
+  })
+
+  // 정렬 파라미터 변경 감지
+  watch(() => route.query.sortColumn, (newSortColumn) => {
+    filterState.sortColumn = newSortColumn || 'createdAt'
+    if (categories.value.length > 0) {
+      paginationState.currentPage = 1
+      loadVideos()
+    }
+  })
+
+  watch(() => route.query.sortOrder, (newSortOrder) => {
+    filterState.sortOrder = newSortOrder || 'desc'
+    if (categories.value.length > 0) {
+      paginationState.currentPage = 1
       loadVideos()
     }
   })
 
   // 비디오 목록 변경 시 선택된 비디오 검증
-  watch(videos, (newVideos) => {
-    if (bulkMode.value && selectedVideos.value.size > 0) {
+  watch(() => videoState.videos, (newVideos) => {
+    if (bulkState.mode && bulkState.selectedVideos.size > 0) {
       const currentVideoIds = new Set(newVideos.map(v => v.id))
       const validSelectedVideos = new Set()
       
-      selectedVideos.value.forEach(videoId => {
+      bulkState.selectedVideos.forEach(videoId => {
         if (currentVideoIds.has(videoId)) {
           validSelectedVideos.add(videoId)
         }
       })
       
-      selectedVideos.value = validSelectedVideos
+      bulkState.selectedVideos = validSelectedVideos
     }
   })
 
@@ -1180,25 +1544,41 @@
       await fetchCategories();
 
       // Set active category from URL or default to 'all'
-      setActiveCategory(selectedCategoryId.value)
+      setActiveCategory(filterState.selectedCategoryId)
       
       // Load videos from API
       await loadVideos()
       
       if (process.client) {
-        const observer = new IntersectionObserver((entries) => {
-          entries.forEach((entry) => {
-            if (entry.isIntersecting) {
-              const video = videos.value.find(v => videoRefs.value[v.videoId] === entry.target)
-              if (video) {
-                // loadVideo(video) // Removed this line to prevent auto-loading
+        // 무한 스크롤을 위한 Intersection Observer 설정
+        const scrollObserver = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                loadMoreVideos()
               }
-              observer.unobserve(entry.target)
-            }
-          })
+            })
+          },
+          {
+            root: null,
+            rootMargin: '200px', // 200px 전에 미리 로드 시작
+            threshold: 0.1
+          }
+        )
+        
+        // 페이지 하단에 보이지 않는 트리거 요소 생성
+        const trigger = document.createElement('div')
+        trigger.id = 'infinite-scroll-trigger'
+        trigger.style.height = '1px'
+        trigger.style.visibility = 'hidden'
+        document.querySelector('.masonry-layout')?.parentElement?.appendChild(trigger)
+        scrollObserver.observe(trigger)
+        
+        // 컴포넌트 언마운트 시 정리
+        onUnmounted(() => {
+          scrollObserver.disconnect()
+          trigger.remove()
         })
-    
-        Object.values(videoRefs.value).forEach(el => observer.observe(el))
       }
     } catch (err) {
       console.error('초기화 실패:', err)

@@ -22,13 +22,13 @@
             <Icon v-if="menu.icon" :icon="menu.icon" class="mr-1" />
             <span>{{ menu.name }}</span>
           </div>
-          <Icon v-if="menu.children && menu.children.length" 
+          <Icon v-if="menu.other_Menu && menu.other_Menu.length" 
                 icon="mdi:chevron-down" 
                 :class="['ml-1 transition-transform duration-200', menu.isOpen ? 'rotate-180' : '', 'lg:group-hover:rotate-180']" />
         </div>
         
         <!-- 하위 메뉴 -->
-        <div v-if="menu.children && menu.children.length" 
+        <div v-if="menu.other_Menu && menu.other_Menu.length" 
              :class="[
                // 세로 메뉴(사이드바)에서는 static 포지셔닝으로 자연스럽게 아래로 펼침
                isVertical 
@@ -45,7 +45,7 @@
                { 'block': menu.isOpen, 'hidden': !menu.isOpen }
              ]"
              :style="isVertical ? '' : 'z-index: 9999 !important;'">
-          <AppSubMenu :menus="menu.children" @close-parent="closeAllMenus" :is-vertical="isVertical" />
+          <AppSubMenu :menus="menu.other_Menu" @close-parent="closeAllMenus" :is-vertical="isVertical" />
         </div>
       </li>
     </ul>
@@ -85,9 +85,9 @@ function isMenuActive(menu) {
   if (menu.path && (route.path === menu.path || route.path.startsWith(menu.path + '/'))) {
     return true;
   }
-  if (menu.children) {
+  if (menu.other_Menu) {
     // 재귀적으로 자식 메뉴 확인
-    return menu.children.some(child => isMenuActive(child));
+    return menu.other_Menu.some(child => isMenuActive(child));
   }
   return false;
 }

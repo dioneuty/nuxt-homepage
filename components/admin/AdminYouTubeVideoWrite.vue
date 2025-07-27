@@ -249,6 +249,7 @@
 <script setup>
 import { ref, watch, reactive, computed, onMounted, onUnmounted, nextTick } from 'vue';
 import { useToast } from '~/composables/useToast';
+import { useApiCall } from '@/composables/useApiCall';
 import { useYoutubeCategories } from '~/stores/youtubeCategoryStore';
 import { useAuth } from '~/composables/useAuth';
 import { storeToRefs } from 'pinia';
@@ -588,45 +589,42 @@ const handleSubmit = async () => {
     return;
   }
 
-  isSubmitting.value = true;
+  const requestBody = {
+    url: form.url,
+    title: form.title,
+    description: form.description,
+    isShort: form.isShort,
+    categoryId: form.categoryId || null,
+  };
 
-  try {
-    if (form.id) {
-      // 수정
-      await $fetch(`/api/admin/youtube-gallery/${form.id}`, {
-        method: 'PUT',
-        body: {
-          url: form.url,
-          title: form.title,
-          description: form.description,
-          isShort: form.isShort,
-          categoryId: form.categoryId || null,
-        },
-      });
-      showToast('YouTube 비디오가 성공적으로 수정되었습니다.', 'success');
-    } else {
-      // 생성
-      await $fetch('/api/admin/youtube-gallery', {
-        method: 'POST',
-        body: {
-          url: form.url,
-          title: form.title,
-          description: form.description,
-          isShort: form.isShort,
-          categoryId: form.categoryId || null,
-        },
-      });
-      showToast('새 YouTube 비디오가 성공적으로 추가되었습니다.', 'success');
+  await useApiCall({
+    apiCall: () => {
+      if (form.id) {
+        // 수정
+        return $fetch(`/api/admin/youtube-gallery/${form.id}`, {
+          method: 'PUT',
+          body: requestBody
+        });
+      } else {
+        // 생성
+        return $fetch('/api/admin/youtube-gallery', {
+          method: 'POST',
+          body: requestBody
+        });
+      }
+    },
+    loadingState: { isSubmitting },
+    successMessage: form.id ? 'YouTube 비디오가 성공적으로 수정되었습니다.' : '새 YouTube 비디오가 성공적으로 추가되었습니다.',
+    errorMessage: 'YouTube 비디오 저장에 실패했습니다.',
+    onSuccess: () => {
+      emit('refresh');
+      handleClose();
+    },
+    onError: (error) => {
+      const errorMessage = error.data?.message || 'YouTube 비디오 저장에 실패했습니다.';
+      showToast(errorMessage, 'error');
     }
-    emit('refresh');
-    handleClose();
-  } catch (error) {
-    console.error('YouTube 비디오 저장 오류:', error);
-    const errorMessage = error.data?.message || 'YouTube 비디오 저장에 실패했습니다.';
-    showToast(errorMessage, 'error');
-  } finally {
-    isSubmitting.value = false;
-  }
+  });
 };
 
 /**

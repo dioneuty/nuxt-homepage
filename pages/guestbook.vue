@@ -106,6 +106,7 @@
 
 <script setup>
 import { ref, watch, onMounted, defineAsyncComponent } from 'vue'
+import { useApiCall, useApiCreate, useApiUpdate, useApiDelete } from '@/composables/useApiCall'
 // 모달 지연 로딩
 const CommentEditModal = defineAsyncComponent(() => import('~/components/CommentEditModal.vue'))
 const GuestbookDeleteModal = defineAsyncComponent(() => import('~/components/GuestbookDeleteModal.vue'))
@@ -127,38 +128,43 @@ const selectedComment = ref(null)
 
 // 방명록 목록 조회
 const fetchPosts = async () => {
-  try {
-    const response = await $fetch(`/api/guestbook?page=${currentPage.value}`)
-    posts.value = response.posts
-    totalPages.value = response.totalPages
-  } catch (error) {
-    console.error('방명록 조회 실패:', error)
-  }
+  await useApiCall({
+    apiCall: () => $fetch(`/api/guestbook?page=${currentPage.value}`),
+    errorMessage: '방명록을 불러오는데 실패했습니다.',
+    onSuccess: (response) => {
+      posts.value = response.posts
+      totalPages.value = response.totalPages
+    }
+  })
 }
 
 // 방명록 작성
 const handleSubmit = async () => {
-  try {
-    await $fetch('/api/guestbook', { method: 'POST', body: form.value })
-    form.value = { title: '', content: '', author: '', password: '' }
-    await fetchPosts()
-  } catch (error) {
-    console.error('방명록 작성 실패:', error)
-  }
+  await useApiCreate({
+    apiCall: () => $fetch('/api/guestbook', { method: 'POST', body: form.value }),
+    successMessage: '방명록이 성공적으로 작성되었습니다.',
+    errorMessage: '방명록 작성에 실패했습니다.',
+    onSuccess: async () => {
+      form.value = { title: '', content: '', author: '', password: '' }
+      await fetchPosts()
+    }
+  })
 }
 
 // 댓글 작성
 const handleCommentSubmit = async (postId) => {
-  try {
-    await $fetch('/api/guestbook/comment', {
+  await useApiCreate({
+    apiCall: () => $fetch('/api/guestbook/comment', {
       method: 'POST',
       body: { ...commentForm.value, postId }
-    })
-    commentForm.value = { content: '', author: '', password: '' }
-    await fetchPosts()
-  } catch (error) {
-    console.error('댓글 작성 실패:', error)
-  }
+    }),
+    successMessage: '댓글이 성공적으로 작성되었습니다.',
+    errorMessage: '댓글 작성에 실패했습니다.',
+    onSuccess: async () => {
+      commentForm.value = { content: '', author: '', password: '' }
+      await fetchPosts()
+    }
+  })
 }
 
 // 방명록 수정
@@ -168,13 +174,15 @@ const editPost = (post) => {
 }
 
 const handleEdit = async (data) => {
-  try {
-    await $fetch(`/api/guestbook/${selectedPost.value.id}`, { method: 'PUT', body: data })
-    showEdit.value = false
-    await fetchPosts()
-  } catch (error) {
-    console.error('방명록 수정 실패:', error)
-  }
+  await useApiUpdate({
+    apiCall: () => $fetch(`/api/guestbook/${selectedPost.value.id}`, { method: 'PUT', body: data }),
+    successMessage: '방명록이 성공적으로 수정되었습니다.',
+    errorMessage: '방명록 수정에 실패했습니다.',
+    onSuccess: async () => {
+      showEdit.value = false
+      await fetchPosts()
+    }
+  })
 }
 
 // 방명록 삭제
@@ -184,16 +192,18 @@ const deletePost = (post) => {
 }
 
 const handleDelete = async (password) => {
-  try {
-    await $fetch(`/api/guestbook/${selectedPost.value.id}`, {
+  await useApiDelete({
+    apiCall: () => $fetch(`/api/guestbook/${selectedPost.value.id}`, {
       method: 'DELETE',
       body: { password }
-    })
-    showDelete.value = false
-    await fetchPosts()
-  } catch (error) {
-    console.error('방명록 삭제 실패:', error)
-  }
+    }),
+    successMessage: '방명록이 성공적으로 삭제되었습니다.',
+    errorMessage: '방명록 삭제에 실패했습니다.',
+    onSuccess: async () => {
+      showDelete.value = false
+      await fetchPosts()
+    }
+  })
 }
 
 // 댓글 수정
@@ -203,13 +213,15 @@ const editComment = (comment) => {
 }
 
 const handleCommentEdit = async (data) => {
-  try {
-    await $fetch(`/api/guestbook/comment/${selectedComment.value.id}`, { method: 'PUT', body: data })
-    showCommentEdit.value = false
-    await fetchPosts()
-  } catch (error) {
-    console.error('댓글 수정 실패:', error)
-  }
+  await useApiUpdate({
+    apiCall: () => $fetch(`/api/guestbook/comment/${selectedComment.value.id}`, { method: 'PUT', body: data }),
+    successMessage: '댓글이 성공적으로 수정되었습니다.',
+    errorMessage: '댓글 수정에 실패했습니다.',
+    onSuccess: async () => {
+      showCommentEdit.value = false
+      await fetchPosts()
+    }
+  })
 }
 
 // 댓글 삭제
@@ -219,16 +231,18 @@ const deleteComment = (comment) => {
 }
 
 const handleCommentDelete = async (password) => {
-  try {
-    await $fetch(`/api/guestbook/comment/${selectedComment.value.id}`, {
+  await useApiDelete({
+    apiCall: () => $fetch(`/api/guestbook/comment/${selectedComment.value.id}`, {
       method: 'DELETE',
       body: { password }
-    })
-    showCommentDelete.value = false
-    await fetchPosts()
-  } catch (error) {
-    console.error('댓글 삭제 실패:', error)
-  }
+    }),
+    successMessage: '댓글이 성공적으로 삭제되었습니다.',
+    errorMessage: '댓글 삭제에 실패했습니다.',
+    onSuccess: async () => {
+      showCommentDelete.value = false
+      await fetchPosts()
+    }
+  })
 }
 
 onMounted(fetchPosts)

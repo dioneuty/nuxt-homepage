@@ -12,7 +12,7 @@ export default defineEventHandler(async (event) => {
       // 1. 실제 카테고리들과 그들의 비디오 수
       const categories = await prisma.youTubeVideoCategory.findMany({
         include: {
-          _count: { select: { videos: true } }
+          _count: { select: { YouTubeVideo: true } }
         },
         orderBy: { order: 'asc' }
       })
@@ -37,7 +37,7 @@ export default defineEventHandler(async (event) => {
           // 다른 카테고리들은 기존 로직 사용
           return {
             ...category,
-            video_count: category._count.videos
+            video_count: category._count.YouTubeVideo
           }
         }
       })

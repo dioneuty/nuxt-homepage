@@ -9,13 +9,13 @@ export default defineEventHandler(async (event) => {
     try {
       const categories = await prisma.category.findMany({
         include: {
-          _count: { select: { blogPosts: true } }
+          _count: { select: { BlogPost: true } }
         }
       })
       
       const categoriesWithCount = categories.map(category => ({
         ...category,
-        post_count: category._count.blogPosts
+        post_count: category._count.BlogPost
       }))
 
       const totalPosts = categoriesWithCount.reduce((sum, category) => sum + category.post_count, 0)

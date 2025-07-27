@@ -29,8 +29,8 @@ export const useMenuStore = defineStore('menu', {
           const hasAccess = !menu.role || menu.role === 'public' || menu.role === userRole || (userRole === 'admin');
           
           // 접근 권한이 있고 하위 메뉴가 있는 경우 재귀적으로 필터링
-          if (hasAccess && menu.children) {
-            menu.children = filterMenus(menu.children);
+          if (hasAccess && menu.other_Menu) {
+            menu.other_Menu = filterMenus(menu.other_Menu);
           }
           return hasAccess;
         }).sort((a, b) => a.order - b.order); // order 필드로 정렬

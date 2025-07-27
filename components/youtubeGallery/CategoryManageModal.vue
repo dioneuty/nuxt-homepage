@@ -31,19 +31,19 @@
             <input
               v-model="newCategoryName"
               @keydown.enter="addCategory"
-              :disabled="addingCategory"
+              :disabled="operationState.adding"
               type="text"
               placeholder="카테고리 이름을 입력하세요"
               class="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
             >
             <button
               @click="addCategory"
-              :disabled="!newCategoryName.trim() || addingCategory"
+              :disabled="!newCategoryName.trim() || operationState.adding"
               class="px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-md transition-colors flex items-center"
             >
-              <Icon v-if="addingCategory" icon="mdi:loading" class="mr-2 animate-spin" />
+              <Icon v-if="operationState.adding" icon="mdi:loading" class="mr-2 animate-spin" />
               <Icon v-else icon="mdi:plus" class="mr-2" />
-              {{ addingCategory ? '추가 중...' : '추가' }}
+              {{ operationState.adding ? '추가 중...' : '추가' }}
             </button>
           </div>
         </div>
@@ -78,15 +78,15 @@
                   <div class="flex gap-2">
                     <button
                       @click="saveCategory"
-                      :disabled="!editCategoryName.trim() || savingCategory"
+                      :disabled="!editCategoryName.trim() || operationState.saving"
                       class="px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded text-sm transition-colors"
                     >
-                      <Icon v-if="savingCategory" icon="mdi:loading" class="animate-spin" />
+                      <Icon v-if="operationState.saving" icon="mdi:loading" class="animate-spin" />
                       <Icon v-else icon="mdi:check" />
                     </button>
                     <button
                       @click="cancelEdit"
-                      :disabled="savingCategory"
+                      :disabled="operationState.saving"
                       class="px-3 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white rounded text-sm transition-colors"
                     >
                       <Icon icon="mdi:close" />
@@ -110,7 +110,7 @@
               <div v-if="editingCategoryId !== category.id" class="flex gap-2">
                 <button
                   @click="startEdit(category)"
-                  :disabled="deletingCategoryId === category.id"
+                  :disabled="operationState.deletingId === category.id"
                   class="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 transition-colors"
                   title="수정"
                 >
@@ -118,13 +118,13 @@
                 </button>
                 <button
                   @click="deleteCategory(category)"
-                  :disabled="category.slug === 'uncategorized' || deletingCategoryId === category.id"
+                  :disabled="category.slug === 'uncategorized' || operationState.deletingId === category.id"
                   class="p-2 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300 disabled:opacity-50 transition-colors"
                   :title="category.slug === 'uncategorized' ? '기본 카테고리는 삭제할 수 없습니다' : '삭제'"
                 >
                   <Icon 
-                    :icon="deletingCategoryId === category.id ? 'mdi:loading' : 'mdi:delete'" 
-                    :class="['w-5 h-5', { 'animate-spin': deletingCategoryId === category.id }]"
+                    :icon="operationState.deletingId === category.id ? 'mdi:loading' : 'mdi:delete'" 
+                    :class="['w-5 h-5', { 'animate-spin': operationState.deletingId === category.id }]"
                   />
                 </button>
               </div>
@@ -143,9 +143,10 @@
 </template>
 
 <script setup>
-import { ref, computed, nextTick, watch } from 'vue'
+import { ref, reactive, computed, nextTick, watch } from 'vue'
 import { Icon } from '@iconify/vue'
 import { useToast } from '@/composables/useToast'
+import { useApiCreate, useApiUpdate, useApiDelete } from '@/composables/useApiCall'
 import { useYoutubeCategoryStore } from '@/stores/youtubeCategoryStore'
 import { storeToRefs } from 'pinia'
 
@@ -173,14 +174,18 @@ const {
   recalculateVideoCounts
 } = youtubeCategoryStore
 
-// Component state
+// Component state - Form data
 const newCategoryName = ref('')
-const addingCategory = ref(false)
 const editingCategoryId = ref(null)
 const editCategoryName = ref('')
-const savingCategory = ref(false)
-const deletingCategoryId = ref(null)
 const editInput = ref(null)
+
+// Operation states grouped for better management
+const operationState = reactive({
+  adding: false,
+  saving: false,
+  deletingId: null
+})
 
 // Computed
 const editableCategories = computed(() => {
@@ -205,36 +210,23 @@ const handleBackdropClick = () => {
 }
 
 const addCategory = async () => {
-  if (!newCategoryName.value.trim() || addingCategory.value) return
+  if (!newCategoryName.value.trim() || operationState.adding) return
 
-  try {
-    addingCategory.value = true
-    const response = await $fetch('/api/admin/youtube-categories', {
+  await useApiCreate({
+    apiCall: () => $fetch('/api/admin/youtube-categories', {
       method: 'POST',
-      body: {
-        name: newCategoryName.value.trim()
-      }
-    })
-
-    showToast('카테고리가 성공적으로 추가되었습니다.', 'success')
-    newCategoryName.value = ''
-    
-    // Refresh categories
-    await fetchCategories()
-    emit('updated')
-
-  } catch (err) {
-    console.error('카테고리 추가 실패:', err)
-    console.error('에러 상세:', {
-      message: err.message,
-      status: err.status,
-      statusCode: err.statusCode,
-      data: err.data
-    })
-    showToast(`카테고리 추가에 실패했습니다: ${err.message || err.statusText || '알 수 없는 오류'}`, 'error')
-  } finally {
-    addingCategory.value = false
-  }
+      body: { name: newCategoryName.value.trim() }
+    }),
+    loadingState: operationState,
+    loadingKey: 'adding',
+    successMessage: '카테고리가 성공적으로 추가되었습니다.',
+    errorMessage: '카테고리 추가에 실패했습니다.',
+    onSuccess: async () => {
+      newCategoryName.value = ''
+      await fetchCategories()
+      emit('updated')
+    }
+  })
 }
 
 const startEdit = async (category) => {
@@ -257,46 +249,31 @@ const cancelEdit = () => {
 }
 
 const saveCategory = async () => {
-  if (!editCategoryName.value.trim() || savingCategory.value) return
+  if (!editCategoryName.value.trim() || operationState.saving) return
 
-  try {
-    savingCategory.value = true
-
-    await $fetch(`/api/admin/youtube-categories/${editingCategoryId.value}`, {
+  await useApiUpdate({
+    apiCall: () => $fetch(`/api/admin/youtube-categories/${editingCategoryId.value}`, {
       method: 'PUT',
-      body: {
-        name: editCategoryName.value.trim()
-      }
-    })
-
-    showToast('카테고리가 성공적으로 수정되었습니다.', 'success')
-    
-    // Reset edit state
-    editingCategoryId.value = null
-    editCategoryName.value = ''
-    
-    // Refresh categories
-    await fetchCategories()
-    emit('updated')
-
-  } catch (err) {
-    console.error('카테고리 수정 실패:', err)
-    console.error('수정 에러 상세:', {
-      message: err.message,
-      status: err.status,
-      statusCode: err.statusCode,
-      data: err.data
-    })
-    showToast(`카테고리 수정에 실패했습니다: ${err.message || err.statusText || '알 수 없는 오류'}`, 'error')
-  } finally {
-    savingCategory.value = false
-  }
+      body: { name: editCategoryName.value.trim() }
+    }),
+    loadingState: operationState,
+    loadingKey: 'saving',
+    successMessage: '카테고리가 성공적으로 수정되었습니다.',
+    errorMessage: '카테고리 수정에 실패했습니다.',
+    onSuccess: async () => {
+      // Reset edit state
+      editingCategoryId.value = null
+      editCategoryName.value = ''
+      
+      // Refresh categories
+      await fetchCategories()
+      emit('updated')
+    }
+  })
 }
 
 const deleteCategory = async (category) => {
-  if (category.slug === 'uncategorized' || deletingCategoryId.value === category.id) return
-
-  console.log('deleteCategory 시작:', category)
+  if (category.slug === 'uncategorized' || operationState.deletingId === category.id) return
 
   // 비디오가 있는 카테고리는 확인 메시지 표시
   const hasVideos = category.video_count > 0
@@ -308,34 +285,29 @@ const deleteCategory = async (category) => {
     return
   }
 
-  try {
-    deletingCategoryId.value = category.id
-
-    await $fetch(`/api/admin/youtube-categories/${category.id}`, {
+  await useApiDelete({
+    apiCall: () => $fetch(`/api/admin/youtube-categories/${category.id}`, {
       method: 'DELETE'
-    })
-
-    showToast('카테고리가 성공적으로 삭제되었습니다.', 'success')
-    
-    // Refresh categories and recalculate video counts
-    await Promise.all([
-      fetchCategories(),
-      recalculateVideoCounts()
-    ])
-    emit('updated')
-
-  } catch (err) {
-    console.error('카테고리 삭제 실패:', err)
-    console.error('삭제 에러 상세:', {
-      message: err.message,
-      status: err.status,
-      statusCode: err.statusCode,
-      data: err.data
-    })
-    showToast(`카테고리 삭제에 실패했습니다: ${err.message || err.statusText || '알 수 없는 오류'}`, 'error')
-  } finally {
-    deletingCategoryId.value = null
-  }
+    }),
+    loadingState: operationState,
+    loadingKey: 'deletingId',
+    successMessage: '카테고리가 성공적으로 삭제되었습니다.',
+    errorMessage: '카테고리 삭제에 실패했습니다.',
+    beforeCall: () => {
+      operationState.deletingId = category.id
+    },
+    onSuccess: async () => {
+      // Refresh categories and recalculate video counts
+      await Promise.all([
+        fetchCategories(),
+        recalculateVideoCounts()
+      ])
+      emit('updated')
+    },
+    afterCall: () => {
+      operationState.deletingId = null
+    }
+  })
 }
 
 // Watch for modal open to refresh data

@@ -60,7 +60,7 @@ export default defineEventHandler(async (event) => {
     if (id) {
       const post = await prisma.blogPost.findUnique({
         where: { id: parseInt(id) },
-        include: { category: true } // 게시물과 연결된 카테고리 정보도 함께 포함하여 조회합니다.
+        include: { Category: true } // 게시물과 연결된 카테고리 정보도 함께 포함하여 조회합니다.
       })
       // 게시물을 찾을 수 없으면 404 Not Found 오류를 반환합니다.
       return post || handleApiError(404, '블로그 포스트를 찾을 수 없습니다');
@@ -79,7 +79,7 @@ export default defineEventHandler(async (event) => {
       const posts = await prisma.blogPost.findMany({
         where: whereClause,
         orderBy: { id: 'desc' }, // 최신 게시물이 먼저 오도록 ID 내림차순 정렬
-        include: { category: true } // 게시물과 연결된 카테고리 정보도 함께 포함하여 조회합니다.
+        include: { Category: true } // 게시물과 연결된 카테고리 정보도 함께 포함하여 조회합니다.
       })
       return posts
     }
@@ -95,7 +95,7 @@ export default defineEventHandler(async (event) => {
           content, 
           categoryId: categoryId ? parseInt(categoryId) : undefined  // 카테고리 ID가 제공되면 연결, 아니면 미지정
         },
-        include: { category: true } // 생성된 게시물의 카테고리 정보도 함께 반환합니다.
+        include: { Category: true } // 생성된 게시물의 카테고리 정보도 함께 반환합니다.
       })
       return { success: true, post: result }
     } catch (error) {
@@ -115,7 +115,7 @@ export default defineEventHandler(async (event) => {
           content, 
           categoryId: categoryId ? parseInt(categoryId) : undefined  // 카테고리 ID가 제공되면 업데이트, 아니면 미지정
         },
-        include: { category: true } // 업데이트된 게시물의 카테고리 정보도 함께 반환합니다.
+        include: { Category: true } // 업데이트된 게시물의 카테고리 정보도 함께 반환합니다.
       })
       return { success: true, post: updatedPost }
     } catch (error) {
