@@ -38,6 +38,7 @@ export default defineEventHandler(async (event) => {
           showSiteTitle: showSiteTitle === undefined ? true : showSiteTitle,
           showSiteLogoUrl: showSiteLogoUrl === undefined ? true : showSiteLogoUrl,
           showSiteLogoIcon: showSiteLogoIcon === undefined ? true : showSiteLogoIcon,
+          updatedAt: new Date(), // updatedAt 필드 추가
         },
       });
     } else {

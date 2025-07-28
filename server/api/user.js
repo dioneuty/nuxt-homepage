@@ -105,7 +105,7 @@ async function handleRegister(event) {
   try {
     const hashedPassword = await bcrypt.hash(password, 10)
     const user = await prisma.user.create({
-      data: { username, email, password: hashedPassword, role: 'USER' }
+      data: { username, email, password: hashedPassword, role: 'USER', updatedAt: new Date() } // updatedAt 필드 추가
     })
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET)

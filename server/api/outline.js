@@ -20,7 +20,12 @@ export default defineEventHandler(async (event) => {
   if (method === 'POST') {
     try {
       const data = await readBody(event)
-      await prisma.outlineState.create({ data: { state: data } })
+      await prisma.outlineState.create({
+        data: {
+          state: data,
+          updatedAt: new Date(), // updatedAt 필드 추가
+        }
+      })
       return { success: true }
     } catch (error) {
       handleApiError(event, 500, '아웃라인 상태 저장 중 오류', error);

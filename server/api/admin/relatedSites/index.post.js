@@ -47,6 +47,7 @@ export default defineEventHandler(async (event) => {
         description,
         // 'order' 필드가 제공된 경우 정수로 변환하여 저장하고, 그렇지 않으면 null을 저장합니다.
         order: order !== undefined ? parseInt(order) : null,
+        updatedAt: new Date(), // updatedAt 필드 추가
       },
     });
     // 생성된 관련 사이트 객체를 반환합니다.

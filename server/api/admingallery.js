@@ -78,9 +78,10 @@ async function createAdminGalleryItem(data) {
     return await prisma.adminGalleryItem.create({
       data: {
         title: data.title,
-        content: data.content,
         description: data.description,
-        tags: data.tags
+        content: data.content,
+        tags: data.tags,
+        updatedAt: new Date(), // createdAt과 마찬가지로 현재 시간으로 설정
       }
     })
   } catch (error) {

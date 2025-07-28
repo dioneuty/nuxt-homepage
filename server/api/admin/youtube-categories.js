@@ -90,7 +90,8 @@ export default defineEventHandler(async (event) => {
         data: {
           name: name.trim(),
           slug,
-          order: nextOrder
+          order: nextOrder,
+          updatedAt: new Date() // updatedAt 필드 추가
         }
       })
 
@@ -120,7 +121,8 @@ export default defineEventHandler(async (event) => {
             create: { 
               name: '미분류', 
               slug: 'uncategorized',
-              order: 999
+              order: 999,
+              updatedAt: new Date() // updatedAt 필드 추가
             }
           })
         }
@@ -160,7 +162,8 @@ export default defineEventHandler(async (event) => {
               data: { 
                 name: category.name, 
                 slug,
-                order: i
+                order: i,
+                updatedAt: new Date() // updatedAt 필드 추가
               }
             })
           }

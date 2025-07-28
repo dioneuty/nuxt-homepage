@@ -46,6 +46,7 @@ export default defineEventHandler(async (event) => {
       description: description || '',
       isShort: isShort || false,
       categoryId: categoryId ? parseInt(categoryId) : null,
+      updatedAt: new Date(), // updatedAt 필드 추가
     };
 
     // YouTube API에서 업로드 일을 가져올 수 있으면 추가

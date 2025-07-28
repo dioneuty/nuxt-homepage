@@ -70,7 +70,8 @@ export default defineEventHandler(async (event) => {
         email,
         password: hashedPassword,
         role: role || 'USER', // 역할이 제공되지 않으면 기본값으로 'USER'를 사용합니다.
-        isActive: isActive !== undefined ? isActive : true // isActive가 제공되지 않으면 기본값으로 true를 사용합니다.
+        isActive: isActive !== undefined ? isActive : true, // isActive가 제공되지 않으면 기본값으로 true를 사용합니다.
+        updatedAt: new Date(), // updatedAt 필드 추가
       },
       select: { // 보안을 위해 비밀번호 등 민감한 정보는 제외하고 필요한 필드만 선택합니다.
         id: true,

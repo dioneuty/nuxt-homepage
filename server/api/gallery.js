@@ -52,7 +52,7 @@ export default defineEventHandler(async (event) => {
         return await createGalleryItem(body) // 갤러리 항목 생성 함수 호출
       }
     } catch (error) {
-      handleApiError(error, '갤러리 생성/댓글 추가 중 오류', 500);
+      handleApiError(event, 500, '갤러리 생성/댓글 추가 중 오류', error);
     }
   }
 
@@ -68,7 +68,7 @@ export default defineEventHandler(async (event) => {
         return await updateGalleryItem(body) // 갤러리 항목 수정 함수 호출
       }
     } catch (error) {
-      handleApiError(error, '갤러리 수정/댓글 수정 중 오류', 500);
+      handleApiError(event, 500, '갤러리 수정/댓글 수정 중 오류', error);
     }
   }
 
@@ -83,7 +83,7 @@ export default defineEventHandler(async (event) => {
         return await deleteGalleryItem(parseInt(query.id)) // 갤러리 항목 삭제 함수 호출
       }
     } catch (error) {
-      handleApiError(error, '갤러리 삭제/댓글 삭제 중 오류', 500);
+      handleApiError(event, 500, '갤러리 삭제/댓글 삭제 중 오류', error);
     }
   }
 
@@ -222,7 +222,8 @@ async function createGalleryItem(data) {
       title: data.title,
       content: data.content, // 갤러리 콘텐츠 (예: 이미지 URL 또는 텍스트 내용)
       description: data.description,
-      tags: data.tags // 관련 태그 배열
+      tags: data.tags, // 관련 태그 배열
+      updatedAt: new Date(), // createdAt과 마찬가지로 현재 시간으로 설정
     }
   })
 }

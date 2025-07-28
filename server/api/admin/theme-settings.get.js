@@ -29,6 +29,7 @@ export default defineEventHandler(async () => {
           showSiteTitle: true,
           showSiteLogoUrl: true,
           showSiteLogoIcon: true,
+          updatedAt: new Date(), // updatedAt 필드 추가
         },
       });
     }
