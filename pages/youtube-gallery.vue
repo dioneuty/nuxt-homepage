@@ -330,10 +330,10 @@
               <p class="text-sm text-gray-600 dark:text-gray-300">{{ video.description }}</p>
               
               <!-- Category Display -->
-              <div v-if="video.category" class="flex items-center mt-2 mb-2">
+              <div v-if="video.YouTubeVideoCategory" class="flex items-center mt-2 mb-2">
                 <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
                   <Icon icon="mdi:tag" class="mr-1 w-3 h-3" />
-                  {{ video.category.name }}
+                  {{ video.YouTubeVideoCategory.name }}
                 </span>
               </div>
               
@@ -693,7 +693,7 @@
         isPlayable: item.isPlayable !== undefined ? item.isPlayable : true, // 기본값 true
         uploadedAt: item.uploadedAt,
         categoryId: item.categoryId,
-        category: item.category,
+        YouTubeVideoCategory: item.YouTubeVideoCategory, // API 응답의 올바른 카테고리 필드
         createdAt: item.createdAt,
         updatedAt: item.updatedAt,
         loaded: false,

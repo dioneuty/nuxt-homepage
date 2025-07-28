@@ -66,7 +66,7 @@ export default defineEventHandler(async (event) => {
     const newVideo = await prisma.youTubeVideo.create({
       data: videoData,
       include: {
-        category: {
+        YouTubeVideoCategory: { // 'category' 대신 'YouTubeVideoCategory' 사용
           select: {
             id: true,
             name: true,

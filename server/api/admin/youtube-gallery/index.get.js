@@ -48,7 +48,7 @@ export default defineEventHandler(async (event) => {
         skip,
         take: limit,
         include: {
-          category: {
+          YouTubeVideoCategory: { // 'category' 대신 'YouTubeVideoCategory' 사용
             select: {
               id: true,
               name: true,
