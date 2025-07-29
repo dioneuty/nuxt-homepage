@@ -11,6 +11,11 @@
       <NuxtPage />
     </NuxtLayout>
     
+    <!-- Stagewise Toolbar -->
+    <ClientOnly>
+      <StagewiseToolbar :config="stagewiseConfig" />
+    </ClientOnly>
+
     <!-- 전역 모달 컴포넌트들 -->
     <Modal />
     <ReplyModal />
@@ -57,6 +62,16 @@ import { useAuth } from '~/composables/useAuth'
 import { useMenuStore } from '~/stores/menu'
 import { useToast } from '~/composables/useToast'
 import { useCommandPalette } from '~/composables/useCommandPalette'
+
+import { StagewiseToolbar } from '@stagewise/toolbar-nuxt';
+import VuePlugin from '@stagewise-plugins/vue';
+
+// Stagewise config
+const stagewiseConfig = {
+  plugins: [
+    VuePlugin()
+  ]
+};
 
 // 인증 관련 기능 사용
 const { checkAuth }: any = useAuth()

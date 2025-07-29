@@ -113,7 +113,7 @@ function handleMenuClick(clickedMenu) {
   }
   
   // 자식 메뉴가 있는 경우만 토글 (모바일 또는 세로 메뉴에서)
-  if (clickedMenu.children && clickedMenu.children.length > 0) {
+  if (clickedMenu.other_Menu && clickedMenu.other_Menu.length > 0) {
     toggleMenu(clickedMenu);
   }
 }

@@ -76,6 +76,13 @@ const openVideoList = () => {
   white-space: nowrap;
 }
 
+/* 모바일 화면에서 플로팅 유튜브 버튼 숨기기 */
+@media (max-width: 768px) { /* 태블릿 및 모바일 기기 */
+  .floating-youtube-button {
+    display: none;
+  }
+}
+
 /* 모바일에서는 텍스트 숨기기 */
 @media (max-width: 640px) {
   .floating-youtube-button {
