@@ -1,13 +1,13 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <h1 class="page-title flex items-center">
-      <Icon :icon="isEditing ? 'mdi:pencil' : 'mdi:plus'" class="mr-2" />
+  <div class="wiki-editor-container">
+    <h1 class="page-title-flex">
+      <Icon :icon="isEditing ? 'mdi:pencil' : 'mdi:plus'" class="icon-mr-2" />
       {{ isEditing ? '위키 문서 수정' : '새 위키 문서 작성' }}
     </h1>
-    <form @submit.prevent="submitWiki" class="space-y-6 card-padded shadow-lg">
+    <form @submit.prevent="submitWiki" class="wiki-editor-form">
       <div>
-        <label for="title" class="form-label flex items-center">
-          <Icon icon="mdi:format-title" class="mr-1" />
+        <label for="title" class="form-label-flex">
+          <Icon icon="mdi:format-title" class="icon-mr-1" />
           제목 *
         </label>
         <input type="text" id="title" v-model="wiki.title" required
@@ -15,8 +15,8 @@
                class="input mt-1">
       </div>
       <div>
-        <label for="content" class="form-label flex items-center">
-          <Icon icon="mdi:text-box-outline" class="mr-1" />
+        <label for="content" class="form-label-flex">
+          <Icon icon="mdi:text-box-outline" class="icon-mr-1" />
           내용 *
         </label>
         <WikiQuillEditor
@@ -25,32 +25,32 @@
           placeholder="마크다운으로 내용을 입력하세요"
         />
       </div>
-      <div class="flex justify-between">
+      <div class="wiki-editor-actions">
         <!-- 임시저장 버튼과 문법 가이드 (왼쪽) -->
-        <div class="flex space-x-4 items-center">
+        <div class="wiki-editor-actions-left">
           <button 
             type="button" 
             @click="saveDraft" 
             :disabled="isDraftLoading"
-            class="btn bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500 btn-icon disabled:opacity-50"
+            class="btn-draft"
           >
-            <Icon :icon="isDraftLoading ? 'mdi:loading' : 'mdi:content-save-outline'" class="mr-2" :class="{ 'animate-spin': isDraftLoading }" />
+            <Icon :icon="isDraftLoading ? 'mdi:loading' : 'mdi:content-save-outline'" class="icon-mr-2" :class="{ 'animate-spin': isDraftLoading }" />
             {{ isDraftLoading ? '저장 중...' : '임시저장' }}
           </button>
-          <NuxtLink to="/wiki/syntax" class="link flex items-center">
-            <Icon icon="mdi:help-circle-outline" class="mr-1" />
+          <NuxtLink to="/wiki/syntax" class="link-flex">
+            <Icon icon="mdi:help-circle-outline" class="icon-mr-1" />
             마크 문법 가이드 보기
           </NuxtLink>
         </div>
         
         <!-- 기존 버튼들 (오른쪽) -->
-        <div class="flex space-x-4">
+        <div class="wiki-editor-actions-right">
           <button type="submit" class="btn-primary btn-icon">
-            <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
+            <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="icon-mr-2" />
             {{ isEditing ? '수정하기' : '작성하기' }}
           </button>
           <NuxtLink to="/wiki" class="btn-secondary btn-icon">
-            <Icon icon="mdi:format-list-bulleted" class="mr-2" />
+            <Icon icon="mdi:format-list-bulleted" class="icon-mr-2" />
             목록
           </NuxtLink>
         </div>

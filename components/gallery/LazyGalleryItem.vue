@@ -1,25 +1,25 @@
 <template>
   <div 
     :data-item-id="item.id"
-    class="masonry-item mb-4 break-inside-avoid"
+    class="masonry-item gallery-lazy-item"
     ref="itemRef"
   >
     <div 
       @click="$emit('click', item)" 
-      class="glass-card-effect rounded-lg overflow-hidden relative cursor-pointer group hover:scale-[1.02] transition-transform duration-200"
+      class="gallery-lazy-card"
     >
       <!-- 이미지 영역 -->
-      <div class="w-full h-48 overflow-hidden bg-gray-100 dark:bg-gray-800 relative">
+      <div class="gallery-lazy-image-container">
         <!-- 로딩 플레이스홀더 -->
         <div 
           v-if="!isImageLoaded && !isImageLoading" 
-          class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
+          class="gallery-lazy-placeholder"
         >
-          <div class="text-center">
-            <Icon icon="mdi:image-outline" class="w-12 h-12 text-gray-400 dark:text-gray-500 mb-2" />
+          <div class="gallery-lazy-placeholder-content">
+            <Icon icon="mdi:image-outline" class="gallery-lazy-placeholder-icon" />
             <button 
               @click.stop="loadImage"
-              class="px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-full transition-colors"
+              class="gallery-lazy-load-btn"
             >
               이미지 보기
             </button>
@@ -29,11 +29,11 @@
         <!-- 로딩 스피너 -->
         <div 
           v-else-if="isImageLoading" 
-          class="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600"
+          class="gallery-lazy-loading"
         >
-          <div class="text-center">
-            <Icon icon="mdi:loading" class="animate-spin w-8 h-8 text-blue-500 mb-2" />
-            <p class="text-sm text-gray-600 dark:text-gray-400">이미지 로딩 중...</p>
+          <div class="gallery-lazy-loading-content">
+            <Icon icon="mdi:loading" class="gallery-lazy-loading-icon" />
+            <p class="gallery-lazy-loading-text">이미지 로딩 중...</p>
           </div>
         </div>
         
@@ -41,20 +41,20 @@
         <div 
           v-else-if="isImageLoaded && imageData"
           v-html-img-one="imageData" 
-          class="w-full h-full object-cover"
+          class="gallery-lazy-image"
         ></div>
         
         <!-- 이미지 로드 실패 -->
         <div 
           v-else 
-          class="w-full h-full flex items-center justify-center bg-red-100 dark:bg-red-900"
+          class="gallery-lazy-error"
         >
-          <div class="text-center">
-            <Icon icon="mdi:image-broken" class="w-12 h-12 text-red-400 mb-2" />
-            <p class="text-sm text-red-600 dark:text-red-400">이미지 로드 실패</p>
+          <div class="gallery-lazy-error-content">
+            <Icon icon="mdi:image-broken" class="gallery-lazy-error-icon" />
+            <p class="gallery-lazy-error-text">이미지 로드 실패</p>
             <button 
               @click.stop="retryLoad"
-              class="mt-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded-full transition-colors"
+              class="gallery-lazy-retry-btn"
             >
               다시 시도
             </button>
@@ -62,44 +62,44 @@
         </div>
         
         <!-- 호버 오버레이 -->
-        <div class="absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200"></div>
+        <div class="gallery-lazy-overlay"></div>
       </div>
       
       <!-- 컨텐츠 정보 영역 -->
-      <div class="p-4">
+      <div class="gallery-lazy-content">
         <!-- 제목 -->
-        <h2 class="text-xl font-bold mb-2 dark:text-white flex items-center">
-          <Icon icon="mdi:image" class="mr-2 flex-shrink-0" />
-          <span class="truncate">{{ item.title }}</span>
+        <h2 class="gallery-lazy-title">
+          <Icon icon="mdi:image" class="gallery-lazy-title-icon" />
+          <span class="gallery-lazy-title-text">{{ item.title }}</span>
         </h2>
         
         <!-- 설명 -->
-        <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 flex items-start">
-          <Icon icon="mdi:information-outline" class="mr-2 mt-0.5 flex-shrink-0" />
-          <span class="line-clamp-2">{{ item.description }}</span>
+        <p class="gallery-lazy-description">
+          <Icon icon="mdi:information-outline" class="gallery-lazy-description-icon" />
+          <span class="gallery-lazy-description-text">{{ item.description }}</span>
         </p>
         
         <!-- 태그 목록 -->
-        <div class="flex flex-wrap gap-2 mb-2">
+        <div class="gallery-lazy-tags">
           <span 
             v-for="tag in item.tags?.slice(0, 3)" 
             :key="tag" 
-            class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center"
+            class="gallery-lazy-tag"
           >
-            <Icon icon="mdi:tag" class="mr-1" />
+            <Icon icon="mdi:tag" class="gallery-lazy-tag-icon" />
             {{ tag }}
           </span>
           <span 
             v-if="item.tags?.length > 3"
-            class="px-2 py-1 bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400 rounded-full text-xs"
+            class="gallery-lazy-tag-more"
           >
             +{{ item.tags.length - 3 }}
           </span>
         </div>
         
         <!-- 생성일 -->
-        <div class="text-xs text-gray-500 dark:text-gray-400 flex items-center">
-          <Icon icon="mdi:calendar" class="mr-1" />
+        <div class="gallery-lazy-date">
+          <Icon icon="mdi:calendar" class="gallery-lazy-date-icon" />
           {{ formatDate(item.createdAt) }}
         </div>
       </div>
@@ -107,9 +107,9 @@
       <!-- 댓글 수 표시 뱃지 -->
       <div 
         v-if="showComments && (item._count?.comments || item.comments?.length)" 
-        class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center shadow-lg"
+        class="gallery-lazy-comment-badge"
       >
-        <Icon icon="mdi:comment-outline" class="mr-1" />
+        <Icon icon="mdi:comment-outline" class="gallery-lazy-comment-icon" />
         {{ item._count?.comments || item.comments?.length || 0 }}
       </div>
     </div>

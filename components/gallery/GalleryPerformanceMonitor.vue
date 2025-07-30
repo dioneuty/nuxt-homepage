@@ -1,72 +1,72 @@
 <template>
-  <div v-if="showMonitor" class="fixed bottom-4 right-4 bg-black bg-opacity-80 text-white p-4 rounded-lg shadow-lg z-50 min-w-[280px]">
-    <div class="flex justify-between items-center mb-2">
-      <h3 class="text-sm font-bold">갤러리 성능 모니터</h3>
-      <button @click="toggleMonitor" class="text-xs hover:text-red-300">
+  <div v-if="showMonitor" class="gallery-perf-monitor">
+    <div class="gallery-perf-header">
+      <h3 class="gallery-perf-title">갤러리 성능 모니터</h3>
+      <button @click="toggleMonitor" class="gallery-perf-close-btn">
         <Icon icon="mdi:close" />
       </button>
     </div>
     
     <!-- 로딩 통계 -->
-    <div class="text-xs space-y-1">
-      <div class="flex justify-between">
+    <div class="gallery-perf-section">
+      <div class="gallery-perf-row">
         <span>로드 완료:</span>
-        <span class="text-green-400">{{ stats.loadedCount }}개</span>
+        <span class="gallery-perf-value-green">{{ stats.loadedCount }}개</span>
       </div>
-      <div class="flex justify-between">
+      <div class="gallery-perf-row">
         <span>로딩 중:</span>
-        <span class="text-blue-400">{{ stats.loadingCount }}개</span>
+        <span class="gallery-perf-value-blue">{{ stats.loadingCount }}개</span>
       </div>
-      <div class="flex justify-between">
+      <div class="gallery-perf-row">
         <span>화면 표시:</span>
-        <span class="text-yellow-400">{{ stats.visibleCount }}개</span>
+        <span class="gallery-perf-value-yellow">{{ stats.visibleCount }}개</span>
       </div>
-      <div class="flex justify-between">
+      <div class="gallery-perf-row">
         <span>대기열:</span>
-        <span class="text-orange-400">{{ stats.queueLength }}개</span>
+        <span class="gallery-perf-value-orange">{{ stats.queueLength }}개</span>
       </div>
     </div>
 
     <!-- 성능 지표 -->
-    <div class="mt-3 pt-2 border-t border-gray-600">
-      <div class="text-xs space-y-1">
-        <div class="flex justify-between">
+    <div class="gallery-perf-divider">
+      <div class="gallery-perf-section">
+        <div class="gallery-perf-row">
           <span>평균 로딩 시간:</span>
-          <span class="text-blue-300">{{ averageLoadTime }}ms</span>
+          <span class="gallery-perf-value-blue-light">{{ averageLoadTime }}ms</span>
         </div>
-        <div class="flex justify-between">
+        <div class="gallery-perf-row">
           <span>캐시 히트율:</span>
-          <span class="text-green-300">{{ cacheHitRate }}%</span>
+          <span class="gallery-perf-value-green-light">{{ cacheHitRate }}%</span>
         </div>
-        <div class="flex justify-between">
+        <div class="gallery-perf-row">
           <span>압축률:</span>
-          <span class="text-purple-300">{{ compressionRatio }}%</span>
+          <span class="gallery-perf-value-purple">{{ compressionRatio }}%</span>
         </div>
       </div>
     </div>
 
     <!-- 메모리 사용량 -->
-    <div class="mt-3 pt-2 border-t border-gray-600">
-      <div class="text-xs space-y-1">
-        <div class="flex justify-between">
+    <div class="gallery-perf-divider">
+      <div class="gallery-perf-section">
+        <div class="gallery-perf-row">
           <span>캐시 크기:</span>
-          <span class="text-indigo-300">{{ cacheStats.size }}/{{ cacheStats.maxSize }}</span>
+          <span class="gallery-perf-value-indigo">{{ cacheStats.size }}/{{ cacheStats.maxSize }}</span>
         </div>
-        <div class="flex justify-between">
+        <div class="gallery-perf-row">
           <span>총 처리량:</span>
-          <span class="text-cyan-300">{{ formatFileSize(totalDataProcessed) }}</span>
+          <span class="gallery-perf-value-cyan">{{ formatFileSize(totalDataProcessed) }}</span>
         </div>
       </div>
     </div>
 
     <!-- 실시간 그래프 (간단한 막대) -->
-    <div class="mt-3 pt-2 border-t border-gray-600">
-      <div class="text-xs mb-1">로딩 속도 (최근 10초)</div>
-      <div class="flex items-end space-x-1 h-8">
+    <div class="gallery-perf-divider">
+      <div class="gallery-perf-graph-title">로딩 속도 (최근 10초)</div>
+      <div class="gallery-perf-graph">
         <div 
           v-for="(value, index) in performanceHistory" 
           :key="index"
-          class="bg-blue-500 flex-1 min-w-[2px] transition-all duration-300"
+          class="gallery-perf-graph-bar"
           :style="{ height: `${Math.max(value * 100, 2)}%` }"
           :title="`${value.toFixed(2)}개/초`"
         ></div>
@@ -74,10 +74,10 @@
     </div>
 
     <!-- 토글 버튼 -->
-    <div class="mt-2 flex justify-center">
+    <div class="gallery-perf-actions">
       <button 
         @click="resetStats" 
-        class="text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded"
+        class="gallery-perf-reset-btn"
       >
         통계 초기화
       </button>
@@ -88,10 +88,10 @@
   <button 
     v-else
     @click="toggleMonitor" 
-    class="fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg z-50"
+    class="gallery-perf-toggle-btn"
     title="성능 모니터 열기"
   >
-    <Icon icon="mdi:speedometer" class="w-5 h-5" />
+    <Icon icon="mdi:speedometer" class="gallery-perf-toggle-icon" />
   </button>
 </template>
 

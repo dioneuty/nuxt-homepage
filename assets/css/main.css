@@ -1359,4 +1359,260 @@ img {
   .gallery-confirm-actions {
     @apply flex justify-end;
   }
+  
+  /* 갤러리 성능 모니터 */
+  .gallery-perf-monitor {
+    @apply fixed bottom-4 right-4 bg-black bg-opacity-80 text-white p-4 rounded-lg shadow-lg z-50 min-w-[280px];
+  }
+  
+  .gallery-perf-header {
+    @apply flex justify-between items-center mb-2;
+  }
+  
+  .gallery-perf-title {
+    @apply text-sm font-bold;
+  }
+  
+  .gallery-perf-close-btn {
+    @apply text-xs hover:text-red-300;
+  }
+  
+  .gallery-perf-section {
+    @apply text-xs space-y-1;
+  }
+  
+  .gallery-perf-row {
+    @apply flex justify-between;
+  }
+  
+  .gallery-perf-value-green {
+    @apply text-green-400;
+  }
+  
+  .gallery-perf-value-blue {
+    @apply text-blue-400;
+  }
+  
+  .gallery-perf-value-yellow {
+    @apply text-yellow-400;
+  }
+  
+  .gallery-perf-value-orange {
+    @apply text-orange-400;
+  }
+  
+  .gallery-perf-value-blue-light {
+    @apply text-blue-300;
+  }
+  
+  .gallery-perf-value-green-light {
+    @apply text-green-300;
+  }
+  
+  .gallery-perf-value-purple {
+    @apply text-purple-300;
+  }
+  
+  .gallery-perf-value-indigo {
+    @apply text-indigo-300;
+  }
+  
+  .gallery-perf-value-cyan {
+    @apply text-cyan-300;
+  }
+  
+  .gallery-perf-divider {
+    @apply mt-3 pt-2 border-t border-gray-600;
+  }
+  
+  .gallery-perf-graph-title {
+    @apply text-xs mb-1;
+  }
+  
+  .gallery-perf-graph {
+    @apply flex items-end space-x-1 h-8;
+  }
+  
+  .gallery-perf-graph-bar {
+    @apply bg-blue-500 flex-1 min-w-[2px] transition-all duration-300;
+  }
+  
+  .gallery-perf-actions {
+    @apply mt-2 flex justify-center;
+  }
+  
+  .gallery-perf-reset-btn {
+    @apply text-xs bg-red-600 hover:bg-red-700 px-2 py-1 rounded;
+  }
+  
+  .gallery-perf-toggle-btn {
+    @apply fixed bottom-4 right-4 bg-blue-600 hover:bg-blue-700 text-white p-2 rounded-full shadow-lg z-50;
+  }
+  
+  .gallery-perf-toggle-icon {
+    @apply w-5 h-5;
+  }
+
+  /* Lazy 갤러리 아이템 */
+  .gallery-lazy-item {
+    @apply mb-4 break-inside-avoid;
+  }
+  .gallery-lazy-card {
+    @apply rounded-lg overflow-hidden relative cursor-pointer hover:scale-[1.02] transition-transform duration-200;
+  }
+  .gallery-lazy-image-container {
+    @apply w-full h-48 overflow-hidden bg-gray-100 dark:bg-gray-800 relative;
+  }
+  .gallery-lazy-placeholder {
+    @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600;
+  }
+  .gallery-lazy-placeholder-content {
+    @apply text-center;
+  }
+  .gallery-lazy-placeholder-icon {
+    @apply w-12 h-12 text-gray-400 dark:text-gray-500 mb-2;
+  }
+  .gallery-lazy-load-btn {
+    @apply px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-sm rounded-full transition-colors;
+  }
+  .gallery-lazy-loading {
+    @apply w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-200 to-gray-300 dark:from-gray-700 dark:to-gray-600;
+  }
+  .gallery-lazy-loading-content {
+    @apply text-center;
+  }
+  .gallery-lazy-loading-icon {
+    @apply animate-spin w-8 h-8 text-blue-500 mb-2;
+  }
+  .gallery-lazy-loading-text {
+    @apply text-sm text-gray-600 dark:text-gray-400;
+  }
+  .gallery-lazy-image {
+    @apply w-full h-full object-cover;
+  }
+  .gallery-lazy-error {
+    @apply w-full h-full flex items-center justify-center bg-red-100 dark:bg-red-900;
+  }
+  .gallery-lazy-error-content {
+    @apply text-center;
+  }
+  .gallery-lazy-error-icon {
+    @apply w-12 h-12 text-red-400 mb-2;
+  }
+  .gallery-lazy-error-text {
+    @apply text-sm text-red-600 dark:text-red-400;
+  }
+  .gallery-lazy-retry-btn {
+    @apply mt-2 px-3 py-1 bg-red-500 hover:bg-red-600 text-white text-sm rounded-full transition-colors;
+  }
+  .gallery-lazy-overlay {
+    @apply absolute inset-0 bg-black bg-opacity-0 group-hover:bg-opacity-20 transition-all duration-200;
+  }
+  .gallery-lazy-content {
+    @apply p-4;
+  }
+  .gallery-lazy-title {
+    @apply text-xl font-bold mb-2 dark:text-white flex items-center;
+  }
+  .gallery-lazy-title-icon {
+    @apply mr-2 flex-shrink-0;
+  }
+  .gallery-lazy-title-text {
+    @apply truncate;
+  }
+  .gallery-lazy-description {
+    @apply text-sm text-gray-600 dark:text-gray-300 mb-4 flex items-start;
+  }
+  .gallery-lazy-description-icon {
+    @apply mr-2 mt-0.5 flex-shrink-0;
+  }
+  .gallery-lazy-description-text {
+    @apply line-clamp-2;
+  }
+  .gallery-lazy-tags {
+    @apply flex flex-wrap gap-2 mb-2;
+  }
+  .gallery-lazy-tag {
+    @apply px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center;
+  }
+  .gallery-lazy-tag-icon {
+    @apply mr-1;
+  }
+  .gallery-lazy-tag-more {
+    @apply px-2 py-1 bg-gray-300 dark:bg-gray-600 text-gray-600 dark:text-gray-400 rounded-full text-xs;
+  }
+  .gallery-lazy-date {
+    @apply text-xs text-gray-500 dark:text-gray-400 flex items-center;
+  }
+  .gallery-lazy-date-icon {
+    @apply mr-1;
+  }
+  .gallery-lazy-comment-badge {
+    @apply absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center shadow-lg;
+  }
+  .gallery-lazy-comment-icon {
+    @apply mr-1;
+  }
+
+  /* 위키 컴포넌트 */
+  .wiki-editor-container {
+    @apply container mx-auto px-4 py-8;
+  }
+  .wiki-editor-form {
+    @apply space-y-6 card-padded shadow-lg;
+  }
+  .wiki-editor-actions {
+    @apply flex justify-between;
+  }
+  .wiki-editor-actions-left {
+    @apply flex space-x-4 items-center;
+  }
+  .wiki-editor-actions-right {
+    @apply flex space-x-4;
+  }
+  .btn-draft {
+    @apply btn bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500 btn-icon disabled:opacity-50;
+  }
+  .icon-mr-1 {
+    @apply mr-1;
+  }
+  .icon-mr-2 {
+    @apply mr-2;
+  }
+  .page-title-flex {
+    @apply page-title flex items-center;
+  }
+  .form-label-flex {
+    @apply form-label flex items-center;
+  }
+  .link-flex {
+    @apply link flex items-center;
+  }
+  .wiki-viewer-container {
+    @apply container mx-auto px-4 py-8;
+  }
+  .wiki-loading-container {
+    @apply flex justify-center items-center h-64;
+  }
+  .wiki-loading-icon {
+    @apply text-blue-500;
+  }
+  .wiki-title-icon {
+    @apply mr-2 text-blue-500;
+  }
+  .wiki-meta {
+    @apply flex items-center text-sm text-muted mb-4;
+  }
+  .wiki-meta-date {
+    @apply mr-4;
+  }
+  .wiki-content {
+    @apply prose dark:prose-invert max-w-none;
+  }
+  .wiki-actions {
+    @apply mt-8 flex flex-wrap justify-between items-center;
+  }
+  .wiki-actions-left {
+    @apply space-x-4 mb-4 sm:mb-0;
+  }
 }

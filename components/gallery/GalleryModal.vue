@@ -103,10 +103,10 @@
       
       <!-- 확인 모달 -->
       <div v-if="showConfirmModal" class="modal-overlay" style="z-index: 60;">
-          <div class="card-padded max-w-md w-full">
-            <h3 class="text-xl font-bold mb-4 dark:text-white">삭제 확인</h3>
-            <p class="mb-6 dark:text-gray-300">정말로 이 갤러리 항목을 삭제하시겠습니까?</p>
-            <div class="flex justify-end">
+          <div class="gallery-confirm-modal">
+            <h3 class="gallery-confirm-title">삭제 확인</h3>
+            <p class="gallery-confirm-text">정말로 이 갤러리 항목을 삭제하시겠습니까?</p>
+            <div class="gallery-confirm-actions">
               <button @click="cancelDelete" class="btn-secondary mr-2">
                 취소
               </button>

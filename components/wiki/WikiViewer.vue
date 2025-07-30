@@ -1,7 +1,7 @@
 <template>
-  <div class="container mx-auto px-4 py-8">
-    <div v-if="pending" class="flex justify-center items-center h-64">
-      <Icon icon="eos-icons:loading" class="text-blue-500" width="48" height="48" />
+  <div class="wiki-viewer-container">
+    <div v-if="pending" class="wiki-loading-container">
+      <Icon icon="eos-icons:loading" class="wiki-loading-icon" width="48" height="48" />
     </div>
     <div v-else-if="error" class="alert alert-danger" role="alert">
       <p class="font-bold">에러 발생</p>
@@ -10,29 +10,29 @@
     <div v-else-if="wiki" class="card">
       <div class="card-padded">
         <h1 class="section-title">
-          <Icon icon="mdi:file-document-outline" class="mr-2 text-blue-500" width="36" height="36" />
+          <Icon icon="mdi:file-document-outline" class="wiki-title-icon" width="36" height="36" />
           {{ wiki.title }}
         </h1>
-        <div class="flex items-center text-sm text-muted mb-4">
-          <Icon icon="mdi:calendar" class="mr-1" />
-          <span class="mr-4">{{ formatDate(wiki.updatedAt) }}</span>
+        <div class="wiki-meta">
+          <Icon icon="mdi:calendar" class="icon-mr-1" />
+          <span class="wiki-meta-date">{{ formatDate(wiki.updatedAt) }}</span>
         </div>
-        <div class="prose dark:prose-invert max-w-none" v-html="wiki.content"></div>
+        <div class="wiki-content" v-html="wiki.content"></div>
         
         <!-- 버튼 그룹 -->
-        <div class="mt-8 flex flex-wrap justify-between items-center">
-          <div v-if="auth.isLoggedIn && auth.user" class="space-x-4 mb-4 sm:mb-0">
+        <div class="wiki-actions">
+          <div v-if="auth.isLoggedIn && auth.user" class="wiki-actions-left">
             <NuxtLink :to="`/wiki/edit?id=${wiki.id}`" class="btn-primary btn-icon">
-              <Icon icon="mdi:pencil" class="mr-2" />
+              <Icon icon="mdi:pencil" class="icon-mr-2" />
               수정하기
             </NuxtLink>
             <button @click="deleteWiki" class="btn-danger btn-icon">
-              <Icon icon="mdi:delete" class="mr-2" />
+              <Icon icon="mdi:delete" class="icon-mr-2" />
               삭제하기
             </button>
           </div>
           <NuxtLink to="/wiki" class="btn-secondary btn-icon">
-            <Icon icon="mdi:arrow-left" class="mr-2" />
+            <Icon icon="mdi:arrow-left" class="icon-mr-2" />
             목록으로
           </NuxtLink>
         </div>
