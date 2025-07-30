@@ -1,23 +1,23 @@
 <template>
-  <div class="thread-editor bg-white dark:bg-gray-800 rounded-lg shadow-md border border-gray-200 dark:border-gray-700">
+  <div class="thread-editor card">
     <!-- Header -->
-    <div class="flex items-center justify-between p-4 border-b border-gray-200 dark:border-gray-700">
-      <h3 class="text-lg font-semibold text-gray-900 dark:text-white">
+    <div class="modal-header border-b border-gray-200 dark:border-gray-700">
+      <h3 class="subsection-title">
         {{ isEditing ? 'Edit Thread' : 'New Thread' }}
       </h3>
       <button 
         @click="$emit('close')"
         class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
       >
-        <Icon icon="mdi:close" class="text-xl" />
+        <Icon icon="mdi:close" class="icon-medium" />
       </button>
     </div>
 
     <!-- Form -->
-    <form @submit.prevent="handleSubmit" class="p-4 space-y-4">
+    <form @submit.prevent="handleSubmit" class="card-padded space-y-4">
       <!-- Title Input -->
       <div>
-        <label for="thread-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label for="thread-title" class="form-label">
           Thread Title
         </label>
         <input
@@ -25,14 +25,14 @@
           v-model="formData.title"
           type="text"
           placeholder="Enter thread title..."
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white"
+          class="input w-full"
           required
         />
       </div>
 
       <!-- Content Textarea -->
       <div>
-        <label for="thread-content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label for="thread-content" class="form-label">
           Thread Content
         </label>
         <textarea
@@ -40,14 +40,14 @@
           v-model="formData.content"
           rows="6"
           placeholder="Write your thoughts about this video..."
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white resize-vertical"
+          class="textarea w-full resize-vertical"
           required
         ></textarea>
       </div>
 
       <!-- Tags Input -->
       <div>
-        <label for="thread-tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
+        <label for="thread-tags" class="form-label">
           Tags (comma-separated)
         </label>
         <input
@@ -55,13 +55,13 @@
           v-model="tagsInput"
           type="text"
           placeholder="analysis, review, thoughts..."
-          class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md shadow-sm placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-red-500 dark:bg-gray-700 dark:text-white"
+          class="input w-full"
         />
         <div v-if="formData.tags.length > 0" class="flex flex-wrap gap-2 mt-2">
           <span
             v-for="tag in formData.tags"
             :key="tag"
-            class="inline-flex items-center px-2 py-1 rounded-full text-xs bg-red-100 text-red-800 dark:bg-red-900/20 dark:text-red-400"
+            class="badge badge-danger inline-flex items-center"
           >
             {{ tag }}
             <button
@@ -69,25 +69,25 @@
               @click="removeTag(tag)"
               class="ml-1 text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
             >
-              <Icon icon="mdi:close" class="text-xs" />
+              <Icon icon="mdi:close" class="icon-small" />
             </button>
           </span>
         </div>
       </div>
 
       <!-- Action Buttons -->
-      <div class="flex justify-end space-x-3 pt-4">
+      <div class="modal-footer border-t-0 pt-4">
         <button
           type="button"
           @click="$emit('close')"
-          class="px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-600 dark:hover:bg-gray-600"
+          class="btn btn-secondary"
         >
           Cancel
         </button>
         <button
           type="submit"
           :disabled="isSubmitting || !formData.title.trim() || !formData.content.trim()"
-          class="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-transparent rounded-md shadow-sm hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 disabled:opacity-50 disabled:cursor-not-allowed flex items-center"
+          class="btn btn-danger flex items-center"
         >
           <Icon v-if="isSubmitting" icon="mdi:loading" class="animate-spin mr-2" />
           {{ isEditing ? 'Update Thread' : 'Create Thread' }}

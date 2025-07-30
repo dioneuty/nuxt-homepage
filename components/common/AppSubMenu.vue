@@ -5,15 +5,8 @@
        <div 
           @click="handleMenuClick(menu)"
           :class="[
-            'flex justify-between items-center px-4 py-2 text-sm cursor-pointer rounded-md transition-colors duration-150 ease-in-out',
-            'hover:bg-blue-700', // 통합된 호버 배경색
-            
-            // 조건부 클래스: 활성/비활성 상태에 따라 다른 스타일을 적용합니다.
-            isActive(menu)
-              // 활성 상태: 일관된 배경 및 텍스트 색상
-              ? 'bg-blue-800 text-blue-100 font-semibold' // 활성 시 더 밝은 텍스트
-              // 비활성 상태: 일관된 텍스트 색상
-              : 'text-blue-100' // 비활성 시에도 잘 보이는 텍스트
+            'menu-item-primary px-4', // 메뉴 아이템 기본 클래스 사용
+            isActive(menu) ? 'menu-item-active font-semibold' : ''
           ]"
         >
         <NuxtLink :to="menu.path || '#'" class="flex-grow pointer-events-none">

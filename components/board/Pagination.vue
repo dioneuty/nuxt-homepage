@@ -1,12 +1,12 @@
 <template>
-    <div class="mt-8 bg-white dark:bg-gray-800 shadow-md rounded-lg p-4">
+    <div class="pagination-container">
       <div class="flex flex-col sm:flex-row items-center justify-between space-y-4 sm:space-y-0">
         <div class="flex items-center space-x-2">
           <span class="text-sm text-gray-700 dark:text-gray-400">페이지당 항목:</span>
           <select 
             v-model="selectedItemsPerPage" 
             @change="changeItemsPerPage" 
-            class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            class="pagination-select"
           >
             <option v-for="option in itemsPerPageOptions" :key="option" :value="option">
               {{ option }}
@@ -17,7 +17,7 @@
           <button 
             v-if="showPrevious"
             @click="goToPreviousSet" 
-            class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            class="pagination-btn-inactive"
           >
             &lt;
           </button>
@@ -26,10 +26,9 @@
             :key="page" 
             @click="goToPage(page)" 
             :class="[
-              'px-4 py-2 text-sm font-medium rounded-lg',
               page === currentPage
-                ? 'text-blue-600 bg-blue-50 border border-blue-500 dark:bg-blue-900 dark:text-blue-200'
-                : 'text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white'
+                ? 'pagination-btn-active'
+                : 'pagination-btn-inactive'
             ]"
           >
             {{ page }}
@@ -37,7 +36,7 @@
           <button 
             v-if="showNext"
             @click="goToNextSet" 
-            class="px-4 py-2 text-sm font-medium text-gray-500 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+            class="pagination-btn-inactive"
           >
             &gt;
           </button>

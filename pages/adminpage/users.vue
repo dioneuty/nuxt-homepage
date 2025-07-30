@@ -3,12 +3,12 @@
   <div class="space-y-6">
     <!-- 헤더 -->
     <div class="flex justify-between items-center">
-      <h2 class="text-2xl font-semibold text-gray-800 dark:text-white">
+      <h2 class="section-title">
         사용자 관리
       </h2>
       <button
         @click="openCreateModal"
-        class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg flex items-center gap-2 transition-colors"
+        class="btn-primary btn-icon gap-2"
       >
         <Icon icon="mdi:plus" class="w-5 h-5" />
         새 사용자 추가
@@ -16,7 +16,7 @@
     </div>
 
     <!-- 검색 및 필터 -->
-    <div class="bg-white dark:bg-gray-800 p-4 rounded-lg shadow space-y-4">
+    <div class="card-compact space-y-4">
       <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
         <!-- 검색 -->
         <div class="md:col-span-2">
@@ -24,7 +24,7 @@
             v-model="searchQuery"
             type="text"
             placeholder="사용자명 또는 이메일 검색..."
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+            class="input"
             @input="debouncedSearch"
           />
         </div>
@@ -34,7 +34,7 @@
           <select
             v-model="roleFilter"
             @change="loadUsers"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            class="input"
           >
             <option value="">모든 역할</option>
             <option value="USER">일반 사용자</option>
@@ -47,7 +47,7 @@
           <select
             v-model="statusFilter"
             @change="loadUsers"
-            class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+            class="input"
           >
             <option value="">모든 상태</option>
             <option value="active">활성</option>
@@ -58,7 +58,7 @@
     </div>
 
     <!-- 사용자 테이블 -->
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow overflow-hidden">
+    <div class="card overflow-hidden">
       <div v-if="loading" class="p-8 text-center">
         <Icon icon="mdi:loading" class="w-8 h-8 animate-spin mx-auto text-blue-600" />
         <p class="mt-2 text-gray-600 dark:text-gray-400">로딩 중...</p>
@@ -67,7 +67,7 @@
       <div v-else-if="error" class="p-8 text-center text-red-600">
         <Icon icon="mdi:alert-circle" class="w-8 h-8 mx-auto mb-2" />
         <p class="dark:text-red-400">{{ error }}</p>
-        <button @click="loadUsers" class="mt-2 text-blue-600 hover:underline dark:text-blue-400 dark:hover:text-blue-300">
+        <button @click="loadUsers" class="mt-2 link">
           다시 시도
         </button>
       </div>
@@ -119,12 +119,12 @@
                 {{ user.email }}
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="getRoleBadgeClass(user.role)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                <span :class="getRoleBadgeClass(user.role)">
                   {{ user.role === 'ADMIN' ? '관리자' : '일반 사용자' }}
                 </span>
               </td>
               <td class="px-6 py-4 whitespace-nowrap">
-                <span :class="getStatusBadgeClass(user.isActive)" class="inline-flex px-2 py-1 text-xs font-semibold rounded-full">
+                <span :class="getStatusBadgeClass(user.isActive)">
                   {{ user.isActive ? '활성' : '비활성' }}
                 </span>
               </td>
@@ -182,7 +182,7 @@
             <button
               @click="changePage(pagination.page - 1)"
               :disabled="!pagination.hasPrev"
-              class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed dark:text-gray-200"
+              class="btn-secondary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               이전
             </button>
@@ -192,7 +192,7 @@
             <button
               @click="changePage(pagination.page + 1)"
               :disabled="!pagination.hasNext"
-              class="px-3 py-1 text-sm border border-gray-300 dark:border-gray-600 rounded hover:bg-gray-100 dark:hover:bg-gray-600 disabled:opacity-50 disabled:cursor-not-allowed dark:text-gray-200"
+              class="btn-secondary text-sm disabled:opacity-50 disabled:cursor-not-allowed"
             >
               다음
             </button>
@@ -348,14 +348,14 @@ const changePage = (page) => {
 // 유틸리티 함수들
 const getRoleBadgeClass = (role) => {
   return role === 'ADMIN' 
-    ? 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
-    : 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200'
+    ? 'badge bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200'
+    : 'badge-gray'
 }
 
 const getStatusBadgeClass = (isActive) => {
   return isActive
-    ? 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200'
-    : 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200'
+    ? 'badge-green'
+    : 'badge-red'
 }
 
 // 모달 핸들러들

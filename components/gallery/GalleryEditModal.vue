@@ -1,21 +1,21 @@
 <template>
-  <div class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto">
-      <div class="flex justify-between items-center mb-4">
-        <h2 class="text-2xl font-bold dark:text-white">
+  <div class="modal-overlay">
+    <div class="card-padded gallery-modal-container">
+      <div class="gallery-modal-header">
+        <h2 class="gallery-modal-title">
           {{ item.id ? '갤러리 항목 수정' : '새 갤러리 항목 추가' }}
         </h2>
-        <button @click="$emit('close')" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-          <Icon icon="mdi:close" class="w-6 h-6" />
+        <button @click="$emit('close')" class="modal-close-btn">
+          <Icon icon="mdi:close" class="gallery-modal-close" />
         </button>
       </div>
       <form @submit.prevent="saveItem">
         <div class="mb-4">
-          <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목</label>
-          <input type="text" id="title" v-model="editedItem.title" required placeholder="제목을 입력하세요" class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+          <label for="title" class="form-label">제목</label>
+          <input type="text" id="title" v-model="editedItem.title" required placeholder="제목을 입력하세요" class="input mt-1">
         </div>
         <div class="mb-4">
-          <label class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
+          <label class="form-label">내용</label>
           <CommonQuillEditor
             :value="editedItem.content"
             placeholder="내용을 입력하세요..."
@@ -23,36 +23,36 @@
           />
         </div>
         <div class="mb-4">
-          <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300">태그</label>
-          <div class="flex flex-wrap gap-2 mb-2">
-            <span v-for="tag in tags" :key="tag" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center">
+          <label for="tags" class="form-label">태그</label>
+          <div class="gallery-tag-list">
+            <span v-for="tag in tags" :key="tag" class="badge-gray">
               {{ tag }}
-              <button @click="removeTag(tag)" class="ml-1 text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
-                <Icon icon="mdi:close" class="w-4 h-4" />
+              <button @click="removeTag(tag)" class="gallery-tag-remove-btn">
+                <Icon icon="mdi:close" class="gallery-tag-icon" />
               </button>
             </span>
           </div>
-          <div class="flex">
+          <div class="gallery-tag-input-wrapper">
             <input 
               type="text" 
               id="tags" 
               v-model="newTag" 
               @keydown.enter.prevent="addTag"
               placeholder="새 태그 입력 후 Enter" 
-              class="flex-grow mt-1 rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="gallery-tag-input"
             >
             <button 
               type="button" 
               @click="clearTags" 
-              class="ml-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-500"
+              class="gallery-tag-clear-btn"
             >
               초기화
             </button>
           </div>
         </div>
-        <div class="flex justify-end">
-          <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-            <Icon icon="mdi:content-save" class="mr-2" />
+        <div class="gallery-form-actions">
+          <button type="submit" class="btn-primary btn-icon">
+            <Icon icon="mdi:content-save" class="icon-small mr-2" />
             저장
           </button>
         </div>

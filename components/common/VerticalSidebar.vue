@@ -1,67 +1,61 @@
 <template>
   <aside
-    :class="{
-      'w-64': true,
-      'fixed h-full top-0 left-0': true,
-      'bg-blue-900 dark:bg-blue-950 shadow-md flex-shrink-0': true,
-      'hidden md:block': true, // 모바일에서 숨김, 데스크톱에서 보임
-    }"
+    class="vertical-sidebar"
     :style="{ backgroundColor: backgroundColor }"
   >
     <div class="p-4">
       <!-- 🏠 클릭 가능한 로고와 사이트 제목 -->
-      <NuxtLink to="/" class="flex items-center text-2xl font-bold text-blue-100 hover:text-blue-300 transition-colors duration-200 cursor-pointer no-underline focus:outline-none focus:ring-0">
-        <Icon v-if="siteLogoIcon" :icon="siteLogoIcon" class="w-7 h-7 mr-2" />
+      <NuxtLink to="/" class="vertical-sidebar-logo">
+        <Icon v-if="siteLogoIcon" :icon="siteLogoIcon" class="vertical-sidebar-logo-icon" />
         {{ siteTitle }}
       </NuxtLink>
     </div>
     <!-- 현재 시간 표시 -->
-    <div class="px-4 text-xl font-semibold text-blue-200 mt-2">
+    <div class="vertical-sidebar-time">
       {{ currentTime }}
     </div>
-    <nav class="mt-4">
+    <nav class="vertical-sidebar-nav">
       <AppMenu :isVertical="true" />
     </nav>
 
     <!-- 테마 모드 전환, 레이아웃 전환, 사용자 관련 버튼 -->
-    <div class="absolute bottom-0 left-0 w-full p-4 border-t" :style="{ borderColor: backgroundColor }">
-      <div class="flex items-center justify-between">
+    <div class="vertical-sidebar-bottom" :style="{ borderColor: backgroundColor }">
+      <div class="vertical-sidebar-bottom-content">
         <!-- 상단 고정 토글 버튼 -->
-        <button @click="navStore.toggleAlwaysOnTop" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <Icon :icon="navStore.isAlwaysOnTop ? 'mdi:pin-off' : 'mdi:pin'" class="w-5 h-5" />
+        <button @click="navStore.toggleAlwaysOnTop" class="vertical-sidebar-btn">
+          <Icon :icon="navStore.isAlwaysOnTop ? 'mdi:pin-off' : 'mdi:pin'" class="vertical-sidebar-btn-icon" />
         </button>
         <!-- 테마 모드 전환 버튼 -->
-        <button @click="toggleColorMode"
-          class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <Icon :icon="colorModeIcon" class="w-5 h-5" />
+        <button @click="toggleColorMode" class="vertical-sidebar-btn">
+          <Icon :icon="colorModeIcon" class="vertical-sidebar-btn-icon" />
         </button>
         <!-- 레이아웃 전환 버튼 -->
-        <button @click="layoutStore.toggleSidebar" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-          <Icon icon="mdi:menu-open" class="w-5 h-5" />
+        <button @click="layoutStore.toggleSidebar" class="vertical-sidebar-btn">
+          <Icon icon="mdi:menu-open" class="vertical-sidebar-btn-icon" />
         </button>
 
-        <div v-if="isLoggedIn && user" class="flex items-center space-x-2">
+        <div v-if="isLoggedIn && user" class="vertical-sidebar-user-section">
           <!-- 개인 정보 버튼 -->
-          <NuxtLink to="/personal-info" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <Icon icon="mdi:account-circle" class="w-5 h-5" />
+          <NuxtLink to="/personal-info" class="vertical-sidebar-btn">
+            <Icon icon="mdi:account-circle" class="vertical-sidebar-btn-icon" />
           </NuxtLink>
           <!-- 관리자 페이지 버튼 -->
-          <button v-if="user.role.toLowerCase() === 'admin'" @click="onClickAdminPage" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <Icon icon="mdi:shield-crown-outline" class="w-5 h-5" />
+          <button v-if="user.role.toLowerCase() === 'admin'" @click="onClickAdminPage" class="vertical-sidebar-btn">
+            <Icon icon="mdi:shield-crown-outline" class="vertical-sidebar-btn-icon" />
           </button>
           <!-- 로그아웃 버튼 -->
-          <button @click="logout" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <Icon icon="mdi:logout" class="w-5 h-5" />
+          <button @click="logout" class="vertical-sidebar-btn">
+            <Icon icon="mdi:logout" class="vertical-sidebar-btn-icon" />
           </button>
         </div>
-        <div v-else class="flex items-center space-x-2">
+        <div v-else class="vertical-sidebar-user-section">
           <!-- 로그인 버튼 -->
-          <button @click="handleLoginClick" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <Icon icon="mdi:login" class="w-5 h-5" />
+          <button @click="handleLoginClick" class="vertical-sidebar-btn">
+            <Icon icon="mdi:login" class="vertical-sidebar-btn-icon" />
           </button>
           <!-- 회원가입 버튼 -->
-          <button @click="handleRegisterClick" class="p-2 rounded-full bg-blue-800 dark:bg-blue-700 text-blue-100 hover:bg-blue-700 dark:hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500">
-            <Icon icon="mdi:account-plus" class="w-5 h-5" />
+          <button @click="handleRegisterClick" class="vertical-sidebar-btn">
+            <Icon icon="mdi:account-plus" class="vertical-sidebar-btn-icon" />
           </button>
         </div>
       </div>

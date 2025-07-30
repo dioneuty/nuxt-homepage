@@ -1,81 +1,81 @@
 <template>
   <div>
     <!-- 상단 검색바와 새 갤러리 항목 추가 버튼 영역 -->
-    <div class="mb-6 flex justify-between items-center">
+    <div class="gallery-search-bar">
       <!-- 검색 입력창 -->
-      <div class="relative flex-grow mr-4">
+      <div class="gallery-search-wrapper">
         <!-- 검색 아이콘 -->
-        <Icon icon="mdi:magnify" class="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" />
+        <Icon icon="mdi:magnify" class="gallery-search-icon" />
         <input 
           type="text" 
           v-model="searchQuery" 
           placeholder="검색..." 
-          class="w-full p-2 pl-10 border rounded-md dark:bg-gray-700 dark:text-white"
+          class="gallery-search-input"
         >
       </div>
       <!-- 새 갤러리 항목 추가 버튼 -->
       <button 
         @click="openEditModal()" 
-        class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded flex items-center"
+        class="gallery-add-btn"
       >
-        <Icon icon="mdi:plus" class="mr-2" />
+        <Icon icon="mdi:plus" class="icon-small mr-2" />
         새 갤러리 항목
       </button>
     </div>
 
     <!-- 상태별 화면 표시 영역 -->
     <!-- 로딩 중일 때 표시되는 스피너 -->
-    <div v-if="loading" class="text-center py-8">
-      <Icon icon="mdi:loading" class="animate-spin w-8 h-8 text-blue-500" />
-      <p class="mt-2 text-gray-600 dark:text-gray-400">데이터를 불러오는 중...</p>
+    <div v-if="loading" class="gallery-loading">
+      <Icon icon="mdi:loading" class="gallery-loading-icon" />
+      <p class="gallery-loading-text">데이터를 불러오는 중...</p>
     </div>
 
     <!-- 에러 발생 시 표시되는 메시지 -->
-    <div v-else-if="error" class="text-center py-8 text-red-500">
-      <Icon icon="mdi:alert-circle" class="w-8 h-8 mb-2" />
+    <div v-else-if="error" class="gallery-error">
+      <Icon icon="mdi:alert-circle" class="gallery-error-icon" />
       <p>데이터를 불러오는 데 실패했습니다. 다시 시도해 주세요.</p>
     </div>
 
     <!-- 검색 결과가 없을 때 표시되는 메시지 -->
-    <div v-else-if="filteredItems.length === 0" class="text-center py-8 text-gray-600 dark:text-gray-400">
-      <Icon icon="mdi:image-off" class="w-8 h-8 mb-2" />
+    <div v-else-if="filteredItems.length === 0" class="gallery-empty">
+      <Icon icon="mdi:image-off" class="gallery-empty-icon" />
       <p>표시할 갤러리 항목이 없습니다.</p>
     </div>
 
     <!-- 갤러리 메인 컨텐츠 영역 (Masonry 레이아웃) -->
     <div v-else class="masonry-layout">
       <!-- 각 갤러리 아이템 -->
-      <div v-for="item in filteredItems" :key="item.id" class="masonry-item mb-4 break-inside-avoid">
-        <div @click="openModal(item)" class="glass-card-effect rounded-lg overflow-hidden relative cursor-pointer">
+      <div v-for="item in filteredItems" :key="item.id" class="masonry-item gallery-masonry-item">
+        <div @click="openModal(item)" class="gallery-card">
           <!-- 이미지 영역 -->
-          <div class="w-full h-48 overflow-hidden">
+          <div class="gallery-card-image">
             <ClientOnly>
               <div v-html-img-one="item.content" class="w-full h-full object-cover"></div>
             </ClientOnly>
           </div>
           <!-- 컨텐츠 정보 영역 -->
-          <div class="p-4">
+          <div class="gallery-card-content">
             <!-- 제목 -->
-            <h2 class="text-xl font-bold mb-2 dark:text-white flex items-center">
-              <Icon icon="mdi:image" class="mr-2" />
+            <h2 class="gallery-card-title">
+              <Icon icon="mdi:image" class="icon-small mr-2" />
               {{ item.title }}
             </h2>
             <!-- 설명 -->
-            <p class="text-sm text-gray-600 dark:text-gray-300 mb-4 flex items-center">
-              <Icon icon="mdi:information-outline" class="mr-2" />
+            <p class="gallery-card-description">
+              <Icon icon="mdi:information-outline" class="icon-small mr-2" />
               {{ item.description }}
             </p>
             <!-- 태그 목록 -->
             <div class="flex flex-wrap gap-2 mb-8">
-              <span v-for="tag in item.tags" :key="tag" class="px-2 py-1 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-full text-xs flex items-center">
-                <Icon icon="mdi:tag" class="mr-1" />
+              <span v-for="tag in item.tags" :key="tag" class="gallery-tag">
+                <Icon icon="mdi:tag" class="icon-small mr-1" />
                 {{ tag }}
               </span>
             </div>
           </div>
           <!-- 댓글 수 표시 뱃지 -->
-          <div v-if="showComments" class="absolute bottom-2 right-2 bg-blue-500 text-white text-xs font-bold px-2 py-1 rounded-full flex items-center">
-            <Icon icon="mdi:comment-outline" class="mr-1" />
+          <div v-if="showComments" class="gallery-comment-badge">
+            <Icon icon="mdi:comment-outline" class="icon-small mr-1" />
             {{ item.GalleryComment ? item.GalleryComment.length : 0 }}
           </div>
         </div>

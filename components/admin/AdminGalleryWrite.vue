@@ -1,15 +1,15 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-4xl mx-4 overflow-hidden">
+  <div v-if="isOpen" class="modal-overlay">
+    <div class="card shadow-xl w-full max-w-4xl mx-4 overflow-hidden">
       <div class="p-6">
-        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">{{ galleryItem ? '갤러리 항목 수정' : '새 갤러리 항목 추가' }}</h2>
+        <h2 class="section-title">{{ galleryItem ? '갤러리 항목 수정' : '새 갤러리 항목 추가' }}</h2>
         <form @submit.prevent="handleSubmit">
           <div class="mb-4">
-            <label for="galleryType" class="block text-sm font-medium text-gray-700 dark:text-gray-300">갤러리 분류</label>
+            <label for="galleryType" class="form-label">갤러리 분류</label>
             <select
               id="galleryType"
               v-model="form.galleryType"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              class="input mt-1"
               required
             >
               <option value="general">일반 갤러리</option>
@@ -17,37 +17,37 @@
             </select>
           </div>
           <div class="mb-4">
-            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목</label>
+            <label for="title" class="form-label">제목</label>
             <input
               type="text"
               id="title"
               v-model="form.title"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              class="input mt-1"
               required
             />
           </div>
           <div class="mb-4">
-            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">설명</label>
+            <label for="description" class="form-label">설명</label>
             <textarea
               id="description"
               v-model="form.description"
               rows="3"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              class="textarea mt-1"
               required
             ></textarea>
           </div>
           <div class="mb-4">
-            <label for="tags" class="block text-sm font-medium text-gray-700 dark:text-gray-300">태그 (콤마로 구분)</label>
+            <label for="tags" class="form-label">태그 (콤마로 구분)</label>
             <input
               type="text"
               id="tags"
               v-model="form.tags"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              class="input mt-1"
               placeholder="예: 자연, 풍경, 여행"
             />
           </div>
           <div class="mb-4">
-            <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">콘텐츠</label>
+            <label for="content" class="form-label">콘텐츠</label>
             <ClientOnly>
               <QuillEditor
                 v-model:content="form.content"
@@ -63,13 +63,13 @@
             <button
               type="button"
               @click="handleClose"
-              class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              class="btn-secondary"
             >
               취소
             </button>
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-800"
+              class="btn-primary"
             >
               {{ galleryItem ? '수정' : '추가' }}
             </button>

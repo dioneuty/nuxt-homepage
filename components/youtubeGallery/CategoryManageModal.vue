@@ -1,16 +1,16 @@
 <template>
   <div 
     v-if="isOpen" 
-    class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center"
+    class="modal-overlay"
     @click="handleBackdropClick"
   >
     <div 
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full mx-4 max-h-[85vh] flex flex-col"
+      class="modal-container max-w-2xl"
       @click.stop
     >
       <!-- Modal Header -->
-      <div class="flex items-center justify-between p-6 border-b border-gray-200 dark:border-gray-700 flex-shrink-0">
-        <h3 class="text-xl font-semibold text-gray-900 dark:text-white flex items-center">
+      <div class="modal-header">
+        <h3 class="section-title flex items-center">
           <Icon icon="mdi:tag-multiple" class="mr-2" />
           카테고리 관리
         </h3>
@@ -18,15 +18,15 @@
           @click="closeModal"
           class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
         >
-          <Icon icon="mdi:close" class="w-6 h-6" />
+          <Icon icon="mdi:close" class="icon-medium" />
         </button>
       </div>
 
       <!-- Modal Body -->
-      <div class="p-6 overflow-y-auto flex-1 min-h-0">
+      <div class="modal-body">
         <!-- Add New Category Section -->
-        <div class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
-          <h4 class="text-lg font-medium text-blue-900 dark:text-blue-200 mb-3">새 카테고리 추가</h4>
+        <div class="mb-6 card bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800">
+          <h4 class="subsection-title text-blue-900 dark:text-blue-200 mb-3">새 카테고리 추가</h4>
           <div class="flex gap-3">
             <input
               v-model="newCategoryName"
@@ -34,12 +34,12 @@
               :disabled="operationState.adding"
               type="text"
               placeholder="카테고리 이름을 입력하세요"
-              class="flex-1 p-3 border border-gray-300 dark:border-gray-600 rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50"
+              class="flex-1 input"
             >
             <button
               @click="addCategory"
               :disabled="!newCategoryName.trim() || operationState.adding"
-              class="px-4 py-3 bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white rounded-md transition-colors flex items-center"
+              class="btn btn-primary flex items-center"
             >
               <Icon v-if="operationState.adding" icon="mdi:loading" class="mr-2 animate-spin" />
               <Icon v-else icon="mdi:plus" class="mr-2" />
@@ -50,10 +50,10 @@
 
         <!-- Categories List -->
         <div class="space-y-3">
-          <h4 class="text-lg font-medium text-gray-900 dark:text-white mb-4">기존 카테고리</h4>
+          <h4 class="subsection-title mb-4">기존 카테고리</h4>
           
           <!-- Loading State -->
-          <div v-if="loading" class="flex justify-center py-8">
+          <div v-if="loading" class="flex-center py-8">
             <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-600"></div>
           </div>
 
@@ -62,7 +62,7 @@
             <div
               v-for="category in editableCategories"
               :key="category.id"
-              class="flex items-center justify-between p-4 bg-gray-50 dark:bg-gray-700 rounded-lg border border-gray-200 dark:border-gray-600"
+              class="flex items-center justify-between card bg-gray-50 dark:bg-gray-700"
             >
               <!-- Category Info -->
               <div class="flex-1">
@@ -73,13 +73,13 @@
                     @keydown.esc="cancelEdit"
                     :ref="`editInput-${category.id}`"
                     type="text"
-                    class="flex-1 p-2 border border-gray-300 dark:border-gray-600 rounded bg-white dark:bg-gray-800 text-gray-900 dark:text-white focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                    class="flex-1 input"
                   >
                   <div class="flex gap-2">
                     <button
                       @click="saveCategory"
                       :disabled="!editCategoryName.trim() || operationState.saving"
-                      class="px-3 py-2 bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded text-sm transition-colors"
+                      class="btn btn-success text-sm"
                     >
                       <Icon v-if="operationState.saving" icon="mdi:loading" class="animate-spin" />
                       <Icon v-else icon="mdi:check" />
@@ -87,7 +87,7 @@
                     <button
                       @click="cancelEdit"
                       :disabled="operationState.saving"
-                      class="px-3 py-2 bg-gray-500 hover:bg-gray-600 disabled:bg-gray-400 text-white rounded text-sm transition-colors"
+                      class="btn btn-secondary text-sm"
                     >
                       <Icon icon="mdi:close" />
                     </button>
@@ -95,10 +95,10 @@
                 </div>
                 <div v-else class="flex items-center">
                   <div class="flex-1">
-                    <h5 class="font-medium text-gray-900 dark:text-white">{{ category.name }}</h5>
-                    <p class="text-sm text-gray-500 dark:text-gray-400">
+                    <h5 class="font-medium">{{ category.name }}</h5>
+                    <p class="text-sm text-muted">
                       {{ category.video_count || 0 }}개 비디오
-                      <span v-if="category.slug" class="ml-2 text-xs bg-gray-200 dark:bg-gray-600 px-2 py-1 rounded">
+                      <span v-if="category.slug" class="ml-2 badge badge-secondary">
                         {{ category.slug }}
                       </span>
                     </p>
@@ -114,7 +114,7 @@
                   class="p-2 text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300 disabled:opacity-50 transition-colors"
                   title="수정"
                 >
-                  <Icon icon="mdi:pencil" class="w-5 h-5" />
+                  <Icon icon="mdi:pencil" class="icon-small" />
                 </button>
                 <button
                   @click="deleteCategory(category)"
@@ -124,7 +124,7 @@
                 >
                   <Icon 
                     :icon="operationState.deletingId === category.id ? 'mdi:loading' : 'mdi:delete'" 
-                    :class="['w-5 h-5', { 'animate-spin': operationState.deletingId === category.id }]"
+                    :class="['icon-small', { 'animate-spin': operationState.deletingId === category.id }]"
                   />
                 </button>
               </div>
@@ -132,7 +132,7 @@
           </div>
 
           <!-- Empty State -->
-          <div v-else class="text-center py-8 text-gray-500 dark:text-gray-400">
+          <div v-else class="text-center py-8 text-muted">
             생성된 카테고리가 없습니다.
           </div>
         </div>

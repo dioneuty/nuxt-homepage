@@ -1,5 +1,5 @@
 <template>
-  <div class="mb-8 max-w-4xl mx-auto">
+  <div class="carousel-container">
     <Carousel :images="imageMockups" />
   </div>
 </template>

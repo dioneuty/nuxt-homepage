@@ -1,18 +1,18 @@
 <template>
-  <div v-if="isOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50">
-    <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-2xl mx-4 overflow-hidden">
+  <div v-if="isOpen" class="modal-overlay">
+    <div class="modal-container max-w-2xl">
       <div class="p-6">
-        <h2 class="text-2xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+        <h2 class="section-title mb-4">
           {{ videoItem ? 'YouTube 비디오 수정' : '새 YouTube 비디오 추가' }}
         </h2>
         <form @submit.prevent="handleSubmit">
           <div class="mb-4">
-            <label for="url" class="block text-sm font-medium text-gray-700 dark:text-gray-300">YouTube URL</label>
+            <label for="url" class="form-label">YouTube URL</label>
             <input
               type="url"
               id="url"
               v-model="form.url"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              class="input mt-1"
               placeholder="https://www.youtube.com/watch?v=VIDEO_ID 또는 https://youtu.be/VIDEO_ID"
               required
               @blur="validateYouTubeUrl"
@@ -65,7 +65,7 @@
                     type="button"
                     @click="fillTitleFromPreview"
                     :disabled="!videoPreview.data.title || !!form.title"
-                    class="px-3 py-1 text-xs bg-blue-600 text-white rounded hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:opacity-50 disabled:cursor-not-allowed"
+                    class="btn-primary px-3 py-1 text-xs"
                   >
                     제목 자동 채우기
                   </button>
@@ -75,34 +75,34 @@
           </div>
           
           <div class="mb-4">
-            <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목</label>
+            <label for="title" class="form-label">제목</label>
             <input
               type="text"
               id="title"
               v-model="form.title"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              class="input mt-1"
               required
             />
           </div>
           
           <div class="mb-4">
-            <label for="description" class="block text-sm font-medium text-gray-700 dark:text-gray-300">설명</label>
+            <label for="description" class="form-label">설명</label>
             <textarea
               id="description"
               v-model="form.description"
               rows="3"
-              class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+              class="input mt-1"
               placeholder="비디오에 대한 설명을 입력하세요"
             ></textarea>
           </div>
           
           <div class="mb-4">
-            <label for="category" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리</label>
+            <label for="category" class="form-label">카테고리</label>
             <div class="flex gap-2">
               <select
                 id="category"
                 v-model="form.categoryId"
-                class="mt-1 flex-1 border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                class="input mt-1 flex-1"
                 :disabled="categoryLoading"
               >
                 <option value="">카테고리 선택</option>
@@ -120,7 +120,7 @@
                 <button
                   type="button"
                   @click="showCategoryAddModal = true"
-                  class="px-3 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-green-500 focus:ring-offset-2 dark:bg-green-700 dark:hover:bg-green-800"
+                  class="btn-success"
                   title="카테고리 추가"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -132,7 +132,7 @@
                   type="button"
                   @click="editSelectedCategory"
                   :disabled="!form.categoryId"
-                  class="px-3 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="btn-primary"
                   title="카테고리 수정"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -144,7 +144,7 @@
                   type="button"
                   @click="deleteSelectedCategory"
                   :disabled="!form.categoryId || isUncategorized"
-                  class="px-3 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2 dark:bg-red-700 dark:hover:bg-red-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                  class="btn-danger"
                   title="카테고리 삭제"
                 >
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -172,14 +172,14 @@
             <button
               type="button"
               @click="handleClose"
-              class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+              class="btn-secondary"
             >
               취소
             </button>
             <button
               type="submit"
               :disabled="!!urlError || isSubmitting"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+              class="btn-primary"
             >
               {{ isSubmitting ? '저장 중...' : (videoItem ? '수정' : '추가') }}
             </button>
@@ -189,21 +189,21 @@
     </div>
     
     <!-- 카테고리 추가/수정 모달 -->
-    <div v-if="showCategoryAddModal || showCategoryEditModal" class="fixed inset-0 z-60 flex items-center justify-center bg-black bg-opacity-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg shadow-xl w-full max-w-md mx-4 overflow-hidden">
+    <div v-if="showCategoryAddModal || showCategoryEditModal" class="modal-overlay z-60">
+      <div class="modal-container max-w-md">
         <div class="p-6">
-          <h3 class="text-xl font-bold mb-4 text-gray-900 dark:text-gray-100">
+          <h3 class="section-title mb-4">
             {{ showCategoryAddModal ? '새 카테고리 추가' : '카테고리 수정' }}
           </h3>
           
           <form @submit.prevent="handleCategorySubmit">
             <div class="mb-4">
-              <label for="categoryName" class="block text-sm font-medium text-gray-700 dark:text-gray-300">카테고리명</label>
+              <label for="categoryName" class="form-label">카테고리명</label>
               <input
                 type="text"
                 id="categoryName"
                 v-model="categoryForm.name"
-                class="mt-1 block w-full border border-gray-300 rounded-md shadow-sm p-2 dark:bg-gray-700 dark:border-gray-600 dark:text-gray-200"
+                class="input mt-1"
                 placeholder="카테고리명을 입력하세요"
                 required
                 maxlength="50"
@@ -214,14 +214,14 @@
               <button
                 type="button"
                 @click="closeCategoryModal"
-                class="px-4 py-2 bg-gray-300 text-gray-800 rounded-md hover:bg-gray-400 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-600 dark:text-gray-200 dark:hover:bg-gray-700"
+                class="btn-secondary"
               >
                 취소
               </button>
               <button
                 type="submit"
                 :disabled="!categoryForm.name.trim() || categorySubmitting"
-                class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 dark:bg-blue-700 dark:hover:bg-blue-800 disabled:opacity-50 disabled:cursor-not-allowed"
+                class="btn-primary"
               >
                 {{ categorySubmitting ? '처리 중...' : (showCategoryAddModal ? '추가' : '수정') }}
               </button>

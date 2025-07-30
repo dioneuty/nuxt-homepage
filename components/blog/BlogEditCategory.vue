@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white">{{ title }}</h1>
+    <h1 class="page-title">{{ title }}</h1>
     <div v-if="pending" class="flex justify-center items-center h-64">
       <Icon icon="eos-icons:loading" class="text-blue-500" width="48" height="48" />
     </div>
@@ -8,17 +8,17 @@
       <p class="font-bold">에러 발생</p>
       <p>{{ error }}</p>
     </div>
-    <div v-else class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-6">
+    <div v-else class="card-padded shadow-lg mb-6">
       <div class="mb-4 flex">
         <input 
           v-model="newCategory" 
           @keyup.enter="addCategory" 
           :placeholder="newCategoryPlaceholder" 
-          class="flex-grow p-2 border rounded dark:bg-gray-700 dark:text-white mr-2"
+          class="input flex-grow mr-2"
         >
         <button 
           @click="addCategory" 
-          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          class="btn-primary"
         >
           {{ addButtonText }}
         </button>
@@ -27,14 +27,14 @@
         <li v-for="(category, index) in categories" :key="index" class="mb-2 flex items-center">
           <input 
             v-model="category.name" 
-            class="flex-grow p-2 border rounded dark:bg-gray-700 dark:text-white mr-2"
+            class="input flex-grow mr-2"
           >
           <span class="mr-2 text-gray-600 dark:text-gray-400">
             ({{ category.post_count || 0 }})
           </span>
           <button 
             @click="removeCategory(index)" 
-            class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+            class="btn-danger"
           >
             {{ removeButtonText }}
           </button>
@@ -44,13 +44,13 @@
     <div class="flex justify-between">
       <button 
         @click="cancelEdit" 
-        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+        class="btn-secondary"
       >
         {{ cancelButtonText }}
       </button>
       <button 
         @click="saveCategories" 
-        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+        class="btn-success"
       >
         {{ saveButtonText }}
       </button>

@@ -1,39 +1,39 @@
 <template>
   <div>
-    <h2 class="text-2xl font-semibold mb-4 dark:text-white">테마 설정</h2>
+    <h2 class="page-title">테마 설정</h2>
     <p class="dark:text-gray-300">웹사이트의 헤더, 푸터, 배경 색상을 라이트 모드와 다크 모드에 따라 설정합니다.</p>
 
-    <div class="mt-8 p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md">
-      <h3 class="text-xl font-semibold mb-4 dark:text-white">사이트 기본 설정</h3>
+    <div class="mt-8 card-padded">
+      <h3 class="section-title">사이트 기본 설정</h3>
       <div class="space-y-4 mb-8">
         <div>
-          <label for="siteTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">사이트 제목:</label>
+          <label for="siteTitle" class="form-label">사이트 제목:</label>
           <input 
             type="text" 
             id="siteTitle" 
             v-model="siteTitle" 
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="input mt-1"
             placeholder="예: My Awesome Website"
           />
         </div>
         <div>
-          <label for="siteLogoUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300">사이트 로고 URL:</label>
+          <label for="siteLogoUrl" class="form-label">사이트 로고 URL:</label>
           <input 
             type="text" 
             id="siteLogoUrl" 
             v-model="siteLogoUrl" 
-            class="mt-1 block w-full p-2 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="input mt-1"
             placeholder="예: /images/logo.png"
           />
           <p class="mt-1 text-xs text-gray-500 dark:text-gray-400">로고 이미지의 경로를 입력하세요.</p>
         </div>
         <div>
-          <label for="siteLogoIcon" class="block text-sm font-medium text-gray-700 dark:text-gray-300">사이트 로고 아이콘 (Heroicons):</label>
+          <label for="siteLogoIcon" class="form-label">사이트 로고 아이콘 (Heroicons):</label>
           <div class="flex items-center space-x-2 mt-1">
             <button
               @click="isIconPickerModalOpen = true"
               type="button"
-              class="px-4 py-2 bg-blue-600 text-white font-semibold rounded-md shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              class="btn-primary"
             >
               아이콘 선택
             </button>
@@ -51,28 +51,28 @@
 
         <!-- Show Site Title Toggle -->
         <div class="flex items-center justify-between">
-          <label for="showSiteTitle" class="block text-sm font-medium text-gray-700 dark:text-gray-300">사이트 제목 표시:</label>
+          <label for="showSiteTitle" class="form-label">사이트 제목 표시:</label>
           <input type="checkbox" id="showSiteTitle" v-model="showSiteTitle" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:checked:bg-blue-600">
         </div>
 
         <!-- Show Site Logo URL Toggle -->
         <div class="flex items-center justify-between">
-          <label for="showSiteLogoUrl" class="block text-sm font-medium text-gray-700 dark:text-gray-300">사이트 로고 URL 표시:</label>
+          <label for="showSiteLogoUrl" class="form-label">사이트 로고 URL 표시:</label>
           <input type="checkbox" id="showSiteLogoUrl" v-model="showSiteLogoUrl" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:checked:bg-blue-600">
         </div>
 
         <!-- Show Site Logo Icon Toggle -->
         <div class="flex items-center justify-between">
-          <label for="showSiteLogoIcon" class="block text-sm font-medium text-gray-700 dark:text-gray-300">사이트 로고 아이콘 표시:</label>
+          <label for="showSiteLogoIcon" class="form-label">사이트 로고 아이콘 표시:</label>
           <input type="checkbox" id="showSiteLogoIcon" v-model="showSiteLogoIcon" class="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded dark:bg-gray-700 dark:border-gray-600 dark:checked:bg-blue-600">
         </div>
 
       </div>
 
-      <h3 class="text-xl font-semibold mb-4 dark:text-white">색상 설정</h3>
+      <h3 class="section-title">색상 설정</h3>
       <div class="space-y-4">
         <div>
-          <label for="lightHeaderColor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">라이트 모드 헤더 색상:</label>
+          <label for="lightHeaderColor" class="form-label">라이트 모드 헤더 색상:</label>
           <input 
             type="color" 
             id="lightHeaderColor" 
@@ -81,7 +81,7 @@
           />
         </div>
         <div>
-          <label for="darkHeaderColor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">다크 모드 헤더 색상:</label>
+          <label for="darkHeaderColor" class="form-label">다크 모드 헤더 색상:</label>
           <input 
             type="color" 
             id="darkHeaderColor" 
@@ -90,7 +90,7 @@
           />
         </div>
         <div>
-          <label for="lightFooterColor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">라이트 모드 푸터 색상:</label>
+          <label for="lightFooterColor" class="form-label">라이트 모드 푸터 색상:</label>
           <input 
             type="color" 
             id="lightFooterColor" 
@@ -99,7 +99,7 @@
           />
         </div>
         <div>
-          <label for="darkFooterColor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">다크 모드 푸터 색상:</label>
+          <label for="darkFooterColor" class="form-label">다크 모드 푸터 색상:</label>
           <input 
             type="color" 
             id="darkFooterColor" 
@@ -108,7 +108,7 @@
           />
         </div>
         <div>
-          <label for="lightBackgroundColor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">라이트 모드 배경 색상:</label>
+          <label for="lightBackgroundColor" class="form-label">라이트 모드 배경 색상:</label>
           <input 
             type="color" 
             id="lightBackgroundColor" 
@@ -117,7 +117,7 @@
           />
         </div>
         <div>
-          <label for="darkBackgroundColor" class="block text-sm font-medium text-gray-700 dark:text-gray-300">다크 모드 배경 색상:</label>
+          <label for="darkBackgroundColor" class="form-label">다크 모드 배경 색상:</label>
           <input 
             type="color" 
             id="darkBackgroundColor" 

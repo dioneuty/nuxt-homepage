@@ -9,9 +9,8 @@
         <div 
           @click="handleMenuClick(menu)"
           :class="[
-            'flex justify-between items-center px-3 py-2 rounded-md text-sm font-medium cursor-pointer',
-            'text-blue-100 hover:bg-blue-700 dark:text-blue-100 dark:hover:bg-blue-700',
-            isActive(menu) ? 'bg-blue-800 dark:bg-blue-800' : ''
+            'menu-item-primary',
+            isActive(menu) ? 'menu-item-active' : ''
           ]"
         >
           <NuxtLink v-if="menu.path" :to="menu.path" class="flex-grow flex items-center">

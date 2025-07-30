@@ -1,10 +1,10 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold text-gray-800 mb-6 dark:text-white text-center flex items-center justify-center">
+    <h1 class="page-title text-center flex items-center justify-center">
       <Icon :icon="boardIcon" class="mr-2" />
       {{ boardTitle }}
     </h1>
-    <div class="bg-white dark:bg-gray-800 dark:text-white shadow-md rounded-lg overflow-hidden overflow-x-auto">
+    <div class="card overflow-hidden overflow-x-auto">
       <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
         <thead :class="headerColorClass">
           <draggable v-model="localHeaders" item-key="key" tag="tr" @end="onDragEnd">
@@ -39,7 +39,7 @@
             <tr v-for="post in posts" :key="post.id" class="hover:bg-gray-50 dark:hover:bg-gray-700 cursor-pointer" @click="goToPostDetail(post.id)">
               <td v-for="header in localHeaders" :key="header.key" class="px-6 py-4 whitespace-nowrap border-r border-gray-200 dark:border-gray-700 last:border-r-0" :class="header.class">
                 <template v-if="header.key === 'title'">
-                  <span class="block sm:hidden text-xs text-gray-500 dark:text-gray-400">
+                  <span class="mobile-meta">
                     <Icon icon="mdi:account" class="inline mr-1" />{{ post.author }} | 
                     <Icon icon="mdi:calendar" class="inline mr-1" />{{ formatDate(post.createdAt) }}
                   </span>
@@ -71,7 +71,7 @@
     </div>
     <div class="mt-6" v-if="showWriteButton">
       <slot name="write-button">
-        <NuxtLink :to="`/${boardType}/write`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+        <NuxtLink :to="`/${boardType}/write`" class="btn-primary btn-icon">
           <Icon icon="mdi:pencil-plus" class="mr-2" />
           새 글 작성
         </NuxtLink>
@@ -91,17 +91,17 @@
     
     <!-- Mobile Infinite Scroll Loading Indicator and Sentinel -->
     <div v-if="isMobile && hasMorePosts && !initialLoading" class="text-center py-4">
-      <button @click="loadMorePosts" :disabled="loadingMore" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+      <button @click="loadMorePosts" :disabled="loadingMore" class="btn-primary">
         <span v-if="loadingMore">
           <Icon icon="mdi:loading" class="animate-spin mr-2" /> 로딩 중...
         </span>
         <span v-else>더보기</span>
       </button>
     </div>
-    <div v-if="isMobile && !hasMorePosts && !initialLoading && posts.length > 0" class="text-center py-4 text-gray-500 dark:text-gray-400">
+    <div v-if="isMobile && !hasMorePosts && !initialLoading && posts.length > 0" class="load-more-message">
       모든 게시물을 불러왔습니다.
     </div>
-    <div v-if="isMobile" class="infinite-scroll-sentinel h-1" :ref="infiniteScrollSentinel"></div>
+    <div v-if="isMobile" class="infinite-scroll-sentinel" :ref="infiniteScrollSentinel"></div>
 
   </div>
 </template>

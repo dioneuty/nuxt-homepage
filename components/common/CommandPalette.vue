@@ -2,23 +2,19 @@
   <div v-if="isCommandPaletteOpen" class="command-palette-overlay">
     <!-- 오버레이 배경 -->
     <div 
-      class="fixed inset-0 bg-black bg-opacity-50 backdrop-blur-sm z-50"
+      class="command-palette-backdrop"
       @click="closeCommandPalette"
     ></div>
     
     <!-- Command Palette 메인 모달 -->
-    <div class="fixed inset-0 z-50 flex items-start justify-center pt-20">
+    <div class="command-palette-wrapper">
       <div class="command-palette-container max-w-2xl w-full mx-4">
         <!-- 글래스모피즘 카드 -->
-        <div class="
-          bg-gray-900/40 backdrop-blur-xl border border-gray-700/50 
-          rounded-2xl shadow-2xl overflow-hidden
-          dark:bg-gray-900/60 dark:border-gray-600/50
-        ">
+        <div class="command-palette-card">
           <!-- 검색 입력 섹션 -->
-          <div class="flex items-center px-4 py-3 border-b border-gray-600/30">
+          <div class="command-palette-search-section">
             <!-- 검색 아이콘 -->
-            <div class="flex-shrink-0 w-5 h-5 text-gray-300 mr-3">
+            <div class="command-palette-icon">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
               </svg>
@@ -29,31 +25,26 @@
               ref="searchInput"
               v-model="searchQuery"
               @input="handleSearchInput"
-              class="
-                command-palette-input flex-1 bg-transparent 
-                text-white 
-                placeholder-gray-300
-                outline-none text-lg
-              "
+              class="command-palette-input"
               placeholder="명령어를 입력하거나 검색하세요..."
               autocomplete="off"
             />
             
             <!-- 로딩 스피너 -->
             <div v-if="isLoading" class="flex-shrink-0 ml-3">
-              <div class="animate-spin rounded-full h-4 w-4 border-2 border-blue-500 border-t-transparent"></div>
+              <div class="command-palette-spinner"></div>
             </div>
             
             <!-- 단축키 힌트 -->
             <div class="flex-shrink-0 ml-3 text-xs text-gray-300">
-              <kbd class="px-2 py-1 bg-gray-700/60 text-white rounded text-xs font-mono">ESC</kbd>
+              <kbd class="command-palette-kbd">ESC</kbd>
             </div>
           </div>
           
           <!-- 결과 목록 -->
-          <div class="max-h-96 overflow-y-auto">
+          <div class="command-palette-results">
             <!-- 검색 결과가 없는 경우 -->
-            <div v-if="searchResults.length === 0 && !isLoading" class="p-4 text-center text-gray-200">
+            <div v-if="searchResults.length === 0 && !isLoading" class="command-palette-empty">
               <div class="text-4xl mb-2">🔍</div>
               <p>검색 결과가 없습니다</p>
               <p class="text-sm mt-1">다른 키워드로 검색해보세요</p>
@@ -67,14 +58,14 @@
                 @click="selectCommand(index)"
                 @mouseenter="selectedIndex = index"
                 :class="[
-                  'flex items-center px-4 py-3 cursor-pointer transition-all duration-150',
+                  'command-palette-result-item',
                   index === selectedIndex 
-                    ? 'bg-blue-500/20 border-r-2 border-blue-500' 
-                    : 'hover:bg-white/5'
+                    ? 'command-palette-result-item-active' 
+                    : 'command-palette-result-item-hover'
                 ]"
               >
                 <!-- 아이콘 -->
-                <div class="flex-shrink-0 w-8 h-8 mr-3 flex items-center justify-center">
+                <div class="command-palette-result-icon">
                   <div v-if="result.icon" class="text-xl">
                     {{ getIconEmoji(result.icon) }}
                   </div>
@@ -82,48 +73,42 @@
                 </div>
                 
                 <!-- 메인 콘텐츠 -->
-                <div class="flex-1 min-w-0">
+                <div class="command-palette-result-content">
                   <div class="flex items-center justify-between">
-                    <h3 class="text-white font-medium truncate">
+                    <h3 class="command-palette-result-title">
                       {{ result.title }}
                     </h3>
-                    <span v-if="result.type" class="
-                      ml-2 px-2 py-1 text-xs rounded-full bg-white/10 
-                      text-gray-300 flex-shrink-0
-                    ">
+                    <span v-if="result.type" class="command-palette-result-type">
                       {{ result.type }}
                     </span>
                   </div>
-                  <p v-if="result.description" class="
-                    text-sm text-gray-300 
-                    truncate mt-1
-                  ">
+                  <p v-if="result.description" class="command-palette-result-description">
                     {{ result.description }}
                   </p>
                 </div>
                 
                 <!-- 실행 힌트 -->
                 <div v-if="index === selectedIndex" class="flex-shrink-0 ml-3">
-                  <kbd class="px-2 py-1 bg-gray-900 text-white rounded text-xs font-mono font-semibold border border-gray-600">↵</kbd>
+                  <kbd class="command-palette-footer-kbd">↵</kbd>
                 </div>
               </div>
             </div>
           </div>
           
           <!-- 푸터 힌트 -->
-          <div class="px-4 py-2 border-t border-gray-600/30 bg-gray-900/20">
-            <div class="flex items-center justify-between text-xs">
-              <div class="flex items-center space-x-4">
-                <span class="flex items-center text-gray-200">
-                  <kbd class="px-2 py-1 bg-gray-900 text-white rounded mr-1 font-mono text-xs font-semibold border border-gray-600">↑↓</kbd>
+          <div class="command-palette-footer">
+            <div class="command-palette-footer-content">
+              <div class="command-palette-footer-hints">
+                <span class="command-palette-footer-hint">
+                  <kbd class="command-palette-footer-kbd">↑↓</kbd>
                   탐색
                 </span>
-                <span class="flex items-center text-gray-200">
-                  <kbd class="px-2 py-1 bg-gray-900 text-white rounded mr-1 font-mono text-xs font-semibold border border-gray-600">↵</kbd>
+                <span class="command-palette-footer-hint">
+                  <kbd class="command-palette-footer-kbd">↵</kbd>
                   선택
                 </span>
-                <span class="flex items-center text-gray-200">
-                  <kbd class="px-2 py-1 bg-gray-900 text-white rounded mr-1 font-mono text-xs font-semibold border border-gray-600">ESC</kbd>
+                <span class="command-palette-footer-hint">
+                  <kbd class="command-palette-footer-kbd">ESC</kbd>
                   닫기
                 </span>
               </div>

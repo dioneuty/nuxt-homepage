@@ -1,11 +1,11 @@
 <!-- pages/adminpage/menus.vue -->
 <template>
   <div>
-    <h2 class="text-2xl font-semibold mb-4 dark:text-white">메뉴 관리</h2>
+    <h2 class="section-title">메뉴 관리</h2>
     
-    <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 dark:shadow-none">
+    <div class="card-padded shadow-lg">
       <div class="mb-4">
-        <button @click="openModal()" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+        <button @click="openModal()" class="btn-primary btn-icon">
           <Icon icon="mdi:plus" class="mr-2" />
           새 메뉴 추가
         </button>
@@ -61,27 +61,27 @@
     </div>
 
     <!-- 메뉴 추가/수정 모달 -->
-    <div v-if="isModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-      <div class="bg-white dark:bg-gray-800 rounded-lg p-6 w-full max-w-md">
+    <div v-if="isModalOpen" class="modal-overlay">
+      <div class="card-padded w-full max-w-md">
         <h3 class="text-xl font-bold mb-4 dark:text-white">{{ editingMenu.id ? '메뉴 수정' : '새 메뉴 추가' }}</h3>
         <form @submit.prevent="saveMenu">
           <div class="space-y-4">
-            <input v-model="editingMenu.name" placeholder="메뉴 이름" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600" required>
-            <input v-model="editingMenu.path" placeholder="경로 (예: /about)" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
-            <input v-model="editingMenu.icon" placeholder="아이콘 (예: mdi:home)" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
-            <select v-model="editingMenu.role" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
+            <input v-model="editingMenu.name" placeholder="메뉴 이름" class="input" required>
+            <input v-model="editingMenu.path" placeholder="경로 (예: /about)" class="input">
+            <input v-model="editingMenu.icon" placeholder="아이콘 (예: mdi:home)" class="input">
+            <select v-model="editingMenu.role" class="input">
               <option value="public">전체 공개</option>
               <option value="user">로그인한 사용자</option>
               <option value="admin">관리자</option>
             </select>
-            <select v-model="editingMenu.parentId" class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white dark:border-gray-600">
+            <select v-model="editingMenu.parentId" class="input">
               <option :value="null">최상위 메뉴</option>
               <option v-for="menu in menus" :key="menu.id" :value="menu.id">{{ menu.name }}</option>
             </select>
           </div>
           <div class="flex justify-end mt-6 space-x-2">
-            <button type="button" @click="closeModal" class="bg-gray-300 dark:bg-gray-700 text-gray-800 dark:text-gray-200 px-4 py-2 rounded hover:bg-gray-400 dark:hover:bg-gray-600">취소</button>
-            <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">저장</button>
+            <button type="button" @click="closeModal" class="btn-secondary">취소</button>
+            <button type="submit" class="btn-primary">저장</button>
           </div>
         </form>
       </div>

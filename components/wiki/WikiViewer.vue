@@ -3,17 +3,17 @@
     <div v-if="pending" class="flex justify-center items-center h-64">
       <Icon icon="eos-icons:loading" class="text-blue-500" width="48" height="48" />
     </div>
-    <div v-else-if="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+    <div v-else-if="error" class="alert alert-danger" role="alert">
       <p class="font-bold">에러 발생</p>
       <p>{{ error }}</p>
     </div>
-    <div v-else-if="wiki" class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-      <div class="p-6">
-        <h1 class="text-3xl font-bold mb-4 dark:text-white flex items-center">
+    <div v-else-if="wiki" class="card">
+      <div class="card-padded">
+        <h1 class="section-title">
           <Icon icon="mdi:file-document-outline" class="mr-2 text-blue-500" width="36" height="36" />
           {{ wiki.title }}
         </h1>
-        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div class="flex items-center text-sm text-muted mb-4">
           <Icon icon="mdi:calendar" class="mr-1" />
           <span class="mr-4">{{ formatDate(wiki.updatedAt) }}</span>
         </div>
@@ -22,16 +22,16 @@
         <!-- 버튼 그룹 -->
         <div class="mt-8 flex flex-wrap justify-between items-center">
           <div v-if="auth.isLoggedIn && auth.user" class="space-x-4 mb-4 sm:mb-0">
-            <NuxtLink :to="`/wiki/edit?id=${wiki.id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+            <NuxtLink :to="`/wiki/edit?id=${wiki.id}`" class="btn-primary btn-icon">
               <Icon icon="mdi:pencil" class="mr-2" />
               수정하기
             </NuxtLink>
-            <button @click="deleteWiki" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+            <button @click="deleteWiki" class="btn-danger btn-icon">
               <Icon icon="mdi:delete" class="mr-2" />
               삭제하기
             </button>
           </div>
-          <NuxtLink to="/wiki" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700 transition-colors duration-200">
+          <NuxtLink to="/wiki" class="btn-secondary btn-icon">
             <Icon icon="mdi:arrow-left" class="mr-2" />
             목록으로
           </NuxtLink>

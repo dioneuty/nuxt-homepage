@@ -1,19 +1,19 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <div v-if="pending" class="flex justify-center items-center h-64">
+    <div v-if="pending" class="loading-container">
       <Icon icon="eos-icons:loading" class="text-blue-500" width="48" height="48" />
     </div>
-    <div v-else-if="error" class="bg-red-100 border-l-4 border-red-500 text-red-700 p-4" role="alert">
+    <div v-else-if="error" class="alert alert-danger" role="alert">
       <p class="font-bold">에러 발생</p>
       <p>{{ error }}</p>
     </div>
-    <div v-else-if="post" class="bg-white dark:bg-gray-800 shadow-lg rounded-lg overflow-hidden">
-      <div class="p-6">
-        <h1 class="text-3xl font-bold mb-4 dark:text-white flex items-center">
+    <div v-else-if="post" class="card">
+      <div class="card-padded">
+        <h1 class="section-title">
           <Icon icon="mdi:file-document-outline" class="mr-2 text-blue-500" width="36" height="36" />
           {{ post.title }}
         </h1>
-        <div class="flex items-center text-sm text-gray-600 dark:text-gray-400 mb-4">
+        <div class="flex items-center text-sm text-muted mb-4">
           <Icon icon="mdi:calendar" class="mr-1" />
           <span class="mr-4">{{ formatDate(post.createdAt) }}</span>
           <Icon icon="mdi:folder-outline" class="mr-1" />
@@ -29,16 +29,16 @@
         <!-- 버튼 그룹 -->
         <div class="mt-8 flex flex-wrap justify-between items-center">
           <div class="space-x-4 mb-4 sm:mb-0">
-            <NuxtLink :to="`${editLink}?id=${post.id}`" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200">
+            <NuxtLink :to="`${editLink}?id=${post.id}`" class="btn-primary btn-icon">
               <Icon icon="mdi:pencil" class="mr-2" />
               {{ editButtonText }}
             </NuxtLink>
-            <button @click="deletePost" class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200">
+            <button @click="deletePost" class="btn-danger btn-icon">
               <Icon icon="mdi:delete" class="mr-2" />
               {{ deleteButtonText }}
             </button>
           </div>
-          <NuxtLink :to="listLink" class="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 dark:bg-gray-600 dark:text-white dark:hover:bg-gray-700 transition-colors duration-200">
+          <NuxtLink :to="listLink" class="btn-secondary btn-icon">
             <Icon icon="mdi:arrow-left" class="mr-2" />
             {{ listButtonText }}
           </NuxtLink>
@@ -46,20 +46,20 @@
       </div>
     </div>
     <!-- 이전 글, 다음 글 네비게이션 추가 -->
-    <div class="mt-8 border border-gray-200 dark:border-gray-600 rounded-lg overflow-hidden">
-      <div class="flex flex-col divide-y divide-gray-200 dark:divide-gray-600">
-        <NuxtLink v-if="prevPost" :to="`${$route.path}?id=${prevPost.id}`" class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
-          <div class="flex items-center text-gray-700 dark:text-gray-300">
+    <div class="mt-8 card overflow-hidden">
+      <div class="divided-container">
+        <NuxtLink v-if="prevPost" :to="`${$route.path}?id=${prevPost.id}`" class="nav-link">
+          <div class="nav-link-text">
             <Icon icon="mdi:chevron-left" class="mr-2" />
             <span class="truncate">이전 글:</span>
           </div>
-          <span class="truncate text-blue-600 dark:text-blue-400 ml-2">{{ prevPost.title }}</span>
+          <span class="truncate link ml-2">{{ prevPost.title }}</span>
         </NuxtLink>
-        <NuxtLink v-if="nextPost" :to="`${$route.path}?id=${nextPost.id}`" class="flex items-center justify-between p-4 bg-gray-50 hover:bg-gray-100 dark:bg-gray-700 dark:hover:bg-gray-600 transition-colors duration-200">
-          <div class="flex items-center text-gray-700 dark:text-gray-300">
+        <NuxtLink v-if="nextPost" :to="`${$route.path}?id=${nextPost.id}`" class="nav-link">
+          <div class="nav-link-text">
             <span class="truncate">다음 글:</span>
           </div>
-          <div class="flex items-center text-blue-600 dark:text-blue-400">
+          <div class="flex items-center link">
             <span class="truncate mr-2">{{ nextPost.title }}</span>
             <Icon icon="mdi:chevron-right" />
           </div>

@@ -1,24 +1,24 @@
 <template>
     <Teleport to="body">
-      <div v-if="isReplyModalOpen" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-        <div class="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-xl w-full max-w-lg">
-          <h2 class="text-xl font-bold mb-4 text-gray-900 dark:text-white">{{ replyModalTitle }}</h2>
+      <div v-if="isReplyModalOpen" class="modal-overlay">
+        <div class="modal-container w-full max-w-lg">
+          <h2 class="subsection-title mb-4">{{ replyModalTitle }}</h2>
           <input
             v-model="replyAuthor"
             type="text"
-            class="w-full p-2 mb-4 border rounded-md dark:bg-gray-700 dark:text-white"
+            class="input mb-4"
             placeholder="작성자"
           />
           <textarea
             v-model="replyContent"
-            class="w-full h-32 p-2 mb-4 border rounded-md resize-none dark:bg-gray-700 dark:text-white"
+            class="textarea h-32 mb-4"
             placeholder="답변을 입력하세요"
           ></textarea>
-          <div class="flex justify-end space-x-2">
-            <button @click="cancelReply" class="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600">
+          <div class="modal-footer">
+            <button @click="cancelReply" class="btn btn-danger">
               취소
             </button>
-            <button @click="confirmReply" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600">
+            <button @click="confirmReply" class="btn btn-primary">
               확인
             </button>
           </div>

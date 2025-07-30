@@ -1,11 +1,11 @@
 <template>
   <div 
     v-if="isOpen" 
-    class="fixed inset-0 z-50 overflow-auto bg-black bg-opacity-50 flex items-center justify-center"
+    class="modal-overlay overflow-auto"
     @click="handleBackdropClick"
   >
     <div 
-      class="bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-md w-full mx-4"
+      class="card shadow-xl max-w-md w-full mx-4"
       @click.stop
     >
       <!-- Modal Header -->
@@ -15,7 +15,7 @@
         </h3>
         <button
           @click="handleCancel"
-          class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          class="modal-close-btn"
         >
           <Icon icon="mdi:close" class="w-6 h-6" />
         </button>
@@ -65,19 +65,18 @@
       <div class="flex justify-end gap-3 p-6 border-t border-gray-200 dark:border-gray-700">
         <button
           @click="handleCancel"
-          class="px-4 py-2 text-sm font-medium text-gray-700 dark:text-gray-300 bg-white dark:bg-gray-700 border border-gray-300 dark:border-gray-600 rounded-md hover:bg-gray-50 dark:hover:bg-gray-600 transition-colors"
+          class="btn-secondary"
         >
           {{ cancelText }}
         </button>
         <button
           @click="handleConfirm"
           :class="[
-            'px-4 py-2 text-sm font-medium text-white rounded-md transition-colors',
             type === 'danger' 
-              ? 'bg-red-600 hover:bg-red-700' 
+              ? 'btn-danger' 
               : type === 'warning'
-              ? 'bg-orange-600 hover:bg-orange-700'
-              : 'bg-blue-600 hover:bg-blue-700'
+              ? 'btn-orange'
+              : 'btn-primary'
           ]"
         >
           {{ confirmText }}

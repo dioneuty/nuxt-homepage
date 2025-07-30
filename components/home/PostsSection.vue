@@ -1,5 +1,5 @@
 <template>
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+  <div class="grid-posts">
     <PostList 
       title="최신 블로그 포스트" 
       :posts="blogPosts" 
@@ -7,7 +7,7 @@
       headerColorClass="bg-blue-600"
     >
       <template #icon>
-        <Icon icon="mdi:post-outline" class="w-6 h-6 mr-2" />
+        <Icon icon="mdi:post-outline" class="icon-medium mr-2" />
       </template>
     </PostList>
     <PostList 
@@ -17,7 +17,7 @@
       headerColorClass="bg-green-600"
     >
       <template #icon>
-        <Icon icon="mdi:forum-outline" class="w-6 h-6 mr-2" />
+        <Icon icon="mdi:forum-outline" class="icon-medium mr-2" />
       </template>
     </PostList>
   </div>

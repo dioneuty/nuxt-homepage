@@ -1,21 +1,21 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
+    <h1 class="page-title flex items-center">
       <Icon :icon="isEditing ? 'mdi:pencil' : 'mdi:plus'" class="mr-2" />
       {{ isEditing ? '위키 문서 수정' : '새 위키 문서 작성' }}
     </h1>
-    <form @submit.prevent="submitWiki" class="space-y-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+    <form @submit.prevent="submitWiki" class="space-y-6 card-padded shadow-lg">
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+        <label for="title" class="form-label flex items-center">
           <Icon icon="mdi:format-title" class="mr-1" />
           제목 *
         </label>
         <input type="text" id="title" v-model="wiki.title" required
                placeholder="위키 문서 제목을 입력하세요"
-               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+               class="input mt-1">
       </div>
       <div>
-        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+        <label for="content" class="form-label flex items-center">
           <Icon icon="mdi:text-box-outline" class="mr-1" />
           내용 *
         </label>
@@ -32,12 +32,12 @@
             type="button" 
             @click="saveDraft" 
             :disabled="isDraftLoading"
-            class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 flex items-center disabled:opacity-50"
+            class="btn bg-yellow-500 text-white hover:bg-yellow-600 focus:ring-yellow-500 btn-icon disabled:opacity-50"
           >
             <Icon :icon="isDraftLoading ? 'mdi:loading' : 'mdi:content-save-outline'" class="mr-2" :class="{ 'animate-spin': isDraftLoading }" />
             {{ isDraftLoading ? '저장 중...' : '임시저장' }}
           </button>
-          <NuxtLink to="/wiki/syntax" class="text-blue-500 hover:text-blue-600 flex items-center">
+          <NuxtLink to="/wiki/syntax" class="link flex items-center">
             <Icon icon="mdi:help-circle-outline" class="mr-1" />
             마크 문법 가이드 보기
           </NuxtLink>
@@ -45,11 +45,11 @@
         
         <!-- 기존 버튼들 (오른쪽) -->
         <div class="flex space-x-4">
-          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center">
+          <button type="submit" class="btn-primary btn-icon">
             <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
             {{ isEditing ? '수정하기' : '작성하기' }}
           </button>
-          <NuxtLink to="/wiki" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
+          <NuxtLink to="/wiki" class="btn-secondary btn-icon">
             <Icon icon="mdi:format-list-bulleted" class="mr-2" />
             목록
           </NuxtLink>

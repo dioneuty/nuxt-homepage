@@ -1,14 +1,14 @@
 <template>
-  <div class="bg-white dark:bg-gray-800 shadow rounded-lg p-6 my-6">
-    <h2 class="text-2xl font-bold mb-4 dark:text-white flex items-center">
+  <div class="section">
+    <h2 class="section-title">
       <Icon icon="mdi:calendar" class="mr-2" />
       달력
     </h2>
     <div class="mb-4">
-      <button @click="addEvent" class="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded mr-2">
+      <button @click="addEvent" class="btn btn-primary-solid mr-2">
         이벤트 추가
       </button>
-      <button @click="removeLastEvent" class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded">
+      <button @click="removeLastEvent" class="btn btn-danger-solid">
         마지막 이벤트 삭제
       </button>
     </div>

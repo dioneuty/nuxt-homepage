@@ -4,7 +4,7 @@
     <select 
       v-model="selectedCategory" 
       @change="onCategoryChange"
-      class="w-full p-2 border rounded-md bg-white dark:bg-gray-700 text-gray-900 dark:text-white mb-4"
+      class="form-select mb-4"
     >
       <!-- 전체 카테고리 옵션 -->
       <option value="0">전체 카테고리</option>
@@ -18,7 +18,7 @@
     <!-- 카테고리 편집 링크 -->
     <NuxtLink 
       to="/blog/edit-categories"
-      class="block w-full text-center py-2 px-4 bg-gray-200 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-md hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors duration-200 ease-in-out"
+      class="btn btn-secondary w-full text-center"
     >
       카테고리 편집
     </NuxtLink>

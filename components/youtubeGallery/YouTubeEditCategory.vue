@@ -1,6 +1,6 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white">YouTube 카테고리 편집</h1>
+    <h1 class="page-title">YouTube 카테고리 편집</h1>
     <div v-if="loading" class="flex justify-center items-center h-64">
       <Icon icon="eos-icons:loading" class="text-blue-500" width="48" height="48" />
     </div>
@@ -8,17 +8,17 @@
       <p class="font-bold">에러 발생</p>
       <p>{{ error }}</p>
     </div>
-    <div v-else class="bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6 mb-6">
+    <div v-else class="card-padded shadow-lg mb-6">
       <div class="mb-4 flex">
         <input 
           v-model="newCategory" 
           @keyup.enter="addCategory" 
           placeholder="새 카테고리 이름" 
-          class="flex-grow p-2 border rounded dark:bg-gray-700 dark:text-white mr-2"
+          class="input flex-grow mr-2"
         >
         <button 
           @click="addCategory" 
-          class="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
+          class="btn-primary"
         >
           추가
         </button>
@@ -46,14 +46,14 @@
               <Icon icon="mdi:drag" class="text-gray-400 mr-2" width="20" height="20" />
               <input 
                 v-model="category.name" 
-                class="flex-grow p-2 border rounded dark:bg-gray-600 dark:text-white mr-2"
+                class="input flex-grow mr-2"
               >
               <span class="mr-2 text-gray-600 dark:text-gray-400 min-w-12 text-center">
                 ({{ category.video_count || 0 }})
               </span>
               <button 
                 @click="removeCategory(index)" 
-                class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600"
+                class="btn-danger"
               >
                 삭제
               </button>
@@ -66,14 +66,14 @@
     <div class="flex justify-between">
       <button 
         @click="cancelEdit" 
-        class="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
+        class="btn-secondary"
       >
         취소
       </button>
       <button 
         @click="saveCategories" 
         :disabled="loading"
-        class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 disabled:opacity-50"
+        class="btn-success disabled:opacity-50"
       >
         {{ loading ? '저장 중...' : '저장' }}
       </button>

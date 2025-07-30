@@ -10,7 +10,7 @@
         <div v-if="isAdmin" class="flex space-x-2">
           <button
             @click="openVideoModal()"
-            class="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+            class="btn-base bg-blue-600 hover:bg-blue-700"
           >
             <Icon icon="mdi:plus" class="mr-1" />
             비디오 추가
@@ -18,10 +18,10 @@
           <button
             @click="toggleBulkMode"
             :class="[
-              'px-4 py-2 rounded-md text-sm flex items-center transition-colors',
+              'btn-base',
               bulkState.mode 
-                ? 'bg-orange-600 hover:bg-orange-700 text-white' 
-                : 'bg-gray-600 hover:bg-gray-700 text-white'
+                ? 'bg-orange-600 hover:bg-orange-700' 
+                : 'bg-gray-600 hover:bg-gray-700'
             ]"
           >
             <Icon :icon="bulkState.mode ? 'mdi:close' : 'mdi:checkbox-multiple-marked'" class="mr-1" />
@@ -30,7 +30,7 @@
           <button
             @click="checkAllVideosPlayability"
             :disabled="isCheckingPlayability"
-            class="bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+            class="btn-base bg-purple-600 hover:bg-purple-700 disabled:bg-gray-400"
           >
             <Icon :icon="isCheckingPlayability ? 'mdi:loading' : 'mdi:play-circle-outline'" class="mr-1" :class="{ 'animate-spin': isCheckingPlayability }" />
             {{ isCheckingPlayability ? '확인 중...' : '재생가능 일괄확인' }}
@@ -38,7 +38,7 @@
           <button
             @click="updateUploadDates"
             :disabled="isUpdatingUploadDates"
-            class="bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white px-4 py-2 rounded-md text-sm flex items-center transition-colors"
+            class="btn-base bg-green-600 hover:bg-green-700 disabled:bg-gray-400"
           >
             <Icon :icon="isUpdatingUploadDates ? 'mdi:loading' : 'mdi:calendar-upload'" class="mr-1" :class="{ 'animate-spin': isUpdatingUploadDates }" />
             {{ isUpdatingUploadDates ? '업데이트 중...' : '업로드일 일괄갱신' }}
@@ -75,7 +75,7 @@
             <button
               v-if="isAdmin"
               @click="openCategoryManageModal"
-              class="px-3 py-3 bg-purple-600 hover:bg-purple-700 text-white rounded-md transition-colors flex items-center flex-shrink-0"
+              class="btn-icon-square bg-purple-600 hover:bg-purple-700 text-white"
               title="카테고리 관리"
             >
               <Icon icon="mdi:cog" class="w-5 h-5" />
@@ -127,7 +127,7 @@
             <button
               @click="toggleSortOrder"
               :disabled="videoState.isLoading"
-              class="px-3 py-3 bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white rounded-md transition-colors flex items-center flex-shrink-0 relative"
+              class="btn-icon-square bg-gray-600 hover:bg-gray-700 disabled:bg-gray-400 text-white relative"
               :title="getSortOrderTooltip()"
             >
               <Icon 
@@ -153,25 +153,25 @@
             <div class="flex gap-2">
               <button
                 @click="selectAllVideos"
-                class="text-xs px-3 py-1 bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300 rounded transition-colors"
+                class="btn-sm-light bg-blue-100 hover:bg-blue-200 dark:bg-blue-800 dark:hover:bg-blue-700 text-blue-700 dark:text-blue-300"
               >
                 전체 선택 ({{ videoState.videos.length }})
               </button>
               <button
                 @click="selectUncategorized"
-                class="text-xs px-3 py-1 bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:hover:bg-yellow-700 text-yellow-700 dark:text-yellow-300 rounded transition-colors"
+                class="btn-sm-light bg-yellow-100 hover:bg-yellow-200 dark:bg-yellow-800 dark:hover:bg-yellow-700 text-yellow-700 dark:text-yellow-300"
               >
                 미분류 선택 ({{ uncategorizedCount }})
               </button>
               <button
                 @click="selectUnplayable"
-                class="text-xs px-3 py-1 bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 text-red-700 dark:text-red-300 rounded transition-colors"
+                class="btn-sm-light bg-red-100 hover:bg-red-200 dark:bg-red-800 dark:hover:bg-red-700 text-red-700 dark:text-red-300"
               >
                 재생불가 선택 ({{ unplayableCount }})
               </button>
               <button
                 @click="clearSelectedVideos"
-                class="text-xs px-3 py-1 bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300 rounded transition-colors"
+                class="btn-sm-light bg-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:hover:bg-gray-700 text-gray-700 dark:text-gray-300"
               >
                 선택 해제
               </button>
@@ -200,7 +200,7 @@
             <button
               @click="applyBulkCategoryChange"
               :disabled="!bulkState.categoryId || bulkState.operationInProgress"
-              class="px-4 py-1 text-sm bg-green-600 hover:bg-green-700 disabled:bg-gray-400 text-white rounded transition-colors flex items-center"
+              class="btn-base bg-green-600 hover:bg-green-700 disabled:bg-gray-400"
             >
               <Icon v-if="bulkState.operationInProgress" icon="mdi:loading" class="mr-1 animate-spin" />
               <Icon v-else icon="mdi:check" class="mr-1" />
@@ -209,7 +209,7 @@
             <button
               @click="bulkDeleteVideos"
               :disabled="bulkState.operationInProgress"
-              class="px-4 py-1 text-sm bg-red-600 hover:bg-red-700 disabled:bg-gray-400 text-white rounded transition-colors flex items-center"
+              class="btn-base bg-red-600 hover:bg-red-700 disabled:bg-gray-400"
             >
               <Icon v-if="bulkState.operationInProgress" icon="mdi:loading" class="mr-1 animate-spin" />
               <Icon v-else icon="mdi:delete" class="mr-1" />
@@ -232,7 +232,7 @@
         <p class="text-red-600 dark:text-red-400">비디오 목록을 불러오는데 실패했습니다.</p>
         <button
           @click="loadVideos"
-          class="mt-4 bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-md"
+          class="btn-base bg-blue-600 hover:bg-blue-700"
         >
           다시 시도
         </button>
@@ -305,7 +305,7 @@
                         :href="`https://www.youtube.com/watch?v=${video.videoId}`" 
                         target="_blank" 
                         rel="noopener noreferrer"
-                        class="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md inline-flex items-center"
+                        class="btn-base bg-red-600 hover:bg-red-700 inline-flex"
                       >
                         <Icon icon="mdi:youtube" class="mr-2" />
                         YouTube에서 보기
@@ -351,11 +351,11 @@
               
               <!-- Video Controls -->
               <div class="flex justify-between gap-2 mb-3">
-                <button class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded-md text-xs transition-colors" @click="unloadVideo(video)">썸네일</button>
-                <button class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded-md text-xs transition-colors" @click="loadVideo(video)">플레이어</button>
-                <button class="bg-gray-500 hover:bg-gray-600 text-white px-2 py-1 rounded-md text-xs transition-colors" @click="openModal(video)">모달</button>
+                <button class="video-control-btn bg-gray-500 hover:bg-gray-600 text-white" @click="unloadVideo(video)">썸네일</button>
+                <button class="video-control-btn bg-gray-500 hover:bg-gray-600 text-white" @click="loadVideo(video)">플레이어</button>
+                <button class="video-control-btn bg-gray-500 hover:bg-gray-600 text-white" @click="openModal(video)">모달</button>
                 <button 
-                  class="bg-purple-500 hover:bg-purple-600 text-white px-2 py-1 rounded-md text-xs transition-colors flex items-center" 
+                  class="video-control-btn bg-purple-500 hover:bg-purple-600 text-white flex items-center" 
                   @click="openFloatingPlayer(video)"
                   title="PIP 모드로 재생"
                 >
@@ -368,14 +368,14 @@
               <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-3">
                 <button 
                   @click="openThreadEditor(video.videoId)"
-                  class="bg-blue-500 hover:bg-blue-600 text-white px-3 py-1 rounded-md text-sm flex items-center transition-colors"
+                  class="thread-control-btn bg-blue-500 hover:bg-blue-600 text-white"
                 >
                   <Icon icon="mdi:plus" class="mr-1" />
                   New Thread
                 </button>
                 <button 
                   @click="toggleThreads(video.videoId)"
-                  class="bg-green-500 hover:bg-green-600 text-white px-3 py-1 rounded-md text-sm flex items-center transition-colors"
+                  class="thread-control-btn bg-green-500 hover:bg-green-600 text-white"
                 >
                   <Icon icon="mdi:comment-text" class="mr-1" />
                   {{ showingThreads.has(video.videoId) ? 'Hide' : 'Show' }} Threads
@@ -401,7 +401,7 @@
         <button
           @click="loadMoreVideos"
           :disabled="paginationState.isLoadingMore"
-          class="bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white px-6 py-3 rounded-md flex items-center transition-colors"
+          class="btn-load-more bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 text-white"
         >
           <Icon 
             v-if="paginationState.isLoadingMore" 
@@ -1638,5 +1638,144 @@
     .masonry-layout {
       column-count: 6;
     }
+  }
+
+  .btn-base {
+    @apply text-white px-4 py-2 rounded-md text-sm flex items-center transition-colors;
+  }
+
+  .btn-icon-square {
+    @apply px-3 py-3 rounded-md transition-colors flex items-center flex-shrink-0;
+  }
+
+  .btn-sm-light {
+    @apply text-xs px-3 py-1 rounded transition-colors;
+  }
+
+  /* 비디오 카드 스타일 */
+  .video-card {
+    @apply bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200;
+  }
+
+  /* 비디오 카드 선택 모드 스타일 */
+  .video-card.selected {
+    @apply ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20;
+  }
+
+  .video-card.bulk-mode-hover:hover {
+    @apply ring-2 ring-gray-400;
+  }
+
+  /* 관리자 비디오 컨트롤 버튼 */
+  .admin-video-control-btn {
+    @apply text-sm;
+  }
+
+  /* 비디오 재생불가 대체 링크 버튼 */
+  .btn-youtube-alt {
+    @apply px-4 py-2 rounded-md inline-flex items-center;
+  }
+
+  /* 로드 더 보기 버튼 */
+  .btn-load-more {
+    @apply px-6 py-3 rounded-md flex items-center transition-colors;
+  }
+
+  /* 벌크 액션 툴바 패널 */
+  .bulk-action-panel {
+    @apply mb-6 p-4 rounded-lg border;
+  }
+
+  .bulk-action-panel-light {
+    @apply bg-blue-50 border-blue-200;
+  }
+
+  .bulk-action-panel-dark {
+    @apply dark:bg-blue-900/20 dark:border-blue-800;
+  }
+
+  /* 벌크 액션 툴바 텍스트 */
+  .bulk-action-text-light {
+    @apply text-blue-700;
+  }
+
+  .bulk-action-text-dark {
+    @apply dark:text-blue-300;
+  }
+
+  /* 필터 섹션 입력/선택 필드 */
+  .filter-input-select {
+    @apply flex-1 p-3 border rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  .filter-input-select-light {
+    @apply border-gray-300 bg-white text-gray-900;
+  }
+
+  .filter-input-select-dark {
+    @apply dark:border-gray-600 dark:bg-gray-700 dark:text-white;
+  }
+
+  /* 카테고리 태그 */
+  .category-tag {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium;
+  }
+
+  .category-tag-light {
+    @apply bg-blue-100 text-blue-800;
+  }
+
+  .category-tag-dark {
+    @apply dark:bg-blue-900 dark:text-blue-200;
+  }
+
+  /* 메인 제목 아이콘 */
+  .main-icon {
+    @apply mr-2;
+  }
+
+  /* 로딩 스피너 */
+  .loading-spinner {
+    @apply animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600;
+  }
+
+  /* 에러 메시지 아이콘 */
+  .error-icon {
+    @apply text-red-500 text-4xl mx-auto mb-4;
+  }
+
+  /* 에러 메시지 텍스트 */
+  .error-text {
+    @apply text-red-600 dark:text-red-400;
+  }
+
+  /* 상태 텍스트 (로딩/비디오 수 등) */
+  .status-text {
+    @apply text-gray-600 dark:text-gray-300;
+  }
+
+  /* 선택된 비디오 체크박스 */
+  .video-select-checkbox {
+    @apply w-5 h-5 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2;
+  }
+
+  /* 비디오 메타 정보 텍스트 (댓글 수, 업로드일) */
+  .video-meta-text {
+    @apply text-xs text-gray-500 dark:text-gray-400;
+  }
+
+  /* 비디오 컨트롤 버튼 (썸네일, 플레이어, 모달, PIP) */
+  .video-control-btn {
+    @apply px-2 py-1 rounded-md text-xs transition-colors;
+  }
+
+  /* 스레드 컨트롤 버튼 */
+  .thread-control-btn {
+    @apply px-3 py-1 rounded-md text-sm flex items-center transition-colors;
+  }
+
+  /* 구분선 */
+  .divider-line {
+    @apply border-t border-gray-200 dark:border-gray-700;
   }
   </style>

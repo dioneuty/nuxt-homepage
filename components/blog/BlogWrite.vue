@@ -1,26 +1,26 @@
 <template>
     <div class="container mx-auto px-4 py-8">
-      <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
+      <h1 class="page-title flex items-center">
         <Icon :icon="isEditing ? 'mdi:pencil' : 'mdi:pencil-plus'" class="mr-2" />
         {{ isEditing ? '블로그 글 수정' : '새 블로그 글 작성' }}
       </h1>
-      <form @submit.prevent="submitPost" class="space-y-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg p-6">
+      <form @submit.prevent="submitPost" class="space-y-6 card-padded shadow-lg">
       <div>
-        <label for="title" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+        <label for="title" class="form-label flex items-center">
           <Icon icon="mdi:format-title" class="mr-1" />
           제목 *
         </label>
         <input type="text" id="title" v-model="post.title" required
                placeholder="제목을 입력하세요"
-               class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+               class="input mt-1">
       </div>
       <div>
-        <label for="categoryId" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+        <label for="categoryId" class="form-label flex items-center">
           <Icon icon="mdi:folder-outline" class="mr-1" />
           카테고리 *
         </label>
         <select id="categoryId" v-model="post.categoryId" required
-                class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-300 focus:ring focus:ring-indigo-200 focus:ring-opacity-50 dark:bg-gray-700 dark:border-gray-600 dark:text-white">
+                class="input mt-1">
           <option value="" disabled selected>카테고리를 선택하세요</option>
           <option v-for="category in categories" :key="category.id" :value="category.id">
             {{ category.name }} ({{ category.post_count }})
@@ -28,7 +28,7 @@
         </select>
       </div>
       <div>
-        <label for="content" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+        <label for="content" class="form-label flex items-center">
           <Icon icon="mdi:text-box-outline" class="mr-1" />
           내용 *
         </label>
@@ -44,7 +44,7 @@
           type="button" 
           @click="saveDraft" 
           :disabled="isDraftLoading"
-          class="px-4 py-2 bg-yellow-500 text-white rounded-md hover:bg-yellow-600 transition-colors duration-200 flex items-center disabled:opacity-50"
+          class="btn-warning btn-icon disabled:opacity-50"
         >
           <Icon :icon="isDraftLoading ? 'mdi:loading' : 'mdi:content-save-outline'" class="mr-2" :class="{ 'animate-spin': isDraftLoading }" />
           {{ isDraftLoading ? '저장 중...' : '임시저장' }}
@@ -52,15 +52,15 @@
         
         <!-- 기존 버튼들 (오른쪽) -->
         <div class="flex space-x-4">
-          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded-md hover:bg-blue-600 transition-colors duration-200 flex items-center">
+          <button type="submit" class="btn-primary btn-icon">
             <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
             {{ isEditing ? '수정' : '작성' }}
           </button>
-          <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors duration-200 flex items-center">
+          <button v-if="isEditing" @click="cancelEdit" type="button" class="btn-danger btn-icon">
             <Icon icon="mdi:cancel" class="mr-2" />
             취소
           </button>
-          <NuxtLink :to="props.listPath" class="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors duration-200 flex items-center">
+          <NuxtLink :to="props.listPath" class="btn-secondary btn-icon">
             <Icon icon="mdi:format-list-bulleted" class="mr-2" />
             목록
           </NuxtLink>

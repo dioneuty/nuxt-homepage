@@ -1,16 +1,16 @@
 <template>
-  <div class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
+  <div class="modal-wrapper">
+    <div class="modal-container">
       <div class="fixed inset-0 transition-opacity" @click="$emit('close')">
-        <div class="absolute inset-0 bg-gray-500 opacity-75"></div>
+        <div class="modal-backdrop"></div>
       </div>
 
-      <div class="inline-block align-bottom bg-white dark:bg-gray-800 rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full">
+      <div class="modal-content">
         <form @submit.prevent="handleSubmit">
-          <div class="bg-white dark:bg-gray-800 px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-            <div class="flex items-center mb-4">
+          <div class="modal-body">
+            <div class="flex-center mb-4">
               <Icon icon="mdi:account-plus" class="w-6 h-6 text-blue-600 mr-2" />
-              <h3 class="text-lg leading-6 font-medium text-gray-900 dark:text-gray-100">
+              <h3 class="modal-title">
                 새 사용자 추가
               </h3>
             </div>
@@ -18,54 +18,54 @@
             <div class="space-y-4">
               <!-- 사용자명 -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label class="form-label">
                   사용자명 *
                 </label>
                 <input
                   v-model="form.username"
                   type="text"
                   required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  class="form-input"
                   placeholder="사용자명을 입력하세요"
                 />
               </div>
 
               <!-- 이메일 -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label class="form-label">
                   이메일 *
                 </label>
                 <input
                   v-model="form.email"
                   type="email"
                   required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  class="form-input"
                   placeholder="이메일을 입력하세요"
                 />
               </div>
 
               <!-- 비밀번호 -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label class="form-label">
                   비밀번호 *
                 </label>
                 <input
                   v-model="form.password"
                   type="password"
                   required
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent dark:bg-gray-700 dark:text-white"
+                  class="form-input"
                   placeholder="비밀번호를 입력하세요"
                 />
               </div>
 
               <!-- 역할 -->
               <div>
-                <label class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
+                <label class="form-label">
                   역할
                 </label>
                 <select
                   v-model="form.role"
-                  class="w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg focus:ring-2 focus:ring-blue-500 dark:bg-gray-700 dark:text-white"
+                  class="form-select"
                 >
                   <option value="USER">일반 사용자</option>
                   <option value="ADMIN">관리자</option>
@@ -80,31 +80,31 @@
                   id="isActive"
                   class="w-4 h-4 text-blue-600 bg-gray-100 border-gray-300 rounded focus:ring-blue-500 dark:focus:ring-blue-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
                 />
-                <label for="isActive" class="ml-2 text-sm font-medium text-gray-700 dark:text-gray-300">
+                <label for="isActive" class="checkbox-label">
                   계정 활성화
                 </label>
               </div>
             </div>
 
             <!-- 에러 메시지 -->
-            <div v-if="error" class="mt-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded">
+            <div v-if="error" class="mt-4 alert alert-danger">
               {{ error }}
             </div>
           </div>
 
-          <div class="bg-gray-50 dark:bg-gray-700 px-4 py-3 sm:px-6 sm:flex sm:flex-row-reverse">
+          <div class="modal-footer">
             <button
               type="submit"
               :disabled="loading"
-              class="w-full inline-flex justify-center rounded-md border border-transparent shadow-sm px-4 py-2 bg-blue-600 text-base font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:ml-3 sm:w-auto sm:text-sm disabled:opacity-50 disabled:cursor-not-allowed"
+              class="btn btn-primary sm:ml-3"
             >
-              <Icon v-if="loading" icon="mdi:loading" class="w-4 h-4 mr-2 animate-spin" />
+              <Icon v-if="loading" icon="mdi:loading" class="icon-small mr-2 animate-spin" />
               {{ loading ? '생성 중...' : '생성' }}
             </button>
             <button
               type="button"
               @click="$emit('close')"
-              class="mt-3 w-full inline-flex justify-center rounded-md border border-gray-300 shadow-sm px-4 py-2 bg-white text-base font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 sm:mt-0 sm:ml-3 sm:w-auto sm:text-sm dark:bg-gray-600 dark:text-gray-200 dark:border-gray-500 dark:hover:bg-gray-700"
+              class="mt-3 btn btn-secondary sm:mt-0 sm:ml-3"
             >
               취소
             </button>

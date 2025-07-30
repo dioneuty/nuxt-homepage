@@ -2,26 +2,26 @@
   <Transition name="toast">
     <div
       :class="[
-        'rounded-lg shadow-lg p-4 mb-4 transition-all duration-300 transform',
-        type === 'success' ? 'bg-green-100 border border-green-400 text-green-700' :
-        type === 'error' ? 'bg-red-100 border border-red-400 text-red-700' :
-        type === 'warning' ? 'bg-yellow-100 border border-yellow-400 text-yellow-700' :
-        'bg-blue-100 border border-blue-400 text-blue-700'
+        'toast-base',
+        type === 'success' ? 'toast-success' :
+        type === 'error' ? 'toast-error' :
+        type === 'warning' ? 'toast-warning' :
+        'toast-info'
       ]"
     >
-      <div class="flex items-start">
+      <div class="toast-content">
         <Icon
           :icon="getIcon"
-          class="w-5 h-5 mr-3 flex-shrink-0 mt-0.5"
+          class="toast-icon"
         />
         <div class="flex-1">
-          <p class="text-sm font-medium">{{ message }}</p>
+          <p class="toast-message">{{ message }}</p>
         </div>
         <button
           @click="$emit('close')"
-          class="ml-3 flex-shrink-0 text-gray-400 hover:text-gray-600 focus:outline-none focus:text-gray-600 transition ease-in-out duration-150"
+          class="toast-close-btn"
         >
-          <Icon icon="mdi:close" class="w-4 h-4" />
+          <Icon icon="mdi:close" class="toast-close-icon" />
         </button>
       </div>
     </div>

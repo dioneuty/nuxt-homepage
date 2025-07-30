@@ -1,61 +1,58 @@
 <template>
-  <div v-if="modelValue" class="fixed inset-0 z-50 overflow-y-auto">
-    <div class="flex items-center justify-center min-h-screen px-4">
-      <div class="fixed inset-0 bg-black opacity-30" @click="$emit('update:modelValue', false)"></div>
-      
-      <div class="relative bg-white dark:bg-gray-800 rounded-lg shadow-xl max-w-2xl w-full p-6">
-        <div class="flex justify-between items-center mb-4">
-          <h3 class="text-lg font-semibold">방명록 수정</h3>
+  <div v-if="modelValue" class="modal-overlay">
+    <div class="modal-container max-w-2xl">
+        <div class="flex-between mb-4">
+          <h3 class="subsection-title">방명록 수정</h3>
           <button
             @click="$emit('update:modelValue', false)"
-            class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
+            class="text-muted hover:text-gray-700 dark:hover:text-gray-300"
           >
-            <Icon name="heroicons:x-mark" class="w-6 h-6" />
+            <Icon name="heroicons:x-mark" class="icon-medium" />
           </button>
         </div>
 
         <form @submit.prevent="handleSubmit" class="space-y-4">
           <div>
-            <label for="edit-title" class="block text-sm font-medium text-gray-700 dark:text-gray-300">제목</label>
+            <label for="edit-title" class="form-label">제목</label>
             <input
               id="edit-title"
               v-model="form.title"
               type="text"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="input mt-1"
             />
           </div>
           <div>
-            <label for="edit-content" class="block text-sm font-medium text-gray-700 dark:text-gray-300">내용</label>
+            <label for="edit-content" class="form-label">내용</label>
             <textarea
               id="edit-content"
               v-model="form.content"
               rows="4"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="textarea mt-1"
             ></textarea>
           </div>
           <div>
-            <label for="edit-password" class="block text-sm font-medium text-gray-700 dark:text-gray-300">비밀번호</label>
+            <label for="edit-password" class="form-label">비밀번호</label>
             <input
               id="edit-password"
               v-model="form.password"
               type="password"
               required
-              class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+              class="input mt-1"
             />
           </div>
-          <div class="flex justify-end space-x-3">
+          <div class="modal-footer">
             <button
               type="button"
               @click="$emit('update:modelValue', false)"
-              class="px-4 py-2 text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 dark:bg-gray-700 dark:text-gray-300 dark:hover:bg-gray-600"
+              class="btn btn-secondary"
             >
               취소
             </button>
             <button
               type="submit"
-              class="px-4 py-2 bg-blue-600 text-white rounded-md hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              class="btn btn-primary"
             >
               수정하기
             </button>

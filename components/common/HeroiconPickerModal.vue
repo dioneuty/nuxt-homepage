@@ -4,7 +4,7 @@
       <div class="modal-container dark:bg-gray-800">
         <div class="modal-header">
           <h3 class="text-xl font-semibold dark:text-white">Heroicons 선택</h3>
-          <button @click="closeModal" class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200">
+          <button @click="closeModal" class="modal-close-btn">
             <Icon icon="heroicons-outline:x-mark" class="h-6 w-6" />
           </button>
         </div>
@@ -13,20 +13,20 @@
             type="text"
             v-model="searchTerm"
             placeholder="아이콘 검색..."
-            class="w-full p-2 mb-4 border border-gray-300 rounded-md shadow-sm focus:ring-blue-500 focus:border-blue-500 dark:bg-gray-700 dark:border-gray-600 dark:text-white"
+            class="icon-search-input"
           />
           <div class="icon-grid">
             <div
               v-for="icon in filteredIcons"
               :key="icon.icon"
               @click="selectIcon(icon.icon)"
-              class="icon-item bg-gray-100 dark:bg-gray-700 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md p-2 cursor-pointer transition-colors duration-200 text-center"
+              class="icon-item icon-picker-item"
             >
               <Icon :icon="icon.icon" class="h-8 w-8 mx-auto mb-1 text-gray-800 dark:text-gray-200" />
               <span class="text-xs text-gray-600 dark:text-gray-400">{{ icon.name }}</span>
             </div>
           </div>
-          <div v-if="filteredIcons.length === 0" class="text-center text-gray-500 dark:text-gray-400 mt-4">검색 결과가 없습니다.</div>
+          <div v-if="filteredIcons.length === 0" class="icon-picker-empty">검색 결과가 없습니다.</div>
         </div>
       </div>
     </div>

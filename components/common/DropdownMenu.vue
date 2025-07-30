@@ -1,11 +1,11 @@
 <template>
-  <div class="absolute right-0 mt-2 w-48 bg-white dark:bg-gray-700 rounded-md shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none z-20" @click.stop>
+  <div class="dropdown absolute right-0 mt-2 w-48 ring-1 ring-black ring-opacity-5 focus:outline-none z-20" @click.stop>
     <div class="py-1" role="menu" aria-orientation="vertical" aria-labelledby="options-menu">
       <a
         v-for="(option, index) in options"
         :key="index"
         @click="selectOption(option)"
-        class="block px-4 py-2 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-600 hover:text-gray-900 dark:hover:text-gray-100 cursor-pointer"
+        class="dropdown-item block text-sm"
         role="menuitem"
       >
         {{ option.label }}

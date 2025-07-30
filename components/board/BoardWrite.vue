@@ -1,12 +1,12 @@
 <template>
   <div class="container mx-auto px-4 py-8">
-    <h1 class="text-3xl font-bold mb-6 dark:text-white flex items-center">
+    <h1 class="page-title flex items-center">
       <Icon :icon="isEditing ? 'mdi:pencil' : 'mdi:pencil-plus'" class="mr-2" />
       {{ isEditing ? '게시글 수정' : '새 게시글 작성' }}
     </h1>
     <form @submit.prevent="submitPost" class="space-y-4">
       <div v-for="field in fields" :key="field.name">
-        <label :for="field.name" class="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1 flex items-center">
+        <label :for="field.name" class="form-label flex items-center">
           <Icon :icon="field.icon" class="mr-1" />
           {{ field.label }} {{ field.required ? '*' : '' }}
         </label>
@@ -22,7 +22,7 @@
           :id="field.name" 
           :value="post[field.name]"
           @input="updateField(field.name, $event)"
-          class="w-full p-2 border rounded dark:bg-gray-700 dark:text-white" 
+          class="input" 
           :placeholder="field.placeholder"
           :required="field.required"
         />
@@ -33,7 +33,7 @@
           type="button" 
           @click="saveDraft" 
           :disabled="isDraftLoading"
-          class="px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 flex items-center disabled:opacity-50"
+          class="btn-warning btn-icon disabled:opacity-50"
         >
           <Icon :icon="isDraftLoading ? 'mdi:loading' : 'mdi:content-save-outline'" class="mr-2" :class="{ 'animate-spin': isDraftLoading }" />
           {{ isDraftLoading ? '저장 중...' : '임시저장' }}
@@ -41,15 +41,15 @@
 
         <!-- 기존 버튼들 (오른쪽) -->
         <div class="flex space-x-4">
-          <button type="submit" class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600 flex items-center">
+          <button type="submit" class="btn-primary btn-icon">
             <Icon :icon="isEditing ? 'mdi:content-save' : 'mdi:send'" class="mr-2" />
             {{ isEditing ? '수정하기' : '작성하기' }}
           </button>
-          <button v-if="isEditing" @click="cancelEdit" type="button" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
+          <button v-if="isEditing" @click="cancelEdit" type="button" class="btn-secondary btn-icon">
             <Icon icon="mdi:cancel" class="mr-2" />
             취소
           </button>
-          <NuxtLink :to="listPath" class="px-4 py-2 bg-gray-300 text-gray-700 rounded hover:bg-gray-400 flex items-center">
+          <NuxtLink :to="listPath" class="btn-secondary btn-icon">
             <Icon icon="mdi:format-list-bulleted" class="mr-2" />
             목록
           </NuxtLink>
