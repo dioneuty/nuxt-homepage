@@ -59,7 +59,7 @@
               <input v-model="editingComment.title" placeholder="제목" class="input mb-2">
               <input v-model="editingComment.author" placeholder="글쓴이" class="input mb-2">
               <textarea v-model="editingComment.content" placeholder="내용" class="textarea mb-2"></textarea>
-              <div class="flex justify-end">
+              <div class="gallery-confirm-actions">
                 <button @click="cancelEditComment" class="btn-secondary mr-2">
                   취소
                 </button>
