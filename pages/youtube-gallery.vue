@@ -247,9 +247,11 @@
           :ref="(el) => { if (el) videoRefs[video.videoId] = el }"
         >
           <div :class="[
-            'bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200',
+            'bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200 border-2',
             bulkState.mode && bulkState.selectedVideos.has(video.id) ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : '',
-            bulkState.mode ? 'hover:ring-2 hover:ring-gray-400' : ''
+            bulkState.mode ? 'hover:ring-2 hover:ring-gray-400' : '',
+            getCategoryColorClass(video.categoryId).border,
+            getCategoryColorClass(video.categoryId).card
           ]">
             <!-- Bulk Selection Checkbox -->
             <div v-if="bulkState.mode && isAdmin" class="absolute top-2 left-2 z-10">
@@ -330,10 +332,13 @@
               <p class="text-sm text-gray-600 dark:text-gray-300">{{ video.description }}</p>
               
               <!-- Category Display -->
-              <div v-if="video.YouTubeVideoCategory" class="flex items-center mt-2 mb-2">
-                <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+              <div v-if="video.YouTubeVideoCategory || !video.categoryId" class="flex items-center mt-2 mb-2">
+                <span :class="[
+                  'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                  getCategoryColorClass(video.categoryId).bg
+                ]">
                   <Icon icon="mdi:tag" class="mr-1 w-3 h-3" />
-                  {{ video.YouTubeVideoCategory.name }}
+                  {{ video.YouTubeVideoCategory ? video.YouTubeVideoCategory.name : '미분류' }}
                 </span>
               </div>
               
@@ -609,6 +614,80 @@
   const { getEmbedUrl, loadVideo, unloadVideo } = useYoutubeGallery(videoState.videos)
   
   const videoRefs = ref({})
+
+  // 카테고리별 색상 시스템
+  const getCategoryColorClass = (categoryId) => {
+    // 카테고리가 없는 경우
+    if (!categoryId) {
+      return {
+        bg: 'bg-gray-100 text-gray-800 dark:bg-gray-900 dark:text-gray-200',
+        border: 'border-gray-300 dark:border-gray-700',
+        card: ''
+      }
+    }
+
+    // 카테고리 정보 찾기
+    const category = categories.value.find(c => c.id === categoryId)
+    const categoryIndex = categories.value.findIndex(c => c.id === categoryId)
+    
+    // 미리 정의된 색상 팔레트 (10가지 색상)
+    const colors = [
+      { // Blue
+        bg: 'bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200',
+        border: 'border-blue-300 dark:border-blue-700',
+        card: 'hover:bg-blue-50 dark:hover:bg-blue-950/20'
+      },
+      { // Green
+        bg: 'bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200',
+        border: 'border-green-300 dark:border-green-700',
+        card: 'hover:bg-green-50 dark:hover:bg-green-950/20'
+      },
+      { // Purple
+        bg: 'bg-purple-100 text-purple-800 dark:bg-purple-900 dark:text-purple-200',
+        border: 'border-purple-300 dark:border-purple-700',
+        card: 'hover:bg-purple-50 dark:hover:bg-purple-950/20'
+      },
+      { // Yellow
+        bg: 'bg-yellow-100 text-yellow-800 dark:bg-yellow-900 dark:text-yellow-200',
+        border: 'border-yellow-300 dark:border-yellow-700',
+        card: 'hover:bg-yellow-50 dark:hover:bg-yellow-950/20'
+      },
+      { // Red
+        bg: 'bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200',
+        border: 'border-red-300 dark:border-red-700',
+        card: 'hover:bg-red-50 dark:hover:bg-red-950/20'
+      },
+      { // Indigo
+        bg: 'bg-indigo-100 text-indigo-800 dark:bg-indigo-900 dark:text-indigo-200',
+        border: 'border-indigo-300 dark:border-indigo-700',
+        card: 'hover:bg-indigo-50 dark:hover:bg-indigo-950/20'
+      },
+      { // Pink
+        bg: 'bg-pink-100 text-pink-800 dark:bg-pink-900 dark:text-pink-200',
+        border: 'border-pink-300 dark:border-pink-700',
+        card: 'hover:bg-pink-50 dark:hover:bg-pink-950/20'
+      },
+      { // Orange
+        bg: 'bg-orange-100 text-orange-800 dark:bg-orange-900 dark:text-orange-200',
+        border: 'border-orange-300 dark:border-orange-700',
+        card: 'hover:bg-orange-50 dark:hover:bg-orange-950/20'
+      },
+      { // Teal
+        bg: 'bg-teal-100 text-teal-800 dark:bg-teal-900 dark:text-teal-200',
+        border: 'border-teal-300 dark:border-teal-700',
+        card: 'hover:bg-teal-50 dark:hover:bg-teal-950/20'
+      },
+      { // Cyan
+        bg: 'bg-cyan-100 text-cyan-800 dark:bg-cyan-900 dark:text-cyan-200',
+        border: 'border-cyan-300 dark:border-cyan-700',
+        card: 'hover:bg-cyan-50 dark:hover:bg-cyan-950/20'
+      }
+    ]
+
+    // categoryIndex를 색상 배열 길이로 나눈 나머지로 색상 선택
+    const colorIndex = Math.abs(categoryIndex) % colors.length
+    return colors[colorIndex]
+  }
 
   // Confirm modal helper function
   const showConfirm = (options) => {
