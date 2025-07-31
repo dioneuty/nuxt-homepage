@@ -143,6 +143,22 @@
         </div>
       </div>
 
+      <!-- View Mode Toggle -->
+      <div class="flex justify-end gap-2 mb-4">
+        <button
+          @click="toggleViewMode"
+          :disabled="videoState.isLoading"
+          class="btn-base bg-indigo-600 hover:bg-indigo-700 disabled:bg-gray-400 text-white"
+          title="뷰 모드 전환"
+        >
+          <Icon 
+            :icon="filterState.viewMode === 'grid' ? 'mdi:view-grid' : 'mdi:view-list'" 
+            class="mr-2" 
+          />
+          {{ filterState.viewMode === 'grid' ? '그리드 뷰' : '그룹 뷰' }}
+        </button>
+      </div>
+
       <!-- Bulk Actions Toolbar -->
       <div v-if="bulkState.mode && isAdmin" class="mb-6 p-4 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-200 dark:border-blue-800">
         <div class="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
@@ -238,8 +254,8 @@
         </button>
       </div>
 
-      <!-- Video Grid -->
-      <div v-else class="masonry-layout">
+      <!-- Grid View -->
+      <div v-else-if="filterState.viewMode === 'grid'" class="masonry-layout">
         <div 
           v-for="video in videoState.videos" 
           :key="video.id" 
@@ -400,6 +416,192 @@
           </div>
         </div>
       </div>
+
+      <!-- Grouped View -->
+      <div v-else-if="filterState.viewMode === 'grouped' && groupedVideos" class="space-y-8">
+        <div v-for="group in groupedVideos" :key="group.id" class="category-group">
+          <!-- Category Header -->
+          <div class="category-header mb-4 sticky top-0 z-20 bg-gray-100 dark:bg-gray-900 p-4 rounded-lg shadow-md">
+            <h2 class="text-2xl font-bold dark:text-white flex items-center justify-between">
+              <span class="flex items-center">
+                <Icon icon="mdi:folder" class="mr-2 text-blue-500" />
+                {{ group.name }}
+                <span class="ml-2 text-sm font-normal text-gray-500 dark:text-gray-400">
+                  ({{ group.videos.length }}개)
+                </span>
+              </span>
+              <button
+                @click="toggleGroupCollapse(group.id)"
+                class="text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-200"
+                :title="isGroupCollapsed(group.id) ? '펼치기' : '접기'"
+              >
+                <Icon 
+                  :icon="isGroupCollapsed(group.id) ? 'mdi:chevron-down' : 'mdi:chevron-up'" 
+                  class="w-6 h-6" 
+                />
+              </button>
+            </h2>
+          </div>
+
+          <!-- Category Videos -->
+          <div v-show="!isGroupCollapsed(group.id)" class="masonry-layout">
+            <div 
+              v-for="video in group.videos" 
+              :key="video.id" 
+              class="masonry-item mb-4 break-inside-avoid relative"
+              :ref="(el) => { if (el) videoRefs[video.videoId] = el }"
+            >
+              <div :class="[
+                'bg-white dark:bg-gray-800 rounded-lg shadow-md overflow-hidden transition-all duration-200',
+                bulkState.mode && bulkState.selectedVideos.has(video.id) ? 'ring-2 ring-blue-500 bg-blue-50 dark:bg-blue-900/20' : '',
+                bulkState.mode ? 'hover:ring-2 hover:ring-gray-400' : ''
+              ]">
+                <!-- Bulk Selection Checkbox -->
+                <div v-if="bulkState.mode && isAdmin" class="absolute top-2 left-2 z-10">
+                  <input
+                    type="checkbox"
+                    :checked="bulkState.selectedVideos.has(video.id)"
+                    @change="toggleVideoSelection(video.id)"
+                    class="w-5 h-5 text-blue-600 bg-white border-2 border-gray-300 rounded focus:ring-blue-500 focus:ring-2"
+                  />
+                </div>
+                
+                <!-- Admin Controls for each video -->
+                <div v-if="isAdmin && !bulkState.mode" class="bg-gray-100 dark:bg-gray-700 px-4 py-2 flex justify-end space-x-2">
+                  <button
+                    @click="openVideoModal(video)"
+                    class="text-blue-600 hover:text-blue-800 dark:text-blue-400 dark:hover:text-blue-300"
+                    title="수정"
+                  >
+                    <Icon icon="mdi:pencil" class="text-sm" />
+                  </button>
+                  <button
+                    @click="handleVideoDelete(video)"
+                    class="text-red-600 hover:text-red-800 dark:text-red-400 dark:hover:text-red-300"
+                    title="삭제"
+                  >
+                    <Icon icon="mdi:delete" class="text-sm" />
+                  </button>
+                </div>
+
+                <div 
+                  @click="bulkState.mode ? toggleVideoSelection(video.id) : loadVideo(video)" 
+                  :class="['cursor-pointer', bulkState.mode ? 'select-none' : '']"
+                >
+                  <div v-if="video.loaded">
+                    <div class="relative">
+                      <iframe 
+                        :class="{ 'w-full min-h-[225px] h-auto aspect-[16/9]': !video.isShort, 'w-full h-auto aspect-[9/16]': video.isShort }"
+                        :src="getEmbedUrl(video)"
+                        frameborder="0" 
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                        allowfullscreen
+                        referrerpolicy="strict-origin-when-cross-origin"
+                        :title="`${video.title} - YouTube video player`"
+                        @error="handleVideoError(video)"
+                        @load="checkVideoPlayability(video)"
+                      ></iframe>
+                      <!-- 재생 실패 시 대체 링크 -->
+                      <div v-if="video.hasError" class="absolute inset-0 bg-black bg-opacity-75 flex items-center justify-center">
+                        <div class="text-center text-white p-4">
+                          <Icon icon="mdi:alert-circle" class="text-4xl mb-2" />
+                          <p class="mb-3">비디오를 재생할 수 없습니다</p>
+                          <a 
+                            :href="`https://www.youtube.com/watch?v=${video.videoId}`" 
+                            target="_blank" 
+                            rel="noopener noreferrer"
+                            class="btn-base bg-red-600 hover:bg-red-700 inline-flex"
+                          >
+                            <Icon icon="mdi:youtube" class="mr-2" />
+                            YouTube에서 보기
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else>
+                    <img
+                        :src="`https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg`"
+                        :alt="video.title"
+                        :class="{'w-full min-h-[225px] h-auto aspect-[16/9] object-cover': !video.isShort, 'w-full h-auto aspect-[9/16] object-cover': video.isShort}"
+                        loading="lazy"
+                        @error="handleThumbnailError($event, video)"
+                        crossorigin="anonymous"
+                        />
+                  </div>
+                </div>
+                <div class="p-4">
+                  <h2 class="text-lg font-semibold mb-2 dark:text-white">{{ video.title }}</h2>
+                  <p class="text-sm text-gray-600 dark:text-gray-300">{{ video.description }}</p>
+                  
+                  <!-- Category Display (그룹 뷰에서는 카테고리 태그 숨김) -->
+                  <!-- <div v-if="video.YouTubeVideoCategory" class="flex items-center mt-2 mb-2">
+                    <span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800 dark:bg-blue-900 dark:text-blue-200">
+                      <Icon icon="mdi:tag" class="mr-1 w-3 h-3" />
+                      {{ video.YouTubeVideoCategory.name }}
+                    </span>
+                  </div> -->
+                  
+                  <!-- Upload Date and Thread Stats -->
+                  <div class="flex items-center justify-between text-xs text-gray-500 dark:text-gray-400 mt-2 mb-3">
+                    <div class="flex items-center">
+                      <Icon icon="mdi:comment-text-outline" class="mr-1" />
+                      {{ getVideoThreadStats(video.videoId).totalThreads }} thread(s)
+                    </div>
+                    <div v-if="video.uploadedAt" class="flex items-center">
+                      <Icon icon="mdi:calendar-upload" class="mr-1" />
+                      {{ formatDate(video.uploadedAt) }}
+                    </div>
+                  </div>
+                  
+                  <!-- Video Controls -->
+                  <div class="flex justify-between gap-2 mb-3">
+                    <button class="video-control-btn bg-gray-500 hover:bg-gray-600 text-white" @click="unloadVideo(video)">썸네일</button>
+                    <button class="video-control-btn bg-gray-500 hover:bg-gray-600 text-white" @click="loadVideo(video)">플레이어</button>
+                    <button class="video-control-btn bg-gray-500 hover:bg-gray-600 text-white" @click="openModal(video)">모달</button>
+                    <button 
+                      class="video-control-btn bg-purple-500 hover:bg-purple-600 text-white flex items-center" 
+                      @click="openFloatingPlayer(video)"
+                      title="PIP 모드로 재생"
+                    >
+                      <Icon icon="mdi:picture-in-picture-bottom-right" class="w-3 h-3 mr-1" />
+                      PIP
+                    </button>
+                  </div>
+                  
+                  <!-- Thread Controls -->
+                  <div class="flex justify-between border-t border-gray-200 dark:border-gray-700 pt-3">
+                    <button 
+                      @click="openThreadEditor(video.videoId)"
+                      class="thread-control-btn bg-blue-500 hover:bg-blue-600 text-white"
+                    >
+                      <Icon icon="mdi:plus" class="mr-1" />
+                      New Thread
+                    </button>
+                    <button 
+                      @click="toggleThreads(video.videoId)"
+                      class="thread-control-btn bg-green-500 hover:bg-green-600 text-white"
+                    >
+                      <Icon icon="mdi:comment-text" class="mr-1" />
+                      {{ showingThreads.has(video.videoId) ? 'Hide' : 'Show' }} Threads
+                    </button>
+                  </div>
+                  
+                  <!-- Thread Display -->
+                  <div v-if="showingThreads.has(video.videoId)" class="mt-4 border-t border-gray-200 dark:border-gray-700 pt-4">
+                    <ThreadDisplay 
+                      :videoId="video.videoId"
+                      :threads="threads"
+                      @edit-thread="openThreadEditor(video.videoId, $event)"
+                      @delete-thread="handleDeleteThread"
+                    />
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <!-- Load More Button / Loading Indicator -->
       <div v-if="!videoState.isLoading && paginationState.hasMore" class="flex justify-center mt-8">
@@ -540,7 +742,7 @@
         }
       }
     }
-    return { sortColumn: 'createdAt', sortOrder: 'desc' }
+    return { sortColumn: 'createdAt', sortOrder: 'desc', viewMode: 'grid' }
   }
 
   const userPreferences = loadUserPreferences()
@@ -551,7 +753,8 @@
     searchQuery: route.query.search || '',
     searchTimeout: null,
     sortColumn: route.query.sortColumn || userPreferences.sortColumn,
-    sortOrder: route.query.sortOrder || userPreferences.sortOrder
+    sortOrder: route.query.sortOrder || userPreferences.sortOrder,
+    viewMode: route.query.viewMode || userPreferences.viewMode || 'grid' // 'grid' or 'grouped'
   })
 
   // Bulk operation states grouped
@@ -610,6 +813,9 @@
   const selectedVideoForThread = ref(null)
   const editingThread = ref(null)
   const showingThreads = ref(new Set())
+  
+  // 그룹 collapse 상태 관리
+  const collapsedGroups = ref(new Set())
 
   const { getEmbedUrl, loadVideo, unloadVideo } = useYoutubeGallery(videoState.videos)
   
@@ -726,6 +932,89 @@
       video.hasError || (video.isPlayable !== undefined && video.isPlayable === false)
     )
     return unplayableVideos.length
+  })
+
+  // 카테고리별로 그룹핑된 비디오 목록
+  const groupedVideos = computed(() => {
+    if (filterState.viewMode !== 'grouped') {
+      return null
+    }
+
+    const groups = new Map()
+    
+    // 먼저 모든 카테고리에 대한 빈 그룹 생성
+    if (filterState.selectedCategoryId === 'all') {
+      // 미분류 카테고리 추가
+      groups.set('uncategorized', {
+        id: 'uncategorized',
+        name: '미분류',
+        slug: 'uncategorized',
+        videos: [],
+        order: 999999 // 항상 마지막에 표시
+      })
+      
+      // 정의된 카테고리들 추가
+      sortedCategories.value.forEach(category => {
+        if (category.slug !== 'uncategorized') {
+          groups.set(category.id, {
+            ...category,
+            videos: []
+          })
+        }
+      })
+    }
+
+    // 비디오를 각 그룹에 할당
+    videoState.videos.forEach(video => {
+      const categoryId = video.categoryId || 'uncategorized'
+      
+      if (filterState.selectedCategoryId === 'all') {
+        // 전체 보기 모드에서는 해당 카테고리에 추가
+        const group = groups.get(categoryId)
+        if (group) {
+          group.videos.push(video)
+        }
+      } else if (filterState.selectedCategoryId === 'uncategorized') {
+        // 미분류만 보기
+        if (!video.categoryId) {
+          let group = groups.get('uncategorized')
+          if (!group) {
+            group = {
+              id: 'uncategorized',
+              name: '미분류',
+              slug: 'uncategorized',
+              videos: [],
+              order: 999999
+            }
+            groups.set('uncategorized', group)
+          }
+          group.videos.push(video)
+        }
+      } else {
+        // 특정 카테고리 보기
+        if (video.categoryId === filterState.selectedCategoryId) {
+          const category = sortedCategories.value.find(c => c.id === filterState.selectedCategoryId)
+          if (category) {
+            let group = groups.get(category.id)
+            if (!group) {
+              group = {
+                ...category,
+                videos: []
+              }
+              groups.set(category.id, group)
+            }
+            group.videos.push(video)
+          }
+        }
+      }
+    })
+
+    // Map을 배열로 변환하고 order로 정렬
+    const sortedGroups = Array.from(groups.values())
+      .filter(group => group.videos.length > 0) // 비어있는 그룹 제거
+      .sort((a, b) => (a.order || 0) - (b.order || 0))
+
+    return sortedGroups
   })
 
   /**
@@ -935,6 +1224,26 @@
     showingThreads.value.has(videoId) 
       ? showingThreads.value.delete(videoId)
       : showingThreads.value.add(videoId)
+  }
+
+  /**
+   * 그룹의 collapse 상태를 토글합니다.
+   */
+  const toggleGroupCollapse = (groupId) => {
+    if (collapsedGroups.value.has(groupId)) {
+      collapsedGroups.value.delete(groupId)
+    } else {
+      collapsedGroups.value.add(groupId)
+    }
+    // Vue의 반응성을 위해 새로운 Set으로 교체
+    collapsedGroups.value = new Set(collapsedGroups.value)
+  }
+
+  /**
+   * 그룹이 collapse되었는지 확인합니다.
+   */
+  const isGroupCollapsed = (groupId) => {
+    return collapsedGroups.value.has(groupId)
   }
   
   /**
@@ -1220,10 +1529,26 @@
     if (process.client) {
       const preferences = {
         sortColumn: filterState.sortColumn,
-        sortOrder: filterState.sortOrder
+        sortOrder: filterState.sortOrder,
+        viewMode: filterState.viewMode
       }
       localStorage.setItem('youtube-gallery-sort-preferences', JSON.stringify(preferences))
     }
+  }
+
+  /**
+   * 뷰 모드를 토글합니다.
+   */
+  const toggleViewMode = () => {
+    filterState.viewMode = filterState.viewMode === 'grid' ? 'grouped' : 'grid'
+    
+    // URL 업데이트
+    const query = { ...route.query }
+    query.viewMode = filterState.viewMode
+    router.push({ query })
+    
+    // 사용자 선호도 저장
+    saveUserPreferences()
   }
 
   /**
@@ -1612,6 +1937,15 @@
     }
   })
 
+  // 뷰 모드 변경 감지
+  watch(() => route.query.viewMode, (newViewMode) => {
+    filterState.viewMode = newViewMode || 'grid'
+    // 뷰 모드 변경 시 선택된 비디오 초기화
+    if (bulkState.mode) {
+      clearSelectedVideos()
+    }
+  })
+
   // Future enhancement: 유튜브 갤러리 크게 보기 화면 구현 
   // Enhanced video player modal with fullscreen support and improved UX
   
@@ -1856,5 +2190,30 @@
   /* 구분선 */
   .divider-line {
     @apply border-t border-gray-200 dark:border-gray-700;
+  }
+
+  /* 카테고리 그룹 스타일 */
+  .category-group {
+    @apply space-y-4;
+  }
+
+  /* 카테고리 헤더 스타일 */
+  .category-header {
+    @apply transition-all duration-300;
+  }
+
+  /* 그룹 뷰 애니메이션 */
+  .category-group > div {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* 스티키 헤더 개선 */
+  .category-header {
+    backdrop-filter: blur(10px);
+    background-color: rgba(243, 244, 246, 0.95);
+  }
+
+  .dark .category-header {
+    background-color: rgba(17, 24, 39, 0.95);
   }
   </style>
